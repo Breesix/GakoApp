@@ -52,11 +52,11 @@ final class AddStudentViewModel: ObservableObject {
             "dislikes": dislikes,
             "skills": skills,
             "teacherID": user.uid,
-            "imageURL": imageURL ?? ""  // Add the image URL if uploaded
+            "imageURL": imageURL ?? ""
         ]
         
-        // Save the child data in Firestore under the current teacher's collection
-        try await db.collection("teachers").document(user.uid).collection("student").addDocument(data: studentData)
+        // Save the student data in Firestore under the current teacher's collection
+        try await db.collection("teachers").document(user.uid).collection("student").document(nisn).setData(studentData)
     }
     
     private func uploadImage(_ image: UIImage) async throws -> String? {

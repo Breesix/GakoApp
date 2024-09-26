@@ -30,14 +30,15 @@ struct RootView: View {
     
     enum Tab {
         case home
+        case murid
         case document
         case profile
     }
     
     var body: some View {
         ZStack {
-                Group {
-                    NavigationStack {
+            Group {
+                NavigationStack {
                     switch authViewModel.authState {
                     case .Initialize:
                         ProgressView()
@@ -52,13 +53,18 @@ struct RootView: View {
                             
                             LogDailyActivityView(student: mockChild) // Replace with your actual document view
                                 .tabItem {
-                                    Label("Documents", systemImage: "doc.plaintext")
+                                    Label("Daftar Murid", systemImage: "person.2.fill")
+                                }
+                                .tag(Tab.document)
+                            LogDailyActivityView(student: mockChild) // Replace with your actual document view
+                                .tabItem {
+                                    Label("Documents", systemImage: "book.pages.fill")
                                 }
                                 .tag(Tab.document)
                             
                             TeacherProfileView(showSignInView: $showSignInView) // Replace with your actual profile view
                                 .tabItem {
-                                    Label("Profile", systemImage: "person")
+                                    Label("Profile", systemImage: "person.crop.circle")
                                 }
                                 .tag(Tab.profile)
                         }
@@ -73,10 +79,13 @@ struct RootView: View {
                             let authUser = try AuthenticationManager.shared.getAuthenticationUser()
                             // Update auth state based on whether the user is authenticated
                             authViewModel.authState = authUser != nil ? .Login : .Logout
+                            
                         } catch {
                             authViewModel.authState = .Logout
                         }
+                        
                     }
+                    
                 }
             }
         }

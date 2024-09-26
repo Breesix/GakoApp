@@ -8,9 +8,14 @@
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
+import GoogleSignIn
+import GoogleSignInSwift
 
-
-
+enum AuthProviderOption: String {
+    case email = "password"
+    case google = "google.com"
+    case apple = "appleID"
+}
 
 
 final class AuthenticationManager {
@@ -23,6 +28,24 @@ final class AuthenticationManager {
             throw URLError(.badServerResponse)
         }
         return AuthDataResultModel(user: user)
+    }
+    
+    func getProvider() throws -> [AuthProviderOption] {
+        guard let providerData = Auth.auth().currentUser?.providerData else {
+            throw URLError(.badServerResponse)
+        }
+        
+        
+        var providers: [AuthProviderOption] = []
+        for provider in providerData {
+            if let option = AuthProviderOption(rawValue: provider.providerID) {
+                providers.append(option)
+            } else {
+                assertionFailure("Provider option not found: \(provider.providerID)")
+            }
+                
+        }
+        return providers
     }
     
     
@@ -99,15 +122,32 @@ extension AuthenticationManager {
     }
     
 }
+
 // MAKR: SIGN IN SSO
 extension AuthenticationManager {
     
-    
-    func signInWithgGoogle(token: String) async throws -> AuthDataResultModel {
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        return try await signIn(credential: credential)
+        
+    // AuthenticationManager.swift
+
+    @discardableResult
+    func signInWithGoogle(tokens: GoogleSignInResult) async throws -> AuthDataResultModel {
+        let credential = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
+        let authDataResult = try await signIn(credential: credential)
+        
+        // Save teacher profile in Firestore
+        let db = Firestore.firestore()
+        let teacherData: [String: Any] = [
+            "name": tokens.fullname ?? "Unknown", // Use name from Google Sign-In
+            "email": tokens.email ?? "Unknown", // Use email from Google Sign-In
+            "profileImageUrl": tokens.profileImageUrl?.absoluteString ?? "", // Save profile image URL
+            "createdAt": FieldValue.serverTimestamp() // Optional: Timestamp of account creation
+        ]
+        
+        try await db.collection("teachers").document(authDataResult.uid).setData(teacherData, merge: true)
+        return authDataResult
     }
-    
+
+                      
     func signIn(credential: AuthCredential) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().signIn(with: credential)
         return AuthDataResultModel(user: authDataResult.user)

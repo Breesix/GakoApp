@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct StudentProfileView: View {
     let student: Student
@@ -14,19 +15,33 @@ struct StudentProfileView: View {
     
     var body: some View {
         VStack {
+        
+            // Check if imageUrl is available and display it
+            if let imageUrl = student.imageUrl, !imageUrl.isEmpty {
+                WebImage(url: URL(string: imageUrl))
+                    .resizable()
+                    .clipShape(Circle())
+            } else {
+                // Placeholder image when no imageUrl
+                Image(systemName: "person.circle")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+            }
+            
             Text("Name: \(student.name)")
                 .font(.title)
-            Text("Birthdate: \(student.birthdate)")
+            Text("Autism Level: \(student.autismLevel)")
                 .font(.title2)
             
             // Display Daily Activities
             List(viewModel.dailyActivities) { activity in
                 NavigationLink(destination: DailyActivityDetailView(dailyActivity: activity)) {
                     HStack {
-                        Text(activity.date, style: .date) // Display date of the activity
+                        Text(activity.date, style: .date)
                             .font(.headline)
                         Spacer()
-                        Text(activity.summary) // Display a brief summary
+                        Text(activity.summary)
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }

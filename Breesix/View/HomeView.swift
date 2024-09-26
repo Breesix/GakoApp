@@ -19,14 +19,24 @@ struct HomeView: View {
             Button(action: {
                 showAddStudentView = true
             }) {
-                Text("Add Student")
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .padding()
-                    .cornerRadius(10)
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                    Text("Tambah")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        
+
+                }
+                .cornerRadius(8)
+                .frame(width: 80, height: 40)
+                .background(Color.blue)
+                .padding(.top, 20)
+                
             }
-            .buttonStyle(.plain)
-            .padding(.top, 20)
+            
             
             List(viewModel.student) { student in
                 NavigationLink(destination: StudentProfileView(student: student)) {
@@ -53,7 +63,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle("My Students")
+            .navigationTitle("Dokumentasi Murid")
             .navigationBarBackButtonHidden(true)
             .onAppear {
                 viewModel.fetchStudents()
@@ -61,7 +71,8 @@ struct HomeView: View {
             
             NavigationLink("", destination: AddStudentView(), isActive: $showAddStudentView)
         }
-        .navigationTitle("Dokumentasi")
+        
+        
     }
 }
 

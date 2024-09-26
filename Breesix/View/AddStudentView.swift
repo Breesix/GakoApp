@@ -28,6 +28,10 @@ struct AddStudentView: View {
                     .frame(width: 100, height: 100)
                     .clipShape(Circle())
             } else {
+                Image(systemName: "person.circle")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 Text("Select Image")
                     .font(.headline)
                     .padding()

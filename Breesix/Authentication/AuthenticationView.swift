@@ -32,7 +32,18 @@ struct AuthenticationView: View {
             }
             
             GoogleSignInButton(viewModel: GoogleSignInButtonViewModel(scheme: .dark,style: .wide,state: .normal)){
-                
+                Task {
+                    do {
+                        try await viewModel.signInGoole()
+                        showSigInView = false
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+            VStack{
+                SignInWithAppleButtonView()
+                    .frame(height: 50)
             }
             
             Spacer()

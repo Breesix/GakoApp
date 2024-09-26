@@ -7,8 +7,7 @@
 
 import Foundation
 import FirebaseAuth
-import GoogleSignIn
-import GoogleSignInSwift
+import FirebaseCore
 
 enum AuthState {
     case Initialize
@@ -23,16 +22,14 @@ final class AuthenticationViewModel: ObservableObject {
     
     
     func signInGoole() async throws{
-        guard let topVC = Utilities.shared.topViewController() else {
-            throw URLError(.cannotFindHost)
-        }
-        let gidSignResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-        //gidSignResult.description
         
-        guard let idToken: String = gidSignResult.user.idToken?.tokenString else {
-            throw URLError(.badServerResponse)
+        guard let ClientID = FirebaseApp.app()?.options.clientID else {
+            throw GoogleSignInError.notViewController
         }
-        let accessToken = gidSignResult.user.accessToken.tokenString
+        let helper = SignInGoogleHelper(GIDClientID: ClientID)
+        let tokens = try await helper.signIn()
+        try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
+        self.authState = .Login
         
     
     }
