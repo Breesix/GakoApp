@@ -9,10 +9,10 @@ import Foundation
 
 class StudentRepository {
     private var students: [Student] = [
-        Student(name: "Rangga"),
-        Student(name: "Arshad"),
-        Student(name: "Wisnu"),
-        Student(name: "Curukuk")
+        Student(name: "Rangga Biner", nickname: "Rangga"),
+        Student(name: "Arshad Thareeq", nickname: "Arshad"),
+        Student(name: "Wisnu Hadiyasa", nickname: "Wisnu"),
+        Student(name: "Curukuk Icikiwir", nickname: "Ici")
     ]
     
     func getAllStudents() -> [Student] {

@@ -12,36 +12,55 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                HStack {
+            ZStack(alignment: .bottom) {
+                    VStack {
+                        if viewModel.students.isEmpty {
+                            Spacer()
+                            VStack {
+                                Image(systemName: "person.crop.circle")
+                                    .resizable()
+                                    .frame(width: 100, height: 100)
+                                Text("Belum ada murid")
+                            }
+                            Spacer()
+                        } else {
+                            ScrollView {
+                                ForEach(viewModel.students, id: \.name) { student in
+                                    StudentRowCard(student: student)
+                                }
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color(UIColor.systemBackground))
+                            }
+                        }
+                    }
+                    .safeAreaPadding()
+                
+                Button(action: {
+                    viewModel.isDocumentationTypeSheetPresented = true
+                }) {
+                    Text("Tambah Bersamaan")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Text("Dokumentasi Murid")
-                    Spacer()
+                        .font(.headline)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         viewModel.isAddSheetPresented = true
-                    }, label: {
+                    }) {
                         Text("+ Tambah")
-                    })
-                }
-                Divider()
-                
-                if viewModel.students.isEmpty {
-                    Spacer()
-                    VStack {
-                        Image(systemName: "person.crop.circle")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                        Text("Belum ada murid")
-                    }
-                    Spacer()
-                } else {
-                    List(viewModel.students, id: \.name) { student in
-                        NavigationLink(destination: StudentDetailView(student: student)) {
-                            Text(student.name)
-                        }
                     }
                 }
             }
-            .safeAreaPadding()
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $viewModel.isAddSheetPresented) {
                 AddSheet(viewModel: viewModel)
                     .presentationDetents([.height(200)])
@@ -52,9 +71,15 @@ struct HomeView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
+            .sheet(isPresented: $viewModel.isDocumentationTypeSheetPresented) {
+                DocumentationTypeSheet()
+                    .presentationDetents([.height(250)])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
 }
+
 
 struct StudentDetailView: View {
     let student: Student
@@ -63,8 +88,6 @@ struct StudentDetailView: View {
         Text("Details for \(student.name)")
     }
 }
-
-
 
 #Preview {
     HomeView()

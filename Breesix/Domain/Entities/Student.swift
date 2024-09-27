@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct Student: Identifiable {
+struct Student: Identifiable, Hashable {
     let id = UUID()
     let name: String
+    let nickname: String
 }
