@@ -9,16 +9,11 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-            Text("Hello, dunia!")
-            Text("Hello, Hnas!")
-            Text("Hello, rangga fix!")
+        TabView(selection: .constant(2)) {
+            Text("Tab Content 1").tabItem { Text("Tab Label 1") }.tag(1)
+            
+            AgendaListView().tabItem { Text("Tab Label 2") }.tag(2)
         }
-        .padding()
     }
 }
 
