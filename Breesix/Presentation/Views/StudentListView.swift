@@ -10,18 +10,22 @@ import SwiftUI
 struct StudentListView: View {
     @StateObject var viewModel: StudentListViewModel
     @State private var isAddingStudent = false
-    
+    @State private var isAddingNote = false
+
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.students) { student in
                     NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
-                        VStack(alignment: .leading) {
-                            Text(student.fullname)
-                                .font(.headline)
-                            Text(student.nickname)
-                                .font(.subheadline)
-                                .lineLimit(1)
+                        HStack {
+                            Image(systemName: "person.crop.circle")
+                            VStack(alignment: .leading) {
+                                Text(student.nickname)
+                                    .font(.headline)
+                                Text(student.fullname)
+                                    .font(.subheadline)
+                                    .lineLimit(1)
+                            }
                         }
                     }
                 }
@@ -33,7 +37,7 @@ struct StudentListView: View {
                     }
                 }
             }
-            .navigationTitle("Students")
+            .navigationTitle("Daftar Murid")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { isAddingStudent = true }) {
@@ -49,12 +53,20 @@ struct StudentListView: View {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
+                ToolbarItem(placement: .bottomBar) {
+                    Button("Tambah Catatan") {
+                        isAddingNote = true
+                    }
+                }
             }
             .refreshable {
                 await viewModel.loadStudents()
             }
             .sheet(isPresented: $isAddingStudent) {
                 StudentEditView(viewModel: viewModel, mode: .add)
+            }
+            .sheet(isPresented: $isAddingNote) {
+                NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
             }
         }
         .task {
@@ -67,21 +79,39 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    
+    @State private var notes: [Note] = []
+
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(student.fullname)
-                .font(.title)
-            Text(student.nickname)
-                .font(.body)
+        List {
+            Section(header: Text("Informasi Murid")) {
+                Text("Nama Lengkap: \(student.fullname)")
+                Text("Nama Panggilan: \(student.nickname)")
+            }
+
+            Section(header: Text("Catatan")) {
+                ForEach(notes, id: \.id) { note in
+                    VStack(alignment: .leading) {
+                        Text("Aktivitas Umum: \(note.generalActivity)")
+                        Text("Catatan Toilet Training: \(note.toiletTraining)")
+                        Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
+                    }
+                }
+            }
         }
-        .padding()
+        .navigationTitle(student.nickname)
         .navigationBarItems(trailing: Button("Edit") {
             isEditing = true
         })
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
+        .task {
+            await loadNotes()
+        }
+    }
+
+    private func loadNotes() async {
+        notes = await viewModel.getNotesForStudent(student)
     }
 }
 
@@ -126,10 +156,10 @@ struct StudentEditView: View {
     var body: some View {
         NavigationView {
             Form {
-                TextField("Title", text: $fullname)
-                TextEditor(text: $nickname)
+                TextField("Nama Panggilan", text: $nickname)
+                TextField("Nama Lengkap", text: $fullname)
             }
-            .navigationTitle(mode == .add ? "Add Student" : "Edit Student")
+            .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {

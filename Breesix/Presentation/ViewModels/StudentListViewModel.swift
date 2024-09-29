@@ -10,15 +10,17 @@ import Foundation
 @MainActor
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
-    private let useCases: StudentUseCase
+    private let studentUseCases: StudentUseCase
+    private let noteUseCases: NoteUseCase
     
-    init(useCases: StudentUseCase) {
-        self.useCases = useCases
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase) {
+        self.studentUseCases = studentUseCases
+        self.noteUseCases = noteUseCases
     }
     
     func loadStudents() async {
         do {
-            students = try await useCases.getAllStudents()
+            students = try await studentUseCases.getAllStudents()
         } catch {
             print("Error loading students: \(error)")
         }
@@ -26,7 +28,7 @@ class StudentListViewModel: ObservableObject {
     
     func addStudent(_ student: Student) async {
         do {
-            try await useCases.addStudent(student)
+            try await studentUseCases.addStudent(student)
             await loadStudents()
         } catch {
             print("Error adding student: \(error)")
@@ -35,7 +37,7 @@ class StudentListViewModel: ObservableObject {
     
     func updateStudent(_ student: Student) async {
         do {
-            try await useCases.updateStudent(student)
+            try await studentUseCases.updateStudent(student)
             await loadStudents()
         } catch {
             print("Error updating student: \(error)")
@@ -44,10 +46,29 @@ class StudentListViewModel: ObservableObject {
     
     func deleteStudent(_ student: Student) async {
         do {
-            try await useCases.deleteStudent(student)
+            try await studentUseCases.deleteStudent(student)
             await loadStudents()
         } catch {
             print("Error deleting student: \(error)")
         }
     }
+    
+    func addNote(_ note: Note, for student: Student) async {
+        do {
+            try await noteUseCases.addNote(note, for: student)
+            await loadStudents() 
+        } catch {
+            print("Error adding note: \(error)")
+        }
+    }
+
+    func getNotesForStudent(_ student: Student) async -> [Note] {
+        do {
+            return try await noteUseCases.getNotesForStudent(student)
+        } catch {
+            print("Error getting notes: \(error)")
+            return []
+        }
+    }
+
 }

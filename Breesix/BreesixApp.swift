@@ -14,19 +14,24 @@ struct BreesixApp: App {
     
     init() {
         do {
-            container = try ModelContainer(for: Student.self)
+            container = try ModelContainer(for: Student.self, Note.self)
         } catch {
-            fatalError("Failed to create ModelContainer for  Note: \(error)")
+            fatalError("Failed to create ModelContainer for Student and Note: \(error)")
         }
     }
     
     var body: some Scene {
         WindowGroup {
             let context = container.mainContext
-            let dataSource = StudentDataSourceImpl(context: context)
-            let repository = StudentRepositoryImpl(dataSource: dataSource)
-            let useCases = StudentUseCase(repository: repository)
-            let viewModel = StudentListViewModel(useCases: useCases)
+            
+            let studentDataSource = StudentDataSourceImpl(context: context)
+            let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
+            let studentUseCase = StudentUseCase(repository: studentRepository)
+            
+            let noteRepository = NoteRepositoryImpl(context: context)
+            let noteUseCase = NoteUseCase(repository: noteRepository)
+            
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCase)
             
             StudentListView(viewModel: viewModel)
         }
