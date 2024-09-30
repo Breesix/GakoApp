@@ -75,26 +75,24 @@ struct ReflectionInputView: View {
                    c. Tentukan status toilet training (true/false)
                 3. Jika informasi spesifik tidak tersedia, gunakan imajinasi kreatif untuk mengisi detail yang masuk akal berdasarkan konteks umum aktivitas anak-anak.
                 4. Susun informasi dalam format CSV dengan kolom: Name,GeneralActivity,ToiletTraining,ToiletTrainingStatus
+                5. Pastikan semua murid dalam Data Murid tercantum dalam output
 
                 Format Output:
                 Name,GeneralActivity,ToiletTraining,ToiletTrainingStatus
                 [NAMA_MURID_1],"[AKTIVITAS_UMUM]","[CATATAN_TOILET_TRAINING]",[STATUS_TOILET_TRAINING]
                 [NAMA_MURID_2],"[AKTIVITAS_UMUM]","[CATATAN_TOILET_TRAINING]",[STATUS_TOILET_TRAINING]
 
-                Contoh Output yang Diharapkan:
-                Name,GeneralActivity,ToiletTraining,ToiletTrainingStatus
-                Nakal putri aulia,"Bermain puzzle dan mewarnai","Berhasil ke toilet 2 kali, masih perlu diingatkan",true
-                Jojo Mulyono nep,"Membaca buku cerita dan bermain balok","Menggunakan popok, belum menunjukkan minat ke toilet",false
-
                 Petunjuk Tambahan:
-                - Gunakan imajinasi kreatif untuk mengisi detail yang masuk akal jika informasi spesifik tidak tersedia
+                - Berikan HANYA file CSV tanpa komentar atau teks tambahan
+                - Gunakan informasi dari Refleksi Guru untuk membuat penilaian yang akurat
                 - Pastikan setiap murid memiliki catatan yang unik dan relevan
-                - Jangan gunakan "Tidak ada data" kecuali benar-benar tidak ada konteks sama sekali
+                - Jika informasi tidak cukup untuk menilai seorang murid, gunakan "unknown"
+                - Catatan harus konkret, informatif, dan relevan dengan kinerja murid
                 """
                 
                 print("Prompt: \(prompt)")
                 
-                let query = ChatQuery(messages: [.init(role: .user, content: prompt)!], model: .gpt4)
+                let query = ChatQuery(messages: [.init(role: .user, content: prompt)!], model: .gpt4_o_mini)
                 
                 let result = try await openAI.chats(query: query)
                 print("API Response: \(result)")
