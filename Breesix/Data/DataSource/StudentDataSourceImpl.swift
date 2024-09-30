@@ -18,7 +18,6 @@ class StudentDataSourceImpl: StudentDataSource {
     func fetchAllStudents() async throws -> [Student] {
         let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
         let students = try context.fetch(descriptor)
-        print("Fetched \(students.count) students")
         return students
     }
 

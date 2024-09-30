@@ -16,7 +16,6 @@ struct NoteEditView: View {
     @State private var toiletTrainingStatus: Bool
 
     init(viewModel: StudentListViewModel, note: Note, onDismiss: @escaping () -> Void) {
-        print("Initializing NoteEditView for note: \(note.id)")
         self.viewModel = viewModel
         self.note = note
         self.onDismiss = onDismiss
@@ -40,12 +39,6 @@ struct NoteEditView: View {
             .navigationBarItems(trailing: Button("Tutup") {
                 onDismiss()
             })
-        }
-        .onAppear {
-            print("NoteEditView appeared")
-        }
-        .onDisappear {
-            print("NoteEditView disappeared")
         }
     }
 

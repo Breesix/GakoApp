@@ -112,9 +112,7 @@ struct StudentDetailView: View {
                         }
                         .contextMenu {
                             Button("Edit") {
-                                print("Edit button tapped for note: \(note.id)")
                                 self.selectedNote = note
-                                print("selectedNote set to: \(String(describing: self.selectedNote))")
                             }
                             Button("Hapus", role: .destructive) {
                                 deleteNote(note)
@@ -145,25 +143,14 @@ struct StudentDetailView: View {
         .task {
             await loadNotes()
         }
-        .onAppear {
-            print("StudentDetailView appeared")
-        }
-        .onDisappear {
-            print("StudentDetailView disappeared")
-        }
-        .onChange(of: selectedNote) { oldValue, newValue in
-            print("selectedNote changed: \(String(describing: newValue))")
-        }
     }
 
     private func loadNotes() async {
         notes = await viewModel.getNotesForStudent(student)
-        print("Loaded \(notes.count) notes for student")
     }
 
     private var filteredNotes: [Note] {
         let filtered = notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
-        print("Filtered notes count: \(filtered.count)")
         return filtered
     }
     
