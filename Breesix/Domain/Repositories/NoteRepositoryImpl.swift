@@ -23,6 +23,10 @@ class NoteRepositoryImpl: NoteRepository {
     func getNotesForStudent(_ student: Student) async throws -> [Note] {
         return student.notes
     }
+    
+    func updateNote(_ note: Note) async throws {
+        try context.save()
+    }
 }
 
 

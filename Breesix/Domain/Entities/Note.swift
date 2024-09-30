@@ -14,13 +14,15 @@ class Note {
     var generalActivity: String
     var toiletTraining: String
     var toiletTrainingStatus: Bool
+    var createdAt: Date
     @Relationship(deleteRule: .cascade) var student: Student?
 
-    init(id: UUID = UUID(), generalActivity: String, toiletTraining: String, toiletTrainingStatus: Bool, student: Student? = nil) {
+    init(id: UUID = UUID(), generalActivity: String, toiletTraining: String, toiletTrainingStatus: Bool, createdAt: Date = Date(), student: Student? = nil) {
         self.id = id
         self.generalActivity = generalActivity
         self.toiletTraining = toiletTraining
         self.toiletTrainingStatus = toiletTrainingStatus
+        self.createdAt = createdAt
         self.student = student
     }
 }

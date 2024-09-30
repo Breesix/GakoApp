@@ -80,6 +80,8 @@ struct StudentDetailView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
     @State private var notes: [Note] = []
+    @State private var selectedDate = Date()
+    @State private var selectedNote: Note?
 
     var body: some View {
         List {
@@ -88,12 +90,33 @@ struct StudentDetailView: View {
                 Text("Nama Panggilan: \(student.nickname)")
             }
 
+            Section(header: Text("Pilih Tanggal")) {
+                DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
+                    .onChange(of: selectedDate) { oldValue, newValue in
+                        Task {
+                            await loadNotes()
+                        }
+                    }
+            }
+
             Section(header: Text("Catatan")) {
-                ForEach(notes, id: \.id) { note in
-                    VStack(alignment: .leading) {
-                        Text("Aktivitas Umum: \(note.generalActivity)")
-                        Text("Catatan Toilet Training: \(note.toiletTraining)")
-                        Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
+                if filteredNotes.isEmpty {
+                    Text("Tidak ada catatan untuk tanggal ini")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(filteredNotes, id: \.id) { note in
+                        VStack(alignment: .leading) {
+                            Text("Aktivitas Umum: \(note.generalActivity)")
+                            Text("Catatan Toilet Training: \(note.toiletTraining)")
+                            Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
+                        }
+                        .contextMenu {
+                            Button("Edit") {
+                                print("Edit button tapped for note: \(note.id)")
+                                self.selectedNote = note
+                                print("selectedNote set to: \(String(describing: self.selectedNote))")
+                            }
+                        }
                     }
                 }
             }
@@ -105,13 +128,34 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
+        .sheet(item: $selectedNote) { note in
+            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
+                selectedNote = nil
+            })
+        }
         .task {
             await loadNotes()
+        }
+        .onAppear {
+            print("StudentDetailView appeared")
+        }
+        .onDisappear {
+            print("StudentDetailView disappeared")
+        }
+        .onChange(of: selectedNote) { oldValue, newValue in
+            print("selectedNote changed: \(String(describing: newValue))")
         }
     }
 
     private func loadNotes() async {
         notes = await viewModel.getNotesForStudent(student)
+        print("Loaded \(notes.count) notes for student")
+    }
+
+    private var filteredNotes: [Note] {
+        let filtered = notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+        print("Filtered notes count: \(filtered.count)")
+        return filtered
     }
 }
 

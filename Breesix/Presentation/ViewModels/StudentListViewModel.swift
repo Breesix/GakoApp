@@ -70,5 +70,13 @@ class StudentListViewModel: ObservableObject {
             return []
         }
     }
-
+    
+    func updateNote(_ note: Note) async {
+        do {
+            try await noteUseCases.updateNote(note)
+            await loadStudents()
+        } catch {
+            print("Error updating note: \(error)")
+        }
+    }
 }

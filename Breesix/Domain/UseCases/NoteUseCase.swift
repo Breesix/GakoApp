@@ -17,5 +17,9 @@ struct NoteUseCase {
     func getNotesForStudent(_ student: Student) async throws -> [Note] {
         return try await repository.getNotesForStudent(student)
     }
+    
+    func updateNote(_ note: Note) async throws {
+        try await repository.updateNote(note)
+    }
 }
 
