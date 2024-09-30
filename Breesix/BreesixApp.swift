@@ -6,12 +6,35 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct BreesixApp: App {
+    let container: ModelContainer
+    
+    init() {
+        do {
+            container = try ModelContainer(for: Student.self, Note.self)
+        } catch {
+            fatalError("Failed to create ModelContainer for Student and Note: \(error)")
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            let context = container.mainContext
+            
+            let studentDataSource = StudentDataSourceImpl(context: context)
+            let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
+            let studentUseCase = StudentUseCase(repository: studentRepository)
+            
+            let noteRepository = NoteRepositoryImpl(context: context)
+            let noteUseCase = NoteUseCase(repository: noteRepository)
+            
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCase)
+            
+            MainTabView(studentListViewModel: viewModel)
         }
+        .modelContainer(container)
     }
 }

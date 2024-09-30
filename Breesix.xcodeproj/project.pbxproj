@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8F9087B32CAA65600067B819 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 8F9087B22CAA65600067B819 /* OpenAI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8FD81E682C9C0F5F00CEE379 /* Breesix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breesix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F9087B32CAA65600067B819 /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = Breesix;
 			packageProductDependencies = (
+				8F9087B22CAA65600067B819 /* OpenAI */,
 			);
 			productName = Breesix;
 			productReference = 8FD81E682C9C0F5F00CEE379 /* Breesix.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 8FD81E5F2C9C0F5F00CEE379;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8F9087B12CAA65600067B819 /* XCRemoteSwiftPackageReference "OpenAI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8FD81E692C9C0F5F00CEE379 /* Products */;
 			projectDirPath = "";
@@ -324,6 +333,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8F9087B12CAA65600067B819 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8F9087B22CAA65600067B819 /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F9087B12CAA65600067B819 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8FD81E602C9C0F5F00CEE379 /* Project object */;
 }
