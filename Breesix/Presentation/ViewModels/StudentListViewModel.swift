@@ -79,4 +79,16 @@ class StudentListViewModel: ObservableObject {
             print("Error updating note: \(error)")
         }
     }
+    
+    func deleteNote(_ note: Note, from student: Student) async {
+        do {
+            try await noteUseCases.deleteNote(note, from: student)
+            if let index = students.firstIndex(where: { $0.id == student.id }) {
+                students[index].notes.removeAll(where: { $0.id == note.id })
+            }
+        } catch {
+            print("Error deleting note: \(error)")
+        }
+    }
+
 }

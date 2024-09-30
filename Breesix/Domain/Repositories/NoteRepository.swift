@@ -11,4 +11,5 @@ protocol NoteRepository {
     func addNote(_ note: Note, for student: Student) async throws
     func getNotesForStudent(_ student: Student) async throws -> [Note]
     func updateNote(_ note: Note) async throws
+    func deleteNote(_ note: Note, from student: Student) async throws
 }

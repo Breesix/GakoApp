@@ -32,8 +32,13 @@ class StudentDataSourceImpl: StudentDataSource {
     }
     
     func delete(_ student: Student) async throws {
+        for note in student.notes {
+            context.delete(note)
+        }
+        
+        student.notes.removeAll()
+
         context.delete(student)
         try context.save()
-    }
-}
+    }}
 

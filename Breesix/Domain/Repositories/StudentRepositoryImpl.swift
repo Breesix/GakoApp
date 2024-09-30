@@ -27,6 +27,10 @@ class StudentRepositoryImpl: StudentRepository {
     }
     
     func deleteStudent(_ student: Student) async throws {
-        try await dataSource.delete(student)
-    }
-}
+        do {
+            try await dataSource.delete(student)
+        } catch {
+            print("Error deleting student: \(error)")
+            throw error
+        }
+    }}

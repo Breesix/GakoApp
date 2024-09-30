@@ -116,8 +116,17 @@ struct StudentDetailView: View {
                                 self.selectedNote = note
                                 print("selectedNote set to: \(String(describing: self.selectedNote))")
                             }
+                            Button("Hapus", role: .destructive) {
+                                deleteNote(note)
+                            }
+
                         }
                     }
+                }
+            }
+            .onChange(of: viewModel.students) { _, _ in
+                Task {
+                    await loadNotes()
                 }
             }
         }
@@ -156,6 +165,13 @@ struct StudentDetailView: View {
         let filtered = notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         print("Filtered notes count: \(filtered.count)")
         return filtered
+    }
+    
+    private func deleteNote(_ note: Note) {
+        Task {
+            await viewModel.deleteNote(note, from: student)
+            notes.removeAll(where: { $0.id == note.id })
+        }
     }
 }
 

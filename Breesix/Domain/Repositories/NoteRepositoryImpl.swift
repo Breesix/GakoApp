@@ -27,6 +27,13 @@ class NoteRepositoryImpl: NoteRepository {
     func updateNote(_ note: Note) async throws {
         try context.save()
     }
+    
+    func deleteNote(_ note: Note, from student: Student) async throws {
+        student.notes.removeAll { $0.id == note.id }
+        context.delete(note)
+        try context.save()
+    }
+
 }
 
 

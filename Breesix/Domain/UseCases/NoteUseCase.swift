@@ -21,5 +21,10 @@ struct NoteUseCase {
     func updateNote(_ note: Note) async throws {
         try await repository.updateNote(note)
     }
+    
+    func deleteNote(_ note: Note, from student: Student) async throws {
+        try await repository.deleteNote(note, from: student)
+    }
+
 }
 

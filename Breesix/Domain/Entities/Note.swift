@@ -15,7 +15,7 @@ class Note {
     var toiletTraining: String
     var toiletTrainingStatus: Bool
     var createdAt: Date
-    @Relationship(deleteRule: .cascade) var student: Student?
+    @Relationship(deleteRule: .nullify) var student: Student?
 
     init(id: UUID = UUID(), generalActivity: String, toiletTraining: String, toiletTrainingStatus: Bool, createdAt: Date = Date(), student: Student? = nil) {
         self.id = id
