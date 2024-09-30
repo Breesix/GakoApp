@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StudentListView: View {
-    @StateObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentListViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
 
@@ -59,15 +59,15 @@ struct StudentListView: View {
                     }
                 }
             }
-            .refreshable {
-                await viewModel.loadStudents()
-            }
-            .sheet(isPresented: $isAddingStudent) {
-                StudentEditView(viewModel: viewModel, mode: .add)
-            }
-            .sheet(isPresented: $isAddingNote) {
-                NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
-            }
+        }
+        .refreshable {
+            await viewModel.loadStudents()
+        }
+        .sheet(isPresented: $isAddingStudent) {
+            StudentEditView(viewModel: viewModel, mode: .add)
+        }
+        .sheet(isPresented: $isAddingNote) {
+            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
         }
         .task {
             await viewModel.loadStudents()
