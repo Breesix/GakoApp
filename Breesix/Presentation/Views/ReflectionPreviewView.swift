@@ -18,8 +18,8 @@ struct ReflectionPreviewView: View {
                     Section(header: Text(student.fullname)) {
                         ForEach(student.notes.sorted(by: { $0.createdAt > $1.createdAt })) { note in
                             VStack(alignment: .leading) {
-                                Text("Aktivitas Umum: \(note.generalActivity)")
-                                Text("Toilet Training: \(note.toiletTraining)")
+                                Text("Aktivitas Umum: \n• \(note.generalActivity)")
+                                Text("Toilet Training: \n• \(note.toiletTraining)")
                                 Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
                                 Text("Tanggal: \(note.createdAt, formatter: itemFormatter)")
                             }
