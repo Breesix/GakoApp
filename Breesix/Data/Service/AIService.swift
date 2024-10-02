@@ -1,9 +1,9 @@
-    //
-    //  AIService.swift
-    //  Breesix
-    //
-    //  Created by Rangga Biner on 01/10/24.
-    //
+//
+//  AIService.swift
+//  Breesix
+//
+//  Created by Rangga Biner on 01/10/24.
+//
 
 import Foundation
 import OpenAI
@@ -24,22 +24,24 @@ class ReflectionProcessor {
         }
         
         let botPrompt = """
-        Anda adalah asisten AI ahli dalam menganalisis refleksi harian guru tentang aktivitas murid di sekolah. Tugas Anda adalah mengekstrak informasi penting dan mengorganisirnya dalam format yang terstruktur dan detail.
+        Anda adalah asisten AI yang terlatih dalam menganalisis refleksi harian dari guru mengenai aktivitas siswa di sekolah. Tugas Anda adalah mengekstrak informasi kunci dan menyajikannya dalam format terstruktur dengan detail yang memadai.
 
         Panduan Analisis:
-        1. Baca refleksi guru dengan sangat teliti.
-        2. Identifikasi setiap murid yang disebutkan dalam refleksi.
-        3. Untuk setiap murid yang disebutkan:
-           a. Tentukan aktivitas umum berdasarkan informasi yang diberikan. Berikan detail sebanyak mungkin.
-        4. Untuk murid yang tidak disebutkan dalam refleksi, isi dengan "Tidak ada informasi".
+        1. Bacalah dengan seksama setiap refleksi yang diberikan oleh guru.
+        2. Identifikasi semua siswa yang disebutkan dalam refleksi.
+        3. Apabila nama siswa tidak disebutkan secara langsung, pahami terminologi seperti "semua" yang berarti semua siswa, dan "anak lain" yang berarti semua siswa kecuali mereka yang disebutkan secara eksplisit.
+        4. Untuk setiap siswa yang disebutkan, tentukan aktivitas umum berdasarkan informasi yang disediakan, lengkapi dengan detail spesifik.
+        5. Jika ada siswa yang tidak disebutkan dalam refleksi, catat "Tidak ada informasi" untuk mereka.
+        6. Anda tidak perlu menyensor atau menyeleksi isi refleksi, baik yang positif maupun negatif, tetap dicantumkan tanpa modifikasi.
+        7. Pastikan untuk memasukkan informasi yang ada tanpa menambahkan asumsi.
 
         Format Output:
         Hasilkan output dalam format CSV dengan struktur berikut:
         Nama,Aktivitas Umum
 
         Aturan Pengisian:
-        - Nama: Nama lengkap murid
-        - Aktivitas Umum: Daftar aktivitas dipisahkan dengan "|". Berikan detail spesifik. Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
+        - Nama: Nama lengkap siswa.
+        - Aktivitas Umum: Daftar aktivitas yang dipisahkan dengan "|". Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
 
         Contoh Output:
         Nama,Aktivitas Umum
@@ -49,11 +51,11 @@ class ReflectionProcessor {
 
         Penting:
         - Gunakan HANYA informasi yang secara eksplisit disebutkan dalam refleksi guru.
-        - Jangan menambahkan atau mengasumsikan informasi yang tidak ada dalam refleksi.
-        - Pastikan semua murid dalam daftar yang diberikan tercantum dalam output, bahkan jika tidak ada informasi untuk mereka.
-        - Berikan output CSV yang kaya informasi dan detail, tanpa komentar atau teks tambahan.
+        - Hindari menambahkan atau membuat asumsi terkait informasi yang tidak tersedia dalam refleksi.
+        - Pastikan semua siswa dalam daftar yang diberikan tercantum dalam output, bahkan jika tidak terdapat informasi untuk mereka.
+        - Buat output CSV yang informatif dan detail, tanpa tambahan komentar atau teks.
         """
-
+        
         let userInput = """
         Data Murid: \(studentNames)
 
@@ -101,6 +103,7 @@ class CSVParser {
         var activities: [Activity] = []
         
         print("Total rows in CSV: \(rows.count)")
+        print("Available students: \(students.map { $0.fullname })")
         
         for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             print("Processing row \(index + 1): \(row)")
@@ -109,20 +112,24 @@ class CSVParser {
             if columns.count >= 2 {
                 let name = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
                 let generalActivityString = columns[1]
-                let generalActivityPoints = generalActivityString.components(separatedBy: "|")
                 
                 print("Searching for student: \(name)")
-                if let student = students.first(where: { $0.fullname.lowercased() == name.lowercased() }) {
-                    for activity in generalActivityPoints {
-                        let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
-                        if !trimmedActivity.isEmpty {
-                            let newActivity = Activity(
-                                generalActivity: trimmedActivity,
-                                student: student
-                            )
-                            activities.append(newActivity)
-                            print("Activity created for \(student.fullname): \(trimmedActivity)")
+                if let student = findMatchingStudent(name: name, in: students) {
+                    if generalActivityString.lowercased() != "tidak ada informasi" {
+                        let generalActivityPoints = generalActivityString.components(separatedBy: "|")
+                        for activity in generalActivityPoints {
+                            let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
+                            if !trimmedActivity.isEmpty {
+                                let newActivity = Activity(
+                                    generalActivity: trimmedActivity,
+                                    student: student
+                                )
+                                activities.append(newActivity)
+                                print("Activity created for \(student.fullname): \(trimmedActivity)")
+                            }
                         }
+                    } else {
+                        print("No information available for \(student.fullname)")
                     }
                 } else {
                     print("No matching student found for: \(name)")
@@ -154,5 +161,19 @@ class CSVParser {
         
         columns.append(currentColumn)
         return columns
+    }
+    
+    private static func findMatchingStudent(name: String, in students: [Student]) -> Student? {
+        let normalizedName = name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if let student = students.first(where: { $0.fullname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == normalizedName }) {
+            return student
+        }
+        
+        return students.first(where: {
+            let studentNames = $0.fullname.lowercased().split(separator: " ")
+            let csvNames = normalizedName.split(separator: " ")
+            return !Set(studentNames).isDisjoint(with: csvNames)
+        })
     }
 }
