@@ -96,9 +96,9 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseNotes(csvString: String, students: [Student]) -> [Activity] {
+    static func parseActivities(csvString: String, students: [Student]) -> [Activity] {
         let rows = csvString.components(separatedBy: .newlines)
-        var notes: [Activity] = []
+        var activities: [Activity] = []
         
         print("Total rows in CSV: \(rows.count)")
         
@@ -116,12 +116,12 @@ class CSVParser {
                     for activity in generalActivityPoints {
                         let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
                         if !trimmedActivity.isEmpty {
-                            let newNote = Activity(
+                            let newActivity = Activity(
                                 generalActivity: trimmedActivity,
                                 student: student
                             )
-                            notes.append(newNote)
-                            print("Note created for \(student.fullname): \(trimmedActivity)")
+                            activities.append(newActivity)
+                            print("Activity created for \(student.fullname): \(trimmedActivity)")
                         }
                     }
                 } else {
@@ -132,7 +132,7 @@ class CSVParser {
             }
         }
         
-        print("Total notes created: \(notes.count)")
-        return notes
+        print("Total activities created: \(activities.count)")
+        return activities
     }
 }

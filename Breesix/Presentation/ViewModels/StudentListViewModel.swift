@@ -11,11 +11,11 @@ import Foundation
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     private let studentUseCases: StudentUseCase
-    private let generalActivityUseCases: GeneralActivityUseCase
+    private let activityUseCases: ActivityUseCase
     
-    init(studentUseCases: StudentUseCase, generalActivityUseCases: GeneralActivityUseCase) {
+    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase) {
         self.studentUseCases = studentUseCases
-        self.generalActivityUseCases = generalActivityUseCases
+        self.activityUseCases = activityUseCases
     }
     
     func loadStudents() async {
@@ -55,39 +55,39 @@ class StudentListViewModel: ObservableObject {
     
     func addActivity(_ activity: Activity, for student: Student) async {
         do {
-            try await generalActivityUseCases.addActivity(activity, for: student)
+            try await activityUseCases.addActivity(activity, for: student)
             await loadStudents()
         } catch {
-            print("Error adding note: \(error)")
+            print("Error adding activity: \(error)")
         }
     }
 
     func getActivitiesForStudent(_ student: Student) async -> [Activity] {
         do {
-            return try await generalActivityUseCases.getActivitiesForStudent(student)
+            return try await activityUseCases.getActivitiesForStudent(student)
         } catch {
-            print("Error getting notes: \(error)")
+            print("Error getting activities: \(error)")
             return []
         }
     }
     
     func updateActivity(_ activity: Activity) async {
         do {
-            try await generalActivityUseCases.updateActivity(activity)
+            try await activityUseCases.updateActivity(activity)
             await loadStudents()
         } catch {
-            print("Error updating note: \(error)")
+            print("Error updating activity: \(error)")
         }
     }
     
     func deleteActivity(_ activity: Activity, from student: Student) async {
         do {
-            try await generalActivityUseCases.deleteActivity(activity, from: student)
+            try await activityUseCases.deleteActivity(activity, from: student)
             if let index = students.firstIndex(where: { $0.id == student.id }) {
-                students[index].notes.removeAll(where: { $0.id == activity.id })
+                students[index].activities.removeAll(where: { $0.id == activity.id })
             }
         } catch {
-            print("Error deleting note: \(error)")
+            print("Error deleting activity: \(error)")
         }
     }
 

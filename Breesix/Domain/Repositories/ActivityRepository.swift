@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol GeneralActivityRepository {
+protocol ActivityRepository {
     func addActivity(_ activity: Activity, for student: Student) async throws
     func getActivitiesForStudent(_ student: Student) async throws -> [Activity]
     func updateActivity(_ activity: Activity) async throws

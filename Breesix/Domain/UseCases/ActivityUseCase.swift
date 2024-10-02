@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct GeneralActivityUseCase {
-    let repository: GeneralActivityRepository
+struct ActivityUseCase {
+    let repository: ActivityRepository
 
     func addActivity(_ activity: Activity, for student: Student) async throws {
         try await repository.addActivity(activity, for: student)

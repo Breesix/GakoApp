@@ -16,10 +16,10 @@ struct ReflectionPreviewView: View {
             List {
                 ForEach(viewModel.students) { student in
                     Section(header: Text(student.fullname)) {
-                        ForEach(student.notes.sorted(by: { $0.createdAt > $1.createdAt })) { note in
+                        ForEach(student.activities.sorted(by: { $0.createdAt > $1.createdAt })) { activity in
                             VStack(alignment: .leading) {
-                                Text("\(note.generalActivity)")
-//                                Text("Tanggal: \(note.createdAt, formatter: itemFormatter)")
+                                Text("\(activity.generalActivity)")
+//                                Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
                             }
                         }
                     }

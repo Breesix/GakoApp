@@ -55,10 +55,10 @@ struct ReflectionInputView: View {
                 
                 let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
                 
-                let notes = CSVParser.parseNotes(csvString: csvString, students: viewModel.students)
+                let activities = CSVParser.parseActivities(csvString: csvString, students: viewModel.students)
                 
-                for note in notes {
-                    await viewModel.addActivity(note, for: note.student!)
+                for activity in activities {
+                    await viewModel.addActivity(activity, for: activity.student!)
                 }
                 
                 await MainActor.run {

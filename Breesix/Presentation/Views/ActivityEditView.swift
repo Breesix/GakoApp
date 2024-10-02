@@ -1,5 +1,5 @@
 //
-//  NoteEditView.swift
+//  ActivityEditView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 30/09/24.
@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct NoteEditView: View {
+struct ActivityEditView: View {
     @ObservedObject var viewModel: StudentListViewModel
-    let note: Activity
+    let activity: Activity
     let onDismiss: () -> Void
     @State private var generalActivity: String
 
-    init(viewModel: StudentListViewModel, note: Activity, onDismiss: @escaping () -> Void) {
+    init(viewModel: StudentListViewModel, activity: Activity, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
-        self.note = note
+        self.activity = activity
         self.onDismiss = onDismiss
-        _generalActivity = State(initialValue: note.generalActivity)
+        _generalActivity = State(initialValue: activity.generalActivity)
     }
 
     var body: some View {
@@ -26,7 +26,7 @@ struct NoteEditView: View {
                 TextField("Aktivitas Umum", text: $generalActivity)
 
                 Button("Simpan Perubahan") {
-                    saveNote()
+                    saveActivity()
                 }
             }
             .navigationTitle("Edit Catatan")
@@ -36,10 +36,10 @@ struct NoteEditView: View {
         }
     }
 
-    private func saveNote() {
-        note.generalActivity = generalActivity
+    private func saveActivity() {
+        activity.generalActivity = generalActivity
         Task {
-            await viewModel.updateActivity(note)
+            await viewModel.updateActivity(activity)
             onDismiss()
         }
     }

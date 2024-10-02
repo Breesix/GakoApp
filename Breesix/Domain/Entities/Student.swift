@@ -14,7 +14,7 @@ class Student {
     var fullname: String
     var nickname: String
     var createdAt: Date
-    @Relationship(deleteRule: .cascade) var notes: [Activity] = []
+    @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     
     init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date()) {
         self.id = id
