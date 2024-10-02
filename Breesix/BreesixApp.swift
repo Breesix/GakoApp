@@ -14,7 +14,7 @@ struct BreesixApp: App {
     
     init() {
         do {
-            container = try ModelContainer(for: Student.self, Note.self)
+            container = try ModelContainer(for: Student.self, Activity.self)
         } catch {
             fatalError("Failed to create ModelContainer for Student and Note: \(error)")
         }
@@ -28,10 +28,10 @@ struct BreesixApp: App {
             let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
             let studentUseCase = StudentUseCase(repository: studentRepository)
             
-            let noteRepository = NoteRepositoryImpl(context: context)
-            let noteUseCase = NoteUseCase(repository: noteRepository)
+            let noteRepository = GeneralActivityRepositoryImpl(context: context)
+            let noteUseCase = GeneralActivityUseCase(repository: noteRepository)
             
-            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCase)
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, generalActivityUseCases: noteUseCase)
             
             MainTabView(studentListViewModel: viewModel)
         }

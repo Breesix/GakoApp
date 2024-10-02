@@ -79,9 +79,9 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    @State private var notes: [Note] = []
+    @State private var notes: [Activity] = []
     @State private var selectedDate = Date()
-    @State private var selectedNote: Note?
+    @State private var selectedNote: Activity?
 
     var body: some View {
         List {
@@ -106,9 +106,7 @@ struct StudentDetailView: View {
                 } else {
                     ForEach(filteredNotes, id: \.id) { note in
                         VStack(alignment: .leading) {
-                            Text("Aktivitas Umum: \(note.generalActivity)")
-                            Text("Catatan Toilet Training: \(note.toiletTraining)")
-                            Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
+                            Text("\(note.generalActivity)")
                         }
                         .contextMenu {
                             Button("Edit") {
@@ -146,17 +144,17 @@ struct StudentDetailView: View {
     }
 
     private func loadNotes() async {
-        notes = await viewModel.getNotesForStudent(student)
+        notes = await viewModel.getActivitiesForStudent(student)
     }
 
-    private var filteredNotes: [Note] {
+    private var filteredNotes: [Activity] {
         let filtered = notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         return filtered
     }
     
-    private func deleteNote(_ note: Note) {
+    private func deleteNote(_ note: Activity) {
         Task {
-            await viewModel.deleteNote(note, from: student)
+            await viewModel.deleteActivity(note, from: student)
             notes.removeAll(where: { $0.id == note.id })
         }
     }

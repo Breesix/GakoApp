@@ -41,11 +41,9 @@ struct NoteFormView: View {
 
     private func saveNote() {
         guard let student = selectedStudent else { return }
-        let newNote = Note(generalActivity: generalActivity,
-                           toiletTraining: toiletTraining,
-                           toiletTrainingStatus: toiletTrainingStatus)
+        let newNote = Activity(generalActivity: generalActivity)
         Task {
-            await viewModel.addNote(newNote, for: student)
+            await viewModel.addActivity(newNote, for: student)
             isPresented = false
         }
     }

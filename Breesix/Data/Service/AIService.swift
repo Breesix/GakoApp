@@ -7,6 +7,7 @@
 
 import Foundation
 import OpenAI
+import SwiftData
 
 class ReflectionProcessor {
     private let openAI: OpenAI
@@ -30,25 +31,21 @@ class ReflectionProcessor {
         2. Identifikasi setiap murid yang disebutkan dalam refleksi.
         3. Untuk setiap murid yang disebutkan:
            a. Tentukan aktivitas umum berdasarkan informasi yang diberikan. Berikan detail sebanyak mungkin.
-           b. Catat informasi spesifik tentang toilet training jika ada, termasuk kemajuan atau tantangan.
-           c. Tentukan status toilet training (true/false) berdasarkan informasi yang tersedia.
         4. Untuk murid yang tidak disebutkan dalam refleksi, isi dengan "Tidak ada informasi".
 
         Format Output:
         Hasilkan output dalam format CSV dengan struktur berikut:
-        Nama,Aktivitas Umum,Toilet Training,Status Toilet Training
+        Nama,Aktivitas Umum
 
         Aturan Pengisian:
         - Nama: Nama lengkap murid
-        - Aktivitas Umum: Daftar aktivitas dipisahkan dengan "|". Berikan detail spesifik. Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)"
-        - Toilet Training: Catatan spesifik tentang toilet training. Jika tidak ada, isi "Tidak ada informasi"
-        - Status Toilet Training: "true" jika sudah mandiri, "false" jika masih perlu bantuan, atau "Tidak ada informasi" jika tidak disebutkan
+        - Aktivitas Umum: Daftar aktivitas dipisahkan dengan "|". Berikan detail spesifik. Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
 
         Contoh Output:
-        Nama,Aktivitas Umum,Toilet Training,Status Toilet Training
-        Budi Santoso,"Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)","Berhasil ke toilet sendiri 2 kali hari ini",true
-        Ani Putri,"Membaca buku (tertarik pada buku cerita hewan)|Bermain balok (membuat menara setinggi 10 balok)","Masih perlu diingatkan, tapi menunjukkan kemajuan",false
-        Citra Lestari,"Tidak ada informasi","Tidak ada informasi","Tidak ada informasi"
+        Nama,Aktivitas Umum
+        Budi Santoso,"Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
+        Ani Putri,"Membaca buku (tertarik pada buku cerita hewan)|Bermain balok (membuat menara setinggi 10 balok)|Toilet training (masih perlu diingatkan, tapi menunjukkan kemajuan)"
+        Citra Lestari,"Tidak ada informasi"
 
         Penting:
         - Gunakan HANYA informasi yang secara eksplisit disebutkan dalam refleksi guru.
@@ -99,9 +96,9 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseNotes(csvString: String, students: [Student]) -> [Note] {
+    static func parseNotes(csvString: String, students: [Student]) -> [Activity] {
         let rows = csvString.components(separatedBy: .newlines)
-        var notes: [Note] = []
+        var notes: [Activity] = []
         
         print("Total rows in CSV: \(rows.count)")
         
@@ -109,23 +106,24 @@ class CSVParser {
             print("Processing row \(index + 1): \(row)")
             
             let columns = row.components(separatedBy: ",")
-            if columns.count >= 4 {
+            if columns.count >= 2 {
                 let name = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
                 let generalActivityString = columns[1].trimmingCharacters(in: .init(charactersIn: "\""))
-                let generalActivityPoints = generalActivityString.components(separatedBy: "|").map { "• " + $0.trimmingCharacters(in: .whitespaces) }
-                let toiletTraining = columns[2].trimmingCharacters(in: .init(charactersIn: "\""))
-                let toiletTrainingStatus = columns[3].lowercased() == "true"
+                let generalActivityPoints = generalActivityString.components(separatedBy: "|")
                 
                 print("Searching for student: \(name)")
                 if let student = students.first(where: { $0.fullname.lowercased() == name.lowercased() }) {
-                    let newNote = Note(
-                        generalActivity: generalActivityPoints.joined(separator: "\n"),
-                        toiletTraining: toiletTraining,
-                        toiletTrainingStatus: toiletTrainingStatus,
-                        student: student
-                    )
-                    notes.append(newNote)
-                    print("Note created for \(student.fullname)")
+                    for activity in generalActivityPoints {
+                        let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
+                        if !trimmedActivity.isEmpty {
+                            let newNote = Activity(
+                                generalActivity: trimmedActivity,
+                                student: student
+                            )
+                            notes.append(newNote)
+                            print("Note created for \(student.fullname): \(trimmedActivity)")
+                        }
+                    }
                 } else {
                     print("No matching student found for: \(name)")
                 }

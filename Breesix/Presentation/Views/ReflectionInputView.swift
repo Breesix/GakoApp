@@ -58,7 +58,7 @@ struct ReflectionInputView: View {
                 let notes = CSVParser.parseNotes(csvString: csvString, students: viewModel.students)
                 
                 for note in notes {
-                    await viewModel.addNote(note, for: note.student!)
+                    await viewModel.addActivity(note, for: note.student!)
                 }
                 
                 await MainActor.run {
