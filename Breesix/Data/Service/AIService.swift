@@ -17,7 +17,7 @@ class ReflectionProcessor {
     }
     
     func processReflection(reflection: String, students: [Student]) async throws -> String {
-        let studentNames = students.map { $0.fullname }.joined(separator: ", ")
+        let studentInfo = students.map { "\($0.fullname) (\($0.nickname))" }.joined(separator: ", ")
         
         if students.isEmpty {
             throw ProcessingError.noStudentData
@@ -28,7 +28,7 @@ class ReflectionProcessor {
 
         Panduan Analisis:
         1. Bacalah dengan seksama setiap refleksi yang diberikan oleh guru.
-        2. Identifikasi semua siswa yang disebutkan dalam refleksi.
+        2. Identifikasi semua siswa yang disebutkan dalam refleksi, baik menggunakan nama lengkap maupun nama panggilan.
         3. Apabila nama siswa tidak disebutkan secara langsung, pahami terminologi seperti "semua" yang berarti semua siswa, dan "anak lain" yang berarti semua siswa kecuali mereka yang disebutkan secara eksplisit.
         4. Untuk setiap siswa yang disebutkan, tentukan aktivitas umum berdasarkan informasi yang disediakan, lengkapi dengan detail spesifik.
         5. Jika ada siswa yang tidak disebutkan dalam refleksi, catat "Tidak ada informasi" untuk mereka.
@@ -37,17 +37,18 @@ class ReflectionProcessor {
 
         Format Output:
         Hasilkan output dalam format CSV dengan struktur berikut:
-        Nama,Aktivitas Umum
+        Nama Lengkap,Nama Panggilan,Aktivitas Umum
 
         Aturan Pengisian:
-        - Nama: Nama lengkap siswa.
+        - Nama Lengkap: Nama lengkap siswa.
+        - Nama Panggilan: Nama panggilan siswa.
         - Aktivitas Umum: Daftar aktivitas yang dipisahkan dengan "|". Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
 
         Contoh Output:
-        Nama,Aktivitas Umum
-        Budi Santoso,"Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
-        Ani Putri,"Membaca buku (tertarik pada buku cerita hewan)|Bermain balok (membuat menara setinggi 10 balok)|Toilet training (masih perlu diingatkan, tapi menunjukkan kemajuan)"
-        Citra Lestari,"Tidak ada informasi"
+        Nama Lengkap,Nama Panggilan,Aktivitas Umum
+        Budi Santoso,Budi,"Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
+        Ani Putri,Ani,"Membaca buku (tertarik pada buku cerita hewan)|Bermain balok (membuat menara setinggi 10 balok)|Toilet training (masih perlu diingatkan, tapi menunjukkan kemajuan)"
+        Citra Lestari,Citra,"Tidak ada informasi"
 
         Penting:
         - Gunakan HANYA informasi yang secara eksplisit disebutkan dalam refleksi guru.
@@ -57,7 +58,7 @@ class ReflectionProcessor {
         """
         
         let userInput = """
-        Data Murid: \(studentNames)
+        Data Murid: \(studentInfo)
 
         Refleksi Guru: \(reflection)
         """
@@ -103,18 +104,19 @@ class CSVParser {
         var activities: [Activity] = []
         
         print("Total rows in CSV: \(rows.count)")
-        print("Available students: \(students.map { $0.fullname })")
+        print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
         
         for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             print("Processing row \(index + 1): \(row)")
             
             let columns = parseCSVRow(row)
-            if columns.count >= 2 {
-                let name = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                let generalActivityString = columns[1]
+            if columns.count >= 3 {
+                let fullName = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                let nickname = columns[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                let generalActivityString = columns[2]
                 
-                print("Searching for student: \(name)")
-                if let student = findMatchingStudent(name: name, in: students) {
+                print("Searching for student: \(fullName) (\(nickname))")
+                if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
                     if generalActivityString.lowercased() != "tidak ada informasi" {
                         let generalActivityPoints = generalActivityString.components(separatedBy: "|")
                         for activity in generalActivityPoints {
@@ -125,14 +127,14 @@ class CSVParser {
                                     student: student
                                 )
                                 activities.append(newActivity)
-                                print("Activity created for \(student.fullname): \(trimmedActivity)")
+                                print("Activity created for \(student.fullname) (\(student.nickname)): \(trimmedActivity)")
                             }
                         }
                     } else {
-                        print("No information available for \(student.fullname)")
+                        print("No information available for \(student.fullname) (\(student.nickname))")
                     }
                 } else {
-                    print("No matching student found for: \(name)")
+                    print("No matching student found for: \(fullName) (\(nickname))")
                 }
             } else {
                 print("Invalid column count in row: \(columns.count)")
@@ -163,17 +165,15 @@ class CSVParser {
         return columns
     }
     
-    private static func findMatchingStudent(name: String, in students: [Student]) -> Student? {
-        let normalizedName = name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+    private static func findMatchingStudent(fullName: String, nickname: String, in students: [Student]) -> Student? {
+        let normalizedFullName = fullName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedNickname = nickname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if let student = students.first(where: { $0.fullname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == normalizedName }) {
-            return student
+        return students.first { student in
+            let studentFullName = student.fullname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            let studentNickname = student.nickname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            return studentFullName == normalizedFullName || studentNickname == normalizedNickname
         }
-        
-        return students.first(where: {
-            let studentNames = $0.fullname.lowercased().split(separator: " ")
-            let csvNames = normalizedName.split(separator: " ")
-            return !Set(studentNames).isDisjoint(with: csvNames)
-        })
     }
 }
