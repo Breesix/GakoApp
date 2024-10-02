@@ -10,16 +10,20 @@ import SwiftUI
 struct ReflectionPreviewView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
+    let recentActivities: [Activity]
     
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.students) { student in
-                    Section(header: Text(student.fullname)) {
-                        ForEach(student.activities.sorted(by: { $0.createdAt > $1.createdAt })) { activity in
-                            VStack(alignment: .leading) {
-                                Text("\(activity.generalActivity)")
-//                                Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
+                    let studentActivities = recentActivities.filter { $0.student?.id == student.id }
+                    if !studentActivities.isEmpty {
+                        Section(header: Text(student.fullname)) {
+                            ForEach(studentActivities.sorted(by: { $0.createdAt > $1.createdAt })) { activity in
+                                VStack(alignment: .leading) {
+                                    Text(activity.generalActivity)
+                                    Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
+                                }
                             }
                         }
                     }

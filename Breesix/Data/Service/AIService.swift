@@ -105,10 +105,10 @@ class CSVParser {
         for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             print("Processing row \(index + 1): \(row)")
             
-            let columns = row.components(separatedBy: ",")
+            let columns = parseCSVRow(row)
             if columns.count >= 2 {
                 let name = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                let generalActivityString = columns[1].trimmingCharacters(in: .init(charactersIn: "\""))
+                let generalActivityString = columns[1]
                 let generalActivityPoints = generalActivityString.components(separatedBy: "|")
                 
                 print("Searching for student: \(name)")
@@ -134,5 +134,25 @@ class CSVParser {
         
         print("Total activities created: \(activities.count)")
         return activities
+    }
+    
+    private static func parseCSVRow(_ row: String) -> [String] {
+        var columns: [String] = []
+        var currentColumn = ""
+        var insideQuotes = false
+        
+        for character in row {
+            if character == "\"" {
+                insideQuotes.toggle()
+            } else if character == "," && !insideQuotes {
+                columns.append(currentColumn)
+                currentColumn = ""
+            } else {
+                currentColumn.append(character)
+            }
+        }
+        
+        columns.append(currentColumn)
+        return columns
     }
 }

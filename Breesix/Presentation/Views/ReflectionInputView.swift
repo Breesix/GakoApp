@@ -11,10 +11,13 @@ import SwiftUI
 struct ReflectionInputView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Binding var isShowingPreview: Bool
+    @Binding var recentActivities: [Activity]
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
+    
+    var onDismiss: () -> Void
     
     private let reflectionProcessor = ReflectionProcessor(apiToken: "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")
     
@@ -57,14 +60,16 @@ struct ReflectionInputView: View {
                 
                 let activities = CSVParser.parseActivities(csvString: csvString, students: viewModel.students)
                 
+                recentActivities = []
                 for activity in activities {
                     await viewModel.addActivity(activity, for: activity.student!)
+                    recentActivities.append(activity)
                 }
                 
                 await MainActor.run {
                     isLoading = false
                     presentationMode.wrappedValue.dismiss()
-                    isShowingPreview = true
+                    onDismiss()
                 }
             } catch {
                 await MainActor.run {

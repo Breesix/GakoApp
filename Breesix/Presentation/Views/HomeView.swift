@@ -12,7 +12,8 @@ struct HomeView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
-    
+    @State private var recentActivities: [Activity] = []
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -21,11 +22,10 @@ struct HomeView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    Text("Anda belum curhat terkait kegiatan umum dan toilet training yang dilakukan oleh murid-murid")
                     Button(action: {
                         isShowingReflectionSheet = true
                     }) {
-                        Text("Curhat Manual")
+                        Text("CURHAT DONG MAH")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
@@ -39,10 +39,13 @@ struct HomeView: View {
             .navigationTitle("Curhat")
         }
         .sheet(isPresented: $isShowingReflectionSheet) {
-            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview)
+            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview, recentActivities: $recentActivities, onDismiss: {
+                isShowingReflectionSheet = false
+                isShowingPreview = true
+            })
         }
         .sheet(isPresented: $isShowingPreview) {
-            ReflectionPreviewView(viewModel: studentListViewModel)
+            ReflectionPreviewView(viewModel: studentListViewModel, recentActivities: recentActivities)
         }
     }
 }
