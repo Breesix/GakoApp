@@ -10,7 +10,7 @@ import SwiftUI
 struct StudentListView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isAddingStudent = false
-    @State private var isAddingNote = false
+    @State private var isAddingActivity = false
 
     var body: some View {
         NavigationView {
@@ -55,7 +55,7 @@ struct StudentListView: View {
                 }
                 ToolbarItem(placement: .bottomBar) {
                     Button("Tambah Catatan") {
-                        isAddingNote = true
+                        isAddingActivity = true
                     }
                 }
             }
@@ -66,8 +66,8 @@ struct StudentListView: View {
         .sheet(isPresented: $isAddingStudent) {
             StudentEditView(viewModel: viewModel, mode: .add)
         }
-        .sheet(isPresented: $isAddingNote) {
-            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
+        .sheet(isPresented: $isAddingActivity) {
+            ActivityFormView(viewModel: viewModel, isPresented: $isAddingActivity)
         }
         .task {
             await viewModel.loadStudents()
@@ -79,9 +79,9 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    @State private var notes: [Note] = []
+    @State private var activities: [Activity] = []
     @State private var selectedDate = Date()
-    @State private var selectedNote: Note?
+    @State private var selectedActivity: Activity?
 
     var body: some View {
         List {
@@ -94,28 +94,26 @@ struct StudentDetailView: View {
                 DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                     .onChange(of: selectedDate) { oldValue, newValue in
                         Task {
-                            await loadNotes()
+                            await loadActivities()
                         }
                     }
             }
 
-            Section(header: Text("Catatan")) {
-                if filteredNotes.isEmpty {
+            Section(header: Text("Aktivitas Umum")) {
+                if filteredActivities.isEmpty {
                     Text("Tidak ada catatan untuk tanggal ini")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(filteredNotes, id: \.id) { note in
+                    ForEach(filteredActivities, id: \.id) { activity in
                         VStack(alignment: .leading) {
-                            Text("Aktivitas Umum: \(note.generalActivity)")
-                            Text("Catatan Toilet Training: \(note.toiletTraining)")
-                            Text("Status Toilet Training: \(note.toiletTrainingStatus ? "Ya" : "Tidak")")
+                            Text("\(activity.generalActivity)")
                         }
                         .contextMenu {
                             Button("Edit") {
-                                self.selectedNote = note
+                                self.selectedActivity = activity
                             }
                             Button("Hapus", role: .destructive) {
-                                deleteNote(note)
+                                deleteActivity(activity)
                             }
 
                         }
@@ -124,7 +122,7 @@ struct StudentDetailView: View {
             }
             .onChange(of: viewModel.students) { _, _ in
                 Task {
-                    await loadNotes()
+                    await loadActivities()
                 }
             }
         }
@@ -135,29 +133,24 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
-        .sheet(item: $selectedNote) { note in
-            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
-                selectedNote = nil
-            })
-        }
         .task {
-            await loadNotes()
+            await loadActivities()
         }
     }
 
-    private func loadNotes() async {
-        notes = await viewModel.getNotesForStudent(student)
+    private func loadActivities() async {
+        activities = await viewModel.getActivitiesForStudent(student)
     }
 
-    private var filteredNotes: [Note] {
-        let filtered = notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+    private var filteredActivities: [Activity] {
+        let filtered = activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         return filtered
     }
     
-    private func deleteNote(_ note: Note) {
+    private func deleteActivity(_ activity: Activity) {
         Task {
-            await viewModel.deleteNote(note, from: student)
-            notes.removeAll(where: { $0.id == note.id })
+            await viewModel.deleteActivity(activity, from: student)
+            activities.removeAll(where: { $0.id == activity.id })
         }
     }
 }

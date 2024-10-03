@@ -7,11 +7,19 @@
 
 import SwiftUI
 
+
 struct ReflectionInputView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Binding var isShowingPreview: Bool
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
+    @State private var isLoading: Bool = false
+    @State private var errorMessage: String?
+    
+    let selectedDate: Date
+    var onDismiss: () -> Void
+    
+    private let reflectionProcessor = ReflectionProcessor(apiToken: "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")
     
     var body: some View {
         NavigationView {
@@ -20,13 +28,18 @@ struct ReflectionInputView: View {
                     .padding()
                     .border(Color.gray, width: 1)
                 
+                if isLoading {
+                    ProgressView()
+                } else if let error = errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                }
+                
                 Button("Next") {
                     processReflection()
-                    presentationMode.wrappedValue.dismiss()
-                    isShowingPreview = true
                 }
                 .padding()
-                .disabled(reflection.isEmpty)
+                .disabled(reflection.isEmpty || isLoading)
             }
             .navigationTitle("Curhat Manual")
             .navigationBarItems(trailing: Button("Cancel") {
@@ -36,17 +49,29 @@ struct ReflectionInputView: View {
     }
     
     private func processReflection() {
-        // Simulasi pemrosesan AI
-        // pamggil API AI di sini
-        for student in viewModel.students {
-            let newNote = Note(
-                generalActivity: "Aktivitas umum dari refleksi",
-                toiletTraining: "Catatan toilet training dari refleksi",
-                toiletTrainingStatus: Bool.random(),
-                student: student
-            )
-            Task {
-                await viewModel.addNote(newNote, for: student)
+        Task {
+            do {
+                isLoading = true
+                errorMessage = nil
+                
+                await viewModel.loadStudents()
+                
+                let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
+                
+                let unsavedActivities = CSVParser.parseUnsavedActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                
+                await MainActor.run {
+                    isLoading = false
+                    viewModel.addUnsavedActivities(unsavedActivities)
+                    presentationMode.wrappedValue.dismiss()
+                    onDismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    print("Error in processReflection: \(error)")
+                }
             }
         }
     }

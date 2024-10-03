@@ -12,20 +12,23 @@ struct HomeView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 16) {
+                    DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
+                        .datePickerStyle(CompactDatePickerStyle())
+                        .labelsHidden()
+                    
                     Text(viewModel.formattedDate)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    Text("Anda belum curhat terkait kegiatan umum dan toilet training yang dilakukan oleh murid-murid")
                     Button(action: {
                         isShowingReflectionSheet = true
                     }) {
-                        Text("Curhat Manual")
+                        Text("CURHAT DONG MAH")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
@@ -39,10 +42,24 @@ struct HomeView: View {
             .navigationTitle("Curhat")
         }
         .sheet(isPresented: $isShowingReflectionSheet) {
-            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview)
+            ReflectionInputView(
+                viewModel: studentListViewModel,
+                isShowingPreview: $isShowingPreview,
+                selectedDate: viewModel.selectedDate,
+                onDismiss: {
+                    isShowingReflectionSheet = false
+                    isShowingPreview = true
+                }
+            )
         }
-        .sheet(isPresented: $isShowingPreview) {
-            ReflectionPreviewView(viewModel: studentListViewModel)
+        .sheet(isPresented: $isShowingPreview, onDismiss: {
+            studentListViewModel.clearUnsavedActivities()
+        }) {
+            ReflectionPreviewView(
+                viewModel: studentListViewModel,
+                isShowingPreview: $isShowingPreview,
+                selectedDate: viewModel.selectedDate
+            )
         }
     }
 }
