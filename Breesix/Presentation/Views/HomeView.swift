@@ -17,7 +17,11 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 16) {
+                    DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
+                        .datePickerStyle(CompactDatePickerStyle())
+                        .labelsHidden()
+                    
                     Text(viewModel.formattedDate)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -39,7 +43,7 @@ struct HomeView: View {
             .navigationTitle("Curhat")
         }
         .sheet(isPresented: $isShowingReflectionSheet) {
-            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview, recentActivities: $recentActivities, onDismiss: {
+            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview, recentActivities: $recentActivities, selectedDate: viewModel.selectedDate, onDismiss: {
                 isShowingReflectionSheet = false
                 isShowingPreview = true
             })

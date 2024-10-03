@@ -8,23 +8,16 @@
 import Foundation
 
 class HomeViewModel: ObservableObject {
-    @Published var currentDate: Date
+    @Published var selectedDate: Date
     
     init() {
-        self.currentDate = Date()
-        setupDateUpdater()
-    }
-    
-    private func setupDateUpdater() {
-        Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            self?.currentDate = Date()
-        }
+        self.selectedDate = Date()
     }
     
     var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .none
-        return formatter.string(from: currentDate)
+        return formatter.string(from: selectedDate)
     }
 }

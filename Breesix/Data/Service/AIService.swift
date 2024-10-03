@@ -99,7 +99,7 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseActivities(csvString: String, students: [Student]) -> [Activity] {
+    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [Activity] {
         let rows = csvString.components(separatedBy: .newlines)
         var activities: [Activity] = []
         
@@ -124,6 +124,7 @@ class CSVParser {
                             if !trimmedActivity.isEmpty {
                                 let newActivity = Activity(
                                     generalActivity: trimmedActivity,
+                                    createdAt: createdAt,
                                     student: student
                                 )
                                 activities.append(newActivity)
@@ -144,6 +145,7 @@ class CSVParser {
         print("Total activities created: \(activities.count)")
         return activities
     }
+
     
     private static func parseCSVRow(_ row: String) -> [String] {
         var columns: [String] = []

@@ -17,6 +17,7 @@ struct ReflectionInputView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     
+    let selectedDate: Date
     var onDismiss: () -> Void
     
     private let reflectionProcessor = ReflectionProcessor(apiToken: "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")
@@ -58,7 +59,7 @@ struct ReflectionInputView: View {
                 
                 let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
                 
-                let activities = CSVParser.parseActivities(csvString: csvString, students: viewModel.students)
+                let activities = CSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
                 
                 recentActivities = []
                 for activity in activities {
