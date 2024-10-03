@@ -57,7 +57,8 @@ struct HomeView: View {
         }) {
             ReflectionPreviewView(
                 viewModel: studentListViewModel,
-                isShowingPreview: $isShowingPreview
+                isShowingPreview: $isShowingPreview,
+                selectedDate: viewModel.selectedDate
             )
         }
     }

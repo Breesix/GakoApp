@@ -16,6 +16,8 @@ struct ReflectionPreviewView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedStudent: Student?
 
+    let selectedDate: Date
+
     var body: some View {
         NavigationView {
             List {
@@ -77,7 +79,7 @@ struct ReflectionPreviewView: View {
             if let student = selectedStudent {
                 ActivityCreateView(student: student, onSave: { newActivity in
                     addNewActivity(newActivity)
-                })
+                }, selectedDate: selectedDate)
             } else {
                 Text("No student selected. Please try again.")
             }
@@ -175,6 +177,8 @@ struct ActivityCreateView: View {
     @State private var generalActivity: String = ""
     let student: Student
     let onSave: (UnsavedActivity) -> Void
+    
+    let selectedDate: Date
 
     var body: some View {
         NavigationView {
@@ -185,7 +189,7 @@ struct ActivityCreateView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let newActivity = UnsavedActivity(generalActivity: generalActivity, createdAt: Date(), studentId: student.id)
+                    let newActivity = UnsavedActivity(generalActivity: generalActivity, createdAt: selectedDate, studentId: student.id)
                     onSave(newActivity)
                     presentationMode.wrappedValue.dismiss()
                 }
