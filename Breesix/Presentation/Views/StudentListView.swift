@@ -133,11 +133,6 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
-        .sheet(item: $selectedActivity) { activity in
-            ActivityEditView(viewModel: viewModel, activity: activity, onDismiss: {
-                selectedActivity = nil
-            })
-        }
         .task {
             await loadActivities()
         }

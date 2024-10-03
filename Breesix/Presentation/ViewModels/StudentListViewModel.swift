@@ -110,4 +110,18 @@ class StudentListViewModel: ObservableObject {
         clearUnsavedActivities()
     }
 
+    
+    func updateUnsavedActivity(_ activity: UnsavedActivity) {
+        if let index = unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+            unsavedActivities[index] = activity
+        }
+    }
+
+    func deleteUnsavedActivity(_ activity: UnsavedActivity) {
+        unsavedActivities.removeAll { $0.id == activity.id }
+    }
+
+    func addUnsavedActivity(_ activity: UnsavedActivity) {
+        unsavedActivities.append(activity)
+    }
 }

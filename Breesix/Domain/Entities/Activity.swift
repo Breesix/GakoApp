@@ -24,13 +24,13 @@ class Activity {
 }
 
 struct UnsavedActivity: Identifiable {
-    let id: UUID
-    let generalActivity: String
-    let createdAt: Date
-    let studentId: Student.ID
+    var id: UUID
+    var generalActivity: String
+    var createdAt: Date
+    var studentId: Student.ID 
 
-    init(generalActivity: String, createdAt: Date, studentId: Student.ID) {
-        self.id = UUID()
+    init(id: UUID = UUID(), generalActivity: String, createdAt: Date, studentId: Student.ID) {
+        self.id = id
         self.generalActivity = generalActivity
         self.createdAt = createdAt
         self.studentId = studentId
