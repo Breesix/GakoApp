@@ -11,7 +11,6 @@ import SwiftUI
 struct ReflectionInputView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Binding var isShowingPreview: Bool
-    @Binding var recentActivities: [Activity]
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false
@@ -59,16 +58,11 @@ struct ReflectionInputView: View {
                 
                 let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
                 
-                let activities = CSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
-                
-                recentActivities = []
-                for activity in activities {
-                    await viewModel.addActivity(activity, for: activity.student!)
-                    recentActivities.append(activity)
-                }
+                let unsavedActivities = CSVParser.parseUnsavedActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
                 
                 await MainActor.run {
                     isLoading = false
+                    viewModel.addUnsavedActivities(unsavedActivities)
                     presentationMode.wrappedValue.dismiss()
                     onDismiss()
                 }

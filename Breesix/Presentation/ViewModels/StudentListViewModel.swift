@@ -10,9 +10,10 @@ import Foundation
 @MainActor
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
+    @Published var unsavedActivities: [UnsavedActivity] = []
     private let studentUseCases: StudentUseCase
     private let activityUseCases: ActivityUseCase
-    
+
     init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase) {
         self.studentUseCases = studentUseCases
         self.activityUseCases = activityUseCases
@@ -89,6 +90,24 @@ class StudentListViewModel: ObservableObject {
         } catch {
             print("Error deleting activity: \(error)")
         }
+    }
+
+    func addUnsavedActivities(_ activities: [UnsavedActivity]) {
+        unsavedActivities.append(contentsOf: activities)
+    }
+
+    func clearUnsavedActivities() {
+        unsavedActivities.removeAll()
+    }
+
+    func saveUnsavedActivities() async {
+        for unsavedActivity in unsavedActivities {
+            if let student = students.first(where: { $0.id == unsavedActivity.studentId }) {
+                let activity = Activity(generalActivity: unsavedActivity.generalActivity, createdAt: unsavedActivity.createdAt, student: student)
+                await addActivity(activity, for: student)
+            }
+        }
+        clearUnsavedActivities()
     }
 
 }

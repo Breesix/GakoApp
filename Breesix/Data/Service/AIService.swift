@@ -99,52 +99,39 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [Activity] {
+    static func parseUnsavedActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedActivity] {
         let rows = csvString.components(separatedBy: .newlines)
-        var activities: [Activity] = []
+        var unsavedActivities: [UnsavedActivity] = []
         
-        print("Total rows in CSV: \(rows.count)")
-        print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
-        
-        for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
-            print("Processing row \(index + 1): \(row)")
-            
+        for (_, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             let columns = parseCSVRow(row)
             if columns.count >= 3 {
                 let fullName = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
                 let nickname = columns[1].trimmingCharacters(in: .whitespacesAndNewlines)
                 let generalActivityString = columns[2]
                 
-                print("Searching for student: \(fullName) (\(nickname))")
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
                     if generalActivityString.lowercased() != "tidak ada informasi" {
                         let generalActivityPoints = generalActivityString.components(separatedBy: "|")
                         for activity in generalActivityPoints {
                             let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
                             if !trimmedActivity.isEmpty {
-                                let newActivity = Activity(
+                                let unsavedActivity = UnsavedActivity(
                                     generalActivity: trimmedActivity,
                                     createdAt: createdAt,
-                                    student: student
+                                    studentId: student.id
                                 )
-                                activities.append(newActivity)
-                                print("Activity created for \(student.fullname) (\(student.nickname)): \(trimmedActivity)")
+                                unsavedActivities.append(unsavedActivity)
                             }
                         }
-                    } else {
-                        print("No information available for \(student.fullname) (\(student.nickname))")
                     }
-                } else {
-                    print("No matching student found for: \(fullName) (\(nickname))")
                 }
-            } else {
-                print("Invalid column count in row: \(columns.count)")
             }
         }
         
-        print("Total activities created: \(activities.count)")
-        return activities
+        return unsavedActivities
     }
+
 
     
     private static func parseCSVRow(_ row: String) -> [String] {

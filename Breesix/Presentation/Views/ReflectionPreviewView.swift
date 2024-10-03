@@ -10,16 +10,17 @@ import SwiftUI
 struct ReflectionPreviewView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
-    let recentActivities: [Activity]
-    
+    @Binding var isShowingPreview: Bool
+    @State private var isSaving = false
+
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.students) { student in
-                    let studentActivities = recentActivities.filter { $0.student?.id == student.id }
+                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
                     if !studentActivities.isEmpty {
                         Section(header: Text(student.fullname)) {
-                            ForEach(studentActivities.sorted(by: { $0.createdAt > $1.createdAt })) { activity in
+                            ForEach(studentActivities) { activity in
                                 VStack(alignment: .leading) {
                                     Text(activity.generalActivity)
                                     Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
@@ -30,10 +31,28 @@ struct ReflectionPreviewView: View {
                 }
             }
             .navigationTitle("Preview Refleksi")
-            .navigationBarItems(trailing: Button("Selesai") {
-                presentationMode.wrappedValue.dismiss()
-            })
+            .navigationBarItems(
+                leading: Button("Batal") {
+                    viewModel.clearUnsavedActivities()
+                    isShowingPreview = false
+                },
+                trailing: Button("Simpan") {
+                    saveActivities()
+                }
+                .disabled(isSaving)
+            )
         }
+        .overlay(
+            Group {
+                if isSaving {
+                    ProgressView("Menyimpan...")
+                        .padding()
+                        .background(Color.secondary.colorInvert())
+                        .cornerRadius(10)
+                        .shadow(radius: 10)
+                }
+            }
+        )
     }
     
     private let itemFormatter: DateFormatter = {
@@ -42,4 +61,15 @@ struct ReflectionPreviewView: View {
         formatter.timeStyle = .short
         return formatter
     }()
+    
+    private func saveActivities() {
+        isSaving = true
+        Task {
+            await viewModel.saveUnsavedActivities()
+            await MainActor.run {
+                isSaving = false
+                isShowingPreview = false
+            }
+        }
+    }
 }

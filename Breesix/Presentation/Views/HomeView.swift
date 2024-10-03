@@ -12,7 +12,6 @@ struct HomeView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
-    @State private var recentActivities: [Activity] = []
 
     var body: some View {
         NavigationView {
@@ -43,13 +42,23 @@ struct HomeView: View {
             .navigationTitle("Curhat")
         }
         .sheet(isPresented: $isShowingReflectionSheet) {
-            ReflectionInputView(viewModel: studentListViewModel, isShowingPreview: $isShowingPreview, recentActivities: $recentActivities, selectedDate: viewModel.selectedDate, onDismiss: {
-                isShowingReflectionSheet = false
-                isShowingPreview = true
-            })
+            ReflectionInputView(
+                viewModel: studentListViewModel,
+                isShowingPreview: $isShowingPreview,
+                selectedDate: viewModel.selectedDate,
+                onDismiss: {
+                    isShowingReflectionSheet = false
+                    isShowingPreview = true
+                }
+            )
         }
-        .sheet(isPresented: $isShowingPreview) {
-            ReflectionPreviewView(viewModel: studentListViewModel, recentActivities: recentActivities)
+        .sheet(isPresented: $isShowingPreview, onDismiss: {
+            studentListViewModel.clearUnsavedActivities()
+        }) {
+            ReflectionPreviewView(
+                viewModel: studentListViewModel,
+                isShowingPreview: $isShowingPreview
+            )
         }
     }
 }
