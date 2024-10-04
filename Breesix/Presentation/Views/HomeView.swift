@@ -12,18 +12,35 @@ struct HomeView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
+    @State private var isShowingMandatorySheet = false
+    @State private var isShowingToiletTrainingSheet = false
+    @State private var isAllStudentsFilled = true // Add this state to track student completion
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
-                        .datePickerStyle(CompactDatePickerStyle())
-                        .labelsHidden()
+                    // ...
+                    VStack(alignment: .leading, spacing: 16) {
+                        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
+                            .datePickerStyle(CompactDatePickerStyle())
+                            .labelsHidden()
+                        
+                        Text(viewModel.formattedDate)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
                     
-                    Text(viewModel.formattedDate)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    Button(action: {
+                        isShowingMandatorySheet = true
+                    }) {
+                        Text("Mandatory Disokin")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
                     
                     Button(action: {
                         isShowingReflectionSheet = true
@@ -62,7 +79,33 @@ struct HomeView: View {
                 selectedDate: viewModel.selectedDate
             )
         }
+        
+        .sheet(isPresented: $isShowingMandatorySheet) {
+            MandatoryInputView(
+                viewModel: studentListViewModel,
+                isShowingTrainingPreview: $isShowingToiletTrainingSheet,
+                isAllStudentsFilled: $isAllStudentsFilled,
+                selectedDate: viewModel.selectedDate,
+                onDismiss: {
+                    isShowingMandatorySheet = false
+                    isShowingToiletTrainingSheet = true
+                }
+            )
+        }
+        
+        .sheet(isPresented: $isShowingToiletTrainingSheet) {
+            TrainingPreviewView(viewModel: studentListViewModel, isShowingToiletTraining: $isShowingToiletTrainingSheet)
+        }
     }
 }
 
+enum ActiveSheet: Identifiable {
+    case reflection
+    case preview
+    case mandatory
+    case toiletTraining
 
+    var id: Int {
+        hashValue
+    }
+}

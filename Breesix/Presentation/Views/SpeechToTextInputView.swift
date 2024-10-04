@@ -19,6 +19,6 @@ struct SpeechToTextInputView: View {
     }
 }
 
-#Preview {
-    SpeechToTextInputView()
-}
+//#Preview {
+//    SpeechToTextInputView()
+//}

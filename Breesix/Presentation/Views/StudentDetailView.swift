@@ -15,6 +15,9 @@ struct StudentDetailView: View {
     @State private var selectedDate = Date()
     @State private var selectedActivity: Activity?
     @State private var isAddingNewActivity = false
+    @State private var selectedTraining: ToiletTraining?
+    @State private var toiletTrainings: [ToiletTraining] = []
+
 
     var body: some View {
         List {
@@ -66,6 +69,48 @@ struct StudentDetailView: View {
                     await loadActivities()
                 }
             }
+            
+            Section(header: Text("Toilet Training")) {
+                if toiletTrainings.isEmpty {
+                    Text("Tidak ada catatan untuk tanggal ini")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(toiletTrainingStudent, id: \.id) { training in
+                        VStack(alignment: .leading) {
+                            Text(training.trainingDetail)
+                            
+                            if let status = training.status {
+                                if status {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                        Text("Independent")
+                                    }
+                                    .foregroundColor(.green)
+                                } else {
+                                    HStack {
+                                        Image(systemName: "xmark.circle.fill")
+                                        Text("Needs Guidance")
+                                    }
+                                    .foregroundColor(.red)
+                                }
+                            }
+                        }
+                        .contextMenu {
+                            Button("Edit") {
+                                self.selectedTraining = training
+                            }
+                            Button("Hapus", role: .destructive) {
+                                deleteTraining(training)
+                            }
+                        }
+                    }
+                }
+            }
+            .onChange(of: viewModel.students) { _, _ in
+                Task {
+                    await loadToiletTrainingStudents()
+                }
+            }
         }
         .navigationTitle(student.nickname)
         .navigationBarItems(trailing: Button("Edit") {
@@ -79,6 +124,11 @@ struct StudentDetailView: View {
                 selectedActivity = nil
             })
         }
+        .sheet(item: $selectedTraining) { training in
+            TrainingEditView(viewModel: viewModel, training: training, onDismiss: {
+                selectedTraining = nil
+            })
+        }
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
                 isAddingNewActivity = false
@@ -89,6 +139,7 @@ struct StudentDetailView: View {
         }
         .task {
             await loadActivities()
+            await loadToiletTrainingStudents()
         }
 
     }
@@ -106,6 +157,22 @@ struct StudentDetailView: View {
         Task {
             await viewModel.deleteActivity(activity, from: student)
             activities.removeAll(where: { $0.id == activity.id })
+        }
+    }
+    
+    private func loadToiletTrainingStudents() async {
+        toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
+    }
+
+    private var toiletTrainingStudent: [ToiletTraining] {
+        let filtered = toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+        return filtered
+    }
+
+    private func deleteTraining(_ training: ToiletTraining) {
+        Task {
+            await viewModel.deleteToiletTraining(training, from: student)
+            toiletTrainings.removeAll(where: { $0.id == training.id })
         }
     }
 }
