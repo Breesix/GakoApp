@@ -212,4 +212,14 @@ class StudentListViewModel: ObservableObject {
             print("Error adding training: \(error)")
         }
     }
+    
+    func updateTraining(_ training: ToiletTraining) async {
+        do {
+            try await toiletTrainingUseCases.updateTrainingProgress(training)
+            await loadStudents()
+        } catch {
+            print("Error updating activity: \(error)")
+        }
+    }
+
 }

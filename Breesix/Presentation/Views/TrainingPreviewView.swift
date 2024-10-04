@@ -58,7 +58,7 @@ struct TrainingPreviewView: View {
             )
         }
         .sheet(item: $editingTraining) { training in
-            TrainingEditView(training: training, onSave: { updatedTraining in
+            UnsavedTrainingEditView(training: training, onSave: { updatedTraining in
                 updateTraining(updatedTraining)
             })
         }
@@ -138,7 +138,7 @@ struct TrainingDetailRow: View {
     }()
 }
 
-struct TrainingEditView: View {
+struct UnsavedTrainingEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var trainingDetail: String
     @State private var status: Bool

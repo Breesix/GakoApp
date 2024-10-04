@@ -52,6 +52,7 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
+                    
                 }
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -74,7 +75,8 @@ struct HomeView: View {
         }) {
             ReflectionPreviewView(
                 viewModel: studentListViewModel,
-                isShowingPreview: $isShowingPreview
+                isShowingPreview: $isShowingPreview,
+                selectedDate: viewModel.selectedDate
             )
         }
         

@@ -65,7 +65,7 @@ class ReflectionProcessor {
 
         let fullPrompt = botPrompt + "\n\n" + userInput
         print(fullPrompt)
-        let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o_mini)
+        let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o)
         
         let result = try await openAI.chats(query: query)
         
@@ -76,6 +76,8 @@ class ReflectionProcessor {
         if csvString.contains("Tidak ada informasi") && !csvString.contains(",") {
             throw ProcessingError.insufficientInformation
         }
+        
+        print("ai response: \n \(csvString)")
         
         return csvString
     }

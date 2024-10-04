@@ -16,6 +16,8 @@ struct ReflectionPreviewView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedStudent: Student?
 
+    let selectedDate: Date
+
     var body: some View {
         NavigationView {
             List {
@@ -69,15 +71,15 @@ struct ReflectionPreviewView: View {
             )
         }
         .sheet(item: $editingActivity) { activity in
-            ActivityEditView(activity: activity, onSave: { updatedActivity in
+            UnsavedActivityEditView(activity: activity, onSave: { updatedActivity in
                 updateActivity(updatedActivity)
             })
         }
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                ActivityCreateView(student: student, onSave: { newActivity in
+                UnsavedActivityCreateView(student: student, onSave: { newActivity in
                     addNewActivity(newActivity)
-                })
+                }, selectedDate: selectedDate)
             } else {
                 Text("No student selected. Please try again.")
             }
@@ -140,7 +142,7 @@ struct ActivityRow: View {
     }()
 }
 
-struct ActivityEditView: View {
+struct UnsavedActivityEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var generalActivity: String
     let activity: UnsavedActivity
@@ -170,12 +172,13 @@ struct ActivityEditView: View {
     }
 }
 
-
-struct ActivityCreateView: View {
+struct UnsavedActivityCreateView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var generalActivity: String = ""
     let student: Student
     let onSave: (UnsavedActivity) -> Void
+    
+    let selectedDate: Date
 
     var body: some View {
         NavigationView {
@@ -186,7 +189,7 @@ struct ActivityCreateView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let newActivity = UnsavedActivity(generalActivity: generalActivity, createdAt: Date(), studentId: student.id)
+                    let newActivity = UnsavedActivity(generalActivity: generalActivity, createdAt: selectedDate, studentId: student.id)
                     onSave(newActivity)
                     presentationMode.wrappedValue.dismiss()
                 }

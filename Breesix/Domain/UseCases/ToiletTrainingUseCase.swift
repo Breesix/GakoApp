@@ -18,7 +18,7 @@ struct ToiletTrainingUseCase {
         return try await repository.getTrainingForStudent(student)
     }
 
-    func updateTrainingProgress(_ training: ToiletTraining, from student: Student) async throws {
+    func updateTrainingProgress(_ training: ToiletTraining) async throws {
         try await repository.updateTrainingProgress(training)
     }
     
