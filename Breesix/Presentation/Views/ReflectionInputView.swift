@@ -6,14 +6,17 @@
 //
 
 import SwiftUI
+import Speech
 
 
 struct ReflectionInputView: View {
     @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var speechRecognizer = SpeechRecognizer()
     @Binding var isShowingPreview: Bool
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false
+    @State private var isRecord: Bool = false
     @State private var errorMessage: String?
     
     let selectedDate: Date
@@ -23,16 +26,63 @@ struct ReflectionInputView: View {
     
     var body: some View {
         NavigationView {
+            
             VStack {
-                TextEditor(text: $reflection)
-                    .padding()
-                    .border(Color.gray, width: 1)
-                
-                if isLoading {
-                    ProgressView()
-                } else if let error = errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
+                ZStack(alignment: .topLeading) {
+                    
+                    TextEditor(text: $reflection)
+                        .padding()
+                        .border(Color.gray, width: 1)
+                    if reflection.isEmpty {
+                        VStack {
+                            Text("Please enter your reflection here")
+                                .font(.headline)
+                                .foregroundColor(.gray)
+                            Spacer()
+                        }
+                    }
+                    
+                    if isLoading {
+                        ProgressView()
+                    } else if let error = errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                    }
+                }.padding()
+                if !isRecord {
+                    Button(action: {
+                        self.speechRecognizer.startTranscribing()
+                        isRecord.toggle()
+                    }) {
+                        Image("play-mic-button")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 60)
+                            .overlay{
+                                Circle()
+                                    .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                    .foregroundColor(.black)
+                                    .shadow(radius: 2)
+                            }
+                    }
+                } else {
+                    Button(action: {
+                        self.speechRecognizer.stopTranscribing()
+                        self.reflection = self.speechRecognizer.transcript
+                        isRecord.toggle()
+                    }) {
+                        Image("stop-mic-button")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 60)
+                            .overlay{
+                                Circle()
+                                    .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                    .foregroundColor(.black)
+                                    .shadow(radius: 2)
+                            }
+                        
+                    }
                 }
                 
                 Button("Next") {
@@ -45,6 +95,12 @@ struct ReflectionInputView: View {
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
+        }
+        .onAppear {
+            requestSpeechAuthorization()
+        }
+        .onReceive(speechRecognizer.$transcript) { newTranscript in
+            self.reflection = newTranscript
         }
     }
     
@@ -72,6 +128,22 @@ struct ReflectionInputView: View {
                     errorMessage = error.localizedDescription
                     print("Error in processReflection: \(error)")
                 }
+            }
+        }
+    }
+    func requestSpeechAuthorization() {
+        SFSpeechRecognizer.requestAuthorization { authStatus in
+            switch authStatus {
+            case .authorized:
+                print("Speech recognition authorized")
+            case .denied:
+                print("Speech recognition denied")
+            case .restricted:
+                print("Speech recognition restricted")
+            case .notDetermined:
+                print("Speech recognition not determined")
+            @unknown default:
+                print("Unknown status")
             }
         }
     }
