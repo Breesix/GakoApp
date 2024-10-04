@@ -124,6 +124,11 @@ struct StudentDetailView: View {
                 selectedActivity = nil
             })
         }
+        .sheet(item: $selectedTraining) { training in
+            TrainingEditView(viewModel: viewModel, training: training, onDismiss: {
+                selectedTraining = nil
+            })
+        }
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
                 isAddingNewActivity = false
