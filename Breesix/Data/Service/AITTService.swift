@@ -42,14 +42,14 @@ class AITTService {
         Aturan Pengisian:
         - Nama Lengkap: Nama lengkap siswa.
         - Nama Panggilan: Nama panggilan siswa.
-        - Status: Status toilet training anak berupa nilai boolean, true untuk anak yang sudah dapat melakukan dengan mandiri, false apabila masih terdapat masalah atau perlu dibimbing, atau nil jika tidak ada informasi
+        - Status: Status toilet training anak berupa nilai boolean, true untuk anak yang sudah dapat melakukan dengan mandiri, false apabila masih terdapat masalah atau perlu dibimbing, atau null jika tidak ada informasi
         - deskripsi: Catatan spesifik tentang toilet training. Jika tidak ada, isi ”Tidak ada informasi"
 
         Contoh Output:
         Nama Lengkap,Nama Panggilan,status,deskripsi
         Budi Santoso,Budi,true,“Sudah bisa pergi ke toilet sendiri dan cebok sendiri. Ia pun mengingatkan temannya untuk menyiram setelah buang air” 
         Ani Putri,Ani,false,”Masih meminta untuk ditemani ke dalam ruangan toilet, namun sudah ada kemajuan”
-        Citra Lestari,Citra,nil,”Tidak ada informasi"
+        Citra Lestari,Citra,null,”Tidak ada informasi"
 
         Penting:
         - Gunakan HANYA informasi yang secara eksplisit disebutkan dalam refleksi guru.
@@ -82,9 +82,9 @@ class AITTService {
 }
 
 class TTCSVParser {
-    static func parseActivities(csvString: String, students: [Student]) -> [ToiletTraining] {
+    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedToiletTraining] {
         let rows = csvString.components(separatedBy: .newlines)
-        var toiletTrainings: [ToiletTraining] = []
+        var unsavedToiletTrainings: [UnsavedToiletTraining] = []
         
         print("Total rows in CSV: \(rows.count)")
         print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
@@ -110,12 +110,13 @@ class TTCSVParser {
                         }
                         let trainingDetail: String = details
                         if !trainingDetail.isEmpty {
-                            let toiletTraining = ToiletTraining(
+                            let unsavedToiletTraining = UnsavedToiletTraining(
                                 trainingDetail: trainingDetail,
-                                student: student,
-                                status: trainingStatus
+                                createdAt: createdAt,
+                                status: trainingStatus,
+                                studentId: student.id
                             )
-                            toiletTrainings.append(toiletTraining)
+                            unsavedToiletTrainings.append(unsavedToiletTraining)
                         } else {
                             print("No information available for \(student.fullname) (\(student.nickname))")
                         }
@@ -130,8 +131,8 @@ class TTCSVParser {
             }
         }
         
-        print("Total training created: \(toiletTrainings.count)")
-        return toiletTrainings
+        print("Total training created: \(unsavedToiletTrainings.count)")
+        return unsavedToiletTrainings
     }
     
     private static func parseCSVRow(_ row: String) -> [String] {

@@ -12,7 +12,7 @@ struct TrainingPreviewView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingToiletTraining: Bool
     @State private var isSaving = false
-    @State private var editingTraining: ToiletTraining?
+    @State private var editingTraining: UnsavedToiletTraining?
     @State private var isAddingNewTraining = false
     @State private var selectedStudent: Student?
 
@@ -20,7 +20,7 @@ struct TrainingPreviewView: View {
         NavigationView {
             List {
                 ForEach(viewModel.students) { student in
-                    let studentTrainings = viewModel.toiletTrainings.filter { $0.student == student }
+                    let studentTrainings = viewModel.unsavedToiletTrainings.filter { $0.studentId == student.id }
                     if !studentTrainings.isEmpty {
                         Section(header: Text(student.fullname)) {
                             ForEach(studentTrainings) { training in
@@ -30,16 +30,6 @@ struct TrainingPreviewView: View {
                                     deleteTraining(training)
                                 })
                             }
-                            
-                            Button("Add New Training") {
-                                selectedStudent = student
-                                isAddingNewTraining = true
-                            }
-                            .onChange(of: selectedStudent) { oldValue, newValue in
-                                if newValue != nil {
-                                    isAddingNewTraining = true
-                                }
-                            }
                         }
                     }
                 }
@@ -47,7 +37,7 @@ struct TrainingPreviewView: View {
             .navigationTitle("Preview Toilet Training")
             .navigationBarItems(
                 leading: Button("Cancel") {
-                    viewModel.toiletTrainings.removeAll()
+                    viewModel.clearUnsavedToiletTrainings()
                     isShowingToiletTraining = false
                 },
                 trailing: Button("Save") {
@@ -72,15 +62,15 @@ struct TrainingPreviewView: View {
                 updateTraining(updatedTraining)
             })
         }
-        .sheet(isPresented: $isAddingNewTraining) {
-            if let student = selectedStudent {
-                TrainingCreateView(student: student, onSave: { newTraining in
-                    addNewTraining(newTraining)
-                })
-            } else {
-                Text("No student selected. Please try again.")
-            }
-        }
+//        .sheet(isPresented: $isAddingNewTraining) {
+//            if let student = selectedStudent {
+//                TrainingCreateView(student: student, onSave: { newTraining in
+////                    addNewTraining(newTraining)
+//                })
+//            } else {
+//                Text("No student selected. Please try again.")
+//            }
+//        }
     }
 
     private func saveTrainings() {
@@ -88,7 +78,7 @@ struct TrainingPreviewView: View {
         Task {
             // Implement the logic to save toilet trainings
             // You might need to add a method in your ViewModel to handle this
-            await viewModel.saveToiletTrainings()
+            await viewModel.saveUnsavedToiletTrainings()
             await MainActor.run {
                 isSaving = false
                 isShowingToiletTraining = false
@@ -96,23 +86,21 @@ struct TrainingPreviewView: View {
         }
     }
     
-    private func deleteTraining(_ training: ToiletTraining) {
-        viewModel.toiletTrainings.removeAll { $0.id == training.id }
+    private func deleteTraining(_ training: UnsavedToiletTraining) {
+        viewModel.deleteUnsavedToiletTraining(training)
     }
     
-    private func updateTraining(_ updatedTraining: ToiletTraining) {
-        if let index = viewModel.toiletTrainings.firstIndex(where: { $0.id == updatedTraining.id }) {
-            viewModel.toiletTrainings[index] = updatedTraining
-        }
+    private func updateTraining(_ updatedTraining: UnsavedToiletTraining) {
+        viewModel.updateUnsavedToiletTraining(updatedTraining)
     }
-    
-    private func addNewTraining(_ newTraining: ToiletTraining) {
-        viewModel.toiletTrainings.append(newTraining)
-    }
+//    
+//    private func addNewTraining(_ newTraining: ToiletTraining) {
+//        viewModel.toiletTrainings.append(newTraining)
+//    }
 }
 
 struct TrainingDetailRow: View {
-    let toiletTraining: ToiletTraining
+    let toiletTraining: UnsavedToiletTraining
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
@@ -154,10 +142,10 @@ struct TrainingEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var trainingDetail: String
     @State private var status: Bool
-    let training: ToiletTraining
-    let onSave: (ToiletTraining) -> Void
+    let training: UnsavedToiletTraining
+    let onSave: (UnsavedToiletTraining) -> Void
     
-    init(training: ToiletTraining, onSave: @escaping (ToiletTraining) -> Void) {
+    init(training: UnsavedToiletTraining, onSave: @escaping (UnsavedToiletTraining) -> Void) {
         self.training = training
         self.onSave = onSave
         _trainingDetail = State(initialValue: training.trainingDetail)
@@ -174,7 +162,7 @@ struct TrainingEditView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let updatedTraining = ToiletTraining(id: training.id, trainingDetail: trainingDetail, createdAt: training.createdAt, student: training.student, status: status)
+                    let updatedTraining = UnsavedToiletTraining(id: training.id, trainingDetail: trainingDetail, createdAt: training.createdAt, status: status, studentId: training.studentId)
                     onSave(updatedTraining)
                     presentationMode.wrappedValue.dismiss()
                 }
@@ -183,31 +171,31 @@ struct TrainingEditView: View {
     }
 }
 
-struct TrainingCreateView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @State private var trainingDetail: String = ""
-    @State private var status: Bool = false
-    let student: Student
-    let onSave: (ToiletTraining) -> Void
-
-    var body: some View {
-        NavigationView {
-            Form {
-                TextField("Training Detail", text: $trainingDetail)
-                Toggle("Independent", isOn: $status)
-            }
-            .navigationTitle("New Training")
-            .navigationBarItems(
-                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
-                trailing: Button("Save") {
-                    let newTraining = ToiletTraining(trainingDetail: trainingDetail, createdAt: Date(), student: student, status: status)
-                    onSave(newTraining)
-                    presentationMode.wrappedValue.dismiss()
-                }
-            )
-        }
-    }
-}
+//struct TrainingCreateView: View {
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var trainingDetail: String = ""
+//    @State private var status: Bool = false
+//    let student: Student
+//    let onSave: (ToiletTraining) -> Void
+//
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                TextField("Training Detail", text: $trainingDetail)
+//                Toggle("Independent", isOn: $status)
+//            }
+//            .navigationTitle("New Training")
+//            .navigationBarItems(
+//                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+//                trailing: Button("Save") {
+//                    let newTraining = ToiletTraining(trainingDetail: trainingDetail, createdAt: Date(), status: status, student: student)
+//                    onSave(newTraining)
+//                    presentationMode.wrappedValue.dismiss()
+//                }
+//            )
+//        }
+//    }
+//}
 
 //import SwiftUI
 //

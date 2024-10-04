@@ -11,7 +11,8 @@ import Foundation
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
-    @Published var toiletTrainings: [ToiletTraining] = []
+//    @Published var toiletTrainings: [ToiletTraining] = []
+    @Published var unsavedToiletTrainings: [UnsavedToiletTraining] = []
     private let studentUseCases: StudentUseCase
     private let activityUseCases: ActivityUseCase
     private let toiletTrainingUseCases: ToiletTrainingUseCase
@@ -104,6 +105,17 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
+    func deleteToiletTraining(_ toiletTraining: ToiletTraining, from student: Student) async {
+        do {
+            try await toiletTrainingUseCases.deleteTrainingProgress(toiletTraining, from: student)
+            if let index = students.firstIndex(where: { $0.id == student.id }) {
+                students[index].toiletTrainings.removeAll(where: { $0.id == toiletTraining.id })
+            }
+        } catch {
+            print("Error deleting toilet training: \(error)")
+        }
+    }
+    
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
         unsavedActivities.append(contentsOf: activities)
     }
@@ -138,35 +150,58 @@ class StudentListViewModel: ObservableObject {
     }
     
     
-    func addToiletTraining(_ toiletTrainingsInput: [ToiletTraining]) {
-        toiletTrainings.append(contentsOf: toiletTrainingsInput)
+//    func addToiletTraining(_ toiletTrainingsInput: [ToiletTraining]) {
+//        toiletTrainings.append(contentsOf: toiletTrainingsInput)
+//    }
+    
+    func addUnsavedToiletTraining(_ toiletTrainingsInput: [UnsavedToiletTraining]) {
+        unsavedToiletTrainings.append(contentsOf: toiletTrainingsInput)
     }
     
-    func clearToiletTrainings() {
-        toiletTrainings.removeAll()
+    func clearUnsavedToiletTrainings() {
+        unsavedActivities.removeAll()
     }
     
-    func saveToiletTrainings() async {
-        for training in toiletTrainings {
-            let student = students.first(where: { $0 == training.student })
+    func saveUnsavedToiletTrainings() async {
+        for unsavedTraining in unsavedToiletTrainings {
+            let student = students.first(where: { $0.id == unsavedTraining.studentId })
             do {
-                let toiletTrainingObj = ToiletTraining(trainingDetail: training.trainingDetail, student: training.student, status: training.status!)
+                let toiletTrainingObj = ToiletTraining(trainingDetail: unsavedTraining.trainingDetail, createdAt: unsavedTraining.createdAt, status: unsavedTraining.status!, student: student)
                 await addToiletTraining(toiletTrainingObj, for: student!)
             } catch {
                 print("Error saving toilet training: \(error)")
             }
         }
-        clearToiletTrainings()
+        clearUnsavedActivities()
     }
+
     
-    func updateToiletTraining(_ training: ToiletTraining) {
-        if let index = toiletTrainings.firstIndex(where: { $0.id == training.id }) {
-            toiletTrainings[index] = training
+//    func clearToiletTrainings() {
+//        toiletTrainings.removeAll()
+//    }
+    
+//    func saveToiletTrainings() async {
+//        for training in toiletTrainings {
+//            let student = students.first(where: { $0 == training.student })
+//            do {
+//                let toiletTrainingObj = ToiletTraining(trainingDetail: training.trainingDetail, createdAt: training.createdAt, status: training.status!, student: training.student)
+//                await addToiletTraining(toiletTrainingObj, for: student!)
+//            } catch {
+//                print("Error saving toilet training: \(error)")
+//            }
+//        }
+//        clearToiletTrainings()
+//    }
+
+    
+    func updateUnsavedToiletTraining(_ training: UnsavedToiletTraining) {
+        if let index = unsavedToiletTrainings.firstIndex(where: { $0.id == training.id }) {
+            unsavedToiletTrainings[index] = training
         }
     }
     
-    func deleteToiletTraining(_ training: ToiletTraining) {
-        toiletTrainings.removeAll { $0.id == training.id }
+    func deleteUnsavedToiletTraining(_ training: UnsavedToiletTraining) {
+        unsavedToiletTrainings.removeAll { $0.id == training.id }
     }
     
     func addToiletTraining(_ training: ToiletTraining, for student: Student) async {

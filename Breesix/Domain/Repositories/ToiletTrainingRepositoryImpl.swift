@@ -18,11 +18,12 @@ class ToiletTrainingRepositoryImpl: ToiletTrainingRepository {
     func addTraining(_ training: ToiletTraining, for student: Student) async throws {
         var StudentTrainings = student.toiletTrainings
                 // override the training if it already exists on that date
-        if let index = StudentTrainings.firstIndex(where: { $0.createdAt == training.createdAt }) {
-                    StudentTrainings[index] = training
-                } else {
-                    StudentTrainings.append(training)
-                }
+//        if let index = StudentTrainings.firstIndex(where: { $0.createdAt == training.createdAt }) {
+//                    StudentTrainings[index] = training
+//                } else {
+//                }
+        StudentTrainings.append(training)
+
         try context.save()
     }
     

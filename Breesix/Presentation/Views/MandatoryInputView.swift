@@ -50,7 +50,7 @@ struct MandatoryInputView: View {
                     .disabled(reflection.isEmpty || isLoading)
                 }
             }
-            .navigationTitle("Curhat Manual")
+            .navigationTitle("Ceritakan Toilet Training Hari Ini")
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
@@ -82,7 +82,7 @@ struct MandatoryInputView: View {
 
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
-                let toiletTrainingList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students)
+                let toiletTrainingList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
                 await MainActor.run {
                     isLoading = false
@@ -94,7 +94,7 @@ struct MandatoryInputView: View {
                         // If all students have data, update isAllStudentsFilled to true
                         isAllStudentsFilled = true
                         
-                        viewModel.addToiletTraining(toiletTrainingList)
+                        viewModel.addUnsavedToiletTraining(toiletTrainingList)
 
                         // Present the TrainingPreviewView if necessary
                         onDismiss()
@@ -126,9 +126,11 @@ struct MandatoryInputView: View {
         }
     }
 
-    private func checkMissingData(toiletTrainingList: [ToiletTraining]) -> [Student] {
-        let studentsWithTraining = Set(toiletTrainingList.map { $0.student })
-        let missingStudents = viewModel.students.filter { !studentsWithTraining.contains($0) }
+    private func checkMissingData(toiletTrainingList: [UnsavedToiletTraining]) -> [Student] {
+        let studentsWithTraining = Set(toiletTrainingList.map { $0.studentId})
+        let missingStudents = viewModel.students.filter { student in
+            !studentsWithTraining.contains(student.id)
+        }
 
         print("Total students: \(viewModel.students.count)")
         print("Total toilet trainings: \(toiletTrainingList.count)")

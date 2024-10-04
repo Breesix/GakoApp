@@ -170,6 +170,7 @@ struct ActivityEditView: View {
     }
 }
 
+
 struct ActivityCreateView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var generalActivity: String = ""

@@ -82,6 +82,7 @@ struct StudentDetailView: View {
     @State private var activities: [Activity] = []
     @State private var selectedDate = Date()
     @State private var selectedActivity: Activity?
+    @State private var selectedTraining: ToiletTraining?
     @State private var toiletTrainings: [ToiletTraining] = []
 
     var body: some View {
@@ -96,6 +97,7 @@ struct StudentDetailView: View {
                     .onChange(of: selectedDate) { oldValue, newValue in
                         Task {
                             await loadActivities()
+                            await loadToiletTrainingStudents()
                         }
                     }
             }
@@ -132,28 +134,40 @@ struct StudentDetailView: View {
                     Text("Tidak ada catatan untuk tanggal ini")
                         .foregroundColor(.secondary)
                 } else {
-                    VStack(alignment: .leading) {
-                        Text("Toilet Training")
-                        if toiletTrainingStudent.status! {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                Text("Independent")
+                    ForEach(toiletTrainingStudent, id: \.id) { training in
+                        VStack(alignment: .leading) {
+                            Text(training.trainingDetail)
+                            
+                            if let status = training.status {
+                                if status {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                        Text("Independent")
+                                    }
+                                    .foregroundColor(.green)
+                                } else {
+                                    HStack {
+                                        Image(systemName: "xmark.circle.fill")
+                                        Text("Needs Guidance")
+                                    }
+                                    .foregroundColor(.red)
+                                }
                             }
-                            .foregroundColor(.green)
-                        } else {
-                            HStack {
-                                Image(systemName: "xmark.circle.fill")
-                                Text("Needs Guidance")
-                            }
-                            .foregroundColor(.red)
                         }
-                        Text(toiletTrainingStudent.trainingDetail)
+                        .contextMenu {
+                            Button("Edit") {
+                                self.selectedTraining = training
+                            }
+                            Button("Hapus", role: .destructive) {
+                                deleteTraining(training)
+                            }
+                        }
                     }
                 }
             }
             .onChange(of: viewModel.students) { _, _ in
                 Task {
-                    await loadActivities()
+                    await loadToiletTrainingStudents()
                 }
             }
         }
@@ -166,6 +180,7 @@ struct StudentDetailView: View {
         }
         .task {
             await loadActivities()
+            await loadToiletTrainingStudents()
         }
     }
 
@@ -182,15 +197,22 @@ struct StudentDetailView: View {
         return filtered
     }
     
-    private var toiletTrainingStudent: ToiletTraining {
+    private var toiletTrainingStudent: [ToiletTraining] {
         let filtered = toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
-        return filtered.first!
+        return filtered
     }
     
     private func deleteActivity(_ activity: Activity) {
         Task {
             await viewModel.deleteActivity(activity, from: student)
             activities.removeAll(where: { $0.id == activity.id })
+        }
+    }
+    
+    private func deleteTraining(_ training: ToiletTraining) {
+        Task {
+            await viewModel.deleteToiletTraining(training, from: student)
+            toiletTrainings.removeAll(where: { $0.id == training.id })
         }
     }
 }
