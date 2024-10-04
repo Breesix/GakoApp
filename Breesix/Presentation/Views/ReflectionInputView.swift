@@ -18,6 +18,7 @@ struct ReflectionInputView: View {
     @State private var isLoading: Bool = false
     @State private var isRecord: Bool = false
     @State private var errorMessage: String?
+    let screenBounds = UIScreen.main.bounds
     
     let selectedDate: Date
     var onDismiss: () -> Void
@@ -27,20 +28,24 @@ struct ReflectionInputView: View {
     var body: some View {
         NavigationView {
             
-            VStack {
-                ZStack(alignment: .topLeading) {
+            VStack(alignment: .center) {
+                ZStack(alignment: .center) {
                     
                     TextEditor(text: $reflection)
                         .padding()
                         .border(Color.gray, width: 1)
+                    
                     if reflection.isEmpty {
-                        VStack {
+                        VStack(alignment:.center) {
                             Text("Please enter your reflection here")
                                 .font(.headline)
                                 .foregroundColor(.gray)
                             Spacer()
                         }
+                        .padding(.horizontal)
+                        .position(x: screenBounds.width / 2, y: screenBounds.height / 2)
                     }
+                    
                     
                     if isLoading {
                         ProgressView()
@@ -48,7 +53,11 @@ struct ReflectionInputView: View {
                         Text(error)
                             .foregroundColor(.red)
                     }
+                    
+                    
+                    
                 }.padding()
+                
                 if !isRecord {
                     Button(action: {
                         self.speechRecognizer.startTranscribing()

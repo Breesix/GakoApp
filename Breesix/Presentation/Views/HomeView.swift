@@ -35,6 +35,7 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
+                    
                 }
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity, alignment: .leading)
