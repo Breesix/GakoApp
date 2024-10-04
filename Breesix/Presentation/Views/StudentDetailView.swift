@@ -14,6 +14,7 @@ struct StudentDetailView: View {
     @State private var activities: [Activity] = []
     @State private var selectedDate = Date()
     @State private var selectedActivity: Activity?
+    @State private var isAddingNewActivity = false
 
     var body: some View {
         List {
@@ -47,8 +48,16 @@ struct StudentDetailView: View {
                             Button("Hapus", role: .destructive) {
                                 deleteActivity(activity)
                             }
-
                         }
+                    }
+                }
+                
+                Button(action: {
+                    isAddingNewActivity = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Tambah Aktivitas Baru")
                     }
                 }
             }
@@ -70,9 +79,18 @@ struct StudentDetailView: View {
                 selectedActivity = nil
             })
         }
+        .sheet(isPresented: $isAddingNewActivity) {
+            NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
+                isAddingNewActivity = false
+                Task {
+                    await loadActivities()
+                }
+            })
+        }
         .task {
             await loadActivities()
         }
+
     }
 
     private func loadActivities() async {
@@ -91,3 +109,6 @@ struct StudentDetailView: View {
         }
     }
 }
+
+
+
