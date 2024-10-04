@@ -82,6 +82,7 @@ struct StudentDetailView: View {
     @State private var activities: [Activity] = []
     @State private var selectedDate = Date()
     @State private var selectedActivity: Activity?
+    @State private var toiletTrainings: [ToiletTraining] = []
 
     var body: some View {
         List {
@@ -125,6 +126,36 @@ struct StudentDetailView: View {
                     await loadActivities()
                 }
             }
+            
+            Section(header: Text("Toilet Training")) {
+                if toiletTrainings.isEmpty {
+                    Text("Tidak ada catatan untuk tanggal ini")
+                        .foregroundColor(.secondary)
+                } else {
+                    VStack(alignment: .leading) {
+                        Text("Toilet Training")
+                        if toiletTrainingStudent.status! {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Independent")
+                            }
+                            .foregroundColor(.green)
+                        } else {
+                            HStack {
+                                Image(systemName: "xmark.circle.fill")
+                                Text("Needs Guidance")
+                            }
+                            .foregroundColor(.red)
+                        }
+                        Text(toiletTrainingStudent.trainingDetail)
+                    }
+                }
+            }
+            .onChange(of: viewModel.students) { _, _ in
+                Task {
+                    await loadActivities()
+                }
+            }
         }
         .navigationTitle(student.nickname)
         .navigationBarItems(trailing: Button("Edit") {
@@ -141,10 +172,19 @@ struct StudentDetailView: View {
     private func loadActivities() async {
         activities = await viewModel.getActivitiesForStudent(student)
     }
+    
+    private func loadToiletTrainingStudents() async {
+        toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
+    }
 
     private var filteredActivities: [Activity] {
         let filtered = activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         return filtered
+    }
+    
+    private var toiletTrainingStudent: ToiletTraining {
+        let filtered = toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+        return filtered.first!
     }
     
     private func deleteActivity(_ activity: Activity) {
