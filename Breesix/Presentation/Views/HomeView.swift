@@ -151,7 +151,7 @@ struct HomeView: View {
                         .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
-                    ForEach(todayActivities, id: \.id) { a  ctivity in
+                    ForEach(todayActivities, id: \.id) { activity in
                         Text(activity.generalActivity)
                             .font(.subheadline)
                             .multilineTextAlignment(.leading)
