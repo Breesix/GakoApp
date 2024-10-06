@@ -17,6 +17,9 @@ class StudentListViewModel: ObservableObject {
     init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase) {
         self.studentUseCases = studentUseCases
         self.activityUseCases = activityUseCases
+        Task {
+            await loadStudents() // Load students initially
+        }
     }
     
     func loadStudents() async {

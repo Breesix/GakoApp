@@ -18,6 +18,7 @@ struct ReflectionInputView: View {
     @State private var isLoading: Bool = false
     @State private var isRecord: Bool = false
     @State private var errorMessage: String?
+    var inputType: InputType
     let screenBounds = UIScreen.main.bounds
     
     let selectedDate: Date
@@ -57,40 +58,41 @@ struct ReflectionInputView: View {
                     
                     
                 }.padding()
-                
-                if !isRecord {
-                    Button(action: {
-                        self.speechRecognizer.startTranscribing()
-                        isRecord.toggle()
-                    }) {
-                        Image("play-mic-button")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60)
-                            .overlay{
-                                Circle()
-                                    .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
-                                    .foregroundColor(.black)
-                                    .shadow(radius: 2)
-                            }
-                    }
-                } else {
-                    Button(action: {
-                        self.speechRecognizer.stopTranscribing()
-                        self.reflection = self.speechRecognizer.transcript
-                        isRecord.toggle()
-                    }) {
-                        Image("stop-mic-button")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60)
-                            .overlay{
-                                Circle()
-                                    .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
-                                    .foregroundColor(.black)
-                                    .shadow(radius: 2)
-                            }
-                        
+                if inputType == .speech {
+                    if !isRecord {
+                        Button(action: {
+                            self.speechRecognizer.startTranscribing()
+                            isRecord.toggle()
+                        }) {
+                            Image("play-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                                .overlay{
+                                    Circle()
+                                        .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                        .foregroundColor(.black)
+                                        .shadow(radius: 2)
+                                }
+                        }
+                    } else {
+                        Button(action: {
+                            self.speechRecognizer.stopTranscribing()
+                            self.reflection = self.speechRecognizer.transcript
+                            isRecord.toggle()
+                        }) {
+                            Image("stop-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                                .overlay{
+                                    Circle()
+                                        .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                        .foregroundColor(.black)
+                                        .shadow(radius: 2)
+                                }
+                            
+                        }
                     }
                 }
                 
