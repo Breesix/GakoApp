@@ -17,7 +17,10 @@ struct StudentDetailView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedTraining: ToiletTraining?
     @State private var toiletTrainings: [ToiletTraining] = []
-
+    @State private var weeklySummary: WeeklySummary?
+    @State private var isLoadingSummary = false
+    @State private var summaryError: Error?
+    @State private var weeklySummaries: [WeeklySummary] = []
 
     var body: some View {
         List {
@@ -111,6 +114,30 @@ struct StudentDetailView: View {
                     await loadToiletTrainingStudents()
                 }
             }
+            
+            Section(header: Text("Weekly Summaries")) {
+                     if weeklySummaries.isEmpty {
+                         Text("No weekly summaries available")
+                             .foregroundColor(.secondary)
+                     } else {
+                         ForEach(weeklySummaries) { summary in
+                             NavigationLink(destination: WeeklySummaryDetailView(summary: summary)) {
+                                 VStack(alignment: .leading) {
+                                     Text("\(formatDate(summary.startDate)) - \(formatDate(summary.endDate))")
+                                         .font(.headline)
+                                     Text(summary.summary.prefix(50) + "...")
+                                         .font(.subheadline)
+                                         .foregroundColor(.secondary)
+                                 }
+                             }
+                         }
+                     }
+
+                     Button("Generate New Summary") {
+                         generateNewSummary()
+                     }
+                 }
+
         }
         .navigationTitle(student.nickname)
         .navigationBarItems(trailing: Button("Edit") {
@@ -140,6 +167,7 @@ struct StudentDetailView: View {
         .task {
             await loadActivities()
             await loadToiletTrainingStudents()
+            loadWeeklySummaries()
         }
 
     }
@@ -175,7 +203,50 @@ struct StudentDetailView: View {
             toiletTrainings.removeAll(where: { $0.id == training.id })
         }
     }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    private func loadWeeklySummaries() {
+        weeklySummaries = viewModel.getWeeklySummariesForStudent(student)
+    }
+
+    private func generateNewSummary() {
+        Task {
+            do {
+                try await viewModel.generateAndSaveWeeklySummary(for: student)
+                loadWeeklySummaries()
+            } catch {
+                print("Error generating new summary: \(error)")
+            }
+        }
+    }
+
 }
 
+struct WeeklySummaryDetailView: View {
+    let summary: WeeklySummary
 
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("\(formatDate(summary.startDate)) - \(formatDate(summary.endDate))")
+                    .font(.headline)
+                
+                Text(summary.summary)
+                    .font(.body)
+            }
+            .padding()
+        }
+        .navigationTitle("Weekly Summary")
+    }
 
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
+    }
+}

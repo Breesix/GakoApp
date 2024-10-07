@@ -11,18 +11,19 @@ import Foundation
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
-//    @Published var toiletTrainings: [ToiletTraining] = []
     @Published var unsavedToiletTrainings: [UnsavedToiletTraining] = []
     private let studentUseCases: StudentUseCase
     private let activityUseCases: ActivityUseCase
     private let toiletTrainingUseCases: ToiletTrainingUseCase
-    
-    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase) {
+    private let summarizationService: SummarizationService
+
+    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase, summarizationService: SummarizationService) {
         self.studentUseCases = studentUseCases
         self.activityUseCases = activityUseCases
         self.toiletTrainingUseCases = toiletTrainingUseCases
+        self.summarizationService = summarizationService
     }
-    
+
     func loadStudents() async {
         do {
             students = try await studentUseCases.getAllStudents()
@@ -149,11 +150,6 @@ class StudentListViewModel: ObservableObject {
         unsavedActivities.append(activity)
     }
     
-    
-//    func addToiletTraining(_ toiletTrainingsInput: [ToiletTraining]) {
-//        toiletTrainings.append(contentsOf: toiletTrainingsInput)
-//    }
-    
     func addUnsavedToiletTraining(_ toiletTrainingsInput: [UnsavedToiletTraining]) {
         unsavedToiletTrainings.append(contentsOf: toiletTrainingsInput)
     }
@@ -174,25 +170,6 @@ class StudentListViewModel: ObservableObject {
         }
         clearUnsavedActivities()
     }
-
-    
-//    func clearToiletTrainings() {
-//        toiletTrainings.removeAll()
-//    }
-    
-//    func saveToiletTrainings() async {
-//        for training in toiletTrainings {
-//            let student = students.first(where: { $0 == training.student })
-//            do {
-//                let toiletTrainingObj = ToiletTraining(trainingDetail: training.trainingDetail, createdAt: training.createdAt, status: training.status!, student: training.student)
-//                await addToiletTraining(toiletTrainingObj, for: student!)
-//            } catch {
-//                print("Error saving toilet training: \(error)")
-//            }
-//        }
-//        clearToiletTrainings()
-//    }
-
     
     func updateUnsavedToiletTraining(_ training: UnsavedToiletTraining) {
         if let index = unsavedToiletTrainings.firstIndex(where: { $0.id == training.id }) {
@@ -220,6 +197,41 @@ class StudentListViewModel: ObservableObject {
         } catch {
             print("Error updating activity: \(error)")
         }
+    }
+    
+    func generateAndSaveWeeklySummary(for student: Student, endDate: Date = Date()) async throws {
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)!
+        
+        let activities = await getActivitiesForStudent(student)
+        let toiletTrainings = await getToiletTrainingForStudent(student)
+        
+        let weeklyActivities = activities.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
+        let weeklyToiletTrainings = toiletTrainings.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
+        
+        let summaryText = try await summarizationService.generateWeeklySummary(
+            activities: weeklyActivities,
+            toiletTrainings: weeklyToiletTrainings,
+            student: student
+        )
+        
+        let weeklySummary = WeeklySummary(startDate: startDate, endDate: endDate, summary: summaryText, student: student)
+        try await saveWeeklySummary(weeklySummary, for: student)
+    }
+
+    func saveWeeklySummary(_ summary: WeeklySummary, for student: Student) async throws {
+        do {
+            student.weeklySummaries.append(summary)
+            try await studentUseCases.updateStudent(student)
+            await loadStudents()
+        } catch {
+            print("Error saving weekly summary: \(error)")
+            throw error
+        }
+    }
+
+    func getWeeklySummariesForStudent(_ student: Student) -> [WeeklySummary] {
+        return student.weeklySummaries.sorted(by: { $0.endDate > $1.endDate })
     }
 
 }
