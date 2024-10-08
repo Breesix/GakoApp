@@ -199,25 +199,25 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
-    func generateAndSaveWeeklySummary(for student: Student, endDate: Date = Date()) async throws {
-        let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)!
-        
+    func generateAndSaveWeeklySummary(for student: Student, startDate: Date, endDate: Date) async throws {
         let activities = await getActivitiesForStudent(student)
         let toiletTrainings = await getToiletTrainingForStudent(student)
         
-        let weeklyActivities = activities.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
-        let weeklyToiletTrainings = toiletTrainings.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
+        let filteredActivities = activities.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
+        let filteredToiletTrainings = toiletTrainings.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
         
         let summaryText = try await summarizationService.generateWeeklySummary(
-            activities: weeklyActivities,
-            toiletTrainings: weeklyToiletTrainings,
-            student: student
+            activities: filteredActivities,
+            toiletTrainings: filteredToiletTrainings,
+            student: student,
+            startDate: startDate,
+            endDate: endDate
         )
         
         let weeklySummary = WeeklySummary(startDate: startDate, endDate: endDate, summary: summaryText, student: student)
         try await saveWeeklySummary(weeklySummary, for: student)
     }
+
 
     func saveWeeklySummary(_ summary: WeeklySummary, for student: Student) async throws {
         do {
@@ -234,4 +234,22 @@ class StudentListViewModel: ObservableObject {
         return student.weeklySummaries.sorted(by: { $0.endDate > $1.endDate })
     }
 
+}
+
+enum SummaryTimeRange {
+    case lastWeek
+    case lastMonth
+    case lastThreeMonths
+    case lastSixMonths
+    case allTime
+    
+    var title: String {
+        switch self {
+        case .lastWeek: return "Last 7 Days"
+        case .lastMonth: return "Last 30 Days"
+        case .lastThreeMonths: return "Last 3 Months"
+        case .lastSixMonths: return "Last 6 Months"
+        case .allTime: return "All Time"
+        }
+    }
 }

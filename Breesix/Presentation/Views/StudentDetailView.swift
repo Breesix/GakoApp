@@ -21,6 +21,8 @@ struct StudentDetailView: View {
     @State private var isLoadingSummary = false
     @State private var summaryError: Error?
     @State private var weeklySummaries: [WeeklySummary] = []
+    @State private var isShowingRangeSelection = false
+    @State private var selectedRange: SummaryTimeRange?
 
     var body: some View {
         List {
@@ -116,28 +118,32 @@ struct StudentDetailView: View {
             }
             
             Section(header: Text("Weekly Summaries")) {
-                     if weeklySummaries.isEmpty {
-                         Text("No weekly summaries available")
-                             .foregroundColor(.secondary)
-                     } else {
-                         ForEach(weeklySummaries) { summary in
-                             NavigationLink(destination: WeeklySummaryDetailView(summary: summary)) {
-                                 VStack(alignment: .leading) {
-                                     Text("\(formatDate(summary.startDate)) - \(formatDate(summary.endDate))")
-                                         .font(.headline)
-                                     Text(summary.summary.prefix(50) + "...")
-                                         .font(.subheadline)
-                                         .foregroundColor(.secondary)
-                                 }
-                             }
-                         }
-                     }
+                if weeklySummaries.isEmpty {
+                    Text("No weekly summaries available")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(weeklySummaries) { summary in
+                        NavigationLink(destination: WeeklySummaryDetailView(summary: summary)) {
+                            VStack(alignment: .leading) {
+                                Text("\(formatDate(summary.startDate)) - \(formatDate(summary.endDate))")
+                                    .font(.headline)
+                                Text(summary.summary.prefix(50) + "...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
 
-                     Button("Generate New Summary") {
-                         generateNewSummary()
-                     }
-                 }
+                Button("Generate New Summary") {
+                    isShowingRangeSelection = true
+                }
+            }
 
+
+        }
+        .sheet(isPresented: $isShowingRangeSelection) {
+            SummaryRangeSelectionView(selectedRange: $selectedRange, onGenerate: generateNewSummary)
         }
         .navigationTitle(student.nickname)
         .navigationBarItems(trailing: Button("Edit") {
@@ -215,15 +221,36 @@ struct StudentDetailView: View {
     }
 
     private func generateNewSummary() {
+        guard let range = selectedRange else { return }
+        
         Task {
             do {
-                try await viewModel.generateAndSaveWeeklySummary(for: student)
+                let endDate = Date()
+                let startDate: Date
+                
+                switch range {
+                case .lastWeek:
+                    startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
+                case .lastMonth:
+                    startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate)!
+                case .lastThreeMonths:
+                    startDate = Calendar.current.date(byAdding: .month, value: -3, to: endDate)!
+                case .lastSixMonths:
+                    startDate = Calendar.current.date(byAdding: .month, value: -6, to: endDate)!
+                case .allTime:
+                    startDate = student.createdAt // Assuming this is the earliest possible date
+                }
+                
+                try await viewModel.generateAndSaveWeeklySummary(for: student, startDate: startDate, endDate: endDate)
                 loadWeeklySummaries()
             } catch {
                 print("Error generating new summary: \(error)")
             }
         }
+        
+        isShowingRangeSelection = false
     }
+
 
 }
 
@@ -248,5 +275,37 @@ struct WeeklySummaryDetailView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: date)
+    }
+}
+
+struct SummaryRangeSelectionView: View {
+    @Binding var selectedRange: SummaryTimeRange?
+    let onGenerate: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    let ranges: [SummaryTimeRange] = [.lastWeek, .lastMonth, .lastThreeMonths, .lastSixMonths, .allTime]
+
+    var body: some View {
+        NavigationView {
+            List(ranges, id: \.self) { range in
+                Button(action: {
+                    selectedRange = range
+                    onGenerate()
+                    dismiss()
+                }) {
+                    HStack {
+                        Text(range.title)
+                        Spacer()
+                        if selectedRange == range {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Select Time Range")
+            .navigationBarItems(trailing: Button("Cancel") {
+                dismiss()
+            })
+        }
     }
 }
