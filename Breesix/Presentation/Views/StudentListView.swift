@@ -18,7 +18,12 @@ struct StudentListView: View {
                 ForEach(viewModel.students) { student in
                     NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
                         HStack {
-                            Image(systemName: "person.crop.circle")
+                            if let imageData = student.imageData {
+                                Image(uiImage: UIImage(data: imageData)!)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 40, height: 40)
+                            }
                             VStack(alignment: .leading) {
                                 Text(student.nickname)
                                     .font(.headline)
