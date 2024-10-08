@@ -37,11 +37,15 @@ struct BreesixApp: App {
             let toiletTrainingRepository = ToiletTrainingRepositoryImpl(context: context)
             let toiletTrainingUseCase = ToiletTrainingUseCase(repository: toiletTrainingRepository)
             
+            let summaryRepository = SummaryRepositoryImpl(context: context)
+            let summaryUseCase = SummaryUseCase(repository: summaryRepository)
+            
             let viewModel = StudentListViewModel(
                 studentUseCases: studentUseCase,
                 activityUseCases: activityUseCase,
                 toiletTrainingUseCases: toiletTrainingUseCase,
-                summarizationService: summarizationService
+                summarizationService: summarizationService,
+                summaryUseCase: summaryUseCase
             )
             
             MainTabView(studentListViewModel: viewModel)

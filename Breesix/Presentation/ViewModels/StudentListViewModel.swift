@@ -15,13 +15,15 @@ class StudentListViewModel: ObservableObject {
     private let studentUseCases: StudentUseCase
     private let activityUseCases: ActivityUseCase
     private let toiletTrainingUseCases: ToiletTrainingUseCase
+    private let summaryUseCase: SummaryUseCase
     private let summarizationService: SummarizationService
 
-    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase, summarizationService: SummarizationService) {
+    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase, summarizationService: SummarizationService, summaryUseCase: SummaryUseCase) {
         self.studentUseCases = studentUseCases
         self.activityUseCases = activityUseCases
         self.toiletTrainingUseCases = toiletTrainingUseCases
         self.summarizationService = summarizationService
+        self.summaryUseCase = summaryUseCase
     }
 
     func loadStudents() async {
@@ -100,6 +102,17 @@ class StudentListViewModel: ObservableObject {
             try await activityUseCases.deleteActivity(activity, from: student)
             if let index = students.firstIndex(where: { $0.id == student.id }) {
                 students[index].activities.removeAll(where: { $0.id == activity.id })
+            }
+        } catch {
+            print("Error deleting activity: \(error)")
+        }
+    }
+    
+    func deleteSummary(_ summary: WeeklySummary, from student: Student) async {
+        do {
+            try await summaryUseCase.deleteSummary(summary, from: student)
+            if let index = students.firstIndex(where: { $0.id == student.id }) {
+                students[index].weeklySummaries.removeAll(where: { $0.id == summary.id })
             }
         } catch {
             print("Error deleting activity: \(error)")
@@ -199,7 +212,7 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
-    func generateAndSaveWeeklySummary(for student: Student, startDate: Date, endDate: Date) async throws {
+    func generateAndSaveWeeklySummary(for student: Student, startDate: Date, endDate: Date, title: String) async throws {
         let activities = await getActivitiesForStudent(student)
         let toiletTrainings = await getToiletTrainingForStudent(student)
         
@@ -214,10 +227,10 @@ class StudentListViewModel: ObservableObject {
             endDate: endDate
         )
         
-        let weeklySummary = WeeklySummary(startDate: startDate, endDate: endDate, summary: summaryText, student: student)
+        // Create a new WeeklySummary with createdAt and title set appropriately
+        let weeklySummary = WeeklySummary(startDate: startDate, endDate: endDate, summary: summaryText, createdAt: Date(), title: title, student: student)
         try await saveWeeklySummary(weeklySummary, for: student)
     }
-
 
     func saveWeeklySummary(_ summary: WeeklySummary, for student: Student) async throws {
         do {

@@ -117,26 +117,36 @@ struct StudentDetailView: View {
                 }
             }
             
-            Section(header: Text("Weekly Summaries")) {
+            Section(header: Text("Summaries")) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Button("Generate New Summary") {
+                        isShowingRangeSelection = true
+                    }
+                }
                 if weeklySummaries.isEmpty {
-                    Text("No weekly summaries available")
+                    Text("No summaries available")
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(weeklySummaries) { summary in
                         NavigationLink(destination: WeeklySummaryDetailView(summary: summary)) {
                             VStack(alignment: .leading) {
-                                Text("\(formatDate(summary.startDate)) - \(formatDate(summary.endDate))")
+                                Text(summary.title)
                                     .font(.headline)
+                                Text("Created At: \(formatDate(summary.createdAt))")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                                 Text(summary.summary.prefix(50) + "...")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
+                            .contextMenu {
+                                Button("Hapus", role: .destructive) {
+                                    deleteSummary(summary)
+                                }
+                            }
                         }
                     }
-                }
-
-                Button("Generate New Summary") {
-                    isShowingRangeSelection = true
                 }
             }
 
@@ -194,6 +204,13 @@ struct StudentDetailView: View {
         }
     }
     
+    private func deleteSummary(_ summary: WeeklySummary) {
+        Task {
+            await viewModel.deleteSummary(summary, from: student)
+            weeklySummaries.removeAll(where: { $0.id == summary.id })
+        }
+    }
+    
     private func loadToiletTrainingStudents() async {
         toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
     }
@@ -238,10 +255,10 @@ struct StudentDetailView: View {
                 case .lastSixMonths:
                     startDate = Calendar.current.date(byAdding: .month, value: -6, to: endDate)!
                 case .allTime:
-                    startDate = student.createdAt // Assuming this is the earliest possible date
+                    startDate = student.createdAt
                 }
                 
-                try await viewModel.generateAndSaveWeeklySummary(for: student, startDate: startDate, endDate: endDate)
+                try await viewModel.generateAndSaveWeeklySummary(for: student, startDate: startDate, endDate: endDate, title: range.title)
                 loadWeeklySummaries()
             } catch {
                 print("Error generating new summary: \(error)")
@@ -268,7 +285,7 @@ struct WeeklySummaryDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Weekly Summary")
+        .navigationTitle("Summary")
     }
 
     private func formatDate(_ date: Date) -> String {
