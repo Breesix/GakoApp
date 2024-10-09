@@ -1,15 +1,15 @@
 //
-//  AIService.swift
+//  AITTService.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 01/10/24.
+//  Created by Akmal Hakim on 02/10/24.
 //
 
 import Foundation
 import OpenAI
 import SwiftData
 
-class ReflectionProcessor {
+class AITTService {
     private let openAI: OpenAI
     
     init(apiToken: String) {
@@ -24,31 +24,32 @@ class ReflectionProcessor {
         }
         
         let botPrompt = """
-        Anda adalah asisten AI yang terlatih dalam menganalisis refleksi harian dari guru mengenai aktivitas siswa di sekolah. Tugas Anda adalah mengekstrak informasi kunci dan menyajikannya dalam format terstruktur dengan detail yang memadai.
+        Anda adalah asisten AI yang terlatih dalam menganalisis refleksi harian dari guru mengenai perkembangan latihan toilet training di sekolah, khususnya untuk anak berkebutuhan khusus. Tugas Anda adalah mengekstrak informasi kunci dan menyajikannya dalam format terstruktur dengan detail yang memadai.
 
         Panduan Analisis:
         1. Bacalah dengan seksama setiap refleksi yang diberikan oleh guru.
         2. Identifikasi semua siswa yang disebutkan dalam refleksi, baik menggunakan nama lengkap maupun nama panggilan.
         3. Apabila nama siswa tidak disebutkan secara langsung, pahami terminologi seperti "semua" yang berarti semua siswa, dan "anak lain" yang berarti semua siswa kecuali mereka yang disebutkan secara eksplisit.
-        4. Untuk setiap siswa yang disebutkan, tentukan aktivitas umum berdasarkan informasi yang disediakan, lengkapi dengan detail spesifik.
-        5. Jika ada siswa yang tidak disebutkan dalam refleksi, catat "Tidak ada informasi" untuk mereka.
+        4. Untuk setiap siswa yang disebutkan, tentukan apakah anak sudah dapat melakukan toilet training dengan baik. lalu lengkapi dengan detail deskripsi dari aktivitas toilet training anak.
+        5. Jika ada siswa yang tidak disebutkan dalam refleksi, catat "Tidak ada informasi" untuk mereka, catat null untuk kolom yang bersifat boolean.
         6. Anda tidak perlu menyensor atau menyeleksi isi refleksi, baik yang positif maupun negatif, tetap dicantumkan tanpa modifikasi.
         7. Pastikan untuk memasukkan informasi yang ada tanpa menambahkan asumsi.
 
         Format Output:
         Hasilkan output dalam format CSV dengan struktur berikut:
-        Nama Lengkap,Nama Panggilan,Aktivitas Umum
+        Nama Lengkap,Nama Panggilan,status,deskripsi
 
         Aturan Pengisian:
         - Nama Lengkap: Nama lengkap siswa.
         - Nama Panggilan: Nama panggilan siswa.
-        - Aktivitas Umum: Daftar aktivitas yang dipisahkan dengan "|". Contoh: "Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
+        - Status: Status toilet training anak berupa nilai boolean, true untuk anak yang sudah dapat melakukan dengan mandiri, false apabila masih terdapat masalah atau perlu dibimbing, atau null jika tidak ada informasi
+        - deskripsi: Catatan spesifik tentang toilet training. Jika tidak ada, isi ”Tidak ada informasi"
 
         Contoh Output:
-        Nama Lengkap,Nama Panggilan,Aktivitas Umum
-        Budi Santoso,Budi,"Bermain puzzle (menyelesaikan puzzle 20 keping)|Mewarnai (fokus pada penggunaan warna-warna cerah)|Bernyanyi (aktif dalam kegiatan musik pagi)|Makan Kuda (anak makan dengan lahap)|Toilet training (berhasil ke toilet sendiri 2 kali hari ini)"
-        Ani Putri,Ani,"Membaca buku (tertarik pada buku cerita hewan)|Bermain balok (membuat menara setinggi 10 balok)|Toilet training (masih perlu diingatkan, tapi menunjukkan kemajuan)"
-        Citra Lestari,Citra,"Tidak ada informasi"
+        Nama Lengkap,Nama Panggilan,status,deskripsi
+        Budi Santoso,Budi,true,“Sudah bisa pergi ke toilet sendiri dan cebok sendiri. Ia pun mengingatkan temannya untuk menyiram setelah buang air” 
+        Ani Putri,Ani,false,”Masih meminta untuk ditemani ke dalam ruangan toilet, namun sudah ada kemajuan”
+        Citra Lestari,Citra,null,”Tidak ada informasi"
 
         Penting:
         - Gunakan HANYA informasi yang secara eksplisit disebutkan dalam refleksi guru.
@@ -64,8 +65,7 @@ class ReflectionProcessor {
         """
 
         let fullPrompt = botPrompt + "\n\n" + userInput
-        print(fullPrompt)
-        let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o)
+        let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o_mini)
         
         let result = try await openAI.chats(query: query)
         
@@ -77,64 +77,63 @@ class ReflectionProcessor {
             throw ProcessingError.insufficientInformation
         }
         
-        print("ai response: \n \(csvString)")
-        
         return csvString
     }
 }
 
-enum ProcessingError: Error {
-    case noStudentData
-    case noContent
-    case insufficientInformation
-    
-    var localizedDescription: String {
-        switch self {
-        case .noStudentData:
-            return "Tidak ada data murid tersedia."
-        case .noContent:
-            return "Tidak ada konten dalam respons."
-        case .insufficientInformation:
-            return "Refleksi tidak mengandung informasi yang cukup tentang aktivitas murid. Mohon berikan detail lebih spesifik."
-        }
-    }
-}
-
-class CSVParser {
-    static func parseUnsavedActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedActivity] {
+class TTCSVParser {
+    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedToiletTraining] {
         let rows = csvString.components(separatedBy: .newlines)
-        var unsavedActivities: [UnsavedActivity] = []
+        var unsavedToiletTrainings: [UnsavedToiletTraining] = []
         
-        for (_, row) in rows.dropFirst().enumerated() where !row.isEmpty {
+        print("Total rows in CSV: \(rows.count)")
+        print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
+        
+        for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
+            print("Processing row \(index + 1): \(row)")
+            
             let columns = parseCSVRow(row)
-            if columns.count >= 3 {
+            if columns.count >= 4 {
                 let fullName = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
                 let nickname = columns[1].trimmingCharacters(in: .whitespacesAndNewlines)
-                let generalActivityString = columns[2]
+                let status = columns[2].trimmingCharacters(in: .whitespacesAndNewlines)
+                let details = columns[3].trimmingCharacters(in: .whitespacesAndNewlines)
                 
+                print("Searching for student: \(fullName) (\(nickname))")
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
-                    if generalActivityString.lowercased() != "tidak ada informasi" {
-                        let generalActivityPoints = generalActivityString.components(separatedBy: "|")
-                        for activity in generalActivityPoints {
-                            let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
-                            if !trimmedActivity.isEmpty {
-                                let unsavedActivity = UnsavedActivity(
-                                    generalActivity: trimmedActivity,
-                                    createdAt: createdAt,
-                                    studentId: student.id
-                                )
-                                unsavedActivities.append(unsavedActivity)
-                            }
+                    let trainingStatus: Bool
+                    if (status != "null") {
+                        if status == "true" {
+                            trainingStatus = true
+                        } else {
+                            trainingStatus = false
                         }
+                        let trainingDetail: String = details
+                        if !trainingDetail.isEmpty {
+                            let unsavedToiletTraining = UnsavedToiletTraining(
+                                trainingDetail: trainingDetail,
+                                createdAt: createdAt,
+                                status: trainingStatus,
+                                studentId: student.id
+                            )
+                            unsavedToiletTrainings.append(unsavedToiletTraining)
+                        } else {
+                            print("No information available for \(student.fullname) (\(student.nickname))")
+                        }
+                    } else {
+                        print("No information available for \(student.fullname) (\(student.nickname))")
                     }
+                } else {
+                    print("No matching student found for: \(fullName) (\(nickname))")
                 }
+            } else {
+                print("Invalid column count in row: \(columns.count)")
             }
         }
         
-        return unsavedActivities
+        print("Total training created: \(unsavedToiletTrainings.count)")
+        return unsavedToiletTrainings
     }
-
-
     
     private static func parseCSVRow(_ row: String) -> [String] {
         var columns: [String] = []
