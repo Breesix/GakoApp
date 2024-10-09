@@ -13,6 +13,7 @@ class StudentListViewModel: ObservableObject {
     @Published var unsavedActivities: [UnsavedActivity] = []
 //    @Published var toiletTrainings: [ToiletTraining] = []
     @Published var unsavedToiletTrainings: [UnsavedToiletTraining] = []
+    @Published var selectedDate: Date = Date() 
     private let studentUseCases: StudentUseCase
     private let activityUseCases: ActivityUseCase
     private let toiletTrainingUseCases: ToiletTrainingUseCase
@@ -20,7 +21,13 @@ class StudentListViewModel: ObservableObject {
     init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase) {
         self.studentUseCases = studentUseCases
         self.activityUseCases = activityUseCases
+
+//        Task {
+//            await loadStudents() /
+//        }
+
         self.toiletTrainingUseCases = toiletTrainingUseCases
+
     }
     
     func loadStudents() async {

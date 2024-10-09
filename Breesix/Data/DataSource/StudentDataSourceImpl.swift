@@ -16,9 +16,12 @@ class StudentDataSourceImpl: StudentDataSource {
     }
     
     func fetchAllStudents() async throws -> [Student] {
-        let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let students = try context.fetch(descriptor)
-        return students
+        // Ensure context usage on the main actor to prevent threading issues
+        return try await Task { @MainActor in
+            let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+            let students = try context.fetch(descriptor)
+            return students
+        }.value
     }
 
     func insert(_ student: Student) async throws {
@@ -36,8 +39,8 @@ class StudentDataSourceImpl: StudentDataSource {
         }
         
         student.activities.removeAll()
-
         context.delete(student)
         try context.save()
-    }}
+    }
+}
 

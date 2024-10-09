@@ -16,55 +16,80 @@ class SpeechRecognizer: ObservableObject {
     private let audioEngine = AVAudioEngine()
     
     @Published var transcript = ""
+    @Published var isRecognitionInProgress = false // New flag for loading state
     
     init(language: String = "id-ID") {
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))!
     }
     
     func startTranscribing() {
+        // Start the recognition asynchronously
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.isRecognitionInProgress = true
+            self.setupAudioSessionAndEngine()
+            DispatchQueue.main.async {
+                self.isRecognitionInProgress = false
+            }
+        }
+    }
+    
+    private func setupAudioSessionAndEngine() {
         if recognitionTask != nil {
             recognitionTask?.cancel()
             recognitionTask = nil
         }
         
         let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
-        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        let inputNode = audioEngine.inputNode
+        do {
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to configure audio session: \(error.localizedDescription)")
+            return
+        }
         
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         recognitionRequest?.shouldReportPartialResults = true
+        
+        let inputNode = audioEngine.inputNode
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
         
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest!) { result, error in
             var isFinal = false
             
             if let result = result {
-                self.transcript = result.bestTranscription.formattedString
+                DispatchQueue.main.async {
+                    self.transcript = result.bestTranscription.formattedString
+                }
                 isFinal = result.isFinal
             }
             
             if error != nil || isFinal {
-                self.audioEngine.stop()
-                inputNode.removeTap(onBus: 0)
-                self.recognitionRequest = nil
-                self.recognitionTask = nil
+                self.stopTranscribing()
             }
         }
         
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, when) in
+        inputNode.installTap(onBus: 0, bufferSize: 10240, format: recordingFormat) { (buffer, when) in
             self.recognitionRequest?.append(buffer)
         }
         
-        audioEngine.prepare()
-        try? audioEngine.start()
+        do {
+            try audioEngine.start()
+        } catch {
+            print("AudioEngine failed to start: \(error.localizedDescription)")
+        }
     }
     
     func stopTranscribing() {
         audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
         recognitionRequest?.endAudio()
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
     }
 }
+
 
 @available(macOS 10.15, *)
 extension SFSpeechRecognizer {

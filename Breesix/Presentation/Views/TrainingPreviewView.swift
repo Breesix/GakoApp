@@ -15,6 +15,8 @@ struct TrainingPreviewView: View {
     @State private var editingTraining: UnsavedToiletTraining?
     @State private var isAddingNewTraining = false
     @State private var selectedStudent: Student?
+    var onDismiss: () -> Void
+
 
     var body: some View {
         NavigationView {

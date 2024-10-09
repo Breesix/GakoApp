@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct SpeechToTextInputView: View {
-    @ObservedObject var viewModel: StudentListViewModel
-    @State private var speechText = ""
-    @State private var isRecording = false
-    @State private var recognitionError: String?
+//    @ObservedObject var viewModel: StudentListViewModel
+//    @State private var speechText = ""
+//    @State private var isRecording = false
+//    @State private var recognitionError: String?
 
 
     var body: some View {
