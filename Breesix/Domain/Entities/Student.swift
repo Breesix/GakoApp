@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
 class Student {
@@ -17,10 +18,18 @@ class Student {
     @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     @Relationship(deleteRule: .cascade) var toiletTrainings: [ToiletTraining] = []
     
-    init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date()) {
+    @Attribute(.externalStorage) var imageData: Data?
+    
+    init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
         self.id = id
         self.fullname = fullname
         self.nickname = nickname
         self.createdAt = createdAt
+        self.imageData = imageData
+    }
+    
+    var image: Image? {
+        guard let imageData = imageData else { return nil }
+        return Image(uiImage: UIImage(data: imageData) ?? UIImage())
     }
 }
