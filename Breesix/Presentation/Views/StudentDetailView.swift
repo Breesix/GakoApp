@@ -17,102 +17,195 @@ struct StudentDetailView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedTraining: ToiletTraining?
     @State private var toiletTrainings: [ToiletTraining] = []
-
-
+    
+    @State private var isShowingCalendar: Bool = false
+    
+    
     var body: some View {
-        List {
-            Section(header: Text("Informasi Murid")) {
-                Text("Nama Lengkap: \(student.fullname)")
-                Text("Nama Panggilan: \(student.nickname)")
+        HStack(alignment: .center, spacing: 16) {
+            if let imageData = student.imageData {
+                Image(uiImage: UIImage(data: imageData)!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 64, height: 64)
             }
-
-            Section(header: Text("Pilih Tanggal")) {
-                DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-                    .onChange(of: selectedDate) { oldValue, newValue in
-                        Task {
-                            await loadActivities()
-                        }
-                    }
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(student.nickname)")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Text("\(student.fullname)")
+                    .font(.subheadline)
             }
-
-            Section(header: Text("Aktivitas Umum")) {
-                if filteredActivities.isEmpty {
-                    Text("Tidak ada catatan untuk tanggal ini")
-                        .foregroundColor(.secondary)
-                } else {
-                    ForEach(filteredActivities, id: \.id) { activity in
-                        VStack(alignment: .leading) {
-                            Text("\(activity.generalActivity)")
-                        }
-                        .contextMenu {
-                            Button("Edit") {
-                                self.selectedActivity = activity
-                            }
-                            Button("Hapus", role: .destructive) {
-                                deleteActivity(activity)
-                            }
-                        }
+            .padding(0)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 32)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        
+        WeeklyDatePickerView(selectedDate: $selectedDate)
+        ScrollView {
+            Button(action: {
+                isShowingCalendar = true
+            }) {
+                HStack(spacing: 8) {
+                    Text("\(formattedMonth)")
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                    Spacer()
+                    Image(systemName: "calendar")
+                }
+                .padding(.all)
+                .background(Color(red: 0.92, green: 0.96, blue: 0.96))
+                .cornerRadius(10)
+            }
+        .sheet(isPresented: $isShowingCalendar) {
+            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
+                .onChange(of: selectedDate) { oldValue, newValue in
+                    Task {
+                        await loadActivities()
+                        await loadToiletTrainingStudents()
                     }
                 }
-                
-                Button(action: {
-                    isAddingNewActivity = true
-                }) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Tambah Aktivitas Baru")
-                    }
-                }
-            }
-            .onChange(of: viewModel.students) { _, _ in
-                Task {
-                    await loadActivities()
-                }
-            }
+                .datePickerStyle(.graphical)
+                .presentationDetents([.fraction(0.5)])
+        }
             
-            Section(header: Text("Toilet Training")) {
-                if toiletTrainings.isEmpty {
-                    Text("Tidak ada catatan untuk tanggal ini")
+            if selectedDate > Date() {
+                VStack {
+                    Spacer()
+                    Text("Sampai jumpa besok!")
                         .foregroundColor(.secondary)
-                } else {
-                    ForEach(toiletTrainingStudent, id: \.id) { training in
-                        VStack(alignment: .leading) {
-                            Text(training.trainingDetail)
+                        .fontWeight(.semibold)
+                }
+            } else {
+                VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Footnote/Emphasized
+                            Text("Toilet Training")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
                             
-                            if let status = training.status {
-                                if status {
-                                    HStack {
-                                        Image(systemName: "checkmark.circle.fill")
-                                        Text("Independent")
+                            if toiletThatDay.isEmpty {
+                                Text("Tidak ada toilet training untuk tanggal ini")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                ForEach(toiletTrainingStudent, id: \.id) { training in
+                                    if let status = training.status {
+                                        if status {
+                                            HStack {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                Text("Independent")
+                                            }
+                                            .foregroundColor(.green)
+                                        } else {
+                                            HStack {
+                                                Image(systemName: "xmark.circle.fill")
+                                                Text("Needs Guidance")
+                                            }
+                                            .foregroundColor(.red)
+                                        }
                                     }
-                                    .foregroundColor(.green)
-                                } else {
-                                    HStack {
-                                        Image(systemName: "xmark.circle.fill")
-                                        Text("Needs Guidance")
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Text(training.trainingDetail)
+                                            .font(.caption)
+                                            .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
+                                        
+                                            .frame(maxWidth: .infinity, alignment: .topLeading)
                                     }
-                                    .foregroundColor(.red)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .frame(width: .infinity, alignment: .center)
+                                    .background(.white)
+                                    .cornerRadius(8)
+                                    .contextMenu {
+                                        Button("Edit") {
+                                            self.selectedTraining = training
+                                        }
+                                        Button("Hapus", role: .destructive) {
+                                            deleteTraining(training)
+                                        }
+                                    }
                                 }
                             }
                         }
-                        .contextMenu {
-                            Button("Edit") {
-                                self.selectedTraining = training
+                        .padding(0)
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Footnote/Emphasized
+                            Text("Aktivitas Umum")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
+                            if filteredActivities.isEmpty {
+                                Text("Tidak ada catatan untuk tanggal ini")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                
+                                ForEach(filteredActivities, id: \.id) { activity in
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Text("\(activity.generalActivity)")
+                                            .font(.caption)
+                                            .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
+                                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 8)
+                                    .frame(width: .infinity, alignment: .center)
+                                    .background(.white)
+                                    .cornerRadius(8)
+                                    .contextMenu {
+                                        Button("Edit") {
+                                            self.selectedActivity = activity
+                                        }
+                                        Button("Hapus", role: .destructive) {
+                                            deleteActivity(activity)
+                                        }
+                                    }
+                                }
                             }
-                            Button("Hapus", role: .destructive) {
-                                deleteTraining(training)
+                            
+                            Button(action: {
+                                isAddingNewActivity = true
+                            }) {
+                                Label("Tambah", systemImage: "plus.app.fill")
                             }
+                            .buttonStyle(.bordered)
                         }
+                        .padding(0)
+                        
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .background(Color(red: 0.92, green: 0.96, blue: 0.96))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .inset(by: 0.25)
+                        .stroke(.green, lineWidth: 0.5)
+                )
+                .onChange(of: viewModel.students) { _, _ in
+                    Task {
+                        await loadActivities()
                     }
                 }
+
             }
-            .onChange(of: viewModel.students) { _, _ in
-                Task {
-                    await loadToiletTrainingStudents()
-                }
-            }
+            
+            //MARK: Card for Toilet Training and Aktivitas Umum
+            
         }
-        .navigationTitle(student.nickname)
+        .padding(.horizontal, 16)
+        
+        .navigationTitle("Profil Murid")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(trailing: Button("Edit") {
             isEditing = true
         })
@@ -141,13 +234,22 @@ struct StudentDetailView: View {
             await loadActivities()
             await loadToiletTrainingStudents()
         }
-
+        
     }
-
+    
+    private var formattedMonth: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "eeee, dd MMMM yyyy"
+        return formatter.string(from: selectedDate)
+    }
+    
     private func loadActivities() async {
         activities = await viewModel.getActivitiesForStudent(student)
     }
-
+    
+    private var toiletThatDay: [ToiletTraining] {
+        return toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }    }
+    
     private var filteredActivities: [Activity] {
         let filtered = activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         return filtered
@@ -163,12 +265,12 @@ struct StudentDetailView: View {
     private func loadToiletTrainingStudents() async {
         toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
     }
-
+    
     private var toiletTrainingStudent: [ToiletTraining] {
         let filtered = toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
         return filtered
     }
-
+    
     private func deleteTraining(_ training: ToiletTraining) {
         Task {
             await viewModel.deleteToiletTraining(training, from: student)
@@ -176,6 +278,8 @@ struct StudentDetailView: View {
         }
     }
 }
+
+
 
 
 
