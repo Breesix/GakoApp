@@ -23,7 +23,6 @@ class ToiletTraining: Identifiable {
         self.status = status
         self.student = student
     }
-    
 }
 
 class UnsavedToiletTraining: Identifiable {

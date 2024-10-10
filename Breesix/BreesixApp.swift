@@ -32,7 +32,8 @@ struct BreesixApp: App {
             let activityRepository = ActivityRepositoryImpl(activityDataSource: activityDataSource, studentDataSource: studentDataSource)
             let activityUseCase = ActivityUseCase(repository: activityRepository)
             
-            let toiletTrainingRepository = ToiletTrainingRepositoryImpl(context: context)
+            let toiletTrainingDataSource = ToiletTrainingDataSourceImpl(context: context)
+            let toiletTrainingRepository = ToiletTrainingRepositoryImpl(toiletTrainingDataSource: toiletTrainingDataSource, studentDataSource: studentDataSource)
             let toiletTrainingUseCase = ToiletTrainingUseCase(repository: toiletTrainingRepository)
             
             let viewModel = StudentListViewModel(studentUseCases: studentUseCase, activityUseCases: activityUseCase, toiletTrainingUseCases: toiletTrainingUseCase)

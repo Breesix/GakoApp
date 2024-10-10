@@ -11,18 +11,18 @@ struct ToiletTrainingUseCase {
     let repository: ToiletTrainingRepository
     
     func addTraining(_ training: ToiletTraining, for student: Student) async throws {
-        try await repository.addTraining(training, for: student)
+        try await repository.addToiletTraining(training, for: student)
     }
 
     func getTrainingForStudent(_ student: Student) async throws -> [ToiletTraining] {
-        return try await repository.getTrainingForStudent(student)
+        return try await repository.getToiletTrainingsForStudent(student)
     }
 
     func updateTrainingProgress(_ training: ToiletTraining) async throws {
-        try await repository.updateTrainingProgress(training)
+        try await repository.updateToiletTraining(training)
     }
     
     func deleteTrainingProgress(_ training: ToiletTraining, from student: Student) async throws {
-        try await repository.deleteTrainingProgress(training, from: student)
+        try await repository.deleteToiletTraining(training, from: student)
     }
 }
