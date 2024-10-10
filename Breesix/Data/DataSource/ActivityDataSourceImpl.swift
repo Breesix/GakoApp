@@ -17,9 +17,7 @@ class ActivityDataSourceImpl: ActivityDataSource {
 
     func fetch() async throws -> [Activity] {
         let descriptor = FetchDescriptor<Activity>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let activities = try await Task { @MainActor in
-            try modelContext.fetch(descriptor)
-        }.value
+        let activities = try modelContext.fetch(descriptor)
         return activities
     }
 

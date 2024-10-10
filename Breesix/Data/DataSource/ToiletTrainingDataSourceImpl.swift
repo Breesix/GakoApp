@@ -18,9 +18,7 @@ class ToiletTrainingDataSourceImpl: ToiletTrainingDataSource {
 
     func fetch() async throws -> [ToiletTraining] {
         let descriptor = FetchDescriptor<ToiletTraining>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let toiletTrainings = try await Task { @MainActor in
-                try modelContext.fetch(descriptor)
-        }.value
+        let toiletTrainings = try modelContext.fetch(descriptor)
         return toiletTrainings
     }
 
