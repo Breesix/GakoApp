@@ -124,7 +124,7 @@ class StudentListViewModel: ObservableObject {
     }
     
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
-        unsavedActivities.append(contentsOf: activities)
+            unsavedActivities.append(contentsOf: activities)
     }
     
     func clearUnsavedActivities() {
@@ -155,11 +155,6 @@ class StudentListViewModel: ObservableObject {
     func addUnsavedActivity(_ activity: UnsavedActivity) {
         unsavedActivities.append(activity)
     }
-    
-    
-//    func addToiletTraining(_ toiletTrainingsInput: [ToiletTraining]) {
-//        toiletTrainings.append(contentsOf: toiletTrainingsInput)
-//    }
     
     func addUnsavedToiletTraining(_ toiletTrainingsInput: [UnsavedToiletTraining]) {
         unsavedToiletTrainings.append(contentsOf: toiletTrainingsInput)

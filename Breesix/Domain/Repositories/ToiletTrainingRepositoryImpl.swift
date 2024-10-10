@@ -9,11 +9,9 @@ import SwiftData
 
 class ToiletTrainingRepositoryImpl: ToiletTrainingRepository {
     private let toiletTrainingDataSource: ToiletTrainingDataSource
-    private let studentDataSource: StudentDataSource
 
-    init(toiletTrainingDataSource: ToiletTrainingDataSource, studentDataSource: StudentDataSource) {
+    init(toiletTrainingDataSource: ToiletTrainingDataSource) {
         self.toiletTrainingDataSource = toiletTrainingDataSource
-        self.studentDataSource = studentDataSource
     }
 
     func fetchToiletTrainings(_ student: Student) async throws -> [ToiletTraining] {

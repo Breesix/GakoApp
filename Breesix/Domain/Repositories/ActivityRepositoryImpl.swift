@@ -10,11 +10,9 @@ import SwiftData
 
 class ActivityRepositoryImpl: ActivityRepository {
     private let activityDataSource: ActivityDataSource
-    private let studentDataSource: StudentDataSource
 
-    init(activityDataSource: ActivityDataSource, studentDataSource: StudentDataSource) {
+    init(activityDataSource: ActivityDataSource) {
         self.activityDataSource = activityDataSource
-        self.studentDataSource = studentDataSource
     }
 
     func fetchAllActivities(_ student: Student) async throws -> [Activity] {
