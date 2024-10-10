@@ -8,17 +8,12 @@
 import Foundation
 import SwiftData
 
-enum InputType {
-    case speech
-    case manual
-}
-
 @Model
 class Activity {
     var id: UUID = UUID()
     var generalActivity: String
     var createdAt: Date
-    @Relationship(deleteRule: .nullify) var student: Student?
+    var student: Student?
 
     init(id: UUID = UUID(), generalActivity: String, createdAt: Date = Date(), student: Student? = nil) {
         self.id = id
@@ -41,3 +36,9 @@ struct UnsavedActivity: Identifiable {
         self.studentId = studentId
     }
 }
+
+enum InputType {
+    case speech
+    case manual
+}
+

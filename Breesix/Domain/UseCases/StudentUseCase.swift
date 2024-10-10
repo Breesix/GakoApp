@@ -7,23 +7,10 @@
 
 import Foundation
 
-struct StudentUseCase {
-    let repository: StudentRepository
-    
-    func getAllStudents() async throws -> [Student] {
-        return try await repository.getAllStudents()
-    }
-    
-    func addStudent(_ student: Student) async throws {
-        try await repository.addStudent(student)
-    }
-    
-    func updateStudent(_ student: Student) async throws {
-        try await repository.updateStudent(student)
-    }
-    
-    func deleteStudent(_ student: Student) async throws {
-        try await repository.deleteStudent(student)
-    }
+protocol StudentUseCase {
+    func fetchAllStudents() async throws -> [Student]
+    func addStudent(_ student: Student) async throws
+    func updateStudent(_ student: Student) async throws
+    func deleteStudent(_ student: Student) async throws
 }
 

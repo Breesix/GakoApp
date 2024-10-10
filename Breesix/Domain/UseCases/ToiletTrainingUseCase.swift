@@ -7,22 +7,9 @@
 
 import Foundation
 
-struct ToiletTrainingUseCase {
-    let repository: ToiletTrainingRepository
-    
-    func addTraining(_ training: ToiletTraining, for student: Student) async throws {
-        try await repository.addTraining(training, for: student)
-    }
-
-    func getTrainingForStudent(_ student: Student) async throws -> [ToiletTraining] {
-        return try await repository.getTrainingForStudent(student)
-    }
-
-    func updateTrainingProgress(_ training: ToiletTraining) async throws {
-        try await repository.updateTrainingProgress(training)
-    }
-    
-    func deleteTrainingProgress(_ training: ToiletTraining, from student: Student) async throws {
-        try await repository.deleteTrainingProgress(training, from: student)
-    }
+protocol ToiletTrainingUseCase {
+    func fetchToiletTrainings(_ student: Student) async throws -> [ToiletTraining]
+    func addToiletTraining(_ training: ToiletTraining, for student: Student) async throws
+    func updateToiletTraining(_ training: ToiletTraining) async throws
+    func deleteToiletTraining(_ training: ToiletTraining, from student: Student) async throws
 }
