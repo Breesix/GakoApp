@@ -8,11 +8,6 @@
 import Foundation
 import SwiftData
 
-enum InputType {
-    case speech
-    case manual
-}
-
 @Model
 class Activity {
     var id: UUID = UUID()
@@ -41,3 +36,9 @@ struct UnsavedActivity: Identifiable {
         self.studentId = studentId
     }
 }
+
+enum InputType {
+    case speech
+    case manual
+}
+

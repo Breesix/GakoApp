@@ -32,7 +32,7 @@ class StudentListViewModel: ObservableObject {
     
     func loadStudents() async {
         do {
-            students = try await studentUseCases.getAllStudents()
+            students = try await studentUseCases.fetchAllStudents()
         } catch {
             print("Error loading students: \(error)")
         }
@@ -76,7 +76,7 @@ class StudentListViewModel: ObservableObject {
     
     func getActivitiesForStudent(_ student: Student) async -> [Activity] {
         do {
-            return try await activityUseCases.getActivitiesForStudent(student)
+            return try await activityUseCases.fetchAllActivities(student)
         } catch {
             print("Error getting activities: \(error)")
             return []
@@ -85,7 +85,7 @@ class StudentListViewModel: ObservableObject {
     
     func getToiletTrainingForStudent(_ student: Student) async -> [ToiletTraining] {
         do {
-            return try await toiletTrainingUseCases.getTrainingForStudent(student)
+            return try await toiletTrainingUseCases.fetchToiletTrainings(student)
         } catch {
             print("Error getting toilet training: \(error)")
             return []
@@ -114,7 +114,7 @@ class StudentListViewModel: ObservableObject {
     
     func deleteToiletTraining(_ toiletTraining: ToiletTraining, from student: Student) async {
         do {
-            try await toiletTrainingUseCases.deleteTrainingProgress(toiletTraining, from: student)
+            try await toiletTrainingUseCases.deleteToiletTraining(toiletTraining, from: student)
             if let index = students.firstIndex(where: { $0.id == student.id }) {
                 students[index].toiletTrainings.removeAll(where: { $0.id == toiletTraining.id })
             }
@@ -213,7 +213,7 @@ class StudentListViewModel: ObservableObject {
     
     func addToiletTraining(_ training: ToiletTraining, for student: Student) async {
         do {
-            try await toiletTrainingUseCases.addTraining(training, for: student)
+            try await toiletTrainingUseCases.addToiletTraining(training, for: student)
             await loadStudents()
         } catch {
             print("Error adding training: \(error)")
@@ -222,7 +222,7 @@ class StudentListViewModel: ObservableObject {
     
     func updateTraining(_ training: ToiletTraining) async {
         do {
-            try await toiletTrainingUseCases.updateTrainingProgress(training)
+            try await toiletTrainingUseCases.updateToiletTraining(training)
             await loadStudents()
         } catch {
             print("Error updating activity: \(error)")

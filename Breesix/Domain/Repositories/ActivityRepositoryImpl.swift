@@ -17,13 +17,13 @@ class ActivityRepositoryImpl: ActivityRepository {
         self.studentDataSource = studentDataSource
     }
 
+    func fetchAllActivities(_ student: Student) async throws -> [Activity] {
+        return student.activities
+    }
+
     func addActivity(_ activity: Activity, for student: Student) async throws {
         student.activities.append(activity)
         try await activityDataSource.insert(activity)
-    }
-
-    func getActivitiesForStudent(_ student: Student) async throws -> [Activity] {
-        return student.activities
     }
 
     func updateActivity(_ activity: Activity) async throws {

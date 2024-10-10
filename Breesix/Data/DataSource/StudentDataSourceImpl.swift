@@ -15,11 +15,9 @@ class StudentDataSourceImpl: StudentDataSource {
         self.modelContext = context
     }
 
-    func fetchAllStudents() async throws -> [Student] {
+    func fetch() async throws -> [Student] {
         let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let students = try await Task { @MainActor in
-            try modelContext.fetch(descriptor)
-        }.value
+        let students = try modelContext.fetch(descriptor)
         return students
     }
 
@@ -31,7 +29,7 @@ class StudentDataSourceImpl: StudentDataSource {
     func update(_ student: Student) async throws {
         try modelContext.save()
     }
-    
+
     func delete(_ student: Student) async throws {
         modelContext.delete(student)
         try modelContext.save()

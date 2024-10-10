@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ToiletTrainingDataSource {
-    func fetchAllToiletTrainings() async throws -> [ToiletTraining]
+    func fetch() async throws -> [ToiletTraining]
     func insert(_ toiletTraining: ToiletTraining) async throws
     func update(_ toiletTraining: ToiletTraining) async throws
     func delete(_ toiletTraining: ToiletTraining) async throws

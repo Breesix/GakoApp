@@ -16,6 +16,10 @@ class ToiletTrainingRepositoryImpl: ToiletTrainingRepository {
         self.studentDataSource = studentDataSource
     }
 
+    func fetchToiletTrainings(_ student: Student) async throws -> [ToiletTraining] {
+        return student.toiletTrainings
+    }
+
     func addToiletTraining(_ toiletTraining: ToiletTraining, for student: Student) async throws {
         // override the training if it already exists on that date
         if let index = student.toiletTrainings.firstIndex(where: { $0.createdAt == toiletTraining.createdAt }) {
@@ -26,11 +30,7 @@ class ToiletTrainingRepositoryImpl: ToiletTrainingRepository {
 
         try await toiletTrainingDataSource.insert(toiletTraining)
     }
-    
-    func getToiletTrainingsForStudent(_ student: Student) async throws -> [ToiletTraining] {
-        return student.toiletTrainings
-    }
-    
+        
     func updateToiletTraining(_ toiletTraining: ToiletTraining) async throws {
         try await toiletTrainingDataSource.update(toiletTraining)
     }
