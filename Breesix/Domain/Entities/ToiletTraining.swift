@@ -14,7 +14,7 @@ class ToiletTraining: Identifiable {
     var trainingDetail: String
     var createdAt: Date
     var status: Bool?
-    @Relationship(deleteRule: .nullify) var student: Student?
+    var student: Student?
     
     init(id: UUID = UUID(), trainingDetail: String, createdAt: Date = Date(), status: Bool? = nil, student: Student? = nil) {
         self.id = id

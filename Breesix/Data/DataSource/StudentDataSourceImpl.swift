@@ -46,14 +46,6 @@ class StudentDataSourceImpl: StudentDataSource {
     
     func delete(_ student: Student) async throws {
         do {
-            for activity in student.activities {
-                modelContext.delete(activity)
-            }
-            for training in student.toiletTrainings {
-                modelContext.delete(training)
-            }
-            student.activities.removeAll()
-            student.toiletTrainings.removeAll()
             modelContext.delete(student)
             try modelContext.save()
         } catch {
