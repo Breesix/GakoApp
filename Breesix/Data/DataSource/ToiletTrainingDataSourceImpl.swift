@@ -17,47 +17,24 @@ class ToiletTrainingDataSourceImpl: ToiletTrainingDataSource {
     }
 
     func fetchAllToiletTrainings() async throws -> [ToiletTraining] {
-        do {
-            let descriptor = FetchDescriptor<ToiletTraining>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-            let toiletTrainings = try await Task { @MainActor in
+        let descriptor = FetchDescriptor<ToiletTraining>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        let toiletTrainings = try await Task { @MainActor in
                 try modelContext.fetch(descriptor)
-            }.value
-            return toiletTrainings
-        } catch {
-            throw ToiletTrainingDataSourceError.failedToFetchToiletTraining(error)
-        }
+        }.value
+        return toiletTrainings
     }
 
     func insert(_ toiletTraining: ToiletTraining) async throws {
-        do {
             modelContext.insert(toiletTraining)
-            try modelContext.save()
-        } catch {
-            throw ToiletTrainingDataSourceError.failedToInsertToiletTraining(error)
-        }
+        try modelContext.save()
     }
 
     func update(_ toiletTraining: ToiletTraining) async throws {
-        do {
-            try modelContext.save()
-        } catch {
-            throw ToiletTrainingDataSourceError.failedToUpdateToiletTraining(error)
-        }
+        try modelContext.save()
     }
 
     func delete(_ toiletTraining: ToiletTraining) async throws {
-        do {
-            modelContext.delete(toiletTraining)
-            try modelContext.save()
-        } catch {
-            throw ToiletTrainingDataSourceError.failedToDeleteToiletTraining(error)
-        }
+        modelContext.delete(toiletTraining)
+        try modelContext.save()
     }
-}
-
-enum ToiletTrainingDataSourceError: Error {
-    case failedToFetchToiletTraining(Error)
-    case failedToInsertToiletTraining(Error)
-    case failedToUpdateToiletTraining(Error)
-    case failedToDeleteToiletTraining(Error)
 }

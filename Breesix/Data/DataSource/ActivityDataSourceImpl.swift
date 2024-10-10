@@ -16,47 +16,24 @@ class ActivityDataSourceImpl: ActivityDataSource {
     }
 
     func fetchAllActivities() async throws -> [Activity] {
-        do {
-            let descriptor = FetchDescriptor<Activity>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-            let activities = try await Task { @MainActor in
-                try modelContext.fetch(descriptor)
-            }.value
-            return activities
-        } catch {
-            throw ActivityDataSourceError.failedToFetchActivities(error)
-        }
+        let descriptor = FetchDescriptor<Activity>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        let activities = try await Task { @MainActor in
+            try modelContext.fetch(descriptor)
+        }.value
+        return activities
     }
 
     func insert(_ activity: Activity) async throws {
-        do {
-            modelContext.insert(activity)
-            try modelContext.save()
-        } catch {
-            throw ActivityDataSourceError.failedToInsertActivity(error)
-        }
+        modelContext.insert(activity)
+        try modelContext.save()
     }
 
     func update(_ activity: Activity) async throws {
-        do {
-            try modelContext.save()
-        } catch {
-            throw ActivityDataSourceError.failedToUpdateActivity(error)
-        }
+        try modelContext.save()
     }
 
     func delete(_ activity: Activity) async throws {
-        do {
-            modelContext.delete(activity)
-            try modelContext.save()
-        } catch {
-            throw ActivityDataSourceError.failedToDeleteActivity(error)
-        }
+        modelContext.delete(activity)
+        try modelContext.save()
     }
-}
-
-enum ActivityDataSourceError: Error {
-    case failedToFetchActivities(Error)
-    case failedToInsertActivity(Error)
-    case failedToUpdateActivity(Error)
-    case failedToDeleteActivity(Error)
 }
