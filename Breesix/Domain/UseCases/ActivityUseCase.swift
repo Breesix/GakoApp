@@ -25,6 +25,5 @@ struct ActivityUseCase {
     func deleteActivity(_ activity: Activity, from student: Student) async throws {
         try await repository.deleteActivity(activity, from: student)
     }
-
 }
 
