@@ -42,11 +42,11 @@ else
     exit 1
 fi
 
-# Check if Package.swift exists in the current directory or parent
-if [ -f "Package.swift" ]; then
-    echo "Installing OpenAI dependencies..."
-    swift package resolve
-else
-    echo "Error: Could not find Package.swift. Please ensure the script is run in the correct directory."
-    exit 1
-fi
+## Check if Package.swift exists in the current directory or parent
+#if [ -f "Package.swift" ]; then
+#    echo "Installing OpenAI dependencies..."
+#    swift package resolve
+#else
+#    echo "Error: Could not find Package.swift. Please ensure the script is run in the correct directory."
+#    exit 1
+#fi
