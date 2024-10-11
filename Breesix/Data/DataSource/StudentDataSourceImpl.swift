@@ -9,38 +9,29 @@ import Foundation
 import SwiftData
 
 class StudentDataSourceImpl: StudentDataSource {
-    private let context: ModelContext
-    
+    private let modelContext: ModelContext
+
     init(context: ModelContext) {
-        self.context = context
+        self.modelContext = context
     }
-    
-    func fetchAllStudents() async throws -> [Student] {
-        // Ensure context usage on the main actor to prevent threading issues
-        return try await Task { @MainActor in
-            let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-            let students = try context.fetch(descriptor)
-            return students
-        }.value
+
+    func fetch() async throws -> [Student] {
+        let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        let students = try modelContext.fetch(descriptor)
+        return students
     }
 
     func insert(_ student: Student) async throws {
-        context.insert(student)
-        try context.save()
+        modelContext.insert(student)
+        try modelContext.save()
     }
-    
+
     func update(_ student: Student) async throws {
-        try context.save()
+        try modelContext.save()
     }
-    
+
     func delete(_ student: Student) async throws {
-        for activity in student.activities {
-            context.delete(activity)
-        }
-        
-        student.activities.removeAll()
-        context.delete(student)
-        try context.save()
+        modelContext.delete(student)
+        try modelContext.save()
     }
 }
-

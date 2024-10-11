@@ -7,24 +7,10 @@
 
 import Foundation
 
-struct ActivityUseCase {
-    let repository: ActivityRepository
-
-    func addActivity(_ activity: Activity, for student: Student) async throws {
-        try await repository.addActivity(activity, for: student)
-    }
-
-    func getActivitiesForStudent(_ student: Student) async throws -> [Activity] {
-        return try await repository.getActivitiesForStudent(student)
-    }
-    
-    func updateActivity(_ activity: Activity) async throws {
-        try await repository.updateActivity(activity)
-    }
-    
-    func deleteActivity(_ activity: Activity, from student: Student) async throws {
-        try await repository.deleteActivity(activity, from: student)
-    }
-
+protocol ActivityUseCase {
+    func fetchAllActivities(_ student: Student) async throws -> [Activity]
+    func addActivity(_ activity: Activity, for student: Student) async throws
+    func updateActivity(_ activity: Activity) async throws
+    func deleteActivity(_ activity: Activity, from student: Student) async throws
 }
 

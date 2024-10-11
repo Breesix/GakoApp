@@ -17,7 +17,6 @@ class Student {
     var createdAt: Date
     @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     @Relationship(deleteRule: .cascade) var toiletTrainings: [ToiletTraining] = []
-    
     @Attribute(.externalStorage) var imageData: Data?
     
     init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {

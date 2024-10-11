@@ -8,8 +8,8 @@
 import Foundation
 
 protocol ActivityRepository {
+    func fetchAllActivities(_ student: Student) async throws -> [Activity]
     func addActivity(_ activity: Activity, for student: Student) async throws
-    func getActivitiesForStudent(_ student: Student) async throws -> [Activity]
     func updateActivity(_ activity: Activity) async throws
     func deleteActivity(_ activity: Activity, from student: Student) async throws
 }

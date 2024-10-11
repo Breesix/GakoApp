@@ -8,37 +8,34 @@ import Foundation
 import SwiftData
 
 class ToiletTrainingRepositoryImpl: ToiletTrainingRepository {
-    
-    private let context: ModelContext
+    private let toiletTrainingDataSource: ToiletTrainingDataSource
 
-    init(context: ModelContext) {
-        self.context = context
+    init(toiletTrainingDataSource: ToiletTrainingDataSource) {
+        self.toiletTrainingDataSource = toiletTrainingDataSource
     }
-    
-    func addTraining(_ training: ToiletTraining, for student: Student) async throws {
-        var StudentTrainings = student.toiletTrainings
-                // override the training if it already exists on that date
-//        if let index = StudentTrainings.firstIndex(where: { $0.createdAt == training.createdAt }) {
-//                    StudentTrainings[index] = training
-//                } else {
-//                }
-        StudentTrainings.append(training)
 
-        try context.save()
-    }
-    
-    func getTrainingForStudent(_ student: Student) async throws -> [ToiletTraining] {
+    func fetchToiletTrainings(_ student: Student) async throws -> [ToiletTraining] {
         return student.toiletTrainings
     }
-    
-    func updateTrainingProgress(_ training: ToiletTraining) async throws {
-        try context.save()
+
+    func addToiletTraining(_ toiletTraining: ToiletTraining, for student: Student) async throws {
+        // override the training if it already exists on that date
+        if let index = student.toiletTrainings.firstIndex(where: { $0.createdAt == toiletTraining.createdAt }) {
+            student.toiletTrainings[index] = toiletTraining
+                } else {
+                }
+        student.toiletTrainings.append(toiletTraining)
+
+        try await toiletTrainingDataSource.insert(toiletTraining)
+    }
+        
+    func updateToiletTraining(_ toiletTraining: ToiletTraining) async throws {
+        try await toiletTrainingDataSource.update(toiletTraining)
     }
     
-    func deleteTrainingProgress(_ training: ToiletTraining, from student: Student) async throws {
-        student.toiletTrainings.removeAll(where: { $0.id == training.id })
-        context.delete(training)
-        try context.save()
+    func deleteToiletTraining(_ toiletTraining: ToiletTraining, from student: Student) async throws {
+        student.toiletTrainings.removeAll(where: { $0.id == toiletTraining.id })
+        try await toiletTrainingDataSource.delete(toiletTraining)
     }
 
 }
