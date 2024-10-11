@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# Check if in correct directory with Xcode project
+# Move up one level to where Breesix.xcodeproj is located
+ls .
+
+cd ..
+
+# Check if in the correct directory with the Xcode project
 if [ ! -d "Breesix.xcodeproj" ]; then
     echo "Error: Breesix.xcodeproj not found! Please ensure you're in the correct directory."
     exit 1
