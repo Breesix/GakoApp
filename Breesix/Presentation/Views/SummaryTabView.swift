@@ -255,4 +255,3 @@ enum InputType {
     case speech
     case manual
 }
-

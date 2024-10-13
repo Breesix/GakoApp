@@ -19,12 +19,7 @@ class ActivityRepositoryImpl: ActivityRepository {
     }
 
     func addActivity(_ activity: Activity, for student: Student) async throws {
-        if let index = student.activities.firstIndex(where: { $0.createdAt == activity.createdAt }) {
-            student.activities[index] = activity
-                } else {
-                }
         student.activities.append(activity)
-
         try await dataSource.insert(activity)
     }
         

@@ -204,15 +204,14 @@ class TTCSVParser {
                     }
                     
                     // Create note
-                    if !curhatan.isEmpty && curhatan != "Tidak ada informasi satupun." {
+                
                         let unsavedNote = UnsavedNote(
                             note: curhatan,
                             createdAt: createdAt,
                             studentId: student.id
                         )
                         unsavedNotes.append(unsavedNote)
-                    }
-                } else {
+                     
                     print("No matching student found for: \(fullName) (\(nickname))")
                 }
             } else {

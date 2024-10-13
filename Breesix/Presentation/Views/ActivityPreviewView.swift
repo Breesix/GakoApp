@@ -94,7 +94,7 @@ struct ActivityDetailRow: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Aktivitas")
+            Text(activity.activity)
             if activity.isIndependent ?? false {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
@@ -109,7 +109,6 @@ struct ActivityDetailRow: View {
                 .foregroundColor(.red)
             }
             Text("Date: \(activity.createdAt, formatter: itemFormatter)")
-            Text(activity.activity)
         }
         .contextMenu {
             Button("Edit", action: onEdit)

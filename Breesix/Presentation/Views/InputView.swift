@@ -12,7 +12,6 @@ struct InputView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @ObservedObject var speechRecognizer = SpeechRecognizer()
     @State private var selectedInputType: InputType = .manual
-//    @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
     var inputType: InputType
     @Environment(\.presentationMode) var presentationMode
@@ -20,8 +19,6 @@ struct InputView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State var isFilledToday: Bool = false
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
     @State private var isRecord: Bool = false
 
     @Binding var isAllStudentsFilled: Bool
@@ -34,68 +31,65 @@ struct InputView: View {
     var body: some View {
         NavigationView {
             VStack {
-                    TextEditor(text: $reflection)
-                        .padding()
-                        .border(Color.gray, width: 1)
+                TextEditor(text: $reflection)
+                    .padding()
+                    .border(Color.gray, width: 1)
 
-                    if isLoading {
-                        ProgressView()
-                    } else if let error = errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
-                    }
+                if isLoading {
+                    ProgressView()
+                } else if let error = errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                }
 
-                    if inputType == .speech {
-                        if !isRecord {
-                            Button(action: {
-                                isRecord = true
-                                
-                                DispatchQueue.global(qos: .userInitiated).async {
-                                    self.speechRecognizer.startTranscribing()
-                                }
-                            }) {
-                                Image("play-mic-button")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 60)
-                                    .overlay {
-                                        Circle()
-                                            .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
-                                            .foregroundColor(.black)
-                                            .shadow(radius: 2)
-                                    }
+                if inputType == .speech {
+                    if !isRecord {
+                        Button(action: {
+                            isRecord = true
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                self.speechRecognizer.startTranscribing()
                             }
-                        } else {
-                            Button(action: {
-                                DispatchQueue.global(qos: .userInitiated).async {
-                                    self.speechRecognizer.stopTranscribing()
-                                    DispatchQueue.main.async {
-                                        self.reflection = self.speechRecognizer.transcript
-                                        isRecord = false
-                                    }
+                        }) {
+                            Image("play-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                                .overlay {
+                                    Circle()
+                                        .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                        .foregroundColor(.black)
+                                        .shadow(radius: 2)
                                 }
-                            }) {
-                                Image("stop-mic-button")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 60)
-                                    .overlay {
-                                        Circle()
-                                            .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
-                                            .foregroundColor(.black)
-                                            .shadow(radius: 2)
-                                    }
+                        }
+                    } else {
+                        Button(action: {
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                self.speechRecognizer.stopTranscribing()
+                                DispatchQueue.main.async {
+                                    self.reflection = self.speechRecognizer.transcript
+                                    isRecord = false
+                                }
                             }
+                        }) {
+                            Image("stop-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                                .overlay {
+                                    Circle()
+                                        .stroke(style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                        .foregroundColor(.black)
+                                        .shadow(radius: 2)
+                                }
                         }
                     }
+                }
 
-
-
-                    Button("Next") {
-                        processReflectionActivity()
-                    }
-                    .padding()
-                    .disabled(reflection.isEmpty || isLoading)
+                Button("Next") {
+                    processReflectionActivity()
+                }
+                .padding()
+                .disabled(reflection.isEmpty || isLoading)
             }
             .navigationTitle("Ceritakan Aktivitas Hari Ini")
             .navigationBarItems(trailing: Button("Cancel") {
@@ -107,9 +101,6 @@ struct InputView: View {
             }
             .onReceive(speechRecognizer.$transcript) { newTranscript in
                 self.reflection = newTranscript
-            }
-            .alert(isPresented: $showingAlert) {
-                Alert(title: Text("Missing Data"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
         }
     }
@@ -136,27 +127,12 @@ struct InputView: View {
 
                 await MainActor.run {
                     isLoading = false
+                    isAllStudentsFilled = true
+                    
+                    viewModel.addUnsavedActivities(activityList)
+                    viewModel.addUnsavedNotes(noteList)
 
-                    let missingStudents = checkMissingData(activityList: activityList)
-
-                    if missingStudents.isEmpty {
-                        isAllStudentsFilled = true
-                        
-                        viewModel.addUnsavedActivities(activityList)
-                        viewModel.addUnsavedNotes(noteList)
-
-                        onDismiss()
-                    } else {
-                        isAllStudentsFilled = false
-
-                        alertMessage = "The following students are missing activity data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
-                        
-                        Task {
-                            await MainActor.run {
-                                showingAlert = true
-                            }
-                        }
-                    }
+                    onDismiss()
                 }
             } catch {
                 await MainActor.run {
@@ -166,19 +142,6 @@ struct InputView: View {
                 }
             }
         }
-    }
-
-    func checkMissingData(activityList: [UnsavedActivity]) -> [Student] {
-        let studentsWithActivity = Set(activityList.map { $0.studentId })
-        let missingStudents = viewModel.students.filter { student in
-            !studentsWithActivity.contains(student.id)
-        }
-
-        print("Total students: \(viewModel.students.count)")
-        print("Total activities: \(activityList.count)")
-        print("Missing students: \(missingStudents.count)")
-
-        return missingStudents
     }
 
     public func requestSpeechAuthorization() {

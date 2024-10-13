@@ -64,7 +64,7 @@ struct PreviewView: View {
                     }
                 }
             }
-            .navigationTitle("Preview Refleksi")
+            .navigationTitle("Preview")
             .navigationBarItems(
                 leading: Button("Batal") {
                     viewModel.clearUnsavedNotes()
@@ -122,6 +122,7 @@ struct PreviewView: View {
             }
         }
     }
+    
     private func saveActivities() {
         isSaving = true
         Task {

@@ -106,6 +106,7 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
+    
     func deleteActivities(_ activity: Activity, from student: Student) async {
         do {
             try await activityUseCases.deleteActivity(activity, from: student)
@@ -160,11 +161,14 @@ class StudentListViewModel: ObservableObject {
     
     func saveUnsavedActivities() async {
         for unsavedActivity in unsavedActivities {
-            let student = students.first(where: { $0.id == unsavedActivity.studentId })
-                let activityObj = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? false, student: student)
-                await addActivity(activityObj, for: student!)
+            if let student = students.first(where: { $0.id == unsavedActivity.studentId }) {
+                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? false, student: student)
+                await addActivity(activity, for: student)
+            }
         }
-        clearUnsavedActivities()
+        await MainActor.run {
+            clearUnsavedActivities()
+        }
     }
     
     func updateUnsavedActivity(_ activity: UnsavedActivity) {
@@ -180,7 +184,7 @@ class StudentListViewModel: ObservableObject {
     func addActivity(_ activity: Activity, for student: Student) async {
         do {
             try await activityUseCases.addActivity(activity, for: student)
-            await fetchAllStudents()
+            print("Activity added successfully: \(activity.activity)")
         } catch {
             print("Error adding activity: \(error)")
         }
