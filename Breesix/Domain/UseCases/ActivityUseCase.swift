@@ -1,5 +1,5 @@
 //
-//  ToiletTrainingUseCase.swift
+//  ActivityUseCase.swift
 //  Breesix
 //
 //  Created by Akmal Hakim on 02/10/24.

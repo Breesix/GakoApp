@@ -1,5 +1,5 @@
 //
-//  ToiletTrainingUseCaseImpl.swift
+//  ActivityUseCaseImpl.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 10/10/24.

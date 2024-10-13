@@ -84,7 +84,7 @@ class AITTService {
 class TTCSVParser {
     static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedActivity] {
         let rows = csvString.components(separatedBy: .newlines)
-        var unsavedToiletTrainings: [UnsavedActivity] = []
+        var unsavedActivities: [UnsavedActivity] = []
         
         print("Total rows in CSV: \(rows.count)")
         print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
@@ -101,22 +101,22 @@ class TTCSVParser {
                 
                 print("Searching for student: \(fullName) (\(nickname))")
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
-                    let trainingStatus: Bool
+                    let activityStatus: Bool
                     if (status != "null") {
                         if status == "true" {
-                            trainingStatus = true
+                            activityStatus = true
                         } else {
-                            trainingStatus = false
+                            activityStatus = false
                         }
-                        let trainingDetail: String = details
-                        if !trainingDetail.isEmpty {
-                            let unsavedToiletTraining = UnsavedActivity(
-                                trainingDetail: trainingDetail,
+                        let activity: String = details
+                        if !activity.isEmpty {
+                            let unsavedActivity = UnsavedActivity(
+                                activity: activity,
                                 createdAt: createdAt,
-                                status: trainingStatus,
+                                status: activityStatus,
                                 studentId: student.id
                             )
-                            unsavedToiletTrainings.append(unsavedToiletTraining)
+                            unsavedActivities.append(unsavedActivity)
                         } else {
                             print("No information available for \(student.fullname) (\(student.nickname))")
                         }
@@ -131,8 +131,8 @@ class TTCSVParser {
             }
         }
         
-        print("Total training created: \(unsavedToiletTrainings.count)")
-        return unsavedToiletTrainings
+        print("Total activities created: \(unsavedActivities.count)")
+        return unsavedActivities
     }
     
     private static func parseCSVRow(_ row: String) -> [String] {

@@ -12,11 +12,11 @@ struct SummaryTabView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
-    @State private var isShowingToiletTraining = false
+    @State private var isShowingActivity = false
     @State private var isShowingMandatorySheet = false
     @State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
-    @State private var activeSheet: ActiveSheet? = nil  // Manage sheets with enum
+    @State private var activeSheet: ActiveSheet? = nil
     
     var body: some View {
         NavigationView {
@@ -24,7 +24,6 @@ struct SummaryTabView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     datePickerView()
                     
-                    // Suara and Teks buttons
                     HStack(alignment: .center) {
                         VStack(alignment: .leading) {
                             Text("Suara")
@@ -67,12 +66,9 @@ struct SummaryTabView: View {
                         .background(.gray.opacity(0.5))
                         .cornerRadius(8)
                     }
-
-                    // List of Students
                     studentsListView()
                 }
                 .padding()
-                // Load students when the view appears
                 .task {
                     await studentListViewModel.fetchAllStudents()
                 }
@@ -111,7 +107,7 @@ struct SummaryTabView: View {
                 ReflectionPreviewView(
                     viewModel: studentListViewModel,
                     isShowingPreview: $isShowingPreview,
-                    isShowingToiletTraining: $isShowingToiletTraining,
+                    isShowingActivity: $isShowingActivity,
                     selectedDate: viewModel.selectedDate
                     
                 )
@@ -185,8 +181,8 @@ struct SummaryTabView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-                if let latestTraining = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-                    ToiletTrainingView(training: latestTraining)
+                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
+                    ActivityView(activity: latestActivity)
                 }
                 
                 let dailyNotes = student.notes.filter {
@@ -203,18 +199,18 @@ struct SummaryTabView: View {
             }
         }
     }
-    struct ToiletTrainingView: View {
-        let training: Activity
+    struct ActivityView: View {
+        let activity: Activity
         
         var body: some View {
             VStack(alignment: .leading) {
                 
-                if let status = training.isIndependent {
+                if let status = activity.isIndependent {
                     HStack {
-                        Image(systemName: "toilet.fill")
+                        Image(systemName: "activity.fill")
                             .scaledToFit()
                             .foregroundColor(.white)
-                        Text(status ? "Independent" : "Needs Guidance")
+                        Text(status ? "Mandiri" : "Dibimbing")
                             .font(.footnote)
                             .foregroundColor(.white)
                     }
@@ -223,7 +219,7 @@ struct SummaryTabView: View {
                     
                     
                 } else {
-                    Text("Tidak ada toilet training terbaru")
+                    Text("Tidak ada aktivitas terbaru")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -257,12 +253,11 @@ struct SummaryTabView: View {
         
     }
     
-    // ActiveSheet Enum to manage sheet presentations
     enum ActiveSheet: Identifiable {
         case reflection
         case preview
         case mandatory
-        case toiletTraining
+        case activity
         
         var id: Int {
             hashValue

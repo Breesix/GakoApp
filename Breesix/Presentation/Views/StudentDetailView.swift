@@ -15,8 +15,8 @@ struct StudentDetailView: View {
     @State private var selectedDate = Date()
     @State private var selectedNote: Note?
     @State private var isAddingNewNote = false
-    @State private var selectedTraining: Activity?
-    @State private var toiletTrainings: [Activity] = []
+    @State private var activity: Activity?
+    @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
     
     var body: some View {
@@ -30,11 +30,11 @@ struct StudentDetailView: View {
                     FutureMessageView()
                 } else {
                     ActivityCardView(
-                        toiletTrainings: toiletThatDay,
+                        activities: activityThatDay,
                         notes: filteredNotes,
                         onAddNote: { isAddingNewNote = true },
-                        onEditTraining: { self.selectedTraining = $0 },
-                        onDeleteTraining: deleteTraining,
+                        onEditActivity: { self.activity = $0 },
+                        onDeleteActivity: deleteActivity,
                         onEditNote: { self.selectedNote = $0 },
                         onDeleteNote: deleteNote
                     )
@@ -53,9 +53,9 @@ struct StudentDetailView: View {
                 selectedNote = nil
             })
         }
-        .sheet(item: $selectedTraining) { training in
-            TrainingEditView(viewModel: viewModel, training: training, onDismiss: {
-                selectedTraining = nil
+        .sheet(item: $activity) { currentActivity in
+            ActivityEditView(viewModel: viewModel, activity: currentActivity, onDismiss: {
+                activity = nil
             })
         }
         .sheet(isPresented: $isAddingNewNote) {
@@ -68,12 +68,12 @@ struct StudentDetailView: View {
         }
         .task {
             await fetchAllNotes()
-            await loadToiletTrainingStudents()
+            await fetchActivities()
         }
     }
     
-    private var toiletThatDay: [Activity] {
-        toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+    private var activityThatDay: [Activity] {
+        activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
     private var filteredNotes: [Note] {
@@ -84,8 +84,8 @@ struct StudentDetailView: View {
         notes = await viewModel.fetchAllNotes(student)
     }
     
-    private func loadToiletTrainingStudents() async {
-        toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
+    private func fetchActivities() async {
+        activities = await viewModel.fetchActivities(student)
     }
     
     private func deleteNote(_ note: Note) {
@@ -95,10 +95,10 @@ struct StudentDetailView: View {
         }
     }
     
-    private func deleteTraining(_ training: Activity) {
+    private func deleteActivity(_ activity: Activity) {
         Task {
-            await viewModel.deleteToiletTraining(training, from: student)
-            toiletTrainings.removeAll(where: { $0.id == training.id })
+            await viewModel.deleteActivities(activity, from: student)
+            activities.removeAll(where: { $0.id == activity.id })
         }
     }
 }

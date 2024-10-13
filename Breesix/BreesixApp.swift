@@ -36,7 +36,7 @@ struct BreesixApp: App {
             let activityRepository = ActivityRepositoryImpl(activityDataSource: activityDataSource)
             let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             
-            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, toiletTrainingUseCases: activityUseCase)
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase)
             
             MainTabView(studentListViewModel: viewModel)
         }

@@ -12,8 +12,8 @@ struct NoteFormView: View {
     @Binding var isPresented: Bool
     @State private var selectedStudent: Student?
     @State private var note = ""
-    @State private var toiletTraining = ""
-    @State private var toiletTrainingStatus = false
+    @State private var activity = ""
+    @State private var isIndependent = false
 
     var body: some View {
         NavigationView {
@@ -25,8 +25,8 @@ struct NoteFormView: View {
                 }
 
                 TextField("Catatan", text: $note)
-                TextField("Catatan Toilet Training", text: $toiletTraining)
-                Toggle("Status Toilet Training", isOn: $toiletTrainingStatus)
+                TextField("Aktivitas", text: $activity)
+                Toggle("Status Aktivitas", isOn: $isIndependent)
 
                 Button("Simpan Catatan") {
                     saveNote()

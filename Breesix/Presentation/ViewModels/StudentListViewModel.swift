@@ -11,21 +11,16 @@ import Foundation
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedNotes: [UnsavedNote] = []
-    @Published var unsavedToiletTrainings: [UnsavedActivity] = []
+    @Published var unsavedActivities: [UnsavedActivity] = []
     @Published var selectedDate: Date = Date() 
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
-    private let toiletTrainingUseCases: ActivityUseCase
+    private let activityUseCases: ActivityUseCase
     
-    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, toiletTrainingUseCases: ActivityUseCase) {
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
-
-//        Task {
-//            await loadStudents() /
-//        }
-
-        self.toiletTrainingUseCases = toiletTrainingUseCases
+        self.activityUseCases = activityUseCases
 
     }
     
@@ -82,15 +77,6 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
-    func getToiletTrainingForStudent(_ student: Student) async -> [Activity] {
-        do {
-            return try await toiletTrainingUseCases.fetchActivities(student)
-        } catch {
-            print("Error getting activity: \(error)")
-            return []
-        }
-    }
-    
     func updateNote(_ note: Note) async {
         do {
             try await noteUseCases.updateNote(note)
@@ -111,11 +97,20 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
-    func deleteToiletTraining(_ toiletTraining: Activity, from student: Student) async {
+    func fetchActivities(_ student: Student) async -> [Activity] {
         do {
-            try await toiletTrainingUseCases.deleteActivity(toiletTraining, from: student)
+            return try await activityUseCases.fetchActivities(student)
+        } catch {
+            print("Error getting activity: \(error)")
+            return []
+        }
+    }
+    
+    func deleteActivities(_ activity: Activity, from student: Student) async {
+        do {
+            try await activityUseCases.deleteActivity(activity, from: student)
             if let index = students.firstIndex(where: { $0.id == student.id }) {
-                students[index].activities.removeAll(where: { $0.id == toiletTraining.id })
+                students[index].activities.removeAll(where: { $0.id == activity.id })
             }
         } catch {
             print("Error deleting activity: \(error)")
@@ -155,68 +150,49 @@ class StudentListViewModel: ObservableObject {
         unsavedNotes.append(note)
     }
     
-    func addUnsavedToiletTraining(_ toiletTrainingsInput: [UnsavedActivity]) {
-        unsavedToiletTrainings.append(contentsOf: toiletTrainingsInput)
+    func addUnsavedActivities(_ activities: [UnsavedActivity]) {
+        unsavedActivities.append(contentsOf: activities)
     }
     
-    func clearUnsavedToiletTrainings() {
-        unsavedNotes.removeAll()
+    func clearUnsavedActivities() {
+        unsavedActivities.removeAll()
     }
     
-    func saveUnsavedToiletTrainings() async {
-        for unsavedTraining in unsavedToiletTrainings {
-            let student = students.first(where: { $0.id == unsavedTraining.studentId })
+    func saveUnsavedActivities() async {
+        for unsavedActivity in unsavedActivities {
+            let student = students.first(where: { $0.id == unsavedActivity.studentId })
             do {
-                let toiletTrainingObj = Activity(trainingDetail: unsavedTraining.activity, createdAt: unsavedTraining.createdAt, status: unsavedTraining.isIndependent!, student: student)
-                await addToiletTraining(toiletTrainingObj, for: student!)
+                let activityObj = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, status: unsavedActivity.isIndependent!, student: student)
+                await addActivity(activityObj, for: student!)
             } catch {
-                print("Error saving toilet activity: \(error)")
+                print("Error saving activity: \(error)")
             }
         }
-        clearUnsavedNotes()
+        clearUnsavedActivities()
     }
-
     
-//    func clearToiletTrainings() {
-//        toiletTrainings.removeAll()
-//    }
-    
-//    func saveToiletTrainings() async {
-//        for training in toiletTrainings {
-//            let student = students.first(where: { $0 == training.student })
-//            do {
-//                let toiletTrainingObj = ToiletTraining(trainingDetail: training.trainingDetail, createdAt: training.createdAt, status: training.status!, student: training.student)
-//                await addToiletTraining(toiletTrainingObj, for: student!)
-//            } catch {
-//                print("Error saving toilet training: \(error)")
-//            }
-//        }
-//        clearToiletTrainings()
-//    }
-
-    
-    func updateUnsavedToiletTraining(_ training: UnsavedActivity) {
-        if let index = unsavedToiletTrainings.firstIndex(where: { $0.id == training.id }) {
-            unsavedToiletTrainings[index] = training
+    func updateUnsavedActivity(_ activity: UnsavedActivity) {
+        if let index = unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+            unsavedActivities[index] = activity
         }
     }
     
-    func deleteUnsavedToiletTraining(_ training: UnsavedActivity) {
-        unsavedToiletTrainings.removeAll { $0.id == training.id }
+    func deleteUnsavedActivity(_ activity: UnsavedActivity) {
+        unsavedActivities.removeAll { $0.id == activity.id }
     }
     
-    func addToiletTraining(_ training: Activity, for student: Student) async {
+    func addActivity(_ activity: Activity, for student: Student) async {
         do {
-            try await toiletTrainingUseCases.addActivity(training, for: student)
+            try await activityUseCases.addActivity(activity, for: student)
             await fetchAllStudents()
         } catch {
             print("Error adding activity: \(error)")
         }
     }
     
-    func updateTraining(_ training: Activity) async {
+    func updateActivity(_ activity: Activity) async {
         do {
-            try await toiletTrainingUseCases.updateActivity(training)
+            try await activityUseCases.updateActivity(activity)
             await fetchAllStudents()
         } catch {
             print("Error updating activity: \(error)")

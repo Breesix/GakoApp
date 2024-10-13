@@ -1,5 +1,5 @@
 //
-//  ToiletTrainingRepositoryImpl.swift
+//  ActivityRepositoryImpl.swift
 //  Breesix
 //
 //  Created by Akmal Hakim on 02/10/24.
@@ -18,23 +18,23 @@ class ActivityRepositoryImpl: ActivityRepository {
         return student.activities
     }
 
-    func addActivity(_ toiletTraining: Activity, for student: Student) async throws {
-        if let index = student.activities.firstIndex(where: { $0.createdAt == toiletTraining.createdAt }) {
-            student.activities[index] = toiletTraining
+    func addActivity(_ activity: Activity, for student: Student) async throws {
+        if let index = student.activities.firstIndex(where: { $0.createdAt == activity.createdAt }) {
+            student.activities[index] = activity
                 } else {
                 }
-        student.activities.append(toiletTraining)
+        student.activities.append(activity)
 
-        try await dataSource.insert(toiletTraining)
+        try await dataSource.insert(activity)
     }
         
-    func updateActivity(_ toiletTraining: Activity) async throws {
-        try await dataSource.update(toiletTraining)
+    func updateActivity(_ activity: Activity) async throws {
+        try await dataSource.update(activity)
     }
     
-    func deleteActivity(_ toiletTraining: Activity, from student: Student) async throws {
-        student.activities.removeAll(where: { $0.id == toiletTraining.id })
-        try await dataSource.delete(toiletTraining)
+    func deleteActivity(_ activity: Activity, from student: Student) async throws {
+        student.activities.removeAll(where: { $0.id == activity.id })
+        try await dataSource.delete(activity)
     }
 
 }

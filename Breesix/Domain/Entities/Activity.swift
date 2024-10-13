@@ -1,5 +1,5 @@
 //
-//  ToiletTraining.swift
+//  Activity.swift
 //  Breesix
 //
 //  Created by Akmal Hakim on 02/10/24.
@@ -16,9 +16,9 @@ class Activity: Identifiable {
     var isIndependent: Bool?
     var student: Student?
     
-    init(id: UUID = UUID(), trainingDetail: String, createdAt: Date = Date(), status: Bool? = nil, student: Student? = nil) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Bool? = nil, student: Student? = nil) {
         self.id = id
-        self.activity = trainingDetail
+        self.activity = activity
         self.createdAt = createdAt
         self.isIndependent = status
         self.student = student
@@ -32,9 +32,9 @@ class UnsavedActivity: Identifiable {
     var isIndependent: Bool?
     var studentId: Student.ID
     
-    init(id: UUID = UUID(), trainingDetail: String, createdAt: Date = Date(), status: Bool? = nil, studentId: Student.ID) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Bool? = nil, studentId: Student.ID) {
         self.id = id
-        self.activity = trainingDetail
+        self.activity = activity
         self.createdAt = createdAt
         self.isIndependent = status
         self.studentId = studentId

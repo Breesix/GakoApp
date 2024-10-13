@@ -15,9 +15,9 @@ struct ReflectionPreviewView: View {
     @State private var editingNote: UnsavedNote?
     @State private var isAddingNewNote = false
     @State private var selectedStudent: Student?
-    @Binding var isShowingToiletTraining: Bool
-    @State private var editingTraining: UnsavedActivity?
-    @State private var isAddingNewTraining = false
+    @Binding var isShowingActivity: Bool
+    @State private var editingActivity: UnsavedActivity?
+    @State private var isAddingNewActivity = false
     
     let selectedDate: Date
 
@@ -25,14 +25,14 @@ struct ReflectionPreviewView: View {
         NavigationView {
             List {
                 ForEach(viewModel.students) { student in
-                    let studentTrainings = viewModel.unsavedToiletTrainings.filter { $0.studentId == student.id }
-                    if !studentTrainings.isEmpty {
+                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+                    if !studentActivities.isEmpty {
                         Section(header: Text(student.fullname)) {
-                            ForEach(studentTrainings) { training in
-                                TrainingDetailRow(toiletTraining: training, student: student, onEdit: {
-                                    editingTraining = training
+                            ForEach(studentActivities) { activity in
+                                ActivityDetailRow(activity: activity, student: student, onEdit: {
+                                    editingActivity = activity
                                 }, onDelete: {
-                                    deleteTraining(training)
+                                    deleteUnsavedActivity(activity)
                                 })
                             }
                         }
@@ -68,12 +68,12 @@ struct ReflectionPreviewView: View {
             .navigationBarItems(
                 leading: Button("Batal") {
                     viewModel.clearUnsavedNotes()
-                    viewModel.clearUnsavedToiletTrainings()
+                    viewModel.clearUnsavedActivities()
                     isShowingPreview = false
                 },
                 trailing: Button("Simpan") {
                     saveNotes()
-                    saveTrainings()
+                    saveActivities()
                 }
                 .disabled(isSaving)
             )
@@ -122,19 +122,19 @@ struct ReflectionPreviewView: View {
             }
         }
     }
-    private func saveTrainings() {
+    private func saveActivities() {
         isSaving = true
         Task {
-            await viewModel.saveUnsavedToiletTrainings()
+            await viewModel.saveUnsavedActivities()
             await MainActor.run {
                 isSaving = false
-                isShowingToiletTraining = false
+                isShowingActivity = false
             }
         }
     }
     
-    private func deleteTraining(_ training: UnsavedActivity) {
-        viewModel.deleteUnsavedToiletTraining(training)
+    private func deleteUnsavedActivity(_ activity: UnsavedActivity) {
+        viewModel.deleteUnsavedActivity(activity)
     }
     
     private func deleteNote(_ note: UnsavedNote) {

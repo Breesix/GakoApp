@@ -8,20 +8,20 @@
 import SwiftUI
 
 struct ActivityCardView: View {
-    let toiletTrainings: [Activity]
+    let activities: [Activity]
     let notes: [Note]
     let onAddNote: () -> Void
-    let onEditTraining: (Activity) -> Void
-    let onDeleteTraining: (Activity) -> Void
+    let onEditActivity: (Activity) -> Void
+    let onDeleteActivity: (Activity) -> Void
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
-            ToiletTrainingSection(
-                toiletTrainings: toiletTrainings,
-                onEditTraining: onEditTraining,
-                onDeleteTraining: onDeleteTraining
+            ActivitySection(
+                activities: activities,
+                onEditActivity: onEditActivity,
+                onDeleteActivity: onDeleteActivity
             )
             
             NoteSection(
@@ -43,24 +43,24 @@ struct ActivityCardView: View {
     }
 }
 
-struct ToiletTrainingSection: View {
-    let toiletTrainings: [Activity]
-    let onEditTraining: (Activity) -> Void
-    let onDeleteTraining: (Activity) -> Void
+struct ActivitySection: View {
+    let activities: [Activity]
+    let onEditActivity: (Activity) -> Void
+    let onDeleteActivity: (Activity) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Toilet Training")
+            Text("Aktivitas")
                 .fontWeight(.semibold)
                 .foregroundColor(.black)
                 .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
             
-            if toiletTrainings.isEmpty {
-                Text("Tidak ada toilet training untuk tanggal ini")
+            if activities.isEmpty {
+                Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.secondary)
             } else {
-                ForEach(toiletTrainings, id: \.id) { training in
-                    ToiletTrainingRow(training: training, onEdit: onEditTraining, onDelete: onDeleteTraining)
+                ForEach(activities, id: \.id) { activity in
+                    ActivityRow(activity: activity, onEdit: onEditActivity, onDelete: onDeleteActivity)
                 }
             }
         }
@@ -68,22 +68,22 @@ struct ToiletTrainingSection: View {
     }
 }
 
-struct ToiletTrainingRow: View {
-    let training: Activity
+struct ActivityRow: View {
+    let activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            if let status = training.isIndependent {
+            if let status = activity.isIndependent {
                 HStack {
                     Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    Text(status ? "Independent" : "Needs Guidance")
+                    Text(status ? "Mandiri" : "Dibimbing")
                 }
                 .foregroundColor(status ? .green : .red)
             }
             VStack {
-                Text(training.activity)
+                Text(activity.activity)
                     .font(.caption)
                     .foregroundColor(.primary)
             }
@@ -94,8 +94,8 @@ struct ToiletTrainingRow: View {
             .cornerRadius(8)
         }
         .contextMenu {
-            Button("Edit") { onEdit(training) }
-            Button("Hapus", role: .destructive) { onDelete(training) }
+            Button("Edit") { onEdit(activity) }
+            Button("Hapus", role: .destructive) { onDelete(activity) }
         }
     }
 }

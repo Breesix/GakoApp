@@ -11,5 +11,5 @@ protocol ActivityDataSource {
     func fetch() async throws -> [Activity]
     func insert(_ activity: Activity) async throws
     func update(_ activity: Activity) async throws
-    func delete(_ toileactivitytTraining: Activity) async throws
+    func delete(_ activity: Activity) async throws
 }

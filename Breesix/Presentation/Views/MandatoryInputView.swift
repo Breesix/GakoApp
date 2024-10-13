@@ -38,11 +38,9 @@ struct MandatoryInputView: View {
                     Text("You have filled this for today. You can still add a reflection.")
                         .foregroundColor(.green)
                     Button("Add Reflection") {
-                        // Show only the reflection input sheet if mandatory input is filled
                         isShowingReflectionSheet = true
                     }
                 } else {
-                    // Show the mandatory input view (TextEditor or Speech)
                     TextEditor(text: $reflection)
                         .padding()
                         .border(Color.gray, width: 1)
@@ -57,10 +55,8 @@ struct MandatoryInputView: View {
                     if inputType == .speech {
                         if !isRecord {
                             Button(action: {
-                                // Immediately show the mic icon when the button is tapped
                                 isRecord = true
                                 
-                                // Start transcribing in the background
                                 DispatchQueue.global(qos: .userInitiated).async {
                                     self.speechRecognizer.startTranscribing()
                                 }
@@ -78,7 +74,6 @@ struct MandatoryInputView: View {
                             }
                         } else {
                             Button(action: {
-                                // Stop transcribing and update the reflection with the transcript
                                 DispatchQueue.global(qos: .userInitiated).async {
                                     self.speechRecognizer.stopTranscribing()
                                     DispatchQueue.main.async {
@@ -104,13 +99,13 @@ struct MandatoryInputView: View {
 
 
                     Button("Next") {
-                        processReflectionToilet()
+                        processReflectionActivity()
                     }
                     .padding()
                     .disabled(reflection.isEmpty || isLoading)
                 }
             }
-            .navigationTitle("Ceritakan Toilet Training Hari Ini")
+            .navigationTitle("Ceritakan Aktivitas Hari Ini")
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
@@ -148,7 +143,7 @@ struct MandatoryInputView: View {
             UserDefaults.standard.set(Date(), forKey: "lastResetDate")
         }
     }
-    private func processReflectionToilet() {
+    private func processReflectionActivity() {
           Task {
               do {
                   isLoading = true
@@ -158,33 +153,24 @@ struct MandatoryInputView: View {
 
                   let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
-                  let toiletTrainingList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                  let activityList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
                   await MainActor.run {
                       isLoading = false
 
-                      // Check if all students have toilet training data
-                      let missingStudents = checkMissingData(toiletTrainingList: toiletTrainingList)
+                      let missingStudents = checkMissingData(activityList: activityList)
 
                       if missingStudents.isEmpty {
-                          // If all students have data, update isAllStudentsFilled to true
                           isAllStudentsFilled = true
                           
-                          viewModel.addUnsavedToiletTraining(toiletTrainingList)
+                          viewModel.addUnsavedActivities(activityList)
 
-                          // Present the TrainingPreviewView if necessary
                           onDismiss()
-  //                        if !isShowingTrainingPreview {
-  //                            isShowingTrainingPreview = true
-  //                        }
                       } else {
-                          // Otherwise, show an alert with the missing students
                           isAllStudentsFilled = false
 
-                          // Set alert message before presenting the alert
-                          alertMessage = "The following students are missing toilet training data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
+                          alertMessage = "The following students are missing activity data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
                           
-                          // Present the alert on the main thread
                           Task {
                               await MainActor.run {
                                   showingAlert = true
@@ -201,14 +187,14 @@ struct MandatoryInputView: View {
               }
           }
       
-       func checkMissingData(toiletTrainingList: [UnsavedActivity]) -> [Student] {
-          let studentsWithTraining = Set(toiletTrainingList.map { $0.studentId})
+       func checkMissingData(activityList: [UnsavedActivity]) -> [Student] {
+          let studentsWithActivity = Set(activityList.map { $0.studentId})
           let missingStudents = viewModel.students.filter { student in
-              !studentsWithTraining.contains(student.id)
+              !studentsWithActivity.contains(student.id)
           }
 
           print("Total students: \(viewModel.students.count)")
-          print("Total toilet trainings: \(toiletTrainingList.count)")
+          print("Total activities: \(activityList.count)")
           print("Missing students: \(missingStudents.count)")
 
           return missingStudents

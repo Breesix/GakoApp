@@ -75,7 +75,7 @@ struct ReflectionInputView: View {
 
                 Button("Next") {
                     processReflectionNote()
-                    processReflectionToilet()
+                    processReflectionActivity()
                 }
                 .padding()
                 .disabled(reflection.isEmpty || isLoading)
@@ -90,7 +90,7 @@ struct ReflectionInputView: View {
         }
     }
     
-    private func processReflectionToilet() {
+    private func processReflectionActivity() {
           Task {
               do {
                   isLoading = true
@@ -100,27 +100,23 @@ struct ReflectionInputView: View {
 
                   let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
-                  let toiletTrainingList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                  let activityList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
                   await MainActor.run {
                       isLoading = false
 
-                      let missingStudents = checkMissingData(toiletTrainingList: toiletTrainingList)
+                      let missingStudents = checkMissingData(activityList: activityList)
 
                       if missingStudents.isEmpty {
                           isAllStudentsFilled = true
                           
-                          viewModel.addUnsavedToiletTraining(toiletTrainingList)
+                          viewModel.addUnsavedActivities(activityList)
 
-                          // Present the TrainingPreviewView if necessary
                           onDismiss()
-  //                        if !isShowingTrainingPreview {
-  //                            isShowingTrainingPreview = true
-  //                        }
                       } else {
                           isAllStudentsFilled = false
 
-                          alertMessage = "The following students are missing toilet training data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
+                          alertMessage = "The following students are missing activity data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
                           
                           Task {
                               await MainActor.run {
@@ -138,14 +134,14 @@ struct ReflectionInputView: View {
               }
           }
       
-       func checkMissingData(toiletTrainingList: [UnsavedActivity]) -> [Student] {
-          let studentsWithTraining = Set(toiletTrainingList.map { $0.studentId})
+       func checkMissingData(activityList: [UnsavedActivity]) -> [Student] {
+          let studentsWithActivity = Set(activityList.map { $0.studentId})
           let missingStudents = viewModel.students.filter { student in
-              !studentsWithTraining.contains(student.id)
+              !studentsWithActivity.contains(student.id)
           }
 
           print("Total students: \(viewModel.students.count)")
-          print("Total toilet trainings: \(toiletTrainingList.count)")
+          print("Total activities: \(activityList.count)")
           print("Missing students: \(missingStudents.count)")
 
           return missingStudents
