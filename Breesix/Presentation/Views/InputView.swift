@@ -29,7 +29,7 @@ struct InputView: View {
     let selectedDate: Date
     var onDismiss: () -> Void
 
-    private let ttProcessor = AITTService(apiToken: "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")
+    private let ttProcessor = OpenAIService(apiToken: "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")
 
     var body: some View {
         NavigationView {
@@ -101,19 +101,6 @@ struct InputView: View {
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
-//            .sheet(isPresented: $isShowingReflectionSheet) {
-//                ReflectionInputView(
-//                    viewModel: viewModel,
-//                    speechRecognizer: SpeechRecognizer(),
-//                    isAllStudentsFilled: $isAllStudentsFilled,
-//                    inputType: selectedInputType,
-//                    selectedDate: viewModel.selectedDate,
-//                    onDismiss: {
-//                        isShowingReflectionSheet = false
-//                        isShowingPreview = true
-//                    }
-//                )
-//            }
             .onAppear {
                 resetIsFilledTodayIfNeeded()
                 requestSpeechAuthorization()
@@ -136,62 +123,63 @@ struct InputView: View {
     }
     
     private func processReflectionActivity() {
-          Task {
-              do {
-                  isLoading = true
-                  errorMessage = nil
+        Task {
+            do {
+                isLoading = true
+                errorMessage = nil
 
-                  await viewModel.fetchAllStudents()
+                await viewModel.fetchAllStudents()
 
-                  let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
+                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
-                  let activityList = TTCSVParser.parseActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
-                  await MainActor.run {
-                      isLoading = false
+                await MainActor.run {
+                    isLoading = false
 
-                      let missingStudents = checkMissingData(activityList: activityList)
+                    let missingStudents = checkMissingData(activityList: activityList)
 
-                      if missingStudents.isEmpty {
-                          isAllStudentsFilled = true
-                          
-                          viewModel.addUnsavedActivities(activityList)
+                    if missingStudents.isEmpty {
+                        isAllStudentsFilled = true
+                        
+                        viewModel.addUnsavedActivities(activityList)
+                        viewModel.addUnsavedNotes(noteList)
 
-                          onDismiss()
-                      } else {
-                          isAllStudentsFilled = false
+                        onDismiss()
+                    } else {
+                        isAllStudentsFilled = false
 
-                          alertMessage = "The following students are missing activity data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
-                          
-                          Task {
-                              await MainActor.run {
-                                  showingAlert = true
-                              }
-                          }
-                      }
-                  }
-              } catch {
-                  await MainActor.run {
-                      isLoading = false
-                      errorMessage = error.localizedDescription
-                      print("Error in processReflection: \(error)")
-                  }
-              }
-          }
-      
-       func checkMissingData(activityList: [UnsavedActivity]) -> [Student] {
-          let studentsWithActivity = Set(activityList.map { $0.studentId})
-          let missingStudents = viewModel.students.filter { student in
-              !studentsWithActivity.contains(student.id)
-          }
+                        alertMessage = "The following students are missing activity data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
+                        
+                        Task {
+                            await MainActor.run {
+                                showingAlert = true
+                            }
+                        }
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    print("Error in processReflection: \(error)")
+                }
+            }
+        }
+    }
 
-          print("Total students: \(viewModel.students.count)")
-          print("Total activities: \(activityList.count)")
-          print("Missing students: \(missingStudents.count)")
+    func checkMissingData(activityList: [UnsavedActivity]) -> [Student] {
+        let studentsWithActivity = Set(activityList.map { $0.studentId })
+        let missingStudents = viewModel.students.filter { student in
+            !studentsWithActivity.contains(student.id)
+        }
 
-          return missingStudents
-      }
-  }
+        print("Total students: \(viewModel.students.count)")
+        print("Total activities: \(activityList.count)")
+        print("Missing students: \(missingStudents.count)")
+
+        return missingStudents
+    }
 
     public func requestSpeechAuthorization() {
         SFSpeechRecognizer.requestAuthorization { authStatus in

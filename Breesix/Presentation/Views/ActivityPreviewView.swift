@@ -69,7 +69,7 @@ struct ActivityPreviewView: View {
     private func saveActivities() {
         isSaving = true
         Task {
-            await viewModel.saveUnsavedActivities()
+            try await viewModel.saveUnsavedActivities()
             await MainActor.run {
                 isSaving = false
                 isShowingActivity = false
@@ -95,7 +95,7 @@ struct ActivityDetailRow: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Aktivitas")
-            if activity.isIndependent! {
+            if activity.isIndependent ?? false {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                     Text("Mandiri")

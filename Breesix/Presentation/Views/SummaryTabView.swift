@@ -192,7 +192,7 @@ struct SummaryTabView: View {
                 
                 if let status = activity.isIndependent {
                     HStack {
-                        Image(systemName: "activity.fill")
+                        Image(systemName: "figure.walk.motion")
                             .scaledToFit()
                             .foregroundColor(.white)
                         Text(status ? "Mandiri" : "Dibimbing")
@@ -255,3 +255,4 @@ enum InputType {
     case speech
     case manual
 }
+
