@@ -8,28 +8,28 @@
 import SwiftUI
 
 struct NoteSection: View {
-    let activities: [Note]
-    let onEditActivity: (Note) -> Void
-    let onDeleteActivity: (Note) -> Void
-    let onAddActivity: () -> Void
+    let notes: [Note]
+    let onEditNote: (Note) -> Void
+    let onDeleteNote: (Note) -> Void
+    let onAddNote: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Aktivitas Umum")
+            Text("Catatan")
                 .fontWeight(.semibold)
                 .foregroundColor(.black)
                 .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
             
-            if activities.isEmpty {
+            if notes.isEmpty {
                 Text("Tidak ada catatan untuk tanggal ini")
                     .foregroundColor(.secondary)
             } else {
-                ForEach(activities, id: \.id) { activity in
-                    ActivityDetailRow(activity: activity, onEdit: onEditActivity, onDelete: onDeleteActivity)
+                ForEach(notes, id: \.id) { note in
+                    NoteDetailRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
                 }
             }
             
-            Button(action: onAddActivity) {
+            Button(action: onAddNote) {
                 Label("Tambah", systemImage: "plus.app.fill")
             }
             .buttonStyle(.bordered)

@@ -9,12 +9,12 @@ import SwiftUI
 
 struct ActivityCardView: View {
     let toiletTrainings: [Activity]
-    let activities: [Note]
-    let onAddActivity: () -> Void
+    let notes: [Note]
+    let onAddNote: () -> Void
     let onEditTraining: (Activity) -> Void
     let onDeleteTraining: (Activity) -> Void
-    let onEditActivity: (Note) -> Void
-    let onDeleteActivity: (Note) -> Void
+    let onEditNote: (Note) -> Void
+    let onDeleteNote: (Note) -> Void
     
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
@@ -25,10 +25,10 @@ struct ActivityCardView: View {
             )
             
             NoteSection(
-                activities: activities,
-                onEditActivity: onEditActivity,
-                onDeleteActivity: onDeleteActivity,
-                onAddActivity: onAddActivity
+                notes: notes,
+                onEditNote: onEditNote,
+                onDeleteNote: onDeleteNote,
+                onAddNote: onAddNote
             )
         }
         .padding(.vertical, 12)
@@ -100,15 +100,13 @@ struct ToiletTrainingRow: View {
     }
 }
 
-import SwiftUI
-
-struct ActivityDetailRow: View {
-    let activity: Note
+struct NoteDetailRow: View {
+    let note: Note
     let onEdit: (Note) -> Void
     let onDelete: (Note) -> Void
     
     var body: some View {
-        Text(activity.note)
+        Text(note.note)
             .font(.caption)
             .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
             .padding(.horizontal, 8)
@@ -117,8 +115,8 @@ struct ActivityDetailRow: View {
             .background(.white)
             .cornerRadius(8)
             .contextMenu {
-                Button("Edit") { onEdit(activity) }
-                Button("Hapus", role: .destructive) { onDelete(activity) }
+                Button("Edit") { onEdit(note) }
+                Button("Hapus", role: .destructive) { onDelete(note) }
             }
     }
 }

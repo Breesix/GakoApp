@@ -12,8 +12,8 @@ struct ReflectionPreviewView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool
     @State private var isSaving = false
-    @State private var editingActivity: UnsavedNote?
-    @State private var isAddingNewActivity = false
+    @State private var editingNote: UnsavedNote?
+    @State private var isAddingNewNote = false
     @State private var selectedStudent: Student?
     @Binding var isShowingToiletTraining: Bool
     @State private var editingTraining: UnsavedActivity?
@@ -39,24 +39,24 @@ struct ReflectionPreviewView: View {
                     }
                 }
                 ForEach(viewModel.students) { student in
-                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
-                    if !studentActivities.isEmpty {
+                    let studentNotes = viewModel.unsavedNotes.filter { $0.studentId == student.id }
+                    if !studentNotes.isEmpty {
                         Section(header: Text(student.fullname)) {
-                            ForEach(studentActivities) { activity in
-                                ActivityRow(activity: activity, student: student, onEdit: {
-                                    editingActivity = activity
+                            ForEach(studentNotes) { note in
+                                NoteRow(note: note, student: student, onEdit: {
+                                    editingNote = note
                                 }, onDelete: {
-                                    deleteActivity(activity)
+                                    deleteNote(note)
                                 })
                             }
                             
-                            Button("Add New Activity") {
+                            Button("Add New Note") {
                                 selectedStudent = student
-                                isAddingNewActivity = true
+                                isAddingNewNote = true
                             }
                             .onChange(of: selectedStudent) { oldValue, newValue in
                                 if newValue != nil {
-                                    isAddingNewActivity = true
+                                    isAddingNewNote = true
                                 }
                             }
 
@@ -67,12 +67,12 @@ struct ReflectionPreviewView: View {
             .navigationTitle("Preview Refleksi")
             .navigationBarItems(
                 leading: Button("Batal") {
-                    viewModel.clearUnsavedActivities()
+                    viewModel.clearUnsavedNotes()
                     viewModel.clearUnsavedToiletTrainings()
                     isShowingPreview = false
                 },
                 trailing: Button("Simpan") {
-                    saveActivities()
+                    saveNotes()
                     saveTrainings()
                 }
                 .disabled(isSaving)
@@ -89,15 +89,15 @@ struct ReflectionPreviewView: View {
                 }
             )
         }
-        .sheet(item: $editingActivity) { activity in
-            UnsavedNoteEditView(activity: activity, onSave: { updatedActivity in
-                updateActivity(updatedActivity)
+        .sheet(item: $editingNote) { note in
+            UnsavedNoteEditView(note: note, onSave: { updatedNote in
+                updateNote(updatedNote)
             })
         }
-        .sheet(isPresented: $isAddingNewActivity) {
+        .sheet(isPresented: $isAddingNewNote) {
             if let student = selectedStudent {
-                UnsavedNoteCreateView(student: student, onSave: { newActivity in
-                    addNewActivity(newActivity)
+                UnsavedNoteCreateView(student: student, onSave: { newNote in
+                    addNewNote(newNote)
                 }, selectedDate: selectedDate)
             } else {
                 Text("No student selected. Please try again.")
@@ -112,10 +112,10 @@ struct ReflectionPreviewView: View {
         return formatter
     }()
     
-    private func saveActivities() {
+    private func saveNotes() {
         isSaving = true
         Task {
-            await viewModel.saveUnsavedActivities()
+            await viewModel.saveUnsavedNotes()
             await MainActor.run {
                 isSaving = false
                 isShowingPreview = false
@@ -125,8 +125,6 @@ struct ReflectionPreviewView: View {
     private func saveTrainings() {
         isSaving = true
         Task {
-            // Implement the logic to save toilet trainings
-            // You might need to add a method in your ViewModel to handle this
             await viewModel.saveUnsavedToiletTrainings()
             await MainActor.run {
                 isSaving = false
@@ -139,29 +137,29 @@ struct ReflectionPreviewView: View {
         viewModel.deleteUnsavedToiletTraining(training)
     }
     
-    private func deleteActivity(_ activity: UnsavedNote) {
-        viewModel.deleteUnsavedNote(activity)
+    private func deleteNote(_ note: UnsavedNote) {
+        viewModel.deleteUnsavedNote(note)
     }
     
-    private func updateActivity(_ updatedActivity: UnsavedNote) {
-        viewModel.updateUnsavedNote(updatedActivity)
+    private func updateNote(_ updatedNote: UnsavedNote) {
+        viewModel.updateUnsavedNote(updatedNote)
     }
     
-    private func addNewActivity(_ newActivity: UnsavedNote) {
-        viewModel.addUnsavedNote(newActivity)
+    private func addNewNote(_ newNote: UnsavedNote) {
+        viewModel.addUnsavedNote(newNote)
     }
 }
 
-struct ActivityRow: View {
-    let activity: UnsavedNote
+struct NoteRow: View {
+    let note: UnsavedNote
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(activity.note)
-            Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
+            Text(note.note)
+            Text("Tanggal: \(note.createdAt, formatter: itemFormatter)")
         }
         .contextMenu {
             Button("Edit", action: onEdit)
@@ -179,27 +177,27 @@ struct ActivityRow: View {
 
 struct UnsavedNoteEditView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var note: String
-    let activity: UnsavedNote
+    @State private var textNote: String
+    let note: UnsavedNote
     let onSave: (UnsavedNote) -> Void
     
-    init(activity: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
-        self.activity = activity
+    init(note: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
+        self.note = note
         self.onSave = onSave
-        _note = State(initialValue: activity.note)
+        _textNote = State(initialValue: note.note)
     }
     
     var body: some View {
         NavigationView {
             Form {
-                TextField("Activity", text: $note)
+                TextField("Note", text: $textNote)
             }
-            .navigationTitle("Edit Activity")
+            .navigationTitle("Edit Note")
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let updatedActivity = UnsavedNote(id: activity.id, note: note, createdAt: activity.createdAt, studentId: activity.studentId)
-                    onSave(updatedActivity)
+                    let updatedNote = UnsavedNote(id: note.id, note: textNote, createdAt: note.createdAt, studentId: note.studentId)
+                    onSave(updatedNote)
                     presentationMode.wrappedValue.dismiss()
                 }
             )
@@ -209,7 +207,7 @@ struct UnsavedNoteEditView: View {
 
 struct UnsavedNoteCreateView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var note: String = ""
+    @State private var textNote: String = ""
     let student: Student
     let onSave: (UnsavedNote) -> Void
     
@@ -218,20 +216,20 @@ struct UnsavedNoteCreateView: View {
     var body: some View {
         NavigationView {
             Form {
-                TextField("Activity", text: $note)
+                TextField("Note", text: $textNote)
             }
-            .navigationTitle("New Activity")
+            .navigationTitle("New Note")
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let newActivity = UnsavedNote(note: note, createdAt: selectedDate, studentId: student.id)
-                    onSave(newActivity)
+                    let newNote = UnsavedNote(note: textNote, createdAt: selectedDate, studentId: student.id)
+                    onSave(newNote)
                     presentationMode.wrappedValue.dismiss()
                 }
             )
         }
         .onAppear {
-            print("ActivityCreateView appeared for student: \(student.fullname)")
+            print("NoteCreateView appeared for student: \(student.fullname)")
         }
     }
 }

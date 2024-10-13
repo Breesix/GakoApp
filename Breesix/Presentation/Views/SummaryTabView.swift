@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  SummaryTabView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 30/09/24.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+struct SummaryTabView: View {
+    @StateObject private var viewModel = SummaryTabViewModel()
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
@@ -175,47 +175,6 @@ struct HomeView: View {
             .cornerRadius(8)
         }
     }
-    //  @ViewBuilder
-    //    private func sheetContent(sheet: ActiveSheet) -> some View {
-    //        switch sheet {
-    //        case .mandatory:
-    //            MandatoryInputView(
-    //                viewModel: studentListViewModel,
-    //                inputType: selectedInputType,
-    //                isShowingTrainingPreview: .constant(false),
-    //                isAllStudentsFilled: $isAllStudentsFilled,
-    //                selectedDate: viewModel.selectedDate,
-    //                onDismiss: {
-    //                    activeSheet = .toiletTraining
-    //                }
-    //            )
-    //        case .reflection:
-    //            ReflectionInputView(
-    //                viewModel: studentListViewModel, speechRecognizer: SpeechRecognizer(),
-    //                isShowingPreview: .constant(false),
-    //                inputType: selectedInputType,
-    //                selectedDate: viewModel.selectedDate,
-    //                onDismiss: {
-    //                    activeSheet = .preview
-    //                }
-    //            )
-    //        case .preview:
-    //            ReflectionPreviewView(
-    //                viewModel: studentListViewModel,
-    //                isShowingPreview: .constant(true),
-    //                selectedDate: viewModel.selectedDate
-    //            )
-    //        case .toiletTraining:
-    //            TrainingPreviewView(
-    //                viewModel: studentListViewModel,
-    //                isShowingToiletTraining: .constant(true),
-    //                onDismiss: {
-    //                    activeSheet = .reflection
-    //                }
-    //            )
-    //        }
-    //    }
-    //}
     
     struct StudentRowView: View {
         let student: Student
@@ -230,16 +189,16 @@ struct HomeView: View {
                     ToiletTrainingView(training: latestTraining)
                 }
                 
-                let dailyActivities = student.notes.filter {
+                let dailyNotes = student.notes.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }
                 
-                if dailyActivities.isEmpty {
-                    Text("Tidak ada aktivitas umum pada hari ini")
+                if dailyNotes.isEmpty {
+                    Text("Tidak ada catatan pada hari ini")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 } else {
-                    DailyActivitiesView(activities: dailyActivities)
+                    DailyNotesView(notes: dailyNotes)
                 }
             }
         }
@@ -276,13 +235,13 @@ struct HomeView: View {
             
         }
     }
-    struct DailyActivitiesView: View {
-        let activities: [Note]
+    struct DailyNotesView: View {
+        let notes: [Note]
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                    ForEach(activities, id: \.id) { activity in
-                        Text(activity.note)
+                    ForEach(notes, id: \.id) { note in
+                        Text(note.note)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 4)

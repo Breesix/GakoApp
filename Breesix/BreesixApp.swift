@@ -29,14 +29,14 @@ struct BreesixApp: App {
             let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
             
             let noteDataSource = NoteDataSourceImpl(context: context)
-            let activityRepository = NoteRepositoryImpl(dataSource: noteDataSource)
-            let activityUseCase = NoteUseCaseImpl(repository: activityRepository)
+            let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
+            let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
             
             let activityDataSource = ActivityDataSourceImpl(context: context)
-            let toiletTrainingRepository = ActivityRepositoryImpl(activityDataSource: activityDataSource)
-            let toiletTrainingUseCase = ActivityUseCaseImpl(repository: toiletTrainingRepository)
+            let activityRepository = ActivityRepositoryImpl(activityDataSource: activityDataSource)
+            let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             
-            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, activityUseCases: activityUseCase, toiletTrainingUseCases: toiletTrainingUseCase)
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, toiletTrainingUseCases: activityUseCase)
             
             MainTabView(studentListViewModel: viewModel)
         }

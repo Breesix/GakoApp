@@ -25,7 +25,7 @@ struct TrainingEditView: View {
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $trainingDetail)
+                TextField("Catatan", text: $trainingDetail)
                 Toggle("Mandiri", isOn: $status)
 
                 Button("Simpan Perubahan") {

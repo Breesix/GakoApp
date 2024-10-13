@@ -1,5 +1,5 @@
 //
-//  NewActivityView.swift
+//  NewNoteView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 04/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NewActivityView: View {
+struct NewNoteView: View {
     @ObservedObject var viewModel: StudentListViewModel
     let student: Student
     let selectedDate: Date
@@ -17,23 +17,23 @@ struct NewActivityView: View {
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $note)
+                TextField("Catatan", text: $note)
 
-                Button("Simpan Aktivitas") {
-                    saveNewActivity()
+                Button("Simpan Catatan") {
+                    saveNewNote()
                 }
             }
-            .navigationTitle("Tambah Aktivitas Baru")
+            .navigationTitle("Catatan Baru")
             .navigationBarItems(trailing: Button("Batal") {
                 onDismiss()
             })
         }
     }
 
-    private func saveNewActivity() {
-        let newActivity = Note(note: note, createdAt: selectedDate, student: student)
+    private func saveNewNote() {
+        let newNote = Note(note: note, createdAt: selectedDate, student: student)
         Task {
-            await viewModel.addNote(newActivity, for: student)
+            await viewModel.addNote(newNote, for: student)
             onDismiss()
         }
     }

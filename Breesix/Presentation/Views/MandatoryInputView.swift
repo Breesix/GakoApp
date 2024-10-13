@@ -15,7 +15,6 @@ struct MandatoryInputView: View {
     @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
     var inputType: InputType
-//    @Binding var isShowingTrainingPreview: Bool
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false

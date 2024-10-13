@@ -19,7 +19,7 @@ struct ReflectionInputView: View {
     @State private var alertMessage = ""
     @State private var showingAlert = false
     var inputType: InputType
-    let selectedDate: Date  // Ensure this is Date
+    let selectedDate: Date
     var onDismiss: () -> Void
     private let reflectionProcessor = ReflectionProcessor(apiToken: "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")
     private let ttProcessor = AITTService(apiToken: "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")
@@ -74,7 +74,7 @@ struct ReflectionInputView: View {
                 }
 
                 Button("Next") {
-                    processReflection()
+                    processReflectionNote()
                     processReflectionToilet()
                 }
                 .padding()
@@ -105,11 +105,9 @@ struct ReflectionInputView: View {
                   await MainActor.run {
                       isLoading = false
 
-                      // Check if all students have toilet training data
                       let missingStudents = checkMissingData(toiletTrainingList: toiletTrainingList)
 
                       if missingStudents.isEmpty {
-                          // If all students have data, update isAllStudentsFilled to true
                           isAllStudentsFilled = true
                           
                           viewModel.addUnsavedToiletTraining(toiletTrainingList)
@@ -120,13 +118,10 @@ struct ReflectionInputView: View {
   //                            isShowingTrainingPreview = true
   //                        }
                       } else {
-                          // Otherwise, show an alert with the missing students
                           isAllStudentsFilled = false
 
-                          // Set alert message before presenting the alert
                           alertMessage = "The following students are missing toilet training data: \(missingStudents.map { $0.fullname }.joined(separator: ", "))"
                           
-                          // Present the alert on the main thread
                           Task {
                               await MainActor.run {
                                   showingAlert = true
@@ -157,7 +152,7 @@ struct ReflectionInputView: View {
       }
   }
 
-    private func processReflection() {
+    private func processReflectionNote() {
         Task {
             do {
                 isLoading = true
@@ -166,11 +161,11 @@ struct ReflectionInputView: View {
                 await viewModel.fetchAllStudents()
 
                 let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
-                let unsavedActivities = CSVParser.parseUnsavedActivities(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                let unsavedNotes = CSVParser.parseUnsavedNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
                 await MainActor.run {
                     isLoading = false
-                    viewModel.addUnsavedActivities(unsavedActivities)
+                    viewModel.addUnsavedNotes(unsavedNotes)
                     onDismiss()
                 }
             } catch {

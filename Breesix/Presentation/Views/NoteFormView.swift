@@ -1,5 +1,5 @@
 //
-//  ActivityFormView.swift
+//  NoteFormView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 29/09/24.
@@ -24,12 +24,12 @@ struct NoteFormView: View {
                     }
                 }
 
-                TextField("Aktivitas Umum", text: $note)
+                TextField("Catatan", text: $note)
                 TextField("Catatan Toilet Training", text: $toiletTraining)
                 Toggle("Status Toilet Training", isOn: $toiletTrainingStatus)
 
                 Button("Simpan Catatan") {
-                    saveActivity()
+                    saveNote()
                 }
             }
             .navigationTitle("Tambah Catatan")
@@ -39,11 +39,11 @@ struct NoteFormView: View {
         }
     }
 
-    private func saveActivity() {
+    private func saveNote() {
         guard let student = selectedStudent else { return }
-        let newActivity = Note(note: note)
+        let newNote = Note(note: note)
         Task {
-            await viewModel.addNote(newActivity, for: student)
+            await viewModel.addNote(newNote, for: student)
             isPresented = false
         }
     }

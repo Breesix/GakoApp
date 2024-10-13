@@ -101,9 +101,9 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseUnsavedActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedNote] {
+    static func parseUnsavedNotes(csvString: String, students: [Student], createdAt: Date) -> [UnsavedNote] {
         let rows = csvString.components(separatedBy: .newlines)
-        var unsavedActivities: [UnsavedNote] = []
+        var unsavedNotes: [UnsavedNote] = []
         
         for (_, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             let columns = parseCSVRow(row)
@@ -115,15 +115,15 @@ class CSVParser {
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
                     if note.lowercased() != "tidak ada informasi" {
                         let notePoints = note.components(separatedBy: "|")
-                        for activity in notePoints {
-                            let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
-                            if !trimmedActivity.isEmpty {
+                        for note in notePoints {
+                            let trimmedNote = note.trimmingCharacters(in: .whitespaces)
+                            if !trimmedNote.isEmpty {
                                 let UnsavedNote = UnsavedNote(
-                                    note: trimmedActivity,
+                                    note: trimmedNote,
                                     createdAt: createdAt,
                                     studentId: student.id
                                 )
-                                unsavedActivities.append(UnsavedNote)
+                                unsavedNotes.append(UnsavedNote)
                             }
                         }
                     }
@@ -131,7 +131,7 @@ class CSVParser {
             }
         }
         
-        return unsavedActivities
+        return unsavedNotes
     }
 
 

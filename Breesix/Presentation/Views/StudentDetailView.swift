@@ -11,10 +11,10 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    @State private var activities: [Note] = []
+    @State private var notes: [Note] = []
     @State private var selectedDate = Date()
-    @State private var selectedActivity: Note?
-    @State private var isAddingNewActivity = false
+    @State private var selectedNote: Note?
+    @State private var isAddingNewNote = false
     @State private var selectedTraining: Activity?
     @State private var toiletTrainings: [Activity] = []
     @State private var isShowingCalendar: Bool = false
@@ -31,12 +31,12 @@ struct StudentDetailView: View {
                 } else {
                     ActivityCardView(
                         toiletTrainings: toiletThatDay,
-                        activities: filteredActivities,
-                        onAddActivity: { isAddingNewActivity = true },
+                        notes: filteredNotes,
+                        onAddNote: { isAddingNewNote = true },
                         onEditTraining: { self.selectedTraining = $0 },
                         onDeleteTraining: deleteTraining,
-                        onEditActivity: { self.selectedActivity = $0 },
-                        onDeleteActivity: deleteActivity
+                        onEditNote: { self.selectedNote = $0 },
+                        onDeleteNote: deleteNote
                     )
                 }
             }
@@ -48,9 +48,9 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
-        .sheet(item: $selectedActivity) { activity in
-            NoteEditView(viewModel: viewModel, activity: activity, onDismiss: {
-                selectedActivity = nil
+        .sheet(item: $selectedNote) { note in
+            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
+                selectedNote = nil
             })
         }
         .sheet(item: $selectedTraining) { training in
@@ -58,16 +58,16 @@ struct StudentDetailView: View {
                 selectedTraining = nil
             })
         }
-        .sheet(isPresented: $isAddingNewActivity) {
-            NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
-                isAddingNewActivity = false
+        .sheet(isPresented: $isAddingNewNote) {
+            NewNoteView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
+                isAddingNewNote = false
                 Task {
-                    await loadActivities()
+                    await fetchAllNotes()
                 }
             })
         }
         .task {
-            await loadActivities()
+            await fetchAllNotes()
             await loadToiletTrainingStudents()
         }
     }
@@ -76,22 +76,22 @@ struct StudentDetailView: View {
         toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
-    private var filteredActivities: [Note] {
-        activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+    private var filteredNotes: [Note] {
+        notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
-    private func loadActivities() async {
-        activities = await viewModel.getActivitiesForStudent(student)
+    private func fetchAllNotes() async {
+        notes = await viewModel.fetchAllNotes(student)
     }
     
     private func loadToiletTrainingStudents() async {
         toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
     }
     
-    private func deleteActivity(_ activity: Note) {
+    private func deleteNote(_ note: Note) {
         Task {
-            await viewModel.deleteActivity(activity, from: student)
-            activities.removeAll(where: { $0.id == activity.id })
+            await viewModel.deleteNote(note, from: student)
+            notes.removeAll(where: { $0.id == note.id })
         }
     }
     

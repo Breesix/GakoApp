@@ -1,5 +1,5 @@
 //
-//  StudentListView.swift
+// StudentTabView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 29/09/24.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct StudentListView: View {
+struct StudentTabView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isAddingStudent = false
-    @State private var isAddingActivity = false
+    @State private var isAddingNote = false
 
     var body: some View {
         NavigationView {
@@ -60,7 +60,7 @@ struct StudentListView: View {
                 }
                 ToolbarItem(placement: .bottomBar) {
                     Button("Tambah Catatan") {
-                        isAddingActivity = true
+                        isAddingNote = true
                     }
                 }
             }
@@ -71,8 +71,8 @@ struct StudentListView: View {
         .sheet(isPresented: $isAddingStudent) {
             StudentEditView(viewModel: viewModel, mode: .add)
         }
-        .sheet(isPresented: $isAddingActivity) {
-            NoteFormView(viewModel: viewModel, isPresented: $isAddingActivity)
+        .sheet(isPresented: $isAddingNote) {
+            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
         }
         .task {
             await viewModel.fetchAllStudents()
