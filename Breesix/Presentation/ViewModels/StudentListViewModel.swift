@@ -162,7 +162,7 @@ class StudentListViewModel: ObservableObject {
         for unsavedActivity in unsavedActivities {
             let student = students.first(where: { $0.id == unsavedActivity.studentId })
             do {
-                let activityObj = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, status: unsavedActivity.isIndependent!, student: student)
+                let activityObj = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent!, student: student)
                 await addActivity(activityObj, for: student!)
             } catch {
                 print("Error saving activity: \(error)")

@@ -11,6 +11,7 @@ struct ActivityCardView: View {
     let activities: [Activity]
     let notes: [Note]
     let onAddNote: () -> Void
+    let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
     let onEditNote: (Note) -> Void
@@ -21,7 +22,7 @@ struct ActivityCardView: View {
             ActivitySection(
                 activities: activities,
                 onEditActivity: onEditActivity,
-                onDeleteActivity: onDeleteActivity
+                onDeleteActivity: onDeleteActivity, onAddActivity: onAddActivity
             )
             
             NoteSection(
@@ -47,6 +48,7 @@ struct ActivitySection: View {
     let activities: [Activity]
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
+    let onAddActivity: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -63,6 +65,10 @@ struct ActivitySection: View {
                     ActivityRow(activity: activity, onEdit: onEditActivity, onDelete: onDeleteActivity)
                 }
             }
+            Button(action: onAddActivity) {
+                Label("Tambah", systemImage: "plus.app.fill")
+            }
+            .buttonStyle(.bordered)
         }
         .padding(.horizontal, 12)
     }
@@ -75,13 +81,6 @@ struct ActivityRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            if let status = activity.isIndependent {
-                HStack {
-                    Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    Text(status ? "Mandiri" : "Dibimbing")
-                }
-                .foregroundColor(status ? .green : .red)
-            }
             VStack {
                 Text(activity.activity)
                     .font(.caption)
@@ -89,10 +88,17 @@ struct ActivityRow: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white)
-            .cornerRadius(8)
+            if let status = activity.isIndependent {
+                HStack {
+                    Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    Text(status ? "Mandiri" : "Dibimbing")
+                }
+                .foregroundColor(status ? .green : .red)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .cornerRadius(8)
         .contextMenu {
             Button("Edit") { onEdit(activity) }
             Button("Hapus", role: .destructive) { onDelete(activity) }

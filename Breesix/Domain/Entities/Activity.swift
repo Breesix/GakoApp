@@ -16,11 +16,11 @@ class Activity: Identifiable {
     var isIndependent: Bool?
     var student: Student?
     
-    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Bool? = nil, student: Student? = nil) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, student: Student? = nil) {
         self.id = id
         self.activity = activity
         self.createdAt = createdAt
-        self.isIndependent = status
+        self.isIndependent = isIndependent
         self.student = student
     }
 }

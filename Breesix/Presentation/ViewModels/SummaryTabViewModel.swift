@@ -21,3 +21,4 @@ class SummaryTabViewModel: ObservableObject {
         return formatter.string(from: selectedDate)
     }
 }
+

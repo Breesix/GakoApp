@@ -1,5 +1,5 @@
 //
-//  MandatoryInputView.swift
+//  InputView.swift
 //  Breesix
 //
 //  Created by Akmal Hakim on 03/10/24.
@@ -8,11 +8,11 @@
 import SwiftUI
 import Speech
 
-struct MandatoryInputView: View {
+struct InputView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @ObservedObject var speechRecognizer = SpeechRecognizer()
     @State private var selectedInputType: InputType = .manual
-    @State private var isShowingReflectionSheet = false
+//    @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
     var inputType: InputType
     @Environment(\.presentationMode) var presentationMode
@@ -34,13 +34,6 @@ struct MandatoryInputView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if isFilledToday {
-                    Text("You have filled this for today. You can still add a reflection.")
-                        .foregroundColor(.green)
-                    Button("Add Reflection") {
-                        isShowingReflectionSheet = true
-                    }
-                } else {
                     TextEditor(text: $reflection)
                         .padding()
                         .border(Color.gray, width: 1)
@@ -103,25 +96,24 @@ struct MandatoryInputView: View {
                     }
                     .padding()
                     .disabled(reflection.isEmpty || isLoading)
-                }
             }
             .navigationTitle("Ceritakan Aktivitas Hari Ini")
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
-            .sheet(isPresented: $isShowingReflectionSheet) {
-                ReflectionInputView(
-                    viewModel: viewModel,
-                    speechRecognizer: SpeechRecognizer(),
-                    isAllStudentsFilled: $isAllStudentsFilled,
-                    inputType: selectedInputType,
-                    selectedDate: viewModel.selectedDate,
-                    onDismiss: {
-                        isShowingReflectionSheet = false
-                        isShowingPreview = true
-                    }
-                )
-            }
+//            .sheet(isPresented: $isShowingReflectionSheet) {
+//                ReflectionInputView(
+//                    viewModel: viewModel,
+//                    speechRecognizer: SpeechRecognizer(),
+//                    isAllStudentsFilled: $isAllStudentsFilled,
+//                    inputType: selectedInputType,
+//                    selectedDate: viewModel.selectedDate,
+//                    onDismiss: {
+//                        isShowingReflectionSheet = false
+//                        isShowingPreview = true
+//                    }
+//                )
+//            }
             .onAppear {
                 resetIsFilledTodayIfNeeded()
                 requestSpeechAuthorization()
@@ -135,7 +127,6 @@ struct MandatoryInputView: View {
         }
     }
 
-    // Function to reset isFilledToday daily
     func resetIsFilledTodayIfNeeded() {
         let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
         if !Calendar.current.isDateInToday(lastResetDate) {
@@ -143,6 +134,7 @@ struct MandatoryInputView: View {
             UserDefaults.standard.set(Date(), forKey: "lastResetDate")
         }
     }
+    
     private func processReflectionActivity() {
           Task {
               do {

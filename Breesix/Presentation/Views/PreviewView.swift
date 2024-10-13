@@ -1,5 +1,5 @@
 //
-//  ReflectionPreviewView.swift
+//  PreviewView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 30/09/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ReflectionPreviewView: View {
+struct PreviewView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool

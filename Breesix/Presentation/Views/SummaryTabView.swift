@@ -10,10 +10,9 @@ import SwiftUI
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
     @ObservedObject var studentListViewModel: StudentListViewModel
-    @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
-    @State private var isShowingMandatorySheet = false
+    @State private var isShowingInputSheet = false
     @State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
     @State private var activeSheet: ActiveSheet? = nil
@@ -30,7 +29,7 @@ struct SummaryTabView: View {
                                 .font(.headline)
                                 .padding()
                             Button(action: {
-                                isShowingMandatorySheet = true
+                                isShowingInputSheet = true
                                 selectedInputType = .speech
                             }) {
                                 Text("CURHAT DONG MAH")
@@ -50,7 +49,7 @@ struct SummaryTabView: View {
                                 .font(.headline)
                                 .padding()
                             Button(action: {
-                                isShowingMandatorySheet = true 
+                                isShowingInputSheet = true 
                                 selectedInputType = .manual
                             }) {
                                 Text("CURHAT DONG MAH")
@@ -75,36 +74,22 @@ struct SummaryTabView: View {
             }
             .navigationTitle("Curhat")
             
-            .sheet(isPresented: $isShowingMandatorySheet) {
-                MandatoryInputView(
+            .sheet(isPresented: $isShowingInputSheet) {
+                InputView(
                     viewModel: studentListViewModel,
                     inputType: selectedInputType,
                     isAllStudentsFilled: $isAllStudentsFilled,
                     selectedDate: viewModel.selectedDate,
                     
                     onDismiss: {
-                        isShowingMandatorySheet = false
-                        isShowingReflectionSheet = true
-                    }
-                )
-            }
-            
-            // Handle sheet presentation based on activeSheet
-            .sheet(isPresented: $isShowingReflectionSheet) {
-                ReflectionInputView(
-                    viewModel: studentListViewModel,
-                    speechRecognizer: SpeechRecognizer(),
-                    isAllStudentsFilled: $isAllStudentsFilled,
-                    inputType: selectedInputType,
-                    selectedDate: viewModel.selectedDate,
-                    onDismiss: {
-                        isShowingReflectionSheet = false
+                        isShowingInputSheet = false
                         isShowingPreview = true
                     }
                 )
             }
+            
             .sheet(isPresented: $isShowingPreview) {
-                ReflectionPreviewView(
+                PreviewView(
                     viewModel: studentListViewModel,
                     isShowingPreview: $isShowingPreview,
                     isShowingActivity: $isShowingActivity,
@@ -264,4 +249,9 @@ struct SummaryTabView: View {
         }
     }
     
+}
+
+enum InputType {
+    case speech
+    case manual
 }

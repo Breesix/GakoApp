@@ -36,9 +36,3 @@ struct UnsavedNote: Identifiable {
         self.studentId = studentId
     }
 }
-
-enum InputType {
-    case speech
-    case manual
-}
-

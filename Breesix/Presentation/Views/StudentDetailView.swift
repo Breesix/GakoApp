@@ -15,6 +15,7 @@ struct StudentDetailView: View {
     @State private var selectedDate = Date()
     @State private var selectedNote: Note?
     @State private var isAddingNewNote = false
+    @State private var isAddingNewActivity = false
     @State private var activity: Activity?
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
@@ -32,7 +33,7 @@ struct StudentDetailView: View {
                     ActivityCardView(
                         activities: activityThatDay,
                         notes: filteredNotes,
-                        onAddNote: { isAddingNewNote = true },
+                        onAddNote: { isAddingNewNote = true }, onAddActivity:{ isAddingNewActivity = true },
                         onEditActivity: { self.activity = $0 },
                         onDeleteActivity: deleteActivity,
                         onEditNote: { self.selectedNote = $0 },
@@ -63,6 +64,14 @@ struct StudentDetailView: View {
                 isAddingNewNote = false
                 Task {
                     await fetchAllNotes()
+                }
+            })
+        }
+        .sheet(isPresented: $isAddingNewActivity) {
+            NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
+                isAddingNewActivity = false
+                Task {
+                    await fetchActivities()
                 }
             })
         }
