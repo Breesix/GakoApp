@@ -52,7 +52,7 @@ struct StudentListView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         Task {
-                            await viewModel.loadStudents()
+                            await viewModel.fetchAllStudents()
                         }
                     }) {
                         Image(systemName: "arrow.clockwise")
@@ -66,16 +66,16 @@ struct StudentListView: View {
             }
         }
         .refreshable {
-            await viewModel.loadStudents()
+            await viewModel.fetchAllStudents()
         }
         .sheet(isPresented: $isAddingStudent) {
             StudentEditView(viewModel: viewModel, mode: .add)
         }
         .sheet(isPresented: $isAddingActivity) {
-            ActivityFormView(viewModel: viewModel, isPresented: $isAddingActivity)
+            NoteFormView(viewModel: viewModel, isPresented: $isAddingActivity)
         }
         .task {
-            await viewModel.loadStudents()
+            await viewModel.fetchAllStudents()
         }
     }
 }

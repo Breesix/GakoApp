@@ -1,5 +1,5 @@
 //
-//  GeneralActivitySection.swift
+//  NoteSection.swift
 //  Breesix
 //
 //  Created by Akmal Hakim on 10/10/24.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct GeneralActivitySection: View {
-    let activities: [Activity]
-    let onEditActivity: (Activity) -> Void
-    let onDeleteActivity: (Activity) -> Void
+struct NoteSection: View {
+    let activities: [Note]
+    let onEditActivity: (Note) -> Void
+    let onDeleteActivity: (Note) -> Void
     let onAddActivity: () -> Void
     
     var body: some View {

@@ -9,17 +9,17 @@ import SwiftUI
 
 struct TrainingEditView: View {
     @ObservedObject var viewModel: StudentListViewModel
-    let training: ToiletTraining
+    let training: Activity
     let onDismiss: () -> Void
     @State private var trainingDetail: String
     @State private var status: Bool
 
-    init(viewModel: StudentListViewModel, training: ToiletTraining, onDismiss: @escaping () -> Void) {
+    init(viewModel: StudentListViewModel, training: Activity, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.training = training
         self.onDismiss = onDismiss
-        _trainingDetail = State(initialValue: training.trainingDetail)
-        _status = State(initialValue: training.status!)
+        _trainingDetail = State(initialValue: training.activity)
+        _status = State(initialValue: training.isIndependent!)
     }
 
     var body: some View {
@@ -40,8 +40,8 @@ struct TrainingEditView: View {
     }
 
     private func saveTraining() {
-        training.trainingDetail = trainingDetail
-        training.status = status
+        training.activity = trainingDetail
+        training.isIndependent = status
         Task {
             await viewModel.updateTraining(training)
             onDismiss()

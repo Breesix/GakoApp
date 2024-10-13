@@ -101,29 +101,29 @@ enum ProcessingError: Error {
 }
 
 class CSVParser {
-    static func parseUnsavedActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedActivity] {
+    static func parseUnsavedActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedNote] {
         let rows = csvString.components(separatedBy: .newlines)
-        var unsavedActivities: [UnsavedActivity] = []
+        var unsavedActivities: [UnsavedNote] = []
         
         for (_, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             let columns = parseCSVRow(row)
             if columns.count >= 3 {
                 let fullName = columns[0].trimmingCharacters(in: .whitespacesAndNewlines)
                 let nickname = columns[1].trimmingCharacters(in: .whitespacesAndNewlines)
-                let generalActivityString = columns[2]
+                let note = columns[2]
                 
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
-                    if generalActivityString.lowercased() != "tidak ada informasi" {
-                        let generalActivityPoints = generalActivityString.components(separatedBy: "|")
-                        for activity in generalActivityPoints {
+                    if note.lowercased() != "tidak ada informasi" {
+                        let notePoints = note.components(separatedBy: "|")
+                        for activity in notePoints {
                             let trimmedActivity = activity.trimmingCharacters(in: .whitespaces)
                             if !trimmedActivity.isEmpty {
-                                let unsavedActivity = UnsavedActivity(
-                                    generalActivity: trimmedActivity,
+                                let UnsavedNote = UnsavedNote(
+                                    note: trimmedActivity,
                                     createdAt: createdAt,
                                     studentId: student.id
                                 )
-                                unsavedActivities.append(unsavedActivity)
+                                unsavedActivities.append(UnsavedNote)
                             }
                         }
                     }

@@ -74,7 +74,7 @@ struct HomeView: View {
                 .padding()
                 // Load students when the view appears
                 .task {
-                    await studentListViewModel.loadStudents()
+                    await studentListViewModel.fetchAllStudents()
                 }
             }
             .navigationTitle("Curhat")
@@ -226,11 +226,11 @@ struct HomeView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-                if let latestTraining = student.toiletTrainings.sorted(by: { $0.createdAt > $1.createdAt }).first {
+                if let latestTraining = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
                     ToiletTrainingView(training: latestTraining)
                 }
                 
-                let dailyActivities = student.activities.filter {
+                let dailyActivities = student.notes.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }
                 
@@ -245,12 +245,12 @@ struct HomeView: View {
         }
     }
     struct ToiletTrainingView: View {
-        let training: ToiletTraining
+        let training: Activity
         
         var body: some View {
             VStack(alignment: .leading) {
                 
-                if let status = training.status {
+                if let status = training.isIndependent {
                     HStack {
                         Image(systemName: "toilet.fill")
                             .scaledToFit()
@@ -277,12 +277,12 @@ struct HomeView: View {
         }
     }
     struct DailyActivitiesView: View {
-        let activities: [Activity]
+        let activities: [Note]
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
                     ForEach(activities, id: \.id) { activity in
-                        Text(activity.generalActivity)
+                        Text(activity.note)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 4)

@@ -12,12 +12,12 @@ struct NewActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
-    @State private var generalActivity: String = ""
+    @State private var note: String = ""
 
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $generalActivity)
+                TextField("Aktivitas Umum", text: $note)
 
                 Button("Simpan Aktivitas") {
                     saveNewActivity()
@@ -31,9 +31,9 @@ struct NewActivityView: View {
     }
 
     private func saveNewActivity() {
-        let newActivity = Activity(generalActivity: generalActivity, createdAt: selectedDate, student: student)
+        let newActivity = Note(note: note, createdAt: selectedDate, student: student)
         Task {
-            await viewModel.addActivity(newActivity, for: student)
+            await viewModel.addNote(newActivity, for: student)
             onDismiss()
         }
     }

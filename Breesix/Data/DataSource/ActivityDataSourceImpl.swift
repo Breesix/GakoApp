@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 
 class ActivityDataSourceImpl: ActivityDataSource {
+    
     private let modelContext: ModelContext
 
     init(context: ModelContext) {
@@ -22,7 +23,7 @@ class ActivityDataSourceImpl: ActivityDataSource {
     }
 
     func insert(_ activity: Activity) async throws {
-        modelContext.insert(activity)
+            modelContext.insert(activity)
         try modelContext.save()
     }
 

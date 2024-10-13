@@ -1,35 +1,40 @@
 //
-//  GeneralActivityRepositoryImpl.swift
+//  ToiletTrainingRepositoryImpl.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 02/10/24.
+//  Created by Akmal Hakim on 02/10/24.
 //
-
 import Foundation
 import SwiftData
 
 class ActivityRepositoryImpl: ActivityRepository {
-    private let activityDataSource: ActivityDataSource
+    private let dataSource: ActivityDataSource
 
     init(activityDataSource: ActivityDataSource) {
-        self.activityDataSource = activityDataSource
+        self.dataSource = activityDataSource
     }
 
-    func fetchAllActivities(_ student: Student) async throws -> [Activity] {
+    func fetchActivities(_ student: Student) async throws -> [Activity] {
         return student.activities
     }
 
-    func addActivity(_ activity: Activity, for student: Student) async throws {
-        student.activities.append(activity)
-        try await activityDataSource.insert(activity)
+    func addActivity(_ toiletTraining: Activity, for student: Student) async throws {
+        if let index = student.activities.firstIndex(where: { $0.createdAt == toiletTraining.createdAt }) {
+            student.activities[index] = toiletTraining
+                } else {
+                }
+        student.activities.append(toiletTraining)
+
+        try await dataSource.insert(toiletTraining)
+    }
+        
+    func updateActivity(_ toiletTraining: Activity) async throws {
+        try await dataSource.update(toiletTraining)
+    }
+    
+    func deleteActivity(_ toiletTraining: Activity, from student: Student) async throws {
+        student.activities.removeAll(where: { $0.id == toiletTraining.id })
+        try await dataSource.delete(toiletTraining)
     }
 
-    func updateActivity(_ activity: Activity) async throws {
-        try await activityDataSource.update(activity)
-    }
-
-    func deleteActivity(_ activity: Activity, from student: Student) async throws {
-        student.activities.removeAll { $0.id == activity.id }
-        try await activityDataSource.delete(activity)
-    }
 }

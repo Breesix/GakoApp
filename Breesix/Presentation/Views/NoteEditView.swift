@@ -7,23 +7,23 @@
 
 import SwiftUI
 
-struct ActivityEditView: View {
+struct NoteEditView: View {
     @ObservedObject var viewModel: StudentListViewModel
-    let activity: Activity
+    let activity: Note
     let onDismiss: () -> Void
-    @State private var generalActivity: String
+    @State private var note: String
 
-    init(viewModel: StudentListViewModel, activity: Activity, onDismiss: @escaping () -> Void) {
+    init(viewModel: StudentListViewModel, activity: Note, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.activity = activity
         self.onDismiss = onDismiss
-        _generalActivity = State(initialValue: activity.generalActivity)
+        _note = State(initialValue: activity.note)
     }
 
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $generalActivity)
+                TextField("Aktivitas Umum", text: $note)
 
                 Button("Simpan Perubahan") {
                     saveActivity()
@@ -37,7 +37,7 @@ struct ActivityEditView: View {
     }
 
     private func saveActivity() {
-        activity.generalActivity = generalActivity
+        activity.note = note
         Task {
             await viewModel.updateActivity(activity)
             onDismiss()

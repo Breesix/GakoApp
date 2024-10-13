@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct ActivityCardView: View {
-    let toiletTrainings: [ToiletTraining]
-    let activities: [Activity]
+    let toiletTrainings: [Activity]
+    let activities: [Note]
     let onAddActivity: () -> Void
-    let onEditTraining: (ToiletTraining) -> Void
-    let onDeleteTraining: (ToiletTraining) -> Void
-    let onEditActivity: (Activity) -> Void
-    let onDeleteActivity: (Activity) -> Void
+    let onEditTraining: (Activity) -> Void
+    let onDeleteTraining: (Activity) -> Void
+    let onEditActivity: (Note) -> Void
+    let onDeleteActivity: (Note) -> Void
     
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
@@ -24,7 +24,7 @@ struct ActivityCardView: View {
                 onDeleteTraining: onDeleteTraining
             )
             
-            GeneralActivitySection(
+            NoteSection(
                 activities: activities,
                 onEditActivity: onEditActivity,
                 onDeleteActivity: onDeleteActivity,
@@ -44,9 +44,9 @@ struct ActivityCardView: View {
 }
 
 struct ToiletTrainingSection: View {
-    let toiletTrainings: [ToiletTraining]
-    let onEditTraining: (ToiletTraining) -> Void
-    let onDeleteTraining: (ToiletTraining) -> Void
+    let toiletTrainings: [Activity]
+    let onEditTraining: (Activity) -> Void
+    let onDeleteTraining: (Activity) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -69,13 +69,13 @@ struct ToiletTrainingSection: View {
 }
 
 struct ToiletTrainingRow: View {
-    let training: ToiletTraining
-    let onEdit: (ToiletTraining) -> Void
-    let onDelete: (ToiletTraining) -> Void
+    let training: Activity
+    let onEdit: (Activity) -> Void
+    let onDelete: (Activity) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            if let status = training.status {
+            if let status = training.isIndependent {
                 HStack {
                     Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
                     Text(status ? "Independent" : "Needs Guidance")
@@ -83,7 +83,7 @@ struct ToiletTrainingRow: View {
                 .foregroundColor(status ? .green : .red)
             }
             VStack {
-                Text(training.trainingDetail)
+                Text(training.activity)
                     .font(.caption)
                     .foregroundColor(.primary)
             }
@@ -103,12 +103,12 @@ struct ToiletTrainingRow: View {
 import SwiftUI
 
 struct ActivityDetailRow: View {
-    let activity: Activity
-    let onEdit: (Activity) -> Void
-    let onDelete: (Activity) -> Void
+    let activity: Note
+    let onEdit: (Note) -> Void
+    let onDelete: (Note) -> Void
     
     var body: some View {
-        Text(activity.generalActivity)
+        Text(activity.note)
             .font(.caption)
             .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
             .padding(.horizontal, 8)

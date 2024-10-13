@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct ActivityFormView: View {
+struct NoteFormView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Binding var isPresented: Bool
     @State private var selectedStudent: Student?
-    @State private var generalActivity = ""
+    @State private var note = ""
     @State private var toiletTraining = ""
     @State private var toiletTrainingStatus = false
 
@@ -24,7 +24,7 @@ struct ActivityFormView: View {
                     }
                 }
 
-                TextField("Aktivitas Umum", text: $generalActivity)
+                TextField("Aktivitas Umum", text: $note)
                 TextField("Catatan Toilet Training", text: $toiletTraining)
                 Toggle("Status Toilet Training", isOn: $toiletTrainingStatus)
 
@@ -41,9 +41,9 @@ struct ActivityFormView: View {
 
     private func saveActivity() {
         guard let student = selectedStudent else { return }
-        let newActivity = Activity(generalActivity: generalActivity)
+        let newActivity = Note(note: note)
         Task {
-            await viewModel.addActivity(newActivity, for: student)
+            await viewModel.addNote(newActivity, for: student)
             isPresented = false
         }
     }

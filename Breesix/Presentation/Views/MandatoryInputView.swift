@@ -155,7 +155,7 @@ struct MandatoryInputView: View {
                   isLoading = true
                   errorMessage = nil
 
-                  await viewModel.loadStudents()
+                  await viewModel.fetchAllStudents()
 
                   let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
@@ -202,7 +202,7 @@ struct MandatoryInputView: View {
               }
           }
       
-       func checkMissingData(toiletTrainingList: [UnsavedToiletTraining]) -> [Student] {
+       func checkMissingData(toiletTrainingList: [UnsavedActivity]) -> [Student] {
           let studentsWithTraining = Set(toiletTrainingList.map { $0.studentId})
           let missingStudents = viewModel.students.filter { student in
               !studentsWithTraining.contains(student.id)

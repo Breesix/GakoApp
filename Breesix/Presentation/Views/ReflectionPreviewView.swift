@@ -12,11 +12,11 @@ struct ReflectionPreviewView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool
     @State private var isSaving = false
-    @State private var editingActivity: UnsavedActivity?
+    @State private var editingActivity: UnsavedNote?
     @State private var isAddingNewActivity = false
     @State private var selectedStudent: Student?
     @Binding var isShowingToiletTraining: Bool
-    @State private var editingTraining: UnsavedToiletTraining?
+    @State private var editingTraining: UnsavedActivity?
     @State private var isAddingNewTraining = false
     
     let selectedDate: Date
@@ -90,13 +90,13 @@ struct ReflectionPreviewView: View {
             )
         }
         .sheet(item: $editingActivity) { activity in
-            UnsavedActivityEditView(activity: activity, onSave: { updatedActivity in
+            UnsavedNoteEditView(activity: activity, onSave: { updatedActivity in
                 updateActivity(updatedActivity)
             })
         }
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                UnsavedActivityCreateView(student: student, onSave: { newActivity in
+                UnsavedNoteCreateView(student: student, onSave: { newActivity in
                     addNewActivity(newActivity)
                 }, selectedDate: selectedDate)
             } else {
@@ -135,32 +135,32 @@ struct ReflectionPreviewView: View {
         }
     }
     
-    private func deleteTraining(_ training: UnsavedToiletTraining) {
+    private func deleteTraining(_ training: UnsavedActivity) {
         viewModel.deleteUnsavedToiletTraining(training)
     }
     
-    private func deleteActivity(_ activity: UnsavedActivity) {
-        viewModel.deleteUnsavedActivity(activity)
+    private func deleteActivity(_ activity: UnsavedNote) {
+        viewModel.deleteUnsavedNote(activity)
     }
     
-    private func updateActivity(_ updatedActivity: UnsavedActivity) {
-        viewModel.updateUnsavedActivity(updatedActivity)
+    private func updateActivity(_ updatedActivity: UnsavedNote) {
+        viewModel.updateUnsavedNote(updatedActivity)
     }
     
-    private func addNewActivity(_ newActivity: UnsavedActivity) {
-        viewModel.addUnsavedActivity(newActivity)
+    private func addNewActivity(_ newActivity: UnsavedNote) {
+        viewModel.addUnsavedNote(newActivity)
     }
 }
 
 struct ActivityRow: View {
-    let activity: UnsavedActivity
+    let activity: UnsavedNote
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(activity.generalActivity)
+            Text(activity.note)
             Text("Tanggal: \(activity.createdAt, formatter: itemFormatter)")
         }
         .contextMenu {
@@ -177,28 +177,28 @@ struct ActivityRow: View {
     }()
 }
 
-struct UnsavedActivityEditView: View {
+struct UnsavedNoteEditView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var generalActivity: String
-    let activity: UnsavedActivity
-    let onSave: (UnsavedActivity) -> Void
+    @State private var note: String
+    let activity: UnsavedNote
+    let onSave: (UnsavedNote) -> Void
     
-    init(activity: UnsavedActivity, onSave: @escaping (UnsavedActivity) -> Void) {
+    init(activity: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
         self.activity = activity
         self.onSave = onSave
-        _generalActivity = State(initialValue: activity.generalActivity)
+        _note = State(initialValue: activity.note)
     }
     
     var body: some View {
         NavigationView {
             Form {
-                TextField("Activity", text: $generalActivity)
+                TextField("Activity", text: $note)
             }
             .navigationTitle("Edit Activity")
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let updatedActivity = UnsavedActivity(id: activity.id, generalActivity: generalActivity, createdAt: activity.createdAt, studentId: activity.studentId)
+                    let updatedActivity = UnsavedNote(id: activity.id, note: note, createdAt: activity.createdAt, studentId: activity.studentId)
                     onSave(updatedActivity)
                     presentationMode.wrappedValue.dismiss()
                 }
@@ -207,24 +207,24 @@ struct UnsavedActivityEditView: View {
     }
 }
 
-struct UnsavedActivityCreateView: View {
+struct UnsavedNoteCreateView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var generalActivity: String = ""
+    @State private var note: String = ""
     let student: Student
-    let onSave: (UnsavedActivity) -> Void
+    let onSave: (UnsavedNote) -> Void
     
     let selectedDate: Date
 
     var body: some View {
         NavigationView {
             Form {
-                TextField("Activity", text: $generalActivity)
+                TextField("Activity", text: $note)
             }
             .navigationTitle("New Activity")
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let newActivity = UnsavedActivity(generalActivity: generalActivity, createdAt: selectedDate, studentId: student.id)
+                    let newActivity = UnsavedNote(note: note, createdAt: selectedDate, studentId: student.id)
                     onSave(newActivity)
                     presentationMode.wrappedValue.dismiss()
                 }

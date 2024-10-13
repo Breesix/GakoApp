@@ -11,12 +11,12 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    @State private var activities: [Activity] = []
+    @State private var activities: [Note] = []
     @State private var selectedDate = Date()
-    @State private var selectedActivity: Activity?
+    @State private var selectedActivity: Note?
     @State private var isAddingNewActivity = false
-    @State private var selectedTraining: ToiletTraining?
-    @State private var toiletTrainings: [ToiletTraining] = []
+    @State private var selectedTraining: Activity?
+    @State private var toiletTrainings: [Activity] = []
     @State private var isShowingCalendar: Bool = false
     
     var body: some View {
@@ -49,7 +49,7 @@ struct StudentDetailView: View {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
         .sheet(item: $selectedActivity) { activity in
-            ActivityEditView(viewModel: viewModel, activity: activity, onDismiss: {
+            NoteEditView(viewModel: viewModel, activity: activity, onDismiss: {
                 selectedActivity = nil
             })
         }
@@ -72,12 +72,11 @@ struct StudentDetailView: View {
         }
     }
     
-    // MARK: - Helper Methods
-    private var toiletThatDay: [ToiletTraining] {
+    private var toiletThatDay: [Activity] {
         toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
-    private var filteredActivities: [Activity] {
+    private var filteredActivities: [Note] {
         activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
@@ -89,22 +88,20 @@ struct StudentDetailView: View {
         toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
     }
     
-    private func deleteActivity(_ activity: Activity) {
+    private func deleteActivity(_ activity: Note) {
         Task {
             await viewModel.deleteActivity(activity, from: student)
             activities.removeAll(where: { $0.id == activity.id })
         }
     }
     
-    private func deleteTraining(_ training: ToiletTraining) {
+    private func deleteTraining(_ training: Activity) {
         Task {
             await viewModel.deleteToiletTraining(training, from: student)
             toiletTrainings.removeAll(where: { $0.id == training.id })
         }
     }
 }
-
-// MARK: - Subcomponents
 
 struct CalendarButton: View {
     @Binding var selectedDate: Date

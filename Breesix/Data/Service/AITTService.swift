@@ -82,9 +82,9 @@ class AITTService {
 }
 
 class TTCSVParser {
-    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedToiletTraining] {
+    static func parseActivities(csvString: String, students: [Student], createdAt: Date) -> [UnsavedActivity] {
         let rows = csvString.components(separatedBy: .newlines)
-        var unsavedToiletTrainings: [UnsavedToiletTraining] = []
+        var unsavedToiletTrainings: [UnsavedActivity] = []
         
         print("Total rows in CSV: \(rows.count)")
         print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
@@ -110,7 +110,7 @@ class TTCSVParser {
                         }
                         let trainingDetail: String = details
                         if !trainingDetail.isEmpty {
-                            let unsavedToiletTraining = UnsavedToiletTraining(
+                            let unsavedToiletTraining = UnsavedActivity(
                                 trainingDetail: trainingDetail,
                                 createdAt: createdAt,
                                 status: trainingStatus,

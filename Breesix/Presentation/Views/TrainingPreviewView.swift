@@ -12,7 +12,7 @@ struct TrainingPreviewView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingToiletTraining: Bool
     @State private var isSaving = false
-    @State private var editingTraining: UnsavedToiletTraining?
+    @State private var editingTraining: UnsavedActivity?
     @State private var isAddingNewTraining = false
     @State private var selectedStudent: Student?
     var onDismiss: () -> Void
@@ -88,11 +88,11 @@ struct TrainingPreviewView: View {
         }
     }
     
-    private func deleteTraining(_ training: UnsavedToiletTraining) {
+    private func deleteTraining(_ training: UnsavedActivity) {
         viewModel.deleteUnsavedToiletTraining(training)
     }
     
-    private func updateTraining(_ updatedTraining: UnsavedToiletTraining) {
+    private func updateTraining(_ updatedTraining: UnsavedActivity) {
         viewModel.updateUnsavedToiletTraining(updatedTraining)
     }
 //    
@@ -102,7 +102,7 @@ struct TrainingPreviewView: View {
 }
 
 struct TrainingDetailRow: View {
-    let toiletTraining: UnsavedToiletTraining
+    let toiletTraining: UnsavedActivity
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
@@ -110,7 +110,7 @@ struct TrainingDetailRow: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Toilet Training")
-            if toiletTraining.status! {
+            if toiletTraining.isIndependent! {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                     Text("Independent")
@@ -124,7 +124,7 @@ struct TrainingDetailRow: View {
                 .foregroundColor(.red)
             }
             Text("Date: \(toiletTraining.createdAt, formatter: itemFormatter)")
-            Text(toiletTraining.trainingDetail)
+            Text(toiletTraining.activity)
         }
         .contextMenu {
             Button("Edit", action: onEdit)
@@ -144,14 +144,14 @@ struct UnsavedTrainingEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var trainingDetail: String
     @State private var status: Bool
-    let training: UnsavedToiletTraining
-    let onSave: (UnsavedToiletTraining) -> Void
+    let training: UnsavedActivity
+    let onSave: (UnsavedActivity) -> Void
     
-    init(training: UnsavedToiletTraining, onSave: @escaping (UnsavedToiletTraining) -> Void) {
+    init(training: UnsavedActivity, onSave: @escaping (UnsavedActivity) -> Void) {
         self.training = training
         self.onSave = onSave
-        _trainingDetail = State(initialValue: training.trainingDetail)
-        _status = State(initialValue: training.status!)
+        _trainingDetail = State(initialValue: training.activity)
+        _status = State(initialValue: training.isIndependent!)
     }
     
     var body: some View {
@@ -164,7 +164,7 @@ struct UnsavedTrainingEditView: View {
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let updatedTraining = UnsavedToiletTraining(id: training.id, trainingDetail: trainingDetail, createdAt: training.createdAt, status: status, studentId: training.studentId)
+                    let updatedTraining = UnsavedActivity(id: training.id, trainingDetail: trainingDetail, createdAt: training.createdAt, status: status, studentId: training.studentId)
                     onSave(updatedTraining)
                     presentationMode.wrappedValue.dismiss()
                 }
