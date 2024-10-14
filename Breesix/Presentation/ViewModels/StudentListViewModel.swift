@@ -10,27 +10,21 @@ import Foundation
 @MainActor
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
+    @Published var unsavedNotes: [UnsavedNote] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
-//    @Published var toiletTrainings: [ToiletTraining] = []
-    @Published var unsavedToiletTrainings: [UnsavedToiletTraining] = []
     @Published var selectedDate: Date = Date() 
     private let studentUseCases: StudentUseCase
+    private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
-    private let toiletTrainingUseCases: ToiletTrainingUseCase
     
-    init(studentUseCases: StudentUseCase, activityUseCases: ActivityUseCase, toiletTrainingUseCases: ToiletTrainingUseCase) {
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase) {
         self.studentUseCases = studentUseCases
+        self.noteUseCases = noteUseCases
         self.activityUseCases = activityUseCases
-
-//        Task {
-//            await loadStudents() /
-//        }
-
-        self.toiletTrainingUseCases = toiletTrainingUseCases
 
     }
     
-    func loadStudents() async {
+    func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
         } catch {
@@ -41,7 +35,7 @@ class StudentListViewModel: ObservableObject {
     func addStudent(_ student: Student) async {
         do {
             try await studentUseCases.addStudent(student)
-            await loadStudents()
+            await fetchAllStudents()
         } catch {
             print("Error adding student: \(error)")
         }
@@ -50,7 +44,7 @@ class StudentListViewModel: ObservableObject {
     func updateStudent(_ student: Student) async {
         do {
             try await studentUseCases.updateStudent(student)
-            await loadStudents()
+            await fetchAllStudents()
         } catch {
             print("Error updating student: \(error)")
         }
@@ -59,49 +53,61 @@ class StudentListViewModel: ObservableObject {
     func deleteStudent(_ student: Student) async {
         do {
             try await studentUseCases.deleteStudent(student)
-            await loadStudents()
+            await fetchAllStudents()
         } catch {
             print("Error deleting student: \(error)")
         }
     }
     
-    func addActivity(_ activity: Activity, for student: Student) async {
+    func addNote(_ note: Note, for student: Student) async {
         do {
-            try await activityUseCases.addActivity(activity, for: student)
-            await loadStudents()
+            try await noteUseCases.addNote(note, for: student)
+            await fetchAllStudents()
         } catch {
-            print("Error adding activity: \(error)")
+            print("Error adding note: \(error)")
         }
     }
     
-    func getActivitiesForStudent(_ student: Student) async -> [Activity] {
+    func fetchAllNotes(_ student: Student) async -> [Note] {
         do {
-            return try await activityUseCases.fetchAllActivities(student)
+            return try await noteUseCases.fetchAllNotes(student)
         } catch {
             print("Error getting activities: \(error)")
             return []
         }
     }
     
-    func getToiletTrainingForStudent(_ student: Student) async -> [ToiletTraining] {
+    func updateNote(_ note: Note) async {
         do {
-            return try await toiletTrainingUseCases.fetchToiletTrainings(student)
+            try await noteUseCases.updateNote(note)
+            await fetchAllStudents()
         } catch {
-            print("Error getting toilet training: \(error)")
+            print("Error updating note: \(error)")
+        }
+    }
+    
+    func deleteNote(_ note: Note, from student: Student) async {
+        do {
+            try await noteUseCases.deleteNote(note, from: student)
+            if let index = students.firstIndex(where: { $0.id == student.id }) {
+                students[index].notes.removeAll(where: { $0.id == note.id })
+            }
+        } catch {
+            print("Error deleting note: \(error)")
+        }
+    }
+    
+    func fetchActivities(_ student: Student) async -> [Activity] {
+        do {
+            return try await activityUseCases.fetchActivities(student)
+        } catch {
+            print("Error getting activity: \(error)")
             return []
         }
     }
     
-    func updateActivity(_ activity: Activity) async {
-        do {
-            try await activityUseCases.updateActivity(activity)
-            await loadStudents()
-        } catch {
-            print("Error updating activity: \(error)")
-        }
-    }
     
-    func deleteActivity(_ activity: Activity, from student: Student) async {
+    func deleteActivities(_ activity: Activity, from student: Student) async {
         do {
             try await activityUseCases.deleteActivity(activity, from: student)
             if let index = students.firstIndex(where: { $0.id == student.id }) {
@@ -112,19 +118,41 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
-    func deleteToiletTraining(_ toiletTraining: ToiletTraining, from student: Student) async {
-        do {
-            try await toiletTrainingUseCases.deleteToiletTraining(toiletTraining, from: student)
-            if let index = students.firstIndex(where: { $0.id == student.id }) {
-                students[index].toiletTrainings.removeAll(where: { $0.id == toiletTraining.id })
+    func addUnsavedNotes(_ notes: [UnsavedNote]) {
+            unsavedNotes.append(contentsOf: notes)
+    }
+    
+    func clearUnsavedNotes() {
+        unsavedNotes.removeAll()
+    }
+    
+    func saveUnsavedNotes() async {
+        for UnsavedNote in unsavedNotes {
+            if let student = students.first(where: { $0.id == UnsavedNote.studentId }) {
+                let note = Note(note: UnsavedNote.note, createdAt: UnsavedNote.createdAt, student: student)
+                await addNote(note, for: student)
             }
-        } catch {
-            print("Error deleting toilet training: \(error)")
+        }
+        clearUnsavedNotes()
+    }
+    
+    
+    func updateUnsavedNote(_ note: UnsavedNote) {
+        if let index = unsavedNotes.firstIndex(where: { $0.id == note.id }) {
+            unsavedNotes[index] = note
         }
     }
     
+    func deleteUnsavedNote(_ note: UnsavedNote) {
+        unsavedNotes.removeAll { $0.id == note.id }
+    }
+    
+    func addUnsavedNote(_ note: UnsavedNote) {
+        unsavedNotes.append(note)
+    }
+    
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
-            unsavedActivities.append(contentsOf: activities)
+        unsavedActivities.append(contentsOf: activities)
     }
     
     func clearUnsavedActivities() {
@@ -134,13 +162,14 @@ class StudentListViewModel: ObservableObject {
     func saveUnsavedActivities() async {
         for unsavedActivity in unsavedActivities {
             if let student = students.first(where: { $0.id == unsavedActivity.studentId }) {
-                let activity = Activity(generalActivity: unsavedActivity.generalActivity, createdAt: unsavedActivity.createdAt, student: student)
+                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? false, student: student)
                 await addActivity(activity, for: student)
             }
         }
-        clearUnsavedActivities()
+        await MainActor.run {
+            clearUnsavedActivities()
+        }
     }
-    
     
     func updateUnsavedActivity(_ activity: UnsavedActivity) {
         if let index = unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
@@ -152,73 +181,19 @@ class StudentListViewModel: ObservableObject {
         unsavedActivities.removeAll { $0.id == activity.id }
     }
     
-    func addUnsavedActivity(_ activity: UnsavedActivity) {
-        unsavedActivities.append(activity)
-    }
-    
-    func addUnsavedToiletTraining(_ toiletTrainingsInput: [UnsavedToiletTraining]) {
-        unsavedToiletTrainings.append(contentsOf: toiletTrainingsInput)
-    }
-    
-    func clearUnsavedToiletTrainings() {
-        unsavedActivities.removeAll()
-    }
-    
-    func saveUnsavedToiletTrainings() async {
-        for unsavedTraining in unsavedToiletTrainings {
-            let student = students.first(where: { $0.id == unsavedTraining.studentId })
-            do {
-                let toiletTrainingObj = ToiletTraining(trainingDetail: unsavedTraining.trainingDetail, createdAt: unsavedTraining.createdAt, status: unsavedTraining.status!, student: student)
-                await addToiletTraining(toiletTrainingObj, for: student!)
-            } catch {
-                print("Error saving toilet training: \(error)")
-            }
-        }
-        clearUnsavedActivities()
-    }
-
-    
-//    func clearToiletTrainings() {
-//        toiletTrainings.removeAll()
-//    }
-    
-//    func saveToiletTrainings() async {
-//        for training in toiletTrainings {
-//            let student = students.first(where: { $0 == training.student })
-//            do {
-//                let toiletTrainingObj = ToiletTraining(trainingDetail: training.trainingDetail, createdAt: training.createdAt, status: training.status!, student: training.student)
-//                await addToiletTraining(toiletTrainingObj, for: student!)
-//            } catch {
-//                print("Error saving toilet training: \(error)")
-//            }
-//        }
-//        clearToiletTrainings()
-//    }
-
-    
-    func updateUnsavedToiletTraining(_ training: UnsavedToiletTraining) {
-        if let index = unsavedToiletTrainings.firstIndex(where: { $0.id == training.id }) {
-            unsavedToiletTrainings[index] = training
-        }
-    }
-    
-    func deleteUnsavedToiletTraining(_ training: UnsavedToiletTraining) {
-        unsavedToiletTrainings.removeAll { $0.id == training.id }
-    }
-    
-    func addToiletTraining(_ training: ToiletTraining, for student: Student) async {
+    func addActivity(_ activity: Activity, for student: Student) async {
         do {
-            try await toiletTrainingUseCases.addToiletTraining(training, for: student)
-            await loadStudents()
+            try await activityUseCases.addActivity(activity, for: student)
+            print("Activity added successfully: \(activity.activity)")
         } catch {
-            print("Error adding training: \(error)")
+            print("Error adding activity: \(error)")
         }
     }
     
-    func updateTraining(_ training: ToiletTraining) async {
+    func updateActivity(_ activity: Activity) async {
         do {
-            try await toiletTrainingUseCases.updateToiletTraining(training)
-            await loadStudents()
+            try await activityUseCases.updateActivity(activity)
+            await fetchAllStudents()
         } catch {
             print("Error updating activity: \(error)")
         }

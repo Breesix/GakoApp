@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  SummaryTabView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 30/09/24.
@@ -7,16 +7,15 @@
 
 import SwiftUI
 
-struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+struct SummaryTabView: View {
+    @StateObject private var viewModel = SummaryTabViewModel()
     @ObservedObject var studentListViewModel: StudentListViewModel
-    @State private var isShowingReflectionSheet = false
     @State private var isShowingPreview = false
-    @State private var isShowingToiletTraining = false
-    @State private var isShowingMandatorySheet = false
+    @State private var isShowingActivity = false
+    @State private var isShowingInputSheet = false
     @State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
-    @State private var activeSheet: ActiveSheet? = nil  // Manage sheets with enum
+    @State private var activeSheet: ActiveSheet? = nil
     
     var body: some View {
         NavigationView {
@@ -24,14 +23,13 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     datePickerView()
                     
-                    // Suara and Teks buttons
                     HStack(alignment: .center) {
                         VStack(alignment: .leading) {
                             Text("Suara")
                                 .font(.headline)
                                 .padding()
                             Button(action: {
-                                isShowingMandatorySheet = true
+                                isShowingInputSheet = true
                                 selectedInputType = .speech
                             }) {
                                 Text("CURHAT DONG MAH")
@@ -51,7 +49,7 @@ struct HomeView: View {
                                 .font(.headline)
                                 .padding()
                             Button(action: {
-                                isShowingMandatorySheet = true 
+                                isShowingInputSheet = true 
                                 selectedInputType = .manual
                             }) {
                                 Text("CURHAT DONG MAH")
@@ -67,51 +65,34 @@ struct HomeView: View {
                         .background(.gray.opacity(0.5))
                         .cornerRadius(8)
                     }
-
-                    // List of Students
                     studentsListView()
                 }
                 .padding()
-                // Load students when the view appears
                 .task {
-                    await studentListViewModel.loadStudents()
+                    await studentListViewModel.fetchAllStudents()
                 }
             }
             .navigationTitle("Curhat")
             
-            .sheet(isPresented: $isShowingMandatorySheet) {
-                MandatoryInputView(
+            .sheet(isPresented: $isShowingInputSheet) {
+                InputView(
                     viewModel: studentListViewModel,
                     inputType: selectedInputType,
                     isAllStudentsFilled: $isAllStudentsFilled,
                     selectedDate: viewModel.selectedDate,
                     
                     onDismiss: {
-                        isShowingMandatorySheet = false
-                        isShowingReflectionSheet = true
-                    }
-                )
-            }
-            
-            // Handle sheet presentation based on activeSheet
-            .sheet(isPresented: $isShowingReflectionSheet) {
-                ReflectionInputView(
-                    viewModel: studentListViewModel,
-                    speechRecognizer: SpeechRecognizer(),
-                    isAllStudentsFilled: $isAllStudentsFilled,
-                    inputType: selectedInputType,
-                    selectedDate: viewModel.selectedDate,
-                    onDismiss: {
-                        isShowingReflectionSheet = false
+                        isShowingInputSheet = false
                         isShowingPreview = true
                     }
                 )
             }
+            
             .sheet(isPresented: $isShowingPreview) {
-                ReflectionPreviewView(
+                PreviewView(
                     viewModel: studentListViewModel,
                     isShowingPreview: $isShowingPreview,
-                    isShowingToiletTraining: $isShowingToiletTraining,
+                    isShowingActivity: $isShowingActivity,
                     selectedDate: viewModel.selectedDate
                     
                 )
@@ -175,47 +156,6 @@ struct HomeView: View {
             .cornerRadius(8)
         }
     }
-    //  @ViewBuilder
-    //    private func sheetContent(sheet: ActiveSheet) -> some View {
-    //        switch sheet {
-    //        case .mandatory:
-    //            MandatoryInputView(
-    //                viewModel: studentListViewModel,
-    //                inputType: selectedInputType,
-    //                isShowingTrainingPreview: .constant(false),
-    //                isAllStudentsFilled: $isAllStudentsFilled,
-    //                selectedDate: viewModel.selectedDate,
-    //                onDismiss: {
-    //                    activeSheet = .toiletTraining
-    //                }
-    //            )
-    //        case .reflection:
-    //            ReflectionInputView(
-    //                viewModel: studentListViewModel, speechRecognizer: SpeechRecognizer(),
-    //                isShowingPreview: .constant(false),
-    //                inputType: selectedInputType,
-    //                selectedDate: viewModel.selectedDate,
-    //                onDismiss: {
-    //                    activeSheet = .preview
-    //                }
-    //            )
-    //        case .preview:
-    //            ReflectionPreviewView(
-    //                viewModel: studentListViewModel,
-    //                isShowingPreview: .constant(true),
-    //                selectedDate: viewModel.selectedDate
-    //            )
-    //        case .toiletTraining:
-    //            TrainingPreviewView(
-    //                viewModel: studentListViewModel,
-    //                isShowingToiletTraining: .constant(true),
-    //                onDismiss: {
-    //                    activeSheet = .reflection
-    //                }
-    //            )
-    //        }
-    //    }
-    //}
     
     struct StudentRowView: View {
         let student: Student
@@ -226,36 +166,36 @@ struct HomeView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-                if let latestTraining = student.toiletTrainings.sorted(by: { $0.createdAt > $1.createdAt }).first {
-                    ToiletTrainingView(training: latestTraining)
+                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
+                    ActivityView(activity: latestActivity)
                 }
                 
-                let dailyActivities = student.activities.filter {
+                let dailyNotes = student.notes.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }
                 
-                if dailyActivities.isEmpty {
-                    Text("Tidak ada aktivitas umum pada hari ini")
+                if dailyNotes.isEmpty {
+                    Text("Tidak ada catatan pada hari ini")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 } else {
-                    DailyActivitiesView(activities: dailyActivities)
+                    DailyNotesView(notes: dailyNotes)
                 }
             }
         }
     }
-    struct ToiletTrainingView: View {
-        let training: ToiletTraining
+    struct ActivityView: View {
+        let activity: Activity
         
         var body: some View {
             VStack(alignment: .leading) {
                 
-                if let status = training.status {
+                if let status = activity.isIndependent {
                     HStack {
-                        Image(systemName: "toilet.fill")
+                        Image(systemName: "figure.walk.motion")
                             .scaledToFit()
                             .foregroundColor(.white)
-                        Text(status ? "Independent" : "Needs Guidance")
+                        Text(status ? "Mandiri" : "Dibimbing")
                             .font(.footnote)
                             .foregroundColor(.white)
                     }
@@ -264,7 +204,7 @@ struct HomeView: View {
                     
                     
                 } else {
-                    Text("Tidak ada toilet training terbaru")
+                    Text("Tidak ada aktivitas terbaru")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -276,13 +216,13 @@ struct HomeView: View {
             
         }
     }
-    struct DailyActivitiesView: View {
-        let activities: [Activity]
+    struct DailyNotesView: View {
+        let notes: [Note]
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                    ForEach(activities, id: \.id) { activity in
-                        Text(activity.generalActivity)
+                    ForEach(notes, id: \.id) { note in
+                        Text(note.note)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 4)
@@ -298,16 +238,20 @@ struct HomeView: View {
         
     }
     
-    // ActiveSheet Enum to manage sheet presentations
     enum ActiveSheet: Identifiable {
         case reflection
         case preview
         case mandatory
-        case toiletTraining
+        case activity
         
         var id: Int {
             hashValue
         }
     }
     
+}
+
+enum InputType {
+    case speech
+    case manual
 }

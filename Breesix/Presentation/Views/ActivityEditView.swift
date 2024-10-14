@@ -2,7 +2,7 @@
 //  ActivityEditView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 03/10/24.
+//  Created by Rangga Biner on 04/10/24.
 //
 
 import SwiftUI
@@ -11,19 +11,22 @@ struct ActivityEditView: View {
     @ObservedObject var viewModel: StudentListViewModel
     let activity: Activity
     let onDismiss: () -> Void
-    @State private var generalActivity: String
+    @State private var activityText: String
+    @State private var status: Bool
 
     init(viewModel: StudentListViewModel, activity: Activity, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.activity = activity
         self.onDismiss = onDismiss
-        _generalActivity = State(initialValue: activity.generalActivity)
+        _activityText = State(initialValue: activity.activity)
+        _status = State(initialValue: activity.isIndependent!)
     }
 
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $generalActivity)
+                TextField("Catatan", text: $activityText)
+                Toggle("Mandiri", isOn: $status)
 
                 Button("Simpan Perubahan") {
                     saveActivity()
@@ -37,7 +40,8 @@ struct ActivityEditView: View {
     }
 
     private func saveActivity() {
-        activity.generalActivity = generalActivity
+        activity.activity = activityText
+        activity.isIndependent = status
         Task {
             await viewModel.updateActivity(activity)
             onDismiss()

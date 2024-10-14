@@ -1,5 +1,5 @@
 //
-//  ActivityFormView.swift
+//  NoteFormView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 29/09/24.
@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct ActivityFormView: View {
+struct NoteFormView: View {
     @ObservedObject var viewModel: StudentListViewModel
     @Binding var isPresented: Bool
     @State private var selectedStudent: Student?
-    @State private var generalActivity = ""
-    @State private var toiletTraining = ""
-    @State private var toiletTrainingStatus = false
+    @State private var note = ""
+    @State private var activity = ""
+    @State private var isIndependent = false
 
     var body: some View {
         NavigationView {
@@ -24,12 +24,12 @@ struct ActivityFormView: View {
                     }
                 }
 
-                TextField("Aktivitas Umum", text: $generalActivity)
-                TextField("Catatan Toilet Training", text: $toiletTraining)
-                Toggle("Status Toilet Training", isOn: $toiletTrainingStatus)
+                TextField("Catatan", text: $note)
+                TextField("Aktivitas", text: $activity)
+                Toggle("Status Aktivitas", isOn: $isIndependent)
 
                 Button("Simpan Catatan") {
-                    saveActivity()
+                    saveNote()
                 }
             }
             .navigationTitle("Tambah Catatan")
@@ -39,11 +39,11 @@ struct ActivityFormView: View {
         }
     }
 
-    private func saveActivity() {
+    private func saveNote() {
         guard let student = selectedStudent else { return }
-        let newActivity = Activity(generalActivity: generalActivity)
+        let newNote = Note(note: note)
         Task {
-            await viewModel.addActivity(newActivity, for: student)
+            await viewModel.addNote(newNote, for: student)
             isPresented = false
         }
     }

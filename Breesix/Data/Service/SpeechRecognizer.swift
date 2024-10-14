@@ -16,7 +16,7 @@ class SpeechRecognizer: ObservableObject {
     private let audioEngine = AVAudioEngine()
     
     @Published var transcript = ""
-    @Published var isRecognitionInProgress = false // New flag for loading state
+    @Published var isRecognitionInProgress = false
     
     init(language: String = "id-ID") {
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))!

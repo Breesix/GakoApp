@@ -2,7 +2,7 @@
 //  NewActivityView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 04/10/24.
+//  Created by Rangga Biner on 13/10/24.
 //
 
 import SwiftUI
@@ -12,29 +12,35 @@ struct NewActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
-    @State private var generalActivity: String = ""
+    @State private var activityText: String = ""
+    @State private var status: Bool = false
+
 
     var body: some View {
         NavigationView {
             Form {
-                TextField("Aktivitas Umum", text: $generalActivity)
+                TextField("Aktivitas", text: $activityText)
+                Toggle("Mandiri", isOn: $status)
 
-                Button("Simpan Aktivitas") {
+                Button("Simpan Perubahan") {
                     saveNewActivity()
                 }
             }
-            .navigationTitle("Tambah Aktivitas Baru")
-            .navigationBarItems(trailing: Button("Batal") {
+            .navigationTitle("Aktivitas Baru")
+            .navigationBarItems(trailing: Button("Tutup") {
                 onDismiss()
             })
         }
     }
 
     private func saveNewActivity() {
-        let newActivity = Activity(generalActivity: generalActivity, createdAt: selectedDate, student: student)
+        let newActivity = Activity(activity: activityText, createdAt: selectedDate, isIndependent: status)
         Task {
             await viewModel.addActivity(newActivity, for: student)
             onDismiss()
         }
     }
+
 }
+
+

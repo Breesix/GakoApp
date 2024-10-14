@@ -16,12 +16,12 @@ struct MainTabView: View {
     
     var body: some View {
         TabView {
-            HomeView(studentListViewModel: studentListViewModel)
+            SummaryTabView(studentListViewModel: studentListViewModel)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
             
-            StudentListView(viewModel: studentListViewModel)
+            StudentTabView(viewModel: studentListViewModel)
                 .tabItem {
                     Label("Murid", systemImage: "person.3")
                 }

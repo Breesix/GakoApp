@@ -11,12 +11,13 @@ struct StudentDetailView: View {
     let student: Student
     @ObservedObject var viewModel: StudentListViewModel
     @State private var isEditing = false
-    @State private var activities: [Activity] = []
+    @State private var notes: [Note] = []
     @State private var selectedDate = Date()
-    @State private var selectedActivity: Activity?
+    @State private var selectedNote: Note?
+    @State private var isAddingNewNote = false
     @State private var isAddingNewActivity = false
-    @State private var selectedTraining: ToiletTraining?
-    @State private var toiletTrainings: [ToiletTraining] = []
+    @State private var activity: Activity?
+    @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
     
     var body: some View {
@@ -30,13 +31,13 @@ struct StudentDetailView: View {
                     FutureMessageView()
                 } else {
                     ActivityCardView(
-                        toiletTrainings: toiletThatDay,
-                        activities: filteredActivities,
-                        onAddActivity: { isAddingNewActivity = true },
-                        onEditTraining: { self.selectedTraining = $0 },
-                        onDeleteTraining: deleteTraining,
-                        onEditActivity: { self.selectedActivity = $0 },
-                        onDeleteActivity: deleteActivity
+                        activities: activityThatDay,
+                        notes: filteredNotes,
+                        onAddNote: { isAddingNewNote = true }, onAddActivity:{ isAddingNewActivity = true },
+                        onEditActivity: { self.activity = $0 },
+                        onDeleteActivity: deleteActivity,
+                        onEditNote: { self.selectedNote = $0 },
+                        onDeleteNote: deleteNote
                     )
                 }
             }
@@ -48,63 +49,68 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
-        .sheet(item: $selectedActivity) { activity in
-            ActivityEditView(viewModel: viewModel, activity: activity, onDismiss: {
-                selectedActivity = nil
+        .sheet(item: $selectedNote) { note in
+            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
+                selectedNote = nil
             })
         }
-        .sheet(item: $selectedTraining) { training in
-            TrainingEditView(viewModel: viewModel, training: training, onDismiss: {
-                selectedTraining = nil
+        .sheet(item: $activity) { currentActivity in
+            ActivityEditView(viewModel: viewModel, activity: currentActivity, onDismiss: {
+                activity = nil
+            })
+        }
+        .sheet(isPresented: $isAddingNewNote) {
+            NewNoteView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
+                isAddingNewNote = false
+                Task {
+                    await fetchAllNotes()
+                }
             })
         }
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel, student: student, selectedDate: selectedDate, onDismiss: {
                 isAddingNewActivity = false
                 Task {
-                    await loadActivities()
+                    await fetchActivities()
                 }
             })
         }
         .task {
-            await loadActivities()
-            await loadToiletTrainingStudents()
+            await fetchAllNotes()
+            await fetchActivities()
         }
     }
     
-    // MARK: - Helper Methods
-    private var toiletThatDay: [ToiletTraining] {
-        toiletTrainings.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
-    }
-    
-    private var filteredActivities: [Activity] {
+    private var activityThatDay: [Activity] {
         activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
-    private func loadActivities() async {
-        activities = await viewModel.getActivitiesForStudent(student)
+    private var filteredNotes: [Note] {
+        notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
     
-    private func loadToiletTrainingStudents() async {
-        toiletTrainings = await viewModel.getToiletTrainingForStudent(student)
+    private func fetchAllNotes() async {
+        notes = await viewModel.fetchAllNotes(student)
+    }
+    
+    private func fetchActivities() async {
+        activities = await viewModel.fetchActivities(student)
+    }
+    
+    private func deleteNote(_ note: Note) {
+        Task {
+            await viewModel.deleteNote(note, from: student)
+            notes.removeAll(where: { $0.id == note.id })
+        }
     }
     
     private func deleteActivity(_ activity: Activity) {
         Task {
-            await viewModel.deleteActivity(activity, from: student)
+            await viewModel.deleteActivities(activity, from: student)
             activities.removeAll(where: { $0.id == activity.id })
         }
     }
-    
-    private func deleteTraining(_ training: ToiletTraining) {
-        Task {
-            await viewModel.deleteToiletTraining(training, from: student)
-            toiletTrainings.removeAll(where: { $0.id == training.id })
-        }
-    }
 }
-
-// MARK: - Subcomponents
 
 struct CalendarButton: View {
     @Binding var selectedDate: Date

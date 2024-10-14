@@ -7,10 +7,8 @@
 
 import Foundation
 
-class HomeViewModel: ObservableObject {
+class SummaryTabViewModel: ObservableObject {
     @Published var selectedDate: Date
-    
-    
     
     init() {
         self.selectedDate = Date()
@@ -23,3 +21,4 @@ class HomeViewModel: ObservableObject {
         return formatter.string(from: selectedDate)
     }
 }
+
