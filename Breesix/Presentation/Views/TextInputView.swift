@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct TextInputView: View {
+    @Environment(\.presentationMode) var presentationMode
     @State private var textInput: String = ""
+    @State private var showAlert: Bool = false
 
     var body: some View {
         ZStack {
@@ -43,30 +45,43 @@ struct TextInputView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                
                 Spacer()
+                
                 ProTipsCard()
+                
                 Spacer()
+                
                 Button {
-                    print("batalkan")
+                    showAlert = true
                 } label: {
                     HStack {
                         Image(systemName: "xmark")
                         Text("Batalkan")
                     }
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(.red.opacity(0.2))
-                        .clipShape(.rect(cornerRadius: 20))
-                    
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.red.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
-
             }
             .padding()
         }
         .safeAreaPadding()
+        .navigationBarBackButtonHidden(true)
+        .alert(isPresented :$showAlert) {
+            Alert(
+                title: Text("Batalkan Dokumentasi?"),
+                message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
+                primaryButton: .destructive(Text("Ya")) {
+                    presentationMode.wrappedValue.dismiss()
+                },
+                secondaryButton: .cancel(Text("Tidak"))
+            )
+        }
     }
 }
 
