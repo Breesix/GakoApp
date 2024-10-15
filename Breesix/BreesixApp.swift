@@ -14,7 +14,7 @@ struct BreesixApp: App {
     
     init() {
         do {
-            container = try ModelContainer(for: Student.self, Note.self)
+            container = try ModelContainer(for: Student.self, Note.self, Activity.self)
         } catch {
             fatalError("Failed to create ModelContainer for Student and Activity: \(error)")
         }
