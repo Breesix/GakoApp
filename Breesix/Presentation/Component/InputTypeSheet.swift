@@ -14,49 +14,39 @@ enum InputTypeUser {
 }
 
 struct InputTypeSheet: View {
-    @State private var selectedInputType: InputTypeUser?
+    @ObservedObject var studentListViewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
     var onSelect: (InputTypeUser) -> Void
 
     var body: some View {
         VStack {
-            if let inputType = selectedInputType {
-                switch inputType {
-                case .voice:
-                    VoiceInputView()
-                case .text:
-                    TextInputView()
+            Text("Pilih Metode Input")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.bottom, 24)
+
+            HStack {
+                Button(action: {
+                    onSelect(.voice)
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    InputTypeCard(inputType: "[Suara]")
                 }
-            } else {
-                VStack {
-                    Text("Pilih Metode Input")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .padding(.bottom, 24)
+                .padding(.trailing, 20)
 
-                    HStack {
-                        Button(action: {
-                            onSelect(.voice) 
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            InputTypeCard(inputType: "[Suara]")
-                        }
-                        .padding(.trailing, 20)
-
-                        Button(action: {
-                            onSelect(.text)
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            InputTypeCard(inputType: "[Teks]")
-                        }
-                    }
-                    .padding(.bottom, 29)
-
-                    Button("Batalkan") {
-                        presentationMode.wrappedValue.dismiss()
-                    }
+                Button(action: {
+                    onSelect(.text)
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    InputTypeCard(inputType: "[Teks]")
                 }
             }
+            .padding(.bottom, 29)
+
+            Button("Batalkan") {
+                presentationMode.wrappedValue.dismiss()
+            }
         }
+        .padding()
     }
 }

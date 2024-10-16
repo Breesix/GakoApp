@@ -48,7 +48,7 @@ struct MainTabView: View {
                 }
             }
             .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeSheet(onSelect: { selectedInput in
+                InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
                     switch selectedInput {
                     case .voice:
                         isShowingInputTypeSheet = false
@@ -65,7 +65,7 @@ struct MainTabView: View {
                 NavigationLink(destination: VoiceInputView(), isActive: $isNavigatingToVoiceInput) { EmptyView() }
             )
             .background(
-                NavigationLink(destination: TextInputView(), isActive: $isNavigatingToTextInput) { EmptyView() }
+                NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, isNavigatingToTextInput: $isNavigatingToTextInput), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
         }
     }
