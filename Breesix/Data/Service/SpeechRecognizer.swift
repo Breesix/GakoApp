@@ -17,18 +17,30 @@ class SpeechRecognizer: ObservableObject {
     
     @Published var transcript = ""
     @Published var isRecognitionInProgress = false
+    @Published var hasSpeechPermission = false
+    @Published var hasMicPermission = false
     
     init(language: String = "id-ID") {
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))!
     }
     
     func startTranscribing() {
-        // Start the recognition asynchronously
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.isRecognitionInProgress = true
-            self.setupAudioSessionAndEngine()
+        Task {
+            // Check permissions asynchronously
+            let speechPermissionGranted = await SFSpeechRecognizer.hasAuthorizationToRecognize()
+            let micPermissionGranted = await AVAudioSession.sharedInstance().hasPermissionToRecord()
+            
+            // Update permissions on the main thread
             DispatchQueue.main.async {
-                self.isRecognitionInProgress = false
+                self.hasSpeechPermission = speechPermissionGranted
+                self.hasMicPermission = micPermissionGranted
+                
+                if speechPermissionGranted && micPermissionGranted {
+                    self.isRecognitionInProgress = true
+                    self.setupAudioSessionAndEngine()
+                } else {
+                    print("Permission denied. Speech: \(speechPermissionGranted), Mic: \(micPermissionGranted)")
+                }
             }
         }
     }
@@ -87,9 +99,24 @@ class SpeechRecognizer: ObservableObject {
         
         let audioSession = AVAudioSession.sharedInstance()
         try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        
+        DispatchQueue.main.async {
+            self.isRecognitionInProgress = false // Ensure this runs on the main thread
+        }
+    }
+
+    func pauseTranscribing() {
+        audioEngine.pause()
+    }
+        
+    func resumeTranscribing() {
+        do {
+            try audioEngine.start()
+        } catch {
+            print("Failed to resume audio engine: \(error.localizedDescription)")
+        }
     }
 }
-
 
 @available(macOS 10.15, *)
 extension SFSpeechRecognizer {
@@ -111,6 +138,7 @@ extension AVAudioSession {
         }
     }
 }
+
 
 
 

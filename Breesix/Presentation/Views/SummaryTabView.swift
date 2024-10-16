@@ -21,49 +21,35 @@ struct SummaryTabView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    datePickerView()
+                    DatePickerView(selectedDate: $viewModel.selectedDate)
                     
                     HStack(alignment: .center) {
-                        VStack(alignment: .leading) {
-                            Text("Suara")
-                                .font(.headline)
-                                .padding()
-                            Button(action: {
-                                isShowingInputSheet = true
-                                selectedInputType = .speech
-                            }) {
-                                Text("CURHAT DONG MAH")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                        }
-                        .padding()
-                        .background(.gray.opacity(0.5))
-                        .cornerRadius(8)
                         
-                        VStack(alignment: .leading) {
-                            Text("Teks")
-                                .font(.headline)
-                                .padding()
-                            Button(action: {
-                                isShowingInputSheet = true 
-                                selectedInputType = .manual
-                            }) {
-                                Text("CURHAT DONG MAH")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
+                        NavigationLink(destination: VoiceInputView(
+                            viewModel: studentListViewModel,
+                            inputType: .speech,
+                            isAllStudentsFilled: $isAllStudentsFilled,
+                            selectedDate: viewModel.selectedDate,
+                            onDismiss: {
+                                isShowingPreview = true
+                            }).toolbar(.hidden, for: .tabBar)
+                        ) {
+                                InputTypeButton(title: "Suara", action: {})
                             }
-                        }
                         
-                        .padding()
-                        .background(.gray.opacity(0.5))
-                        .cornerRadius(8)
+//                        NavigationLink(destination: TextInputView(
+//                            viewModel: studentListViewModel,
+//                            inputType: .speech,
+//                            isAllStudentsFilled: $isAllStudentsFilled,
+//                            selectedDate: viewModel.selectedDate,
+//                            onDismiss: {
+//                                isShowingPreview = true
+//                        })) {
+//                            InputTypeButton(title: "Suara", action: {})
+//                        }
+                        
+                        
+                        
                     }
                     studentsListView()
                 }
@@ -74,20 +60,7 @@ struct SummaryTabView: View {
             }
             .navigationTitle("Curhat")
             
-            .sheet(isPresented: $isShowingInputSheet) {
-                InputView(
-                    viewModel: studentListViewModel,
-                    inputType: selectedInputType,
-                    isAllStudentsFilled: $isAllStudentsFilled,
-                    selectedDate: viewModel.selectedDate,
-                    
-                    onDismiss: {
-                        isShowingInputSheet = false
-                        isShowingPreview = true
-                    }
-                )
-            }
-            
+
             .sheet(isPresented: $isShowingPreview) {
                 PreviewView(
                     viewModel: studentListViewModel,
@@ -102,26 +75,7 @@ struct SummaryTabView: View {
     }
     
     
-    @ViewBuilder
-    private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
-    }
-    @ViewBuilder
-    private func inputButtonsView() -> some View {
-        HStack(alignment: .center) {
-            InputTypeButton(title: "Suara", action: {
-                activeSheet = .mandatory
-                selectedInputType = .speech
-            })
-            
-            InputTypeButton(title: "Teks", action: {
-                activeSheet = .mandatory
-                selectedInputType = .manual
-            })
-        }
-    }
+    
     struct InputTypeButton: View {
         let title: String
         let action: () -> Void
@@ -131,14 +85,13 @@ struct SummaryTabView: View {
                 Text(title)
                     .font(.headline)
                     .padding()
-                Button(action: action) {
-                    Text("CURHAT DONG MAH")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+                
+                Text("CURHAT DONG MAH")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
             .padding()
             .background(.gray.opacity(0.5))
@@ -221,19 +174,19 @@ struct SummaryTabView: View {
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                    ForEach(notes, id: \.id) { note in
-                        Text(note.note)
-                            .font(.body)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 4)
-                            .multilineTextAlignment(.leading)
-                            .foregroundColor(.black)
-                            .background(Color.white)
-                            .cornerRadius(8)
+                ForEach(notes, id: \.id) { note in
+                    Text(note.note)
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 4)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.black)
+                        .background(Color.white)
+                        .cornerRadius(8)
                 }
             }
             .padding()
-
+            
         }
         
     }

@@ -15,6 +15,7 @@ enum InputTypeUser {
 
 struct InputTypeSheet: View {
     @State private var selectedInputType: InputTypeUser?
+    @ObservedObject var studentListViewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
     var onSelect: (InputTypeUser) -> Void
 
@@ -23,7 +24,9 @@ struct InputTypeSheet: View {
             if let inputType = selectedInputType {
                 switch inputType {
                 case .voice:
-                    VoiceInputView()
+                    VoiceInputView(viewModel: studentListViewModel, inputType: .speech, isAllStudentsFilled: .constant(false), selectedDate: Date(), onDismiss: {
+                        
+                    })
                 case .text:
                     TextInputView()
                 }

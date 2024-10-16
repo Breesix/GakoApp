@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var studentListViewModel: StudentListViewModel
+    
     @State private var selectedTab = 0
     @State private var isShowingInputTypeSheet = false
     @State private var selectedInputType: InputTypeUser?
@@ -17,38 +18,47 @@ struct MainTabView: View {
 
     init(studentListViewModel: StudentListViewModel) {
         _studentListViewModel = StateObject(wrappedValue: studentListViewModel)
+        
     }
 
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottom) {
+                
                 TabView(selection: $selectedTab) {
-                    SummaryTabView(studentListViewModel: studentListViewModel)
-                        .tag(0)
-                        .tabItem {
-                            Label("Ringkasan", systemImage: "house")
-                        }
-                    
-                    StudentTabView(viewModel: studentListViewModel)
-                        .tag(1)
-                        .tabItem {
-                            Label("Murid", systemImage: "person.3")
-                        }
+                    Group {
+                        SummaryTabView(studentListViewModel: studentListViewModel)
+                            .tag(0)
+                            .tabItem {
+                                Label("Ringkasan", systemImage: "house")
+                            }
+                        
+                        StudentTabView(viewModel: studentListViewModel)
+                            .tag(1)
+                            .tabItem {
+                                Label("Murid", systemImage: "person.3")
+                                
+                            }
+                    }
+                    .toolbarBackground(.tapBar, for: .tabBar)
+                    .toolbarBackground(.visible, for: .tabBar)
                 }
-                .tabViewStyle(DefaultTabViewStyle())
+                
 
                 if selectedTab == 0 {
                     PlusButton(action: {
                         isShowingInputTypeSheet = true
                     }, imageName: "plus.circle.fill")
+                    
                     .offset(y: 12)
                 } else {
                     PlusButton(action: addNewStudent, imageName: "person.crop.circle.fill.badge.plus")
                     .offset(y: 15)
                 }
             }
+            .navigationBarHidden(true)
             .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeSheet(onSelect: { selectedInput in
+                InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
                     switch selectedInput {
                     case .voice:
                         isShowingInputTypeSheet = false
@@ -62,12 +72,14 @@ struct MainTabView: View {
                 .presentationDragIndicator(.visible)
             }
             .background(
-                NavigationLink(destination: VoiceInputView(), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+                //NavigationLink(destination: VoiceInputView(viewModel: <#StudentListViewModel#>, inputType: <#InputType#>, isAllStudentsFilled: <#Binding<Bool>#>, selectedDate: <#Date#>, onDismiss: <#() -> Void#>), isActive: $isNavigatingToVoiceInput) { EmptyView() }
             )
             .background(
                 NavigationLink(destination: TextInputView(), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
+            
         }
+        
     }
 
     private func addNewStudent() {
