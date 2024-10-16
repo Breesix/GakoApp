@@ -70,7 +70,6 @@ struct SummaryTabView: View {
                     
                 )
             }
-            
         }
     }
     
@@ -104,8 +103,9 @@ struct SummaryTabView: View {
             NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
                 StudentRowView(student: student, selectedDate: viewModel.selectedDate)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .background(Color.gray.opacity(0.3))
+            .background(Color(red: 0.92, green: 0.96, blue: 0.96))
             .cornerRadius(8)
         }
     }
