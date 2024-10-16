@@ -9,7 +9,9 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var studentListViewModel: StudentListViewModel
-    
+    @StateObject private var viewModel = SummaryTabViewModel()
+    @State private var isShowingPreview = false
+    //@Binding var isAllStudentsFilled: Bool
     @State private var selectedTab = 0
     @State private var isShowingInputTypeSheet = false
     @State private var selectedInputType: InputTypeUser?
@@ -71,9 +73,11 @@ struct MainTabView: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
             }
-            .background(
-                //NavigationLink(destination: VoiceInputView(viewModel: <#StudentListViewModel#>, inputType: <#InputType#>, isAllStudentsFilled: <#Binding<Bool>#>, selectedDate: <#Date#>, onDismiss: <#() -> Void#>), isActive: $isNavigatingToVoiceInput) { EmptyView() }
-            )
+//            .background(
+//                NavigationLink(destination: VoiceInputView(viewModel: studentListViewModel, inputType: .speech, isAllStudentsFilled: $isAllStudentsFilled, selectedDate: viewModel.selectedDate, onDismiss: {
+//                    isShowingPreview = true
+//                }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+//            )
             .background(
                 NavigationLink(destination: TextInputView(), isActive: $isNavigatingToTextInput) { EmptyView() }
             )

@@ -37,16 +37,10 @@ struct SummaryTabView: View {
                                 InputTypeButton(title: "Suara", action: {})
                             }
                         
-//                        NavigationLink(destination: TextInputView(
-//                            viewModel: studentListViewModel,
-//                            inputType: .speech,
-//                            isAllStudentsFilled: $isAllStudentsFilled,
-//                            selectedDate: viewModel.selectedDate,
-//                            onDismiss: {
-//                                isShowingPreview = true
-//                        })) {
-//                            InputTypeButton(title: "Suara", action: {})
-//                        }
+                        NavigationLink(destination: TextInputView(
+                            )) {
+                            InputTypeButton(title: "Suara", action: {})
+                        }
                         
                         
                         

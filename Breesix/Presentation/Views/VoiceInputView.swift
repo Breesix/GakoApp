@@ -26,7 +26,7 @@ struct VoiceInputView: View {
     @State private var showAlert: Bool = false
     @Binding var isAllStudentsFilled: Bool
     @FocusState private var isTextEditorFocused: Bool
-    
+    @State private var showProTips: Bool = true
     let selectedDate: Date
     var onDismiss: () -> Void
     
@@ -57,6 +57,10 @@ struct VoiceInputView: View {
                         .multilineTextAlignment(.leading)
                         .cornerRadius(10)
                         .focused($isTextEditorFocused)
+                }
+                
+                if showProTips {
+                    ProTipsCard()
                 }
                 
                 Spacer()
