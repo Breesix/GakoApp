@@ -10,14 +10,14 @@ import SwiftData
 
 @Model
 class Activity: Identifiable {
-    var id: UUID = UUID()
+    @Attribute(.unique) var id: UUID
     var activity: String
     var createdAt: Date
     var isIndependent: Bool?
     var student: Student?
     
     init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, student: Student? = nil) {
-        self.id = id
+        self.id = UUID()
         self.activity = activity
         self.createdAt = createdAt
         self.isIndependent = isIndependent
@@ -33,7 +33,7 @@ class UnsavedActivity: Identifiable {
     var studentId: Student.ID
     
     init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, studentId: Student.ID) {
-        self.id = id
+        self.id = UUID()
         self.activity = activity
         self.createdAt = createdAt
         self.isIndependent = isIndependent
