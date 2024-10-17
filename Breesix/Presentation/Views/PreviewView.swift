@@ -72,8 +72,8 @@ struct PreviewView: View {
                     isShowingPreview = false
                 },
                 trailing: Button("Simpan") {
-                    saveNotes()
                     saveActivities()
+                    saveNotes()
                 }
                 .disabled(isSaving)
             )
@@ -129,7 +129,7 @@ struct PreviewView: View {
             await viewModel.saveUnsavedActivities()
             await MainActor.run {
                 isSaving = false
-                isShowingActivity = false
+                isShowingPreview = false
             }
         }
     }

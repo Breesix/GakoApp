@@ -8,9 +8,22 @@
 import SwiftUI
 
 struct TextInputView: View {
+    @StateObject private var summaryTabViewModel = SummaryTabViewModel()
+    @ObservedObject var studentListViewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State private var textInput: String = ""
+    @State private var reflection: String = ""
+    @State private var isLoading: Bool = false
+    @State private var errorMessage: String?
     @State private var showAlert: Bool = false
+    @State private var showProTips: Bool = true
+    @FocusState private var isTextEditorFocused: Bool
+    var onDismiss: () -> Void
+    @Binding var isAllStudentsFilled: Bool
+    @State var isFilledToday: Bool = false
+
+    @State private var selectedDate: Date = Date()
+
+    private let ttProcessor = OpenAIService(apiToken: "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")
 
     var body: some View {
         ZStack {
@@ -22,6 +35,7 @@ struct TextInputView: View {
                 Text("Curhat dengan ketikan")
                     .font(.title3)
                     .fontWeight(.semibold)
+                datePickerView()
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -29,15 +43,16 @@ struct TextInputView: View {
                         .shadow(radius: 2)
                         .frame(maxWidth: .infinity, maxHeight: 250)
 
-                    TextEditor(text: $textInput)
+                    TextEditor(text: $reflection)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 250)
                         .cornerRadius(10)
+                        .focused($isTextEditorFocused)
                 }
                 .padding(.bottom, 16)
                 
                 Button {
-                    print("Submit clicked")
+                    processReflectionActivity()
                 } label: {
                     Text("Submit")
                         .frame(maxWidth: .infinity, maxHeight: 40)
@@ -48,7 +63,9 @@ struct TextInputView: View {
                 
                 Spacer()
                 
-                ProTipsCard()
+                if showProTips {
+                    ProTipsCard()
+                }
                 
                 Spacer()
                 
@@ -70,9 +87,9 @@ struct TextInputView: View {
             }
             .padding()
         }
-        .safeAreaPadding()
-        .navigationBarBackButtonHidden(true)
-        .alert(isPresented :$showAlert) {
+        .safeAreaPadding()         
+
+        .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Batalkan Dokumentasi?"),
                 message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
@@ -82,9 +99,58 @@ struct TextInputView: View {
                 secondaryButton: .cancel(Text("Tidak"))
             )
         }
+        .onTapGesture {
+            isTextEditorFocused = false
+        }
+        .onChange(of: isTextEditorFocused) { focused in
+            withAnimation {
+                showProTips = !focused
+            }
+        }
     }
-}
 
-#Preview {
-    TextInputView()
+    func resetIsFilledTodayIfNeeded() {
+        let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
+        if !Calendar.current.isDateInToday(lastResetDate) {
+            isFilledToday = false
+            UserDefaults.standard.set(Date(), forKey: "lastResetDate")
+        }
+    }
+    
+    private func processReflectionActivity() {
+        Task {
+            do {
+                isLoading = true
+                errorMessage = nil
+
+                await studentListViewModel.fetchAllStudents()
+
+                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
+
+                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
+
+                await MainActor.run {
+                    isLoading = false
+                    isAllStudentsFilled = true
+
+                    studentListViewModel.addUnsavedActivities(activityList)
+                    studentListViewModel.addUnsavedNotes(noteList)
+                    onDismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    print("Error in processReflection: \(error)")
+                }
+            }
+        }
+    }
+
+    private func datePickerView() -> some View {
+        DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+            .datePickerStyle(CompactDatePickerStyle())
+            .labelsHidden()
+    }
+
 }

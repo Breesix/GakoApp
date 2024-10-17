@@ -8,10 +8,10 @@ import Foundation
 import SwiftData
 
 class ActivityRepositoryImpl: ActivityRepository {
-    private let dataSource: ActivityDataSource
+    private let context: ModelContext
 
-    init(activityDataSource: ActivityDataSource) {
-        self.dataSource = activityDataSource
+    init(context: ModelContext) {
+        self.context = context
     }
 
     func fetchActivities(_ student: Student) async throws -> [Activity] {
@@ -20,16 +20,16 @@ class ActivityRepositoryImpl: ActivityRepository {
 
     func addActivity(_ activity: Activity, for student: Student) async throws {
         student.activities.append(activity)
-        try await dataSource.insert(activity)
+        try context.save()
     }
         
     func updateActivity(_ activity: Activity) async throws {
-        try await dataSource.update(activity)
+        try context.save()
     }
     
     func deleteActivity(_ activity: Activity, from student: Student) async throws {
-        student.activities.removeAll(where: { $0.id == activity.id })
-        try await dataSource.delete(activity)
+        student.activities.removeAll { $0.id == activity.id }
+        context.delete(activity)
+        try context.save()
     }
-
 }
