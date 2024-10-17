@@ -18,7 +18,7 @@ struct ActivityCardView: View {
     let onDeleteNote: (Note) -> Void
     
     var body: some View {
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .trailing, spacing: 12) {
             ActivitySection(
                 activities: activities,
                 onEditActivity: onEditActivity,
@@ -34,13 +34,6 @@ struct ActivityCardView: View {
         }
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .trailing)
-        .background(Color(red: 0.92, green: 0.96, blue: 0.96))
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .inset(by: 0.25)
-                .stroke(.green, lineWidth: 0.5)
-        )
     }
 }
 
@@ -52,10 +45,6 @@ struct ActivitySection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Aktivitas")
-                .fontWeight(.semibold)
-                .foregroundColor(.black)
-                .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
             
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
@@ -70,7 +59,14 @@ struct ActivitySection: View {
             }
             .buttonStyle(.bordered)
         }
-        .padding(.horizontal, 12)
+        .padding(12)
+        .background(.white)
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .inset(by: 0.25)
+                .stroke(.green, lineWidth: 0.5)
+        )
     }
 }
 
@@ -83,7 +79,8 @@ struct ActivityRow: View {
         VStack(alignment: .leading, spacing: 4) {
             VStack {
                 Text(activity.activity)
-                    .font(.caption)
+                    .font(.callout)
+                    .fontWeight(.bold)
                     .foregroundColor(.primary)
             }
             .padding(.horizontal, 8)
@@ -94,11 +91,13 @@ struct ActivityRow: View {
                     Text(status ? "Mandiri" : "Dibimbing")
                 }
                 .foregroundColor(status ? .green : .red)
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.ultraThinMaterial)
+                .cornerRadius(8)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .cornerRadius(8)
         .contextMenu {
             Button("Edit") { onEdit(activity) }
             Button("Hapus", role: .destructive) { onDelete(activity) }
@@ -113,12 +112,12 @@ struct NoteDetailRow: View {
     
     var body: some View {
         Text(note.note)
-            .font(.caption)
+            .font(.subheadline)
             .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white)
+            .background(.ultraThinMaterial)
             .cornerRadius(8)
             .contextMenu {
                 Button("Edit") { onEdit(note) }
