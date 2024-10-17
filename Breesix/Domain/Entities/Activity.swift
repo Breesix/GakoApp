@@ -29,15 +29,14 @@ class UnsavedActivity: Identifiable {
     var id: UUID
     var activity: String
     var createdAt: Date
-    var isIndependent: Bool?
+    var isIndependent: Bool? 
     var studentId: Student.ID
     
-    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Bool? = nil, studentId: Student.ID) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, studentId: Student.ID) {
         self.id = id
         self.activity = activity
         self.createdAt = createdAt
-        self.isIndependent = status
+        self.isIndependent = isIndependent
         self.studentId = studentId
     }
-    
 }

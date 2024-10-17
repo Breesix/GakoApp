@@ -175,7 +175,6 @@ class TTCSVParser {
                 
                 print("Searching for student: \(fullName) (\(nickname))")
                 if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
-                    // Parse activities
                     let activities = activitiesString.components(separatedBy: "|")
                     for activity in activities {
                         let parts = activity.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "(")
@@ -196,15 +195,12 @@ class TTCSVParser {
                             let unsavedActivity = UnsavedActivity(
                                 activity: activityName,
                                 createdAt: createdAt,
-                                status: isIndependent,
+                                isIndependent: isIndependent,
                                 studentId: student.id
                             )
                             unsavedActivities.append(unsavedActivity)
                         }
                     }
-                    
-                    // Create note
-                
                         let unsavedNote = UnsavedNote(
                             note: curhatan,
                             createdAt: createdAt,

@@ -23,13 +23,12 @@ struct SummaryTabView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    datePickerView()
-                    
-                    PlusButton(action: {
-                        isShowingInputTypeSheet = true
-                    }, imageName: "plus.circle.fill")
-                    .padding()
-
+                    HStack {
+                        PlusButton(action: {
+                            isShowingInputTypeSheet = true
+                        }, imageName: "plus.circle.fill")
+                        Spacer()
+                    }
                     studentsListView()
                 }
                 .padding()

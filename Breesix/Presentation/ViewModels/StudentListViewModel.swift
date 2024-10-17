@@ -62,7 +62,7 @@ class StudentListViewModel: ObservableObject {
     func addNote(_ note: Note, for student: Student) async {
         do {
             try await noteUseCases.addNote(note, for: student)
-            print("Activity added successfully: \(note.note)")
+            await fetchAllStudents()
         } catch {
             print("Error adding note: \(error)")
         }
@@ -133,9 +133,7 @@ class StudentListViewModel: ObservableObject {
                 await addNote(note, for: student)
             }
         }
-        await MainActor.run {
-            clearUnsavedNotes()
-        }
+        clearUnsavedNotes()
     }
     
     
@@ -168,9 +166,7 @@ class StudentListViewModel: ObservableObject {
                 await addActivity(activity, for: student)
             }
         }
-        await MainActor.run {
-            clearUnsavedActivities()
-        }
+        clearUnsavedActivities()
     }
     
     func updateUnsavedActivity(_ activity: UnsavedActivity) {
@@ -186,7 +182,7 @@ class StudentListViewModel: ObservableObject {
     func addActivity(_ activity: Activity, for student: Student) async {
         do {
             try await activityUseCases.addActivity(activity, for: student)
-            print("Activity added successfully: \(activity.activity)")
+            await fetchAllStudents()
         } catch {
             print("Error adding activity: \(error)")
         }

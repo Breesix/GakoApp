@@ -22,7 +22,6 @@ class NoteDataSourceImpl: NoteDataSource {
     }
 
     func insert(_ note: Note) async throws {
-        modelContext.insert(note)
         try modelContext.save()
     }
 

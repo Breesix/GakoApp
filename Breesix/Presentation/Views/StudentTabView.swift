@@ -71,9 +71,6 @@ struct StudentTabView: View {
         .sheet(isPresented: $isAddingStudent) {
             StudentEditView(viewModel: viewModel, mode: .add)
         }
-        .sheet(isPresented: $isAddingNote) {
-            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
-        }
         .task {
             await viewModel.fetchAllStudents()
         }

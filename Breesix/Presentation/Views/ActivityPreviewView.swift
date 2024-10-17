@@ -127,7 +127,7 @@ struct ActivityDetailRow: View {
 struct UnsavedActivityEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var activityText: String
-    @State private var status: Bool
+    @State private var isIndependent: Bool
     let unsavedActivity: UnsavedActivity
     let onSave: (UnsavedActivity) -> Void
     
@@ -135,20 +135,20 @@ struct UnsavedActivityEditView: View {
         self.unsavedActivity = unsavedActivity
         self.onSave = onSave
         _activityText = State(initialValue: unsavedActivity.activity)
-        _status = State(initialValue: unsavedActivity.isIndependent!)
+        _isIndependent = State(initialValue: unsavedActivity.isIndependent!)
     }
     
     var body: some View {
         NavigationView {
             Form {
                 TextField("Activity Detail", text: $activityText)
-                Toggle("Independent", isOn: $status)
+                Toggle("Independent", isOn: $isIndependent)
             }
             .navigationTitle("Edit Aktivitas")
             .navigationBarItems(
                 leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                 trailing: Button("Save") {
-                    let updatedActivity = UnsavedActivity(id: unsavedActivity.id, activity: activityText, createdAt: unsavedActivity.createdAt, status: status, studentId: unsavedActivity.studentId)
+                    let updatedActivity = UnsavedActivity(id: unsavedActivity.id, activity: activityText, createdAt: unsavedActivity.createdAt, isIndependent: isIndependent, studentId: unsavedActivity.studentId)
                     onSave(updatedActivity)
                     presentationMode.wrappedValue.dismiss()
                 }

@@ -9,10 +9,10 @@ import Foundation
 import SwiftData
 
 class NoteRepositoryImpl: NoteRepository {
-    private let dataSource: NoteDataSource
+    private let context: ModelContext
 
-    init(dataSource: NoteDataSource) {
-        self.dataSource = dataSource
+    init(context: ModelContext) {
+        self.context = context
     }
 
     func fetchAllNotes(_ student: Student) async throws -> [Note] {
@@ -21,15 +21,16 @@ class NoteRepositoryImpl: NoteRepository {
 
     func addNote(_ note: Note, for student: Student) async throws {
         student.notes.append(note)
-        try await dataSource.insert(note)
+        try context.save()
     }
 
     func updateNote(_ note: Note) async throws {
-        try await dataSource.update(note)
+        try context.save()
     }
 
     func deleteNote(_ note: Note, from student: Student) async throws {
         student.notes.removeAll { $0.id == note.id }
-        try await dataSource.delete(note)
+        context.delete(note)
+        try context.save()
     }
 }
