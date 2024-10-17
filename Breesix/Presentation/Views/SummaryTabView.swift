@@ -12,10 +12,12 @@ struct SummaryTabView: View {
     @ObservedObject var studentListViewModel: StudentListViewModel
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
-    @State private var isShowingInputSheet = false
     @State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
-    @State private var activeSheet: ActiveSheet? = nil
+    @State private var isShowingInputTypeSheet = false
+    @State private var isNavigatingToVoiceInput = false
+    @State private var isNavigatingToTextInput = false
+    @State private var navigateToPreview = false
     
     var body: some View {
         NavigationView {
@@ -23,48 +25,11 @@ struct SummaryTabView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     datePickerView()
                     
-                    HStack(alignment: .center) {
-                        VStack(alignment: .leading) {
-                            Text("Suara")
-                                .font(.headline)
-                                .padding()
-                            Button(action: {
-                                isShowingInputSheet = true
-                                selectedInputType = .speech
-                            }) {
-                                Text("CURHAT DONG MAH")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                        }
-                        .padding()
-                        .background(Color(red: 0.92, green: 0.96, blue: 0.96))  
-                        .cornerRadius(8)
-                        
-                        VStack(alignment: .leading) {
-                            Text("Teks")
-                                .font(.headline)
-                                .padding()
-                            Button(action: {
-                                isShowingInputSheet = true 
-                                selectedInputType = .manual
-                            }) {
-                                Text("CURHAT DONG MAH")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                        }
-                        
-                        .padding()
-                        .background(Color(red: 0.92, green: 0.96, blue: 0.96))
-                        .cornerRadius(8)
-                    }
+                    PlusButton(action: {
+                        isShowingInputTypeSheet = true
+                    }, imageName: "plus.circle.fill")
+                    .padding()
+
                     studentsListView()
                 }
                 .padding()
@@ -74,29 +39,33 @@ struct SummaryTabView: View {
             }
             .navigationTitle("Curhat")
             
-            .sheet(isPresented: $isShowingInputSheet) {
-                InputView(
-                    viewModel: studentListViewModel,
-                    inputType: selectedInputType,
-                    isAllStudentsFilled: $isAllStudentsFilled,
-                    selectedDate: viewModel.selectedDate,
-                    
-                    onDismiss: {
-                        isShowingInputSheet = false
-                        isShowingPreview = true
+            .sheet(isPresented: $isShowingInputTypeSheet) {
+                InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
+                    switch selectedInput {
+                    case .voice:
+                        isShowingInputTypeSheet = false
+                        isNavigatingToVoiceInput = true
+                    case .text:
+                        isShowingInputTypeSheet = false
+                        isNavigatingToTextInput = true
                     }
-                )
+                })
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
             }
-            
-            .sheet(isPresented: $isShowingPreview) {
-                PreviewView(
-                    viewModel: studentListViewModel,
-                    isShowingPreview: $isShowingPreview,
-                    isShowingActivity: $isShowingActivity,
-                    selectedDate: viewModel.selectedDate
-                    
-                )
+            .sheet(isPresented: $navigateToPreview){
+                PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: viewModel.selectedDate)
+                
             }
+            .background(
+                NavigationLink(destination: VoiceInputView(), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+            )
+            .background(
+                NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                    isNavigatingToTextInput = false
+                    navigateToPreview = true
+                }, isAllStudentsFilled: $isAllStudentsFilled), isActive: $isNavigatingToTextInput) { EmptyView() }
+            )
         }
     }
     
@@ -107,20 +76,7 @@ struct SummaryTabView: View {
             .datePickerStyle(CompactDatePickerStyle())
             .labelsHidden()
     }
-    @ViewBuilder
-    private func inputButtonsView() -> some View {
-        HStack(alignment: .center) {
-            InputTypeButton(title: "Suara", action: {
-                activeSheet = .mandatory
-                selectedInputType = .speech
-            })
-            
-            InputTypeButton(title: "Teks", action: {
-                activeSheet = .mandatory
-                selectedInputType = .manual
-            })
-        }
-    }
+     
     struct InputTypeButton: View {
         let title: String
         let action: () -> Void

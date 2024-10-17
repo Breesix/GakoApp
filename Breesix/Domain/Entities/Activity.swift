@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 class Activity: Identifiable {
-    var id: UUID
+    var id: UUID = UUID()
     var activity: String
     var createdAt: Date
     var isIndependent: Bool?

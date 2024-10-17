@@ -17,13 +17,11 @@ struct TextInputView: View {
     @State private var showAlert: Bool = false
     @State private var showProTips: Bool = true
     @FocusState private var isTextEditorFocused: Bool
+    var onDismiss: () -> Void
+    @Binding var isAllStudentsFilled: Bool
+    @State var isFilledToday: Bool = false
 
-    // New state variables for navigation and selected date
-    @State private var navigateToPreview = false
-    @State private var selectedDate: Date = Date() // Default to current date
-
-    // Binding for isNavigatingToTextInput
-    @Binding var isNavigatingToTextInput: Bool
+    @State private var selectedDate: Date = Date()
 
     private let ttProcessor = OpenAIService(apiToken: "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")
 
@@ -89,20 +87,8 @@ struct TextInputView: View {
             }
             .padding()
         }
-        .safeAreaPadding()
-//        NavigationLink(
-//            destination: PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: selectedDate),
-//            isActive: $navigateToPreview
-//        ) {
-//            EmptyView()
-//        }
-        .sheet(isPresented: $navigateToPreview) {
-            PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: selectedDate)
-        }
-         
-        .onAppear {
-            isNavigatingToTextInput = false
-        }
+        .safeAreaPadding()         
+
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Batalkan Dokumentasi?"),
@@ -123,6 +109,14 @@ struct TextInputView: View {
         }
     }
 
+    func resetIsFilledTodayIfNeeded() {
+        let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
+        if !Calendar.current.isDateInToday(lastResetDate) {
+            isFilledToday = false
+            UserDefaults.standard.set(Date(), forKey: "lastResetDate")
+        }
+    }
+    
     private func processReflectionActivity() {
         Task {
             do {
@@ -137,13 +131,12 @@ struct TextInputView: View {
 
                 await MainActor.run {
                     isLoading = false
+                    isAllStudentsFilled = true
+
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
-                    navigateToPreview = true  // pastikan ini dilakukan setelah semua data tersedia
+                    onDismiss()
                 }
-
-                
-                
             } catch {
                 await MainActor.run {
                     isLoading = false
