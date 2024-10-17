@@ -153,9 +153,15 @@ struct StudentTabView: View {
             .navigationTitle("Daftar Murid")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { isAddingStudent = true }) {
-                        Image(systemName: "plus")
-                    }
+                    Button("Tambah", systemImage: "plus.app.fill", action: { isAddingStudent = true })
+                    .labelStyle(.titleAndIcon)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                    .tint(.white)
+                    .foregroundStyle(.black)
+//                    Button(action: { isAddingStudent = true }) {
+//                        Image(systemName: "plus")
+//                    }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
