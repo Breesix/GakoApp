@@ -34,6 +34,13 @@ struct NoteSection: View {
             }
             .buttonStyle(.bordered)
         }
-        .padding(.horizontal, 12)
+        .padding(12)
+        .background(.white)
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .inset(by: 0.25)
+                .stroke(.green, lineWidth: 0.5)
+        )
     }
 }
