@@ -63,7 +63,7 @@ struct SummaryTabView: View {
                 NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
                     isNavigatingToTextInput = false
                     navigateToPreview = true
-                }, isAllStudentsFilled: $isAllStudentsFilled), isActive: $isNavigatingToTextInput) { EmptyView() }
+                }), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
         }
     }

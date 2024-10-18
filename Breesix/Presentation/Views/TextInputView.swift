@@ -18,8 +18,6 @@ struct TextInputView: View {
     @State private var showProTips: Bool = true
     @FocusState private var isTextEditorFocused: Bool
     var onDismiss: () -> Void
-    @Binding var isAllStudentsFilled: Bool
-    @State var isFilledToday: Bool = false
 
     @State private var selectedDate: Date = Date()
 
@@ -108,14 +106,6 @@ struct TextInputView: View {
             }
         }
     }
-
-    func resetIsFilledTodayIfNeeded() {
-        let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
-        if !Calendar.current.isDateInToday(lastResetDate) {
-            isFilledToday = false
-            UserDefaults.standard.set(Date(), forKey: "lastResetDate")
-        }
-    }
     
     private func processReflectionActivity() {
         Task {
@@ -131,7 +121,6 @@ struct TextInputView: View {
 
                 await MainActor.run {
                     isLoading = false
-                    isAllStudentsFilled = true
 
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)

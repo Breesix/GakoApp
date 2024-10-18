@@ -11,22 +11,20 @@ import SwiftUI
 
 @Model
 class Student {
-    @Attribute(.unique) var id: UUID
+    var id: UUID
     var fullname: String
     var nickname: String
     var createdAt: Date
-    @Relationship(deleteRule: .cascade, inverse: \Note.student) var notes: [Note]
-    @Relationship(deleteRule: .cascade, inverse: \Activity.student) var activities: [Activity]
+    @Relationship(deleteRule: .cascade) var notes: [Note] = []
+    @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     @Attribute(.externalStorage) var imageData: Data?
     
-    init(fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
-        self.id = UUID() 
+    init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
+        self.id = id
         self.fullname = fullname
         self.nickname = nickname
         self.createdAt = createdAt
         self.imageData = imageData
-        self.notes = []
-        self.activities = []
     }
 
     var image: Image? {
