@@ -11,12 +11,13 @@ import SwiftUI
 
 @Model
 class Student {
-    var id: UUID
+    var id: UUID = UUID()
     var fullname: String
     var nickname: String
     var createdAt: Date
     @Relationship(deleteRule: .cascade) var notes: [Note] = []
     @Relationship(deleteRule: .cascade) var activities: [Activity] = []
+    @Relationship(deleteRule: .cascade) var summaries: [Summary] = []
     @Attribute(.externalStorage) var imageData: Data?
     
     init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
