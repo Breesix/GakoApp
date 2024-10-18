@@ -23,6 +23,7 @@ struct SummaryTabView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    datePickerView()
                     HStack {
                         PlusButton(action: {
                             isShowingInputTypeSheet = true
@@ -121,20 +122,20 @@ struct SummaryTabView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-                    ActivityView(activity: latestActivity)
-                }
+//                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
+//                    ActivityView(activity: latestActivity)
+//                }
                 
-                let dailyNotes = student.notes.filter {
+                let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }
                 
-                if dailyNotes.isEmpty {
-                    Text("Tidak ada catatan pada hari ini")
+                if dailySummaries.isEmpty {
+                    Text("Tidak ada rangkuman pada hari ini")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 } else {
-                    DailyNotesView(notes: dailyNotes)
+                    DailySummariesView(summaries: dailySummaries)
                 }
             }
         }
@@ -171,13 +172,13 @@ struct SummaryTabView: View {
             
         }
     }
-    struct DailyNotesView: View {
-        let notes: [Note]
+    struct DailySummariesView: View {
+        let summaries: [Summary]
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                    ForEach(notes, id: \.id) { note in
-                        Text(note.note)
+                ForEach(summaries, id: \.id) { summary in
+                    Text(summary.summary)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 4)

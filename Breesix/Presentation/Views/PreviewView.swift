@@ -18,7 +18,9 @@ struct PreviewView: View {
     @Binding var isShowingActivity: Bool
     @State private var editingActivity: UnsavedActivity?
     @State private var isAddingNewActivity = false
-    
+    @State private var showingSummaryError = false
+    @State private var summaryErrorMessage = ""
+
     let selectedDate: Date
 
     var body: some View {
@@ -128,13 +130,21 @@ struct PreviewView: View {
         Task {
             await viewModel.saveUnsavedActivities()
             await viewModel.saveUnsavedNotes()
-            await MainActor.run {
-                isSaving = false
-                isShowingPreview = false
+            do {
+                try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                await MainActor.run {
+                    isSaving = false
+                    isShowingPreview = false
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    showingSummaryError = true
+                    summaryErrorMessage = "Failed to generate summaries: \(error.localizedDescription)"
+                }
             }
         }
     }
-    
     private func deleteUnsavedActivity(_ activity: UnsavedActivity) {
         viewModel.deleteUnsavedActivity(activity)
     }

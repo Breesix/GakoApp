@@ -34,7 +34,16 @@ struct BreesixApp: App {
             let activityRepository = ActivityRepositoryImpl(context: context)
             let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             
-            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase)
+            let summaryRepository = SummaryRepositoryImpl(context: context)
+            let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
+            
+            let summaryService = SummaryService(
+                apiToken: "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",
+                summaryUseCase: summaryUseCase
+            )
+
+
+            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase, summaryUseCase: summaryUseCase, summaryService: summaryService)
             
             MainTabView(studentListViewModel: viewModel)
         }
