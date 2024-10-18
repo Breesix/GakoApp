@@ -11,12 +11,12 @@ import SwiftUI
 
 @Model
 class Student {
-    var id: UUID = UUID()
+    var id: UUID
     var fullname: String
     var nickname: String
     var createdAt: Date
-    @Relationship(deleteRule: .cascade, inverse: \Note.student) var notes: [Note] = []
-    @Relationship(deleteRule: .cascade, inverse: \Activity.student) var activities: [Activity] = []
+    @Relationship(deleteRule: .cascade) var notes: [Note] = []
+    @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     @Attribute(.externalStorage) var imageData: Data?
     
     init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
@@ -26,7 +26,7 @@ class Student {
         self.createdAt = createdAt
         self.imageData = imageData
     }
-    
+
     var image: Image? {
         guard let imageData = imageData else { return nil }
         return Image(uiImage: UIImage(data: imageData) ?? UIImage())

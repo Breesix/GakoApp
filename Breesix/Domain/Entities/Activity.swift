@@ -9,12 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
-class Activity: Identifiable {
-    var id: UUID = UUID()
+class Activity {
+    var id: UUID
     var activity: String
     var createdAt: Date
     var isIndependent: Bool?
-    var student: Student?
+    @Relationship(deleteRule: .nullify) var student: Student?
     
     init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, student: Student? = nil) {
         self.id = id
@@ -32,7 +32,7 @@ class UnsavedActivity: Identifiable {
     var isIndependent: Bool? 
     var studentId: Student.ID
     
-    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), isIndependent: Bool? = nil, studentId: Student.ID) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date, isIndependent: Bool? = nil, studentId: Student.ID) {
         self.id = id
         self.activity = activity
         self.createdAt = createdAt

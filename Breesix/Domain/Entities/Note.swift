@@ -10,10 +10,10 @@ import SwiftData
 
 @Model
 class Note {
-    var id: UUID = UUID()
+    var id: UUID
     var note: String
     var createdAt: Date
-    var student: Student?
+    @Relationship(deleteRule: .nullify) var student: Student?
 
     init(id: UUID = UUID(), note: String, createdAt: Date = Date(), student: Student? = nil) {
         self.id = id
