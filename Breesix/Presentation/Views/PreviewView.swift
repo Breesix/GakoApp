@@ -130,14 +130,21 @@ struct PreviewView: View {
         Task {
             await viewModel.saveUnsavedActivities()
             await viewModel.saveUnsavedNotes()
-            try await viewModel.generateAndSaveSummary(for: selectedDate)
-            await MainActor.run {
-                isSaving = false
-                isShowingPreview = false
+            do {
+                try await viewModel.generateAndSaveSummaries(for: selectedDate)
+                await MainActor.run {
+                    isSaving = false
+                    isShowingPreview = false
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    showingSummaryError = true
+                    summaryErrorMessage = "Failed to generate summaries: \(error.localizedDescription)"
+                }
             }
         }
     }
-    
     private func deleteUnsavedActivity(_ activity: UnsavedActivity) {
         viewModel.deleteUnsavedActivity(activity)
     }

@@ -199,9 +199,8 @@ class StudentListViewModel: ObservableObject {
             print("Error updating activity: \(error)")
         }
     }
-    func generateAndSaveSummary(for date: Date) async throws {
-        let summary = try await summaryService.generateSummary(for: students, on: date)
-        try await summaryUseCase.addSummary(summary, for: students[0]) // Assuming we're attaching the summary to the first student for now
+    func generateAndSaveSummaries(for date: Date) async throws {
+        try await summaryService.generateAndSaveSummaries(for: students, on: date)
     }
 
 }

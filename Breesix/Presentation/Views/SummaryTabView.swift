@@ -23,6 +23,7 @@ struct SummaryTabView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    datePickerView()
                     HStack {
                         PlusButton(action: {
                             isShowingInputTypeSheet = true

@@ -11,16 +11,20 @@ import SwiftData
 
 class SummaryService {
     private let openAI: OpenAI
+    private let summaryUseCase: SummaryUseCase
     
-    init(apiToken: String) {
+    init(apiToken: String, summaryUseCase: SummaryUseCase) {
         self.openAI = OpenAI(apiToken: apiToken)
+        self.summaryUseCase = summaryUseCase
     }
     
-    func generateSummary(for students: [Student], on date: Date) async throws -> Summary {
+    func generateAndSaveSummaries(for students: [Student], on date: Date) async throws {
         let studentSummaries = try await generateStudentSummaries(for: students, on: date)
-        let combinedSummary = combineStudentSummaries(studentSummaries)
         
-        return Summary(summary: combinedSummary, createdAt: date)
+        for (student, summaryContent) in studentSummaries {
+            let summary = Summary(summary: summaryContent, createdAt: date, student: student)
+            try await summaryUseCase.addSummary(summary, for: student)
+        }
     }
     
     private func generateStudentSummaries(for students: [Student], on date: Date) async throws -> [(Student, String)] {
@@ -60,18 +64,8 @@ class SummaryService {
         guard let summaryContent = result.choices.first?.message.content?.string else {
             throw ProcessingError.noContent
         }
-        
+        print(prompt)
         return summaryContent
-    }
-    
-    private func combineStudentSummaries(_ summaries: [(Student, String)]) -> String {
-        var combinedSummary = "Ringkasan Kegiatan Siswa:\n\n"
-        
-        for (student, summary) in summaries {
-            combinedSummary += "- \(student.fullname) (\(student.nickname)): \(summary)\n\n"
-        }
-        
-        return combinedSummary
     }
     
     private func formatDate(_ date: Date) -> String {
