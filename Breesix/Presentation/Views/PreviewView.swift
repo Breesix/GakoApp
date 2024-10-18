@@ -18,7 +18,9 @@ struct PreviewView: View {
     @Binding var isShowingActivity: Bool
     @State private var editingActivity: UnsavedActivity?
     @State private var isAddingNewActivity = false
-    
+    @State private var showingSummaryError = false
+    @State private var summaryErrorMessage = ""
+
     let selectedDate: Date
 
     var body: some View {
@@ -128,6 +130,7 @@ struct PreviewView: View {
         Task {
             await viewModel.saveUnsavedActivities()
             await viewModel.saveUnsavedNotes()
+            try await viewModel.generateAndSaveSummary(for: selectedDate)
             await MainActor.run {
                 isSaving = false
                 isShowingPreview = false

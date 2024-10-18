@@ -16,14 +16,17 @@ class StudentListViewModel: ObservableObject {
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
-    
-    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase) {
+    private let summaryService: SummaryService
+    private let summaryUseCase: SummaryUseCase
+
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
         self.activityUseCases = activityUseCases
-
+        self.summaryUseCase = summaryUseCase
+        self.summaryService = summaryService
     }
-    
+
     func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
@@ -195,6 +198,10 @@ class StudentListViewModel: ObservableObject {
         } catch {
             print("Error updating activity: \(error)")
         }
+    }
+    func generateAndSaveSummary(for date: Date) async throws {
+        let summary = try await summaryService.generateSummary(for: students, on: date)
+        try await summaryUseCase.addSummary(summary, for: students[0]) // Assuming we're attaching the summary to the first student for now
     }
 
 }
