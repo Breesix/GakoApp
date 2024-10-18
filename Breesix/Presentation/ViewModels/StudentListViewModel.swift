@@ -136,7 +136,9 @@ class StudentListViewModel: ObservableObject {
                 await addNote(note, for: student)
             }
         }
-        clearUnsavedNotes()
+        await MainActor.run {
+            self.clearUnsavedNotes()
+        }
     }
     
     
@@ -169,7 +171,9 @@ class StudentListViewModel: ObservableObject {
                 await addActivity(activity, for: student)
             }
         }
-        clearUnsavedActivities()
+        await MainActor.run {
+            self.clearUnsavedActivities()
+        }
     }
     
     func updateUnsavedActivity(_ activity: UnsavedActivity) {

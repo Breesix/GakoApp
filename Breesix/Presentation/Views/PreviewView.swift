@@ -128,10 +128,13 @@ struct PreviewView: View {
     private func saveActivities() {
         isSaving = true
         Task {
-            await viewModel.saveUnsavedActivities()
-            await viewModel.saveUnsavedNotes()
             do {
+                try await viewModel.saveUnsavedActivities()
+                
+                try await viewModel.saveUnsavedNotes()
+                
                 try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                
                 await MainActor.run {
                     isSaving = false
                     isShowingPreview = false
@@ -140,7 +143,7 @@ struct PreviewView: View {
                 await MainActor.run {
                     isSaving = false
                     showingSummaryError = true
-                    summaryErrorMessage = "Failed to generate summaries: \(error.localizedDescription)"
+                    summaryErrorMessage = "Failed to save data or generate summaries: \(error.localizedDescription)"
                 }
             }
         }
