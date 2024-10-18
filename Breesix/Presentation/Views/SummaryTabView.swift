@@ -18,6 +18,7 @@ struct SummaryTabView: View {
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
+    @State private var searchText = ""
     
     var body: some View {
         NavigationView {
@@ -67,8 +68,19 @@ struct SummaryTabView: View {
                 }), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
         }
+        .searchable(text: $searchText)
     }
     
+    private var filteredStudents: [Student] {
+        if searchText.isEmpty {
+            return studentListViewModel.students
+        } else {
+            return studentListViewModel.students.filter { student in
+                student.fullname.lowercased().contains(searchText.lowercased()) ||
+                student.nickname.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
     
     @ViewBuilder
     private func datePickerView() -> some View {
@@ -100,9 +112,10 @@ struct SummaryTabView: View {
             .cornerRadius(8)
         }
     }
+    
     @ViewBuilder
     private func studentsListView() -> some View {
-        ForEach(studentListViewModel.students) { student in
+        ForEach(filteredStudents) { student in
             NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
                 StudentRowView(student: student, selectedDate: viewModel.selectedDate)
             }
@@ -112,7 +125,6 @@ struct SummaryTabView: View {
             .cornerRadius(8)
         }
     }
-    
     struct StudentRowView: View {
         let student: Student
         let selectedDate: Date

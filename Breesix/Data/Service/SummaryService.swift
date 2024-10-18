@@ -58,7 +58,7 @@ class SummaryService {
         Catatan:
         \(noteDescriptions.joined(separator: "\n"))
 
-        Tolong buatkan rangkuman yang singkat, padat, dan informatif. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat.
+        Tolong buatkan rangkuman yang singkat, padat, dan informatif. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat. Tidak perlu menyebutkan tanggal nya.
         """
         
         let query = ChatQuery(messages: [.init(role: .user, content: prompt)!], model: .gpt4_o_mini)
