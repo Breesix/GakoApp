@@ -73,7 +73,7 @@ struct TextInputView: View {
                     HStack {
                         Image(systemName: "xmark")
                         Text("Batalkan")
-                    }
+                    }   
                     .font(.callout)
                     .fontWeight(.semibold)
                     .foregroundStyle(.red)
@@ -124,6 +124,7 @@ struct TextInputView: View {
 
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
+                    studentListViewModel.selectedDate = selectedDate // Add this line
                     onDismiss()
                 }
             } catch {

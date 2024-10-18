@@ -202,5 +202,4 @@ class StudentListViewModel: ObservableObject {
     func generateAndSaveSummaries(for date: Date) async throws {
         try await summaryService.generateAndSaveSummaries(for: students, on: date)
     }
-
 }

@@ -131,7 +131,7 @@ struct PreviewView: View {
             await viewModel.saveUnsavedActivities()
             await viewModel.saveUnsavedNotes()
             do {
-                try await viewModel.generateAndSaveSummaries(for: selectedDate)
+                try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
                 await MainActor.run {
                     isSaving = false
                     isShowingPreview = false
