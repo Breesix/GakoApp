@@ -19,14 +19,18 @@ class SummaryService {
     }
     
     func generateAndSaveSummaries(for students: [Student], on date: Date) async throws {
-        let studentSummaries = try await generateStudentSummaries(for: students, on: date)
-        
-        for (student, summaryContent) in studentSummaries {
-            let summary = Summary(summary: summaryContent, createdAt: date, student: student)
-            try await summaryUseCase.addSummary(summary, for: student)
-        }
-    }
-    
+          let studentSummaries = try await generateStudentSummaries(for: students, on: date)
+          
+          for (student, summaryContent) in studentSummaries {
+              if let existingSummary = try await summaryUseCase.fetchSummary(for: student, on: date) {
+                  existingSummary.summary = summaryContent
+                  try await summaryUseCase.updateSummary(existingSummary)
+              } else {
+                  let newSummary = Summary(summary: summaryContent, createdAt: date, student: student)
+                  try await summaryUseCase.addSummary(newSummary, for: student)
+              }
+          }
+      }
     private func generateStudentSummaries(for students: [Student], on date: Date) async throws -> [(Student, String)] {
         var studentSummaries: [(Student, String)] = []
         

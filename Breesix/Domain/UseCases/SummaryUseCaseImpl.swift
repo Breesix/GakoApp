@@ -25,4 +25,10 @@ struct SummaryUseCaseImpl: SummaryUseCase {
     func deleteSummary(_ summary: Summary, from student: Student) async throws {
         try await repository.deleteSummary(summary, from: student)
     }
+    
+    func fetchSummary(for student: Student, on date: Date) async throws -> Summary? {
+        let summaries = try await repository.fetchAllSummaries(student)
+        return summaries.first { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
+    }
+
 }
