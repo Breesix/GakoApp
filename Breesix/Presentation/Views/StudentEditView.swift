@@ -18,6 +18,11 @@ struct StudentEditView: View {
     @State private var isShowingCamera = false
     @State private var capturedImage: UIImage?
     
+    @State private var showingImagePicker = false
+    @State private var showingSourceTypeMenu = false
+    @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    
+    
     enum Mode: Equatable {
         case add
         case edit(Student)
@@ -59,23 +64,52 @@ struct StudentEditView: View {
                     TextField("Nama Lengkap", text: $fullname)
                 }
                 
-                Section(header: Text("Student Image")) {
-                    if let imageData = selectedImageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
-                    }
-                    
-                    
-                    PhotosPicker(selection: $selectedItem, matching: .images) {
-                        Text("Select Image")
-                    }
-                    
-                    Button("Take Photo") {
-                        isShowingCamera = true
+                Button(action: {
+                    showingSourceTypeMenu = true
+                }) {
+                    HStack {
+                        Text("Select Profile Picture")
+                        Spacer()
+                        if let imageData = viewModel.compressedImageData, let image = UIImage(data: imageData) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                        } else if case .edit(let student) = mode, let imageData = student.imageData,
+                                  let image = UIImage(data: imageData) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
+                
+                //                Section(header: Text("Student Image")) {
+                //                    if let imageData = selectedImageData, let uiImage = UIImage(data: imageData) {
+                //                        Image(uiImage: uiImage)
+                //                            .resizable()
+                //                            .scaledToFit()
+                //                            .frame(height: 200)
+                //                    }
+                //
+                //
+                //                    PhotosPicker(selection: $selectedItem, matching: .images) {
+                //                        Text("Select Image")
+                //                    }
+                //
+                //                    Button("Take Photo") {
+                //                        isShowingCamera = true
+                //                    }
+                //                }
             }
             .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
             .navigationBarItems(leading: Button("Cancel") {
@@ -84,33 +118,60 @@ struct StudentEditView: View {
                 saveStudent()
             })
         }
-        .onChange(of: selectedItem) { newItem in
-            Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                    selectedImageData = data
-                }
-            }
+        .actionSheet(isPresented: $showingSourceTypeMenu) {
+            ActionSheet(title: Text("Choose Image Source"), buttons: [
+                .default(Text("Camera")) {
+                    sourceType = .camera
+                    showingImagePicker = true
+                },
+                .default(Text("Photo Library")) {
+                    sourceType = .photoLibrary
+                    showingImagePicker = true
+                },
+                .cancel()
+            ])
         }
-        .sheet(isPresented: $isShowingCamera) {
-            CameraView(capturedImage: $capturedImage, isShowingCamera: $isShowingCamera)
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(image: $viewModel.newStudentImage, sourceType: sourceType)
         }
-        .onChange(of: capturedImage) { newImage in
-            if let newImage = newImage {
-                selectedImageData = newImage.jpegData(compressionQuality: 0.8)
-            }
-        }
+        //        .onChange(of: selectedItem) { newItem in
+        //            Task {
+        //                if let data = try? await newItem?.loadTransferable(type: Data.self) {
+        //                    // Compress image data from photo library
+        //                    if let image = UIImage(data: data) {
+        //                        selectedImageData = image.jpegData(compressionQuality: 0.8)
+        //                    } else {
+        //                        selectedImageData = data
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        .sheet(isPresented: $isShowingCamera) {
+        //            CameraView(capturedImage: $capturedImage, isShowingCamera: $isShowingCamera)
+        //        }
+        //        .onChange(of: capturedImage) { newImage in
+        //            if let newImage = newImage {
+        //                // Camera image is already being compressed
+        //                selectedImageData = newImage.jpegData(compressionQuality: 0.8)
+        //            }
+        //        }
     }
     
     private func saveStudent() {
         Task {
             switch mode {
             case .add:
-                let newStudent = Student(fullname: fullname, nickname: nickname, imageData: selectedImageData)
+                let newStudent = Student(
+                    fullname: fullname,
+                    nickname: nickname,
+                    imageData: viewModel.compressedImageData // Use compressed image data
+                )
                 await viewModel.addStudent(newStudent)
+                
             case .edit(let student):
                 student.fullname = fullname
                 student.nickname = nickname
-                student.imageData = selectedImageData
+                student.imageData = viewModel.compressedImageData ?? student.imageData
                 await viewModel.updateStudent(student)
             }
             presentationMode.wrappedValue.dismiss()

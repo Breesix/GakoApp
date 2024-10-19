@@ -6,19 +6,33 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedNotes: [UnsavedNote] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
-    @Published var selectedDate: Date = Date() 
+    @Published var selectedDate: Date = Date()
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
     private let summaryService: SummaryService
     private let summaryUseCase: SummaryUseCase
-
+    
+    @Published var newStudentImage: UIImage? {
+        didSet {
+            // Compress image when it's set
+            if let image = newStudentImage {
+                self.compressedImageData = image.jpegData(compressionQuality: 0.8)
+            } else {
+                self.compressedImageData = nil
+            }
+        }
+    }
+    
+    @Published private(set) var compressedImageData: Data?
+    
     init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
@@ -26,7 +40,7 @@ class StudentListViewModel: ObservableObject {
         self.summaryUseCase = summaryUseCase
         self.summaryService = summaryService
     }
-
+    
     func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
@@ -37,8 +51,21 @@ class StudentListViewModel: ObservableObject {
     
     func addStudent(_ student: Student) async {
         do {
-            try await studentUseCases.addStudent(student)
+            // Create a new student with the compressed image data
+            let studentWithCompressedImage = Student(
+                fullname: student.fullname,
+                nickname: student.nickname,
+                imageData: compressedImageData // Use the compressed image data
+            )
+            
+            try await studentUseCases.addStudent(studentWithCompressedImage)
             await fetchAllStudents()
+            
+            // Clear the temporary image data
+            await MainActor.run {
+                self.newStudentImage = nil
+                self.compressedImageData = nil
+            }
         } catch {
             print("Error adding student: \(error)")
         }
@@ -122,7 +149,7 @@ class StudentListViewModel: ObservableObject {
     }
     
     func addUnsavedNotes(_ notes: [UnsavedNote]) {
-            unsavedNotes.append(contentsOf: notes)
+        unsavedNotes.append(contentsOf: notes)
     }
     
     func clearUnsavedNotes() {
