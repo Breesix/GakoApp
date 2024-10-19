@@ -59,7 +59,10 @@ struct SummaryTabView: View {
                 
             }
             .background(
-                NavigationLink(destination: VoiceInputView(), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+                NavigationLink(destination: VoiceInputView(viewModel: studentListViewModel, inputType: .speech, isAllStudentsFilled: $isAllStudentsFilled, onDismiss: {
+                    isNavigatingToVoiceInput = false
+                    navigateToPreview = true
+                }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
             )
             .background(
                 NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
