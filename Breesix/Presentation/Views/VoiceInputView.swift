@@ -10,21 +10,17 @@ import SwiftUI
 import Speech
 
 struct VoiceInputView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var studentListViewModel: StudentListViewModel
     @StateObject private var sumaryTabViewModel = SummaryTabViewModel()
     @ObservedObject var speechRecognizer = SpeechRecognizer()
-    @State private var selectedInputType: InputType = .manual
     @State private var isShowingPreview = false
-    var inputType: InputType
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
-    @State var isFilledToday: Bool = false
     @State private var isRecord: Bool = false
     @State private var isPaused: Bool = false
     @State private var showAlert: Bool = false
-    @Binding var isAllStudentsFilled: Bool
     @FocusState private var isTextEditorFocused: Bool
     @State private var showProTips: Bool = true
     @State private var selectedDate: Date = Date()
@@ -110,7 +106,7 @@ struct VoiceInputView: View {
                                         isRecord = false
                                         self.speechRecognizer.stopTranscribing()
                                         self.reflection = self.speechRecognizer.transcript
-                                        self.processReflectionActivity()
+                                        processReflectionActivity()
                                     }) {
                                         if isLoading {
                                            
@@ -192,16 +188,7 @@ struct VoiceInputView: View {
         .safeAreaPadding()
         .padding(.vertical, 20)
         .onAppear {
-            resetIsFilledTodayIfNeeded()
             requestSpeechAuthorization()
-        }
-    }
-    
-    func resetIsFilledTodayIfNeeded() {
-        let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
-        if !Calendar.current.isDateInToday(lastResetDate) {
-            isFilledToday = false
-            UserDefaults.standard.set(Date(), forKey: "lastResetDate")
         }
     }
     
@@ -211,18 +198,18 @@ struct VoiceInputView: View {
                 isLoading = true
                 errorMessage = nil
                 
-                await viewModel.fetchAllStudents()
+                await studentListViewModel.fetchAllStudents()
                 
-                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
+                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
                 
-                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
                 
                 await MainActor.run {
                     isLoading = false
-                    isAllStudentsFilled = true
                     
-                    viewModel.addUnsavedActivities(activityList)
-                    viewModel.addUnsavedNotes(noteList)
+                    studentListViewModel.addUnsavedActivities(activityList)
+                    studentListViewModel.addUnsavedNotes(noteList)
+                    studentListViewModel.selectedDate = selectedDate
                     
                     onDismiss()
                 }
