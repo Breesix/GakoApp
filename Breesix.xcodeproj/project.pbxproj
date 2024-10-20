@@ -261,9 +261,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R63P7AM6;
+				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -292,9 +293,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R63P7AM6;
+				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
