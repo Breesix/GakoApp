@@ -261,9 +261,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = SMF997D256;
+				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Anda harus mengizikan microphone";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke pengenalan suara agar Anda dapat mencurahkan isi hati (curhat) menggunakan suara Anda. Izin ini memungkinkan aplikasi untuk mengubah ucapan Anda menjadi teks, sehingga Anda bisa dengan mudah merekam dan menyimpan pikiran serta perasaan Anda tanpa perlu mengetik";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -293,6 +295,8 @@
 				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Anda harus mengizikan microphone";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke pengenalan suara agar Anda dapat mencurahkan isi hati (curhat) menggunakan suara Anda. Izin ini memungkinkan aplikasi untuk mengubah ucapan Anda menjadi teks, sehingga Anda bisa dengan mudah merekam dan menyimpan pikiran serta perasaan Anda tanpa perlu mengetik";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

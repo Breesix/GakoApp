@@ -59,7 +59,7 @@ struct SummaryTabView: View {
                 
             }
             .background(
-                NavigationLink(destination: VoiceInputView(viewModel: studentListViewModel, inputType: .speech, isAllStudentsFilled: $isAllStudentsFilled, onDismiss: {
+                NavigationLink(destination: VoiceInputView(summaryTabViewModel: studentListViewModel, onDismiss: {
                     isNavigatingToVoiceInput = false
                     navigateToPreview = true
                 }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
@@ -136,10 +136,6 @@ struct SummaryTabView: View {
             VStack(alignment: .leading) {
                 Text(student.fullname)
                     .font(.title)
-                
-//                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-//                    ActivityView(activity: latestActivity)
-//                }
                 
                 let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)

@@ -124,7 +124,7 @@ struct TextInputView: View {
 
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
-                    studentListViewModel.selectedDate = selectedDate // Add this line
+                    studentListViewModel.selectedDate = selectedDate
                     onDismiss()
                 }
             } catch {
