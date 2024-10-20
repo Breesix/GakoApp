@@ -261,7 +261,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
- SCRUM-269-chores-change-image-upload-implementation
 				DEVELOPMENT_TEAM = 69R63P7AM6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
