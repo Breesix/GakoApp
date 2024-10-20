@@ -22,7 +22,6 @@ class StudentListViewModel: ObservableObject {
     
     @Published var newStudentImage: UIImage? {
         didSet {
-            // Compress image when it's set
             if let image = newStudentImage {
                 self.compressedImageData = image.jpegData(compressionQuality: 0.8)
             } else {

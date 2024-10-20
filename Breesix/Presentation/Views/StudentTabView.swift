@@ -7,77 +7,9 @@
 
 import SwiftUI
 
-//
-
-
-//struct StudentTabView: View {
-//    @ObservedObject var viewModel: StudentListViewModel
-//    @State private var isAddingStudent = false
-//    @State private var isAddingNote = false
-//    
-//    var body: some View {
-//        NavigationView {
-//            ScrollView {
-//                LazyVGrid(columns: [
-//                    GridItem(.flexible()),
-//                    GridItem(.flexible()),
-//                    GridItem(.flexible())
-//                ], spacing: 16) {
-//                    ForEach(viewModel.students) { student in
-//                        NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
-//                            StudentListCard(student: student) {
-//                                Task {
-//                                    await viewModel.deleteStudent(student) // Call delete function
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                .padding(.horizontal, 16)
-//            }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            .background(Color(red: 0.94, green: 0.95, blue: 0.93).ignoresSafeArea())
-//            .navigationTitle("Daftar Murid")
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button(action: { isAddingStudent = true }) {
-//                        Image(systemName: "plus")
-//                    }
-//                }
-//                ToolbarItem(placement: .navigationBarLeading) {
-//                    Button(action: {
-//                        Task {
-//                            await viewModel.fetchAllStudents()
-//                        }
-//                    }) {
-//                        Image(systemName: "arrow.clockwise")
-//                    }
-//                }
-//                ToolbarItem(placement: .bottomBar) {
-//                    Button("Tambah Catatan") {
-//                        isAddingNote = true
-//                    }
-//                }
-//            }
-//        }
-//        .refreshable {
-//            await viewModel.fetchAllStudents()
-//        }
-//        .sheet(isPresented: $isAddingStudent) {
-//            StudentEditView(viewModel: viewModel, mode: .add)
-//        }
-//        .sheet(isPresented: $isAddingNote) {
-//            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
-//        }
-//        .task {
-//            await viewModel.fetchAllStudents()
-//        }
-//    }
-//}
-
 struct StudentListCard: View {
     let student: Student
-    let onDelete: () -> Void  // Closure for delete action
+    let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -114,7 +46,7 @@ struct StudentListCard: View {
                 .inset(by: 1.5)
                 .stroke(.white, lineWidth: 3)
         )
-        .contextMenu {  // Add context menu here
+        .contextMenu {
             Button(action: onDelete) {
                 Text("Delete")
                 Image(systemName: "trash")
@@ -140,7 +72,7 @@ struct StudentTabView: View {
                         NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
                             StudentListCard(student: student) {
                                 Task {
-                                    await viewModel.deleteStudent(student) // Call delete function
+                                    await viewModel.deleteStudent(student)
                                 }
                             }
                         }
@@ -159,9 +91,6 @@ struct StudentTabView: View {
                     .controlSize(.regular)
                     .tint(.white)
                     .foregroundStyle(.black)
-//                    Button(action: { isAddingStudent = true }) {
-//                        Image(systemName: "plus")
-//                    }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -190,77 +119,3 @@ struct StudentTabView: View {
         }
     }
 }
-
-
-//struct StudentTabView: View {
-//    @ObservedObject var viewModel: StudentListViewModel
-//    @State private var isAddingStudent = false
-//    @State private var isAddingNote = false
-//
-//    var body: some View {
-//        NavigationView {
-//            List {
-//                ForEach(viewModel.students) { student in
-//                    NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
-//                        HStack {
-//                            if let imageData = student.imageData {
-//                                Image(uiImage: UIImage(data: imageData)!)
-//                                    .resizable()
-//                                    .scaledToFit()
-//                                    .frame(width: 40, height: 40)
-//                            }
-//                            VStack(alignment: .leading) {
-//                                Text(student.nickname)
-//                                    .font(.headline)
-//                                Text(student.fullname)
-//                                    .font(.subheadline)
-//                                    .lineLimit(1)
-//                            }
-//                        }
-//                    }
-//                }
-//                .onDelete { indexSet in
-//                    for index in indexSet {
-//                        Task {
-//                            await viewModel.deleteStudent(viewModel.students[index])
-//                        }
-//                    }
-//                }
-//            }
-//            .navigationTitle("Daftar Murid")
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button(action: { isAddingStudent = true }) {
-//                        Image(systemName: "plus")
-//                    }
-//                }
-//                ToolbarItem(placement: .navigationBarLeading) {
-//                    Button(action: {
-//                        Task {
-//                            await viewModel.fetchAllStudents()
-//                        }
-//                    }) {
-//                        Image(systemName: "arrow.clockwise")
-//                    }
-//                }
-//                ToolbarItem(placement: .bottomBar) {
-//                    Button("Tambah Catatan") {
-//                        isAddingNote = true
-//                    }
-//                }
-//            }
-//        }
-//        .refreshable {
-//            await viewModel.fetchAllStudents()
-//        }
-//        .sheet(isPresented: $isAddingStudent) {
-//            StudentEditView(viewModel: viewModel, mode: .add)
-//        }
-//        .sheet(isPresented: $isAddingNote) {
-//            NoteFormView(viewModel: viewModel, isPresented: $isAddingNote)
-//        }
-//        .task {
-//            await viewModel.fetchAllStudents()
-//        }
-//    }
-//}

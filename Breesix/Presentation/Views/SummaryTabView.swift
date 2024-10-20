@@ -137,10 +137,6 @@ struct SummaryTabView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-//                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-//                    ActivityView(activity: latestActivity)
-//                }
-                
                 let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }

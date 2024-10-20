@@ -116,7 +116,7 @@ struct VoiceInputView: View {
                                                 .overlay {
                                                     ProgressView()
                                                         .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                                        .scaleEffect(1.5) // Scale to make it larger
+                                                        .scaleEffect(1.5)
                                                 }
                                         } else {
                                             
@@ -202,7 +202,7 @@ struct VoiceInputView: View {
                 
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
                 
-                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
+                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
                 
                 await MainActor.run {
                     isLoading = false
