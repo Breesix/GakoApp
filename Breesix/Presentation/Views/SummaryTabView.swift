@@ -34,9 +34,6 @@ struct SummaryTabView: View {
                     studentsListView()
                 }
                 .padding()
-                .task {
-                    await studentListViewModel.fetchAllStudents()
-                }
             }
             .navigationTitle("Curhat")
             
@@ -70,6 +67,9 @@ struct SummaryTabView: View {
                     navigateToPreview = true
                 }), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
+        }
+        .task {
+            await studentListViewModel.fetchAllStudents()
         }
         .searchable(text: $searchText)
     }

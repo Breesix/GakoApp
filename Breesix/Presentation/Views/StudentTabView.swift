@@ -115,7 +115,7 @@ struct StudentTabView: View {
             StudentEditView(viewModel: viewModel, mode: .add)
         }
         .task {
-            await viewModel.fetchAllStudents()
+//            await viewModel.fetchAllStudents()
         }
     }
 }
