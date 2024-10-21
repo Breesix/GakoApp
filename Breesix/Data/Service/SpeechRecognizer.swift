@@ -26,11 +26,9 @@ class SpeechRecognizer: ObservableObject {
     
     func startTranscribing() {
         Task {
-            // Check permissions asynchronously
             let speechPermissionGranted = await SFSpeechRecognizer.hasAuthorizationToRecognize()
             let micPermissionGranted = await AVAudioSession.sharedInstance().hasPermissionToRecord()
             
-            // Update permissions on the main thread
             DispatchQueue.main.async {
                 self.hasSpeechPermission = speechPermissionGranted
                 self.hasMicPermission = micPermissionGranted

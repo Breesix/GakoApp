@@ -22,7 +22,6 @@ class StudentListViewModel: ObservableObject {
     
     @Published var newStudentImage: UIImage? {
         didSet {
-            // Compress image when it's set
             if let image = newStudentImage {
                 self.compressedImageData = image.jpegData(compressionQuality: 0.8)
             } else {
@@ -41,6 +40,7 @@ class StudentListViewModel: ObservableObject {
         self.summaryService = summaryService
     }
     
+    @MainActor
     func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
@@ -49,6 +49,7 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func addStudent(_ student: Student) async {
         do {
             // Create a new student with the compressed image data

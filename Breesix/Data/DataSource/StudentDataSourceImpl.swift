@@ -14,13 +14,13 @@ class StudentDataSourceImpl: StudentDataSource {
     init(context: ModelContext) {
         self.modelContext = context
     }
-
+    
+    @MainActor
     func fetch() async throws -> [Student] {
         let descriptor = FetchDescriptor<Student>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let students = try modelContext.fetch(descriptor)
-        return students
+        return try modelContext.fetch(descriptor)
     }
-
+    
     func insert(_ student: Student) async throws {
         modelContext.insert(student)
         try modelContext.save()

@@ -61,7 +61,6 @@ struct StudentDetailView: View {
                 
                 VStack(spacing: 8) {
                     
-                    // Rest of your view...
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
@@ -118,8 +117,8 @@ struct StudentDetailView: View {
         .navigationBarItems(trailing: Button("Edit") {
             isEditing = true
         }
-            .foregroundColor(.white))
-        // Rest of your modifiers...
+        .foregroundColor(.white))
+
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }

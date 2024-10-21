@@ -123,7 +123,7 @@ struct InputView: View {
 
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
-                let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
                 await MainActor.run {
                     isLoading = false

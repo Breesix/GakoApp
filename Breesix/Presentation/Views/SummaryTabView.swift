@@ -34,9 +34,6 @@ struct SummaryTabView: View {
                     studentsListView()
                 }
                 .padding()
-                .task {
-                    await studentListViewModel.fetchAllStudents()
-                }
             }
             .navigationTitle("Curhat")
             
@@ -70,6 +67,9 @@ struct SummaryTabView: View {
                     navigateToPreview = true
                 }), isActive: $isNavigatingToTextInput) { EmptyView() }
             )
+        }
+        .task {
+            await studentListViewModel.fetchAllStudents()
         }
         .searchable(text: $searchText)
     }
@@ -136,10 +136,6 @@ struct SummaryTabView: View {
             VStack(alignment: .leading) {
                 Text(student.fullname)
                     .font(.title)
-                
-//                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-//                    ActivityView(activity: latestActivity)
-//                }
                 
                 let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)

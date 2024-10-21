@@ -11,12 +11,12 @@ import SwiftData
 
 @Model
 class Summary {
-    var id: UUID
+    @Attribute(.unique) var id: UUID
     var summary: String
     var createdAt: Date
-    @Relationship(deleteRule: .nullify) var student: Student?
+    weak var student: Student?
 
-    init(id: UUID = UUID(), summary: String, createdAt: Date, student: Student? = nil) {
+    init(id: UUID = UUID(), summary: String, createdAt: Date, student: Student) {
         self.id = id
         self.summary = summary
         self.createdAt = createdAt

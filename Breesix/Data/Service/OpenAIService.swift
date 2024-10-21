@@ -154,7 +154,7 @@ class OpenAIService {
     }
 }
 
-class TTCSVParser {
+class ReflectionCSVParser {
     static func parseActivitiesAndNotes(csvString: String, students: [Student], createdAt: Date) -> ([UnsavedActivity], [UnsavedNote]) {
         let rows = csvString.components(separatedBy: .newlines)
         var unsavedActivities: [UnsavedActivity] = []
