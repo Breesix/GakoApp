@@ -40,6 +40,7 @@ class StudentListViewModel: ObservableObject {
         self.summaryService = summaryService
     }
     
+    @MainActor
     func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
@@ -48,6 +49,7 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func addStudent(_ student: Student) async {
         do {
             // Create a new student with the compressed image data
