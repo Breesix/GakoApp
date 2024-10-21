@@ -91,25 +91,7 @@ struct StudentEditView: View {
                                 .foregroundColor(.gray)
                         }
                     }
-                }
-                
-                //                Section(header: Text("Student Image")) {
-                //                    if let imageData = selectedImageData, let uiImage = UIImage(data: imageData) {
-                //                        Image(uiImage: uiImage)
-                //                            .resizable()
-                //                            .scaledToFit()
-                //                            .frame(height: 200)
-                //                    }
-                //
-                //
-                //                    PhotosPicker(selection: $selectedItem, matching: .images) {
-                //                        Text("Select Image")
-                //                    }
-                //
-                //                    Button("Take Photo") {
-                //                        isShowingCamera = true
-                //                    }
-                //                }
+                }                
             }
             .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
             .navigationBarItems(leading: Button("Cancel") {
@@ -134,27 +116,6 @@ struct StudentEditView: View {
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: $viewModel.newStudentImage, sourceType: sourceType)
         }
-        //        .onChange(of: selectedItem) { newItem in
-        //            Task {
-        //                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-        //                    // Compress image data from photo library
-        //                    if let image = UIImage(data: data) {
-        //                        selectedImageData = image.jpegData(compressionQuality: 0.8)
-        //                    } else {
-        //                        selectedImageData = data
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        .sheet(isPresented: $isShowingCamera) {
-        //            CameraView(capturedImage: $capturedImage, isShowingCamera: $isShowingCamera)
-        //        }
-        //        .onChange(of: capturedImage) { newImage in
-        //            if let newImage = newImage {
-        //                // Camera image is already being compressed
-        //                selectedImageData = newImage.jpegData(compressionQuality: 0.8)
-        //            }
-        //        }
     }
     
     private func saveStudent() {
@@ -164,7 +125,7 @@ struct StudentEditView: View {
                 let newStudent = Student(
                     fullname: fullname,
                     nickname: nickname,
-                    imageData: viewModel.compressedImageData // Use compressed image data
+                    imageData: viewModel.compressedImageData
                 )
                 await viewModel.addStudent(newStudent)
                 

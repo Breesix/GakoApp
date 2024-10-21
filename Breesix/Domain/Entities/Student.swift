@@ -19,7 +19,7 @@ class Student {
     @Relationship(deleteRule: .cascade) var activities: [Activity] = []
     @Relationship(deleteRule: .cascade) var summaries: [Summary] = []
     @Attribute(.externalStorage) var imageData: Data?
-    
+
     init(id: UUID = UUID(), fullname: String, nickname: String, createdAt: Date = Date(), imageData: Data? = nil) {
         self.id = id
         self.fullname = fullname

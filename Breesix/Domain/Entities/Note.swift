@@ -10,12 +10,12 @@ import SwiftData
 
 @Model
 class Note {
-    var id: UUID
+    @Attribute(.unique) var id: UUID
     var note: String
     var createdAt: Date
-    @Relationship(deleteRule: .nullify) var student: Student?
+    weak var student: Student?
 
-    init(id: UUID = UUID(), note: String, createdAt: Date = Date(), student: Student? = nil) {
+    init(id: UUID = UUID(), note: String, createdAt: Date = Date(), student: Student) {
         self.id = id
         self.note = note
         self.createdAt = createdAt

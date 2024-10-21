@@ -34,7 +34,7 @@ struct NewActivityView: View {
     }
 
     private func saveNewActivity() {
-        let newActivity = Activity(activity: activityText, createdAt: selectedDate, isIndependent: status)
+        let newActivity = Activity(activity: activityText, createdAt: selectedDate, isIndependent: status, student: student)
         Task {
             await viewModel.addActivity(newActivity, for: student)
             onDismiss()
