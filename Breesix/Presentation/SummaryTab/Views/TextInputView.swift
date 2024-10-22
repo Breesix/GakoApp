@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TextInputView: View {
     @StateObject private var summaryTabViewModel = SummaryTabViewModel()
-    @ObservedObject var studentListViewModel: StudentListViewModel
+    @ObservedObject var studentListViewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var reflection: String = ""
     @State private var isLoading: Bool = false

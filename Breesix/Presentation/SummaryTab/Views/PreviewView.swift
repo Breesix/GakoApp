@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PreviewView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool
     @State private var isSaving = false

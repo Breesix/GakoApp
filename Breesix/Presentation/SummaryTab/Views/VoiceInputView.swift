@@ -10,7 +10,7 @@ import SwiftUI
 import Speech
 
 struct VoiceInputView: View {
-    @ObservedObject var studentListViewModel: StudentListViewModel
+    @ObservedObject var studentListViewModel: StudentTabViewModel
     @StateObject private var sumaryTabViewModel = SummaryTabViewModel()
     @ObservedObject var speechRecognizer = SpeechRecognizer()
     @State private var isShowingPreview = false
@@ -27,7 +27,7 @@ struct VoiceInputView: View {
 
     var onDismiss: () -> Void
     
-    private let ttProcessor = OpenAIService(apiToken: "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")
+    private let reflectionProcessor = OpenAIService(apiToken: "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")
     
     var body: some View {
         ZStack{
@@ -200,7 +200,7 @@ struct VoiceInputView: View {
                 
                 await studentListViewModel.fetchAllStudents()
                 
-                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
+                let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
                 
                 let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
                 

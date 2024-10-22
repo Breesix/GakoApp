@@ -1,5 +1,5 @@
 //
-//  StudentListViewModel.swift
+//  StudentTabViewModel.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 29/09/24.
@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class StudentListViewModel: ObservableObject {
+class StudentTabViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedNotes: [UnsavedNote] = []
     @Published var unsavedActivities: [UnsavedActivity] = []

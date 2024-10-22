@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @StateObject private var studentListViewModel: StudentListViewModel
+    @StateObject private var studentListViewModel: StudentTabViewModel
     @State private var selectedTab = 0
 
-    init(studentListViewModel: StudentListViewModel) {
+    init(studentListViewModel: StudentTabViewModel) {
         _studentListViewModel = StateObject(wrappedValue: studentListViewModel)
     }
 

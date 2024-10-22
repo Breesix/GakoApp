@@ -2,13 +2,13 @@
 //  ActivityPreviewView.swift
 //  Breesix
 //
-//  Created by Akmal Hakim on 03/10/24.
+//  Created by Rangga Biner on 22/10/24.
 //
 
 import SwiftUI
 
 struct ActivityPreviewView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingActivity: Bool
     @State private var isSaving = false

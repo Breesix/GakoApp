@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StudentHeaderView: View {
+struct StudentHeader: View {
     let student: Student
     
     var body: some View {

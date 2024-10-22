@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct StudentEditView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var fullname = ""
     @State private var nickname = ""
@@ -41,7 +41,7 @@ struct StudentEditView: View {
     
     let mode: Mode
     
-    init(viewModel: StudentListViewModel, mode: Mode) {
+    init(viewModel: StudentTabViewModel, mode: Mode) {
         self.viewModel = viewModel
         self.mode = mode
         

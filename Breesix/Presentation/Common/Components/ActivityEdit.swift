@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct ActivityEditView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+struct ActivityEdit: View {
+    @ObservedObject var viewModel: StudentTabViewModel
     let activity: Activity
     let onDismiss: () -> Void
     @State private var activityText: String
     @State private var status: Bool
 
-    init(viewModel: StudentListViewModel, activity: Activity, onDismiss: @escaping () -> Void) {
+    init(viewModel: StudentTabViewModel, activity: Activity, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.activity = activity
         self.onDismiss = onDismiss
