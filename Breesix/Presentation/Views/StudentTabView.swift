@@ -13,39 +13,65 @@ struct StudentListCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 0) {
-                if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 104, height: 104)
-                        .clipped()
-                } else {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 104, height: 104)
-                }
+            VStack(alignment: .center, spacing: 8) {
+                Rectangle()
+                    .foregroundColor(.clear)
+                    .frame(width: 104, height: 104)
+                    .background(
+                        Group {
+                            if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 104, height: 104)
+                                    .clipped()
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 104, height: 104)
+                            }
+                        }
+                    )
+                    .cornerRadius(999)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 999)
+                            .inset(by: 2.5)
+                            .stroke(.white, lineWidth: 5)
+                    )
                 VStack(alignment: .center, spacing: 8) {
                     Text(student.nickname)
                         .font(.body)
                         .foregroundStyle(.black)
                         .fontWeight(.bold)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 21, maxHeight: 21, alignment: .center)
                 }
                 .padding(.horizontal, 0)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .top)
+                .background(.white)
+                .cornerRadius(32)
+//                VStack(alignment: .center, spacing: 8) {
+//                    Text(student.nickname)
+//                        .font(.body)
+//                        .foregroundStyle(.black)
+//                        .fontWeight(.bold)
+//                        .lineLimit(1)
+//                }
+//                .padding(.horizontal, 0)
+//                .padding(.vertical, 8)
+//                .frame(maxWidth: .infinity, alignment: .top)
             }
         }
-        .padding(0)
-        .frame(minWidth: 120, maxWidth: .infinity, alignment: .topLeading)
-        .background(.white)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .inset(by: 1.5)
-                .stroke(.white, lineWidth: 3)
-        )
+//        .padding(0)
+//        .frame(minWidth: 120, maxWidth: .infinity, alignment: .topLeading)
+//        .cornerRadius(12)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 12)
+//                .inset(by: 1.5)
+//                .stroke(.white, lineWidth: 3)
+//        )
         .contextMenu {
             Button(action: onDelete) {
                 Text("Delete")

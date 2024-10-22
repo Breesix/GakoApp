@@ -21,6 +21,8 @@ struct StudentEditView: View {
     @State private var showingImagePicker = false
     @State private var showingSourceTypeMenu = false
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
+
+    @State private var showAlert = false
     
     
     enum Mode: Equatable {
@@ -98,6 +100,9 @@ struct StudentEditView: View {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
                 saveStudent()
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Error"), message: Text("Please fill in all fields"), dismissButton: .default(Text("OK")))
             })
         }
         .actionSheet(isPresented: $showingSourceTypeMenu) {
@@ -120,6 +125,10 @@ struct StudentEditView: View {
     
     private func saveStudent() {
         Task {
+            if (fullname == "" || nickname == "") {
+                showAlert = true
+                return
+            }
             switch mode {
             case .add:
                 let newStudent = Student(
@@ -135,6 +144,7 @@ struct StudentEditView: View {
                 student.imageData = viewModel.compressedImageData ?? student.imageData
                 await viewModel.updateStudent(student)
             }
+            selectedImageData = nil
             presentationMode.wrappedValue.dismiss()
         }
     }
