@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NewActivityView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void

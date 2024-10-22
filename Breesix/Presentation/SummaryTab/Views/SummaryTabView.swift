@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
-    @ObservedObject var studentListViewModel: StudentListViewModel
+    @ObservedObject var studentListViewModel: StudentTabViewModel
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
     @State private var selectedInputType: InputType = .manual

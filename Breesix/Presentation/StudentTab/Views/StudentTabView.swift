@@ -56,7 +56,7 @@ struct StudentListCard: View {
 }
 
 struct StudentTabView: View {
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
 

@@ -14,7 +14,7 @@ enum InputTypeUser {
 }
 
 struct InputTypeSheet: View {
-    @ObservedObject var studentListViewModel: StudentListViewModel
+    @ObservedObject var studentListViewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     var onSelect: (InputTypeUser) -> Void
 

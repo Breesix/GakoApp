@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ActivityCardView: View {
+struct ActivityCard: View {
     let activities: [Activity]
     let notes: [Note]
     let onAddNote: () -> Void

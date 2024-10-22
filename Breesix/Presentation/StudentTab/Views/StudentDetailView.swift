@@ -8,7 +8,7 @@ import SwiftUI
 
 struct StudentDetailView: View {
     let student: Student
-    @ObservedObject var viewModel: StudentListViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @State private var isEditing = false
     @State private var notes: [Note] = []
     @State private var selectedDate = Date()
@@ -21,7 +21,7 @@ struct StudentDetailView: View {
     
     private let calendar = Calendar.current
     
-    init(student: Student, viewModel: StudentListViewModel) {
+    init(student: Student, viewModel: StudentTabViewModel) {
         self.student = student
         self.viewModel = viewModel
         
@@ -94,7 +94,7 @@ struct StudentDetailView: View {
                                     .padding(.horizontal, 16)
                                     .foregroundStyle(Color.customGreen.g300)
                                 
-                                ActivityCardView(
+                                ActivityCard(
                                     activities: activitiesForSelectedMonth[day] ?? [],
                                     notes: notesForSelectedMonth[day] ?? [],
                                     onAddNote: { isAddingNewNote = true },
@@ -128,7 +128,7 @@ struct StudentDetailView: View {
             })
         }
         .sheet(item: $activity) { currentActivity in
-            ActivityEditView(viewModel: viewModel, activity: currentActivity, onDismiss: {
+            ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
                 activity = nil
             })
         }
@@ -160,7 +160,6 @@ struct StudentDetailView: View {
         }
     }
     
-    // Rest of the code remains the same...
     private var activityThatDay: [Activity] {
         activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
     }
