@@ -1,13 +1,5 @@
-//
-//  StudentEditView.swift
-//  Breesix
-//
-//  Created by Rangga Biner on 03/10/24.
-//
-
 import SwiftUI
 import PhotosUI
-
 struct StudentEditView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -21,6 +13,8 @@ struct StudentEditView: View {
     @State private var showingImagePicker = false
     @State private var showingSourceTypeMenu = false
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    
+    @State private var showAlert = false
     
     
     enum Mode: Equatable {
@@ -58,47 +52,68 @@ struct StudentEditView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Student Information")) {
-                    TextField("Nama Panggilan", text: $nickname)
-                    TextField("Nama Lengkap", text: $fullname)
-                }
-                
-                Button(action: {
-                    showingSourceTypeMenu = true
-                }) {
-                    HStack {
-                        Text("Select Profile Picture")
-                        Spacer()
-                        if let imageData = viewModel.compressedImageData, let image = UIImage(data: imageData) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                        } else if case .edit(let student) = mode, let imageData = student.imageData,
-                                  let image = UIImage(data: imageData) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                        } else {
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                                .foregroundColor(.gray)
+            VStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .center, spacing: 8) {
+                    if let imageData = viewModel.compressedImageData, let image = UIImage(data: imageData) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    } else if case .edit(let student) = mode, let imageData = student.imageData,
+                              let image = UIImage(data: imageData) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.gray)
+                    }
+                    Button(action: {
+                        showingSourceTypeMenu = true
+                    }) {
+                        VStack {
+                            Text("Select Profile Picture")
                         }
                     }
-                }                
+                }
+                .padding(.top, 24)
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Nama Lengkap")
+                            .font(.callout)
+                            .fontWeight(.semibold)
+                        TextField("Nama Lengkap Murid", text: $fullname)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Nama Panggilan")
+                            .font(.callout)
+                            .fontWeight(.semibold)
+                        TextField("Nama Panggilan Murid", text: $nickname)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                }
+                
+                Spacer()
             }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
             .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
                 saveStudent()
-            })
+            }
+                .alert(isPresented: $showAlert) {
+                    Alert(title: Text("Error"), message: Text("Please fill in all fields"), dismissButton: .default(Text("OK")))
+                })
         }
         .actionSheet(isPresented: $showingSourceTypeMenu) {
             ActionSheet(title: Text("Choose Image Source"), buttons: [
@@ -120,6 +135,10 @@ struct StudentEditView: View {
     
     private func saveStudent() {
         Task {
+            if (fullname == "" || nickname == "") {
+                showAlert = true
+                return
+            }
             switch mode {
             case .add:
                 let newStudent = Student(
@@ -135,11 +154,11 @@ struct StudentEditView: View {
                 student.imageData = viewModel.compressedImageData ?? student.imageData
                 await viewModel.updateStudent(student)
             }
+            selectedImageData = nil
             presentationMode.wrappedValue.dismiss()
         }
     }
 }
-
 struct CameraView: UIViewControllerRepresentable {
     @Binding var capturedImage: UIImage?
     @Binding var isShowingCamera: Bool
