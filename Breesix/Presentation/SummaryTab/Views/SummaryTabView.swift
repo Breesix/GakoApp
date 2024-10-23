@@ -26,23 +26,21 @@ struct SummaryTabView: View {
                    CustomNavigationBar(title: "Ringkasan") {
                        isShowingInputTypeSheet = true
                    }
+                   DailyDateSlider(selectedDate: $viewModel.selectedDate)
+                       .padding(16)
 
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
-                               datePickerView()
                                Spacer()
                                EmptyState(message: "Belum ada catatan di hari ini.")
                                Spacer()
                            }
-                           .padding()
+                         
                        } else {
                            ScrollView {
-                               VStack {
-                                   datePickerView()
                                    studentsListView()
-                               }
-                               .padding()
+                                   .padding(.horizontal)
                            }
                        }
                    }
@@ -102,13 +100,6 @@ struct SummaryTabView: View {
                 }
             }
         }
-    }
-    
-    @ViewBuilder
-    private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
     }
      
     struct InputTypeButton: View {
