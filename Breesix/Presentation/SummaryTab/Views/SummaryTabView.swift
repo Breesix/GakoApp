@@ -21,66 +21,85 @@ struct SummaryTabView: View {
     @State private var searchText = ""
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    datePickerView()
-                    HStack {
-                        PlusButton(action: {
-                            isShowingInputTypeSheet = true
-                        }, imageName: "plus.circle.fill")
-                        Spacer()
-                    }
-                    studentsListView()
-                }
-                .padding()
-            }
-            .navigationTitle("Curhat")
-            
-            .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
-                    switch selectedInput {
-                    case .voice:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToVoiceInput = true
-                    case .text:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToTextInput = true
-                    }
-                })
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-            }
-            .sheet(isPresented: $navigateToPreview){
-                PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: viewModel.selectedDate)
-                
-            }
-            .background(
-                NavigationLink(destination: VoiceInputView(studentListViewModel: studentListViewModel, onDismiss: {
-                    isNavigatingToVoiceInput = false
-                    navigateToPreview = true
-                }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
-            )
-            .background(
-                NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
-                    isNavigatingToTextInput = false
-                    navigateToPreview = true
-                }), isActive: $isNavigatingToTextInput) { EmptyView() }
-            )
-        }
-        .task {
-            await studentListViewModel.fetchAllStudents()
-        }
-        .searchable(text: $searchText)
-    }
+           NavigationView { 
+               VStack(spacing: 0) {
+                   CustomNavigationBar(title: "Ringkasan") {
+                       isShowingInputTypeSheet = true
+                   }
+
+                   Group {
+                       if studentsWithSummariesOnSelectedDate.isEmpty {
+                           VStack {
+                               datePickerView()
+                               Spacer()
+                               EmptyState(message: "Belum ada catatan di hari ini.")
+                               Spacer()
+                           }
+                           .padding()
+                       } else {
+                           ScrollView {
+                               VStack {
+                                   datePickerView()
+                                   studentsListView()
+                               }
+                               .padding()
+                           }
+                       }
+                   }
+               }
+               .sheet(isPresented: $isShowingInputTypeSheet) {
+                   InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
+                       switch selectedInput {
+                       case .voice:
+                           isShowingInputTypeSheet = false
+                           isNavigatingToVoiceInput = true
+                       case .text:
+                           isShowingInputTypeSheet = false
+                           isNavigatingToTextInput = true
+                       }
+                   })
+                   .presentationDetents([.medium])
+                   .presentationDragIndicator(.visible)
+               }
+               .sheet(isPresented: $navigateToPreview){
+                   PreviewView(viewModel: studentListViewModel,
+                             isShowingPreview: $navigateToPreview,
+                             isShowingActivity: Binding.constant(false),
+                             selectedDate: viewModel.selectedDate)
+               }
+               .background(
+                   NavigationLink(destination: VoiceInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                       isNavigatingToVoiceInput = false
+                       navigateToPreview = true
+                   }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+               )
+               .background(
+                   NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                       isNavigatingToTextInput = false
+                       navigateToPreview = true
+                   }), isActive: $isNavigatingToTextInput) { EmptyView() }
+               )
+           }
+           .navigationBarHidden(true)
+           .task {
+               await studentListViewModel.fetchAllStudents()
+           }
+       }
     
-    private var filteredStudents: [Student] {
+    private var studentsWithSummariesOnSelectedDate: [Student] {
         if searchText.isEmpty {
-            return studentListViewModel.students
+            return studentListViewModel.students.filter { student in
+                student.summaries.contains { summary in
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                }
+            }
         } else {
             return studentListViewModel.students.filter { student in
-                student.fullname.lowercased().contains(searchText.lowercased()) ||
-                student.nickname.lowercased().contains(searchText.lowercased())
+                (student.fullname.lowercased().contains(searchText.lowercased()) ||
+                 student.nickname.lowercased().contains(searchText.lowercased())) &&
+                student.summaries.contains { summary in
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                }
             }
         }
     }
@@ -118,7 +137,7 @@ struct SummaryTabView: View {
     
     @ViewBuilder
     private func studentsListView() -> some View {
-        ForEach(filteredStudents) { student in
+        ForEach(studentsWithSummariesOnSelectedDate) { student in
             NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
                 StudentRowView(student: student, selectedDate: viewModel.selectedDate)
             }
@@ -128,6 +147,7 @@ struct SummaryTabView: View {
             .cornerRadius(8)
         }
     }
+
     struct StudentRowView: View {
         let student: Student
         let selectedDate: Date
@@ -222,3 +242,4 @@ enum InputType {
     case speech
     case manual
 }
+
