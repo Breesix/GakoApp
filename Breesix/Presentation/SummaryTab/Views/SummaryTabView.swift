@@ -26,23 +26,21 @@ struct SummaryTabView: View {
                    CustomNavigationBar(title: "Ringkasan") {
                        isShowingInputTypeSheet = true
                    }
+                   DailyDateSlider(selectedDate: $viewModel.selectedDate)
+                       .padding(16)
 
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
-                               DailyDateSlider(selectedDate: $viewModel.selectedDate)
                                Spacer()
                                EmptyState(message: "Belum ada catatan di hari ini.")
                                Spacer()
                            }
-                           .padding()
+                         
                        } else {
                            ScrollView {
-                               VStack {
-                                   DailyDateSlider(selectedDate: $viewModel.selectedDate)
                                    studentsListView()
-                               }
-                               .padding()
+                                   .padding(.horizontal)
                            }
                        }
                    }

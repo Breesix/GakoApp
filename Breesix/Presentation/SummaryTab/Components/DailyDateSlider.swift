@@ -10,6 +10,12 @@ import SwiftUI
 struct DailyDateSlider: View {
     @Binding var selectedDate: Date
     @State private var isShowingDatePicker = false
+    @State private var tempDate: Date
+    
+    init(selectedDate: Binding<Date>) {
+        self._selectedDate = selectedDate
+        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+    }
     
     var body: some View {
         HStack {
@@ -22,6 +28,7 @@ struct DailyDateSlider: View {
             }
             Spacer()
             Button {
+                tempDate = selectedDate
                 isShowingDatePicker = true
             } label: {
                 HStack {
@@ -31,17 +38,21 @@ struct DailyDateSlider: View {
                 .font(.callout)
                 .fontWeight(.semibold)
                 .foregroundStyle(.white)
-                .padding(.vertical, 7)
-                .padding(.horizontal, 37)
+                .padding(.vertical, 6)
+                .frame(width: 289)
                 .background(.bgSecondary)
                 .cornerRadius(32)
             }
             Spacer()
             .sheet(isPresented: $isShowingDatePicker) {
-                DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                    .datePickerStyle(GraphicalDatePickerStyle())
+                DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
                     .presentationDetents([.medium])
                     .presentationDragIndicator(.visible)
+                    .onChange(of: tempDate) { newDate in
+                        selectedDate = newDate
+                        isShowingDatePicker = false
+                    }
             }
             
             Button {
