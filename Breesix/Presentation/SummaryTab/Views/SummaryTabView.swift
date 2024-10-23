@@ -30,7 +30,7 @@ struct SummaryTabView: View {
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
-                               datePickerView()
+                               DailyDateSlider(selectedDate: $viewModel.selectedDate)
                                Spacer()
                                EmptyState(message: "Belum ada catatan di hari ini.")
                                Spacer()
@@ -39,7 +39,7 @@ struct SummaryTabView: View {
                        } else {
                            ScrollView {
                                VStack {
-                                   datePickerView()
+                                   DailyDateSlider(selectedDate: $viewModel.selectedDate)
                                    studentsListView()
                                }
                                .padding()
@@ -102,13 +102,6 @@ struct SummaryTabView: View {
                 }
             }
         }
-    }
-    
-    @ViewBuilder
-    private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
     }
      
     struct InputTypeButton: View {

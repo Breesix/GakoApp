@@ -13,7 +13,7 @@ struct CustomNavigationBar: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.43, green: 0.64, blue: 0.32)
+            Color(.bgSecondary)
                 .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                 .ignoresSafeArea(edges: .top)
             
