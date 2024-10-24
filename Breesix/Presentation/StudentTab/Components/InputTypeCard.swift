@@ -13,18 +13,18 @@ struct InputTypeCard: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .frame(width: 170, height: 208)
-                .foregroundStyle(.gray.opacity(0.5))
+                .frame(maxWidth: 170, maxHeight: 208)
+                .foregroundStyle(.monochrome9002)
                 .clipShape(.rect(cornerRadius: 12))
             
             Text(inputType)
-                .font(.headline)
-                .foregroundStyle(.black)
+                .font(.title2)
+                .fontWeight(.semibold)
         }
     }
 }
 
 
 #Preview {
-    InputTypeCard(inputType: "Suara")
+    InputTypeCard(inputType: "[Suara]")
 }
