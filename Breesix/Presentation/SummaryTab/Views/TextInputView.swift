@@ -17,24 +17,23 @@ struct TextInputView: View {
     @State private var showAlert: Bool = false
     @State private var showProTips: Bool = true
     @FocusState private var isTextEditorFocused: Bool
+    @Binding var selectedDate: Date
+    @State private var isShowingDatePicker = false
+    @State private var tempDate: Date
     var onDismiss: () -> Void
 
-    @State private var selectedDate: Date = Date()
-
+    init(selectedDate: Binding<Date>, studentListViewModel: StudentTabViewModel, onDismiss: @escaping () -> Void) {
+        self.studentListViewModel = studentListViewModel
+        self._selectedDate = selectedDate
+        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+        self.onDismiss = onDismiss
+    }
+    
     private let ttProcessor = OpenAIService(apiToken: "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")
 
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.green.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 18))
-            
             VStack {
-                Text("Curhat dengan ketikan")
-                    .font(.title3)
-                    .fontWeight(.semibold)
                 datePickerView()
-                
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white)
@@ -62,7 +61,8 @@ struct TextInputView: View {
                 Spacer()
                 
                 if showProTips {
-                    ProTipsCard()
+                    TipsCard()
+                        .padding(.horizontal, 40)
                 }
                 
                 Spacer()
@@ -83,9 +83,6 @@ struct TextInputView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
             }
-            .padding()
-        }
-        .safeAreaPadding()         
 
         .alert(isPresented: $showAlert) {
             Alert(
@@ -96,6 +93,16 @@ struct TextInputView: View {
                 },
                 secondaryButton: .cancel(Text("Tidak"))
             )
+        }
+        .sheet(isPresented: $isShowingDatePicker) {
+            DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .onChange(of: tempDate) { newDate in
+                    selectedDate = newDate
+                    isShowingDatePicker = false
+                }
         }
         .onTapGesture {
             isTextEditorFocused = false
@@ -138,9 +145,21 @@ struct TextInputView: View {
     }
 
     private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
+        Button(action: {
+            isShowingDatePicker = true
+        }) {
+            HStack {
+                Image(systemName: "calendar")
+                Text(selectedDate, format: .dateTime.day().month().year())
+            }
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(.bgMain)
+            .cornerRadius(8)
+        }
     }
-
 }
+
