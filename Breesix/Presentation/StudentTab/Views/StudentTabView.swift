@@ -67,7 +67,7 @@ struct StudentTabView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
-    @State private var searchQuery = "" // State for search query
+    @State private var searchQuery = ""
     
     var body: some View {
         NavigationView {

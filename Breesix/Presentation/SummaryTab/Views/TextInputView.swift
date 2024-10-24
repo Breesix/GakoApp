@@ -33,56 +33,82 @@ struct TextInputView: View {
     private let ttProcessor = OpenAIService(apiToken: "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")
 
     var body: some View {
-            VStack {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    isTextEditorFocused = false
+                }
+            VStack (spacing: 16) {
                 datePickerView()
-                    .padding(.bottom, 16)
-                VStack{
-                    ZStack {
+                    .padding(.top, 24)
+                VStack (spacing: 16) {
+                    ZStack (alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(.cardFieldBG)
-                            .shadow(radius: 2)
                             .frame(maxWidth: .infinity, maxHeight: 170)
                         
+                        if reflection.isEmpty {
+                            Text("Ceritakan mengenai Murid Anda...")
+                                .font(.callout)
+                                .fontWeight(.regular)
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                                .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
+                                .foregroundColor(.labelDisabled)
+                                .cornerRadius(8)
+                        }
                         TextEditor(text: $reflection)
-                            .padding()
+                            .font(.callout)
+                            .fontWeight(.regular)
+                            .padding(.horizontal, 8)
                             .frame(maxWidth: .infinity, maxHeight: 170)
-                            .cornerRadius(10)
+                            .cornerRadius(8)
                             .focused($isTextEditorFocused)
+                            .scrollContentBackground(.hidden)
+                    }
+                    .onAppear() {
+                        UITextView.appearance().backgroundColor = .clear
+                    }
+                    .onDisappear() {
+                        UITextView.appearance().backgroundColor = nil
                     }
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(.monochrome50, lineWidth: 1)
                     )
-                    .padding(.bottom, 16)
                     
-                    Button("Simpan") {
+                    Button {
                         processReflectionActivity()
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity, maxHeight: 50)
+                            .background(.buttonPrimaryOnBg)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
                     }
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity, maxHeight: 50)
-                    .background(.buttonPrimaryOnBg)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .padding(.bottom, 16)
-                    
                     
                     Button("Batal") {
                         showAlert = true
                     }
+                    .padding(.top, 9)
                     .font(.body)
                     .fontWeight(.semibold)
                     .foregroundStyle(.destructive)
                 }
                 .padding(.horizontal, 28)
                 Spacer()
-                    if showProTips {
-                        TipsCard()
-                            .padding(.horizontal, 40)
-                        Spacer()
-                    }
+                if showProTips {
+                    TipsCard()
+                        .padding(.horizontal, 40)
+                    Spacer()
+                }
             }
-            .navigationBarHidden(true)
+        }
+        .navigationBarHidden(true)
 
         .alert(isPresented: $showAlert) {
             Alert(
@@ -103,9 +129,6 @@ struct TextInputView: View {
                     selectedDate = newDate
                     isShowingDatePicker = false
                 }
-        }
-        .onTapGesture {
-            isTextEditorFocused = false
         }
         .onChange(of: isTextEditorFocused) { focused in
             withAnimation {
