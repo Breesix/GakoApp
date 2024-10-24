@@ -26,6 +26,7 @@ struct TextInputView: View {
         self.studentListViewModel = studentListViewModel
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
+
         self.onDismiss = onDismiss
     }
     
@@ -34,55 +35,54 @@ struct TextInputView: View {
     var body: some View {
             VStack {
                 datePickerView()
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white)
-                        .shadow(radius: 2)
-                        .frame(maxWidth: .infinity, maxHeight: 250)
-
-                    TextEditor(text: $reflection)
-                        .padding()
-                        .frame(maxWidth: .infinity, maxHeight: 250)
-                        .cornerRadius(10)
-                        .focused($isTextEditorFocused)
-                }
-                .padding(.bottom, 16)
-                
-                Button {
-                    processReflectionActivity()
-                } label: {
-                    Text("Submit")
-                        .frame(maxWidth: .infinity, maxHeight: 40)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                
-                Spacer()
-                
-                if showProTips {
-                    TipsCard()
-                        .padding(.horizontal, 40)
-                }
-                
-                Spacer()
-                
-                Button {
-                    showAlert = true
-                } label: {
-                    HStack {
-                        Image(systemName: "xmark")
-                        Text("Batalkan")
-                    }   
-                    .font(.callout)
+                    .padding(.bottom, 16)
+                VStack{
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.cardFieldBG)
+                            .shadow(radius: 2)
+                            .frame(maxWidth: .infinity, maxHeight: 170)
+                        
+                        TextEditor(text: $reflection)
+                            .padding()
+                            .frame(maxWidth: .infinity, maxHeight: 170)
+                            .cornerRadius(10)
+                            .focused($isTextEditorFocused)
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.monochrome50, lineWidth: 1)
+                    )
+                    .padding(.bottom, 16)
+                    
+                    Button("Simpan") {
+                        processReflectionActivity()
+                    }
+                    .font(.body)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.red)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.red.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .frame(maxWidth: .infinity, maxHeight: 50)
+                    .background(.buttonPrimaryOnBg)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                    .padding(.bottom, 16)
+                    
+                    
+                    Button("Batal") {
+                        showAlert = true
+                    }
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.destructive)
                 }
+                .padding(.horizontal, 28)
+                Spacer()
+                    if showProTips {
+                        TipsCard()
+                            .padding(.horizontal, 40)
+                        Spacer()
+                    }
             }
+            .navigationBarHidden(true)
 
         .alert(isPresented: $showAlert) {
             Alert(
