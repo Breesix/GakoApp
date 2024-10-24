@@ -41,7 +41,7 @@ struct StudentDetailView: View {
     
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
+            Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 8) {
                 ProfileHeader(student: student)
@@ -113,28 +113,43 @@ struct StudentDetailView: View {
                                 if activitiesOnSelectedDate.isEmpty {
                                     noActivityAlertPresented = true
                                 } else {
-                                    // Close the calendar and scroll to the activity card
-                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
+                                    withAnimation(.smooth) {
+                                        scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
+                                    }
                                     isShowingCalendar = false
                                 }
+                            } else {
+                                noActivityAlertPresented = true
                             }
                         }
+//                        .onChange(of: selectedDate) { newDate in
+//                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+//                                if activitiesOnSelectedDate.isEmpty {
+//                                    noActivityAlertPresented = true
+//                                } else {
+//                                    // Close the calendar and scroll to the activity card
+//                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
+//                                    isShowingCalendar = false
+//                                }
+//                            }
+//                        }
                     }
                 }
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
-        .alert(isPresented: $noActivityAlertPresented) {
-            Alert(title: Text("No Activities"), message: Text("No activities found for the selected date."), dismissButton: .default(Text("OK")))
-        }
+        .navigationBarBackButtonHidden(true)
         .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .navigationTitle("Profil Murid")
+        
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(trailing: Button("Edit") {
-            isEditing = true
-        }
-            .foregroundColor(.white))
+        .navigationBarItems(
+            leading: BackButton(),
+            trailing: Button("Edit Profil") {
+                isEditing = true
+            }
+                .foregroundColor(.white)
+        )
         
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
@@ -170,6 +185,11 @@ struct StudentDetailView: View {
                     await fetchActivities()
                 }
             })
+        }
+        .alert("No Activity", isPresented: $noActivityAlertPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("There are no activities recorded for the selected date.")
         }
         .task {
             await fetchAllNotes()
@@ -239,6 +259,7 @@ struct CalendarButton: View {
         Button(action: { isShowingCalendar = true }) {
             HStack(spacing: 8) {
                 Image(systemName: "calendar")
+                    .foregroundStyle(.white)
             }
             .padding()
             .background(Color(red: 0.43, green: 0.64, blue: 0.32))
@@ -253,7 +274,7 @@ struct CalendarButton: View {
                     onDateSelected(newDate) // Call the closure when date changes
                 }
         }
- }
+    }
 }
 
 struct FutureMessageView: View {
@@ -274,6 +295,24 @@ struct EditButton: View {
     var body: some View {
         Button("Edit") {
             isEditing = true
+        }
+    }
+}
+
+struct BackButton: View {
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        Button(action: {
+            presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.white)
+                Text("Murid")
+                    .foregroundStyle(.white)
+            }
+             // Reduce left padding to move closer to edge
         }
     }
 }
