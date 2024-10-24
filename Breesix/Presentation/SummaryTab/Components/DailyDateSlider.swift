@@ -24,7 +24,7 @@ struct DailyDateSlider: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 20))
-                    .foregroundStyle(.bgSecondary)
+                    .foregroundStyle(.green600)
             }
             Spacer()
             Button {
@@ -40,7 +40,7 @@ struct DailyDateSlider: View {
                 .foregroundStyle(.white)
                 .padding(.vertical, 6)
                 .frame(width: 289)
-                .background(.bgSecondary)
+                .background(.green600)
                 .cornerRadius(32)
             }
             Spacer()
