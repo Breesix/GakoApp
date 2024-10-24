@@ -21,8 +21,9 @@ struct VoiceInputView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State var isFilledToday: Bool = false
-    @State private var isRecord: Bool = false
-    @State private var isPaused: Bool = false
+    @State private var isRecording = false
+    @State private var isPaused = false
+    @State private var isSaving = false
     @State private var showAlert: Bool = false
     @Binding var isAllStudentsFilled: Bool
     @FocusState private var isTextEditorFocused: Bool
@@ -45,7 +46,7 @@ struct VoiceInputView: View {
                 
                 ZStack {
                     TextEditor(text: $reflection)
-                        .disabled(isRecord)
+                        .disabled(isRecording)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .scrollContentBackground(.hidden)
@@ -55,7 +56,7 @@ struct VoiceInputView: View {
                         .focused($isTextEditorFocused)
                 }
                 
-                if !isRecord  {
+                if !isRecording  {
                     ProTipsCard()
                 }
                 
@@ -77,55 +78,48 @@ struct VoiceInputView: View {
                         }
                         
                         
-                        if !isRecord {
-                            
-                            Button(action: {
-                                isRecord = true
+                        // Play/Pause Button
+                        Button(action: {
+                            if !isRecording {
+                                // Start recording
+                                isRecording = true
                                 isPaused = false
                                 self.speechRecognizer.startTranscribing()
-                            }) {
-                                Image("play-mic-button")
+                            } else {
+                                // Toggle pause/resume
+                                isPaused.toggle()
+                                if isPaused {
+                                    self.speechRecognizer.pauseTranscribing()
+                                } else {
+                                    self.speechRecognizer.resumeTranscribing()
+                                }
+                            }
+                        }) {
+                            if isSaving {
+                                // Loading indicator
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 80, height: 80)
+                                    .overlay {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                            .scaleEffect(1.5)
+                                    }
+                            } else {
+                                // Play/Pause icon
+                                Image(isRecording && !isPaused ? "pause-mic-button" : "play-mic-button")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 80)
                             }
-                        } else {
-                            
-                            if isRecord {
-                                Button(action: {
-                                    isPaused.toggle()
-                                        if isPaused {
-                                            self.speechRecognizer.pauseTranscribing()
-                                        } else {
-                                            self.speechRecognizer.resumeTranscribing()
-                                        
-                                    }
-                                }) {
-                                    if isLoading {
-                                        Circle()
-                                            .fill(Color.white)
-                                            .frame(width: 80, height: 80)
-                                            .overlay {
-                                                ProgressView()
-                                                    .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                                    .scaleEffect(1.5) // Scale to make it larger
-                                            }
-                                    } else {
-                                        Image(isPaused  ? "pause-mic-button" : "play-mic-button")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 80)
-                                    }
-                                }
-                                
-                                
-                            }
                         }
+                        .disabled(isSaving)
                         
-                        
+                        // Save Button
                         Button(action: {
-                            if isRecord {
-                                isRecord.toggle()
+                            if isRecording {
+                                isSaving = true
+                                isRecording = false
                                 self.speechRecognizer.stopTranscribing()
                                 self.reflection = self.speechRecognizer.transcript
                                 self.processReflectionActivity()
@@ -136,7 +130,7 @@ struct VoiceInputView: View {
                                 .scaledToFit()
                                 .frame(width: 60)
                         }
-                        .disabled(!isRecord)
+                        .disabled(!isRecording || isSaving)
                     }
                     .padding(10)
                     

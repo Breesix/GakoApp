@@ -11,19 +11,20 @@ struct TextInputView: View {
     @StateObject private var summaryTabViewModel = SummaryTabViewModel()
     @ObservedObject var studentListViewModel: StudentListViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State private var reflection: String = ""
+    @State private var reflection: String = "Ketikan sesuatu..."
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State private var showAlert: Bool = false
     @State private var showProTips: Bool = true
+    @State private var placeholderString: String = "Ketikan sesuatu..."
     @FocusState private var isTextEditorFocused: Bool
     var onDismiss: () -> Void
-
+    
     @State private var showTabBar = false
     @State private var selectedDate: Date = Date()
-
+    
     private let ttProcessor = OpenAIService(apiToken: "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")
-
+    
     var body: some View {
         ZStack {
             Rectangle()
@@ -36,17 +37,18 @@ struct TextInputView: View {
                     .fontWeight(.semibold)
                 datePickerView()
                 
-                ZStack {
+                ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white)
                         .shadow(radius: 2)
                         .frame(maxWidth: .infinity, maxHeight: 250)
-
+                    
                     TextEditor(text: $reflection)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 250)
                         .cornerRadius(10)
                         .focused($isTextEditorFocused)
+                    
                 }
                 .padding(.bottom, 16)
                 
@@ -74,7 +76,7 @@ struct TextInputView: View {
                     HStack {
                         Image(systemName: "xmark")
                         Text("Batalkan")
-                    }   
+                    }
                     .font(.callout)
                     .fontWeight(.semibold)
                     .foregroundStyle(.red)
@@ -88,7 +90,7 @@ struct TextInputView: View {
         }
         .hideTabBar()
         .safeAreaPadding()
-
+        
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Batalkan Dokumentasi?"),
@@ -114,16 +116,16 @@ struct TextInputView: View {
             do {
                 isLoading = true
                 errorMessage = nil
-
+                
                 await studentListViewModel.fetchAllStudents()
-
+                
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
-
+                
                 let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
-
+                
                 await MainActor.run {
                     isLoading = false
-
+                    
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
                     studentListViewModel.selectedDate = selectedDate // Add this line
@@ -138,11 +140,11 @@ struct TextInputView: View {
             }
         }
     }
-
+    
     private func datePickerView() -> some View {
         DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
             .datePickerStyle(CompactDatePickerStyle())
             .labelsHidden()
     }
-
+    
 }

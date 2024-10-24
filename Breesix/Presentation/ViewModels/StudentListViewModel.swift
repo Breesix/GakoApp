@@ -12,13 +12,13 @@ class StudentListViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedNotes: [UnsavedNote] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
-    @Published var selectedDate: Date = Date() 
+    @Published var selectedDate: Date = Date()
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
     private let summaryService: SummaryService
     private let summaryUseCase: SummaryUseCase
-
+    
     init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
@@ -26,7 +26,7 @@ class StudentListViewModel: ObservableObject {
         self.summaryUseCase = summaryUseCase
         self.summaryService = summaryService
     }
-
+    
     func fetchAllStudents() async {
         do {
             students = try await studentUseCases.fetchAllStudents()
@@ -122,7 +122,7 @@ class StudentListViewModel: ObservableObject {
     }
     
     func addUnsavedNotes(_ notes: [UnsavedNote]) {
-            unsavedNotes.append(contentsOf: notes)
+        unsavedNotes.append(contentsOf: notes)
     }
     
     func clearUnsavedNotes() {
@@ -158,7 +158,7 @@ class StudentListViewModel: ObservableObject {
     func addUnsavedActivity(_ activity: UnsavedActivity) {
         unsavedActivities.append(activity)
     }
-
+    
     
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
         unsavedActivities.append(contentsOf: activities)
@@ -180,11 +180,15 @@ class StudentListViewModel: ObservableObject {
         }
     }
     
+    
+    
     func updateUnsavedActivity(_ activity: UnsavedActivity) {
         if let index = unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
             unsavedActivities[index] = activity
+            objectWillChange.send()
         }
     }
+    
     
     func deleteUnsavedActivity(_ activity: UnsavedActivity) {
         unsavedActivities.removeAll { $0.id == activity.id }

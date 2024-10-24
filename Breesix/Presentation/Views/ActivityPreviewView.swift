@@ -16,7 +16,6 @@ struct ActivityPreviewView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedStudent: Student?
     var onDismiss: () -> Void
-    
         
     
     var body: some View {
@@ -88,64 +87,63 @@ struct ActivityPreviewView: View {
 }
 
 struct ActivityDetailRow: View {
-    @Binding var activity: UnsavedActivity
+    @Binding var activity: UnsavedActivity  // Binding allows updating the activity
     let student: Student
     let onAddActivity: () -> Void
     let onDelete: () -> Void
-    @State private var showPicker = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(activity.activity)
                 .font(.headline)
             
-            // Dropdown menu
-            Menu {
-                Button(action: {
-                    activity.isIndependent = true
-                }) {
-                    HStack {
-                        Text("Mandiri")
-                        if activity.isIndependent == true {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-                
-                Button(action: {
-                    activity.isIndependent = false
-                }) {
-                    HStack {
-                        Text("Dibimbing")
-                        if activity.isIndependent == false {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(activity.isIndependent == true ? "Mandiri" : "Dibimbing")
-                        .foregroundColor(.primary)
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                        .foregroundColor(.gray)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-            }
-            
+            // Picker to update the status (Mandiri / Dibimbing)
             HStack {
+                Picker("Status", selection: $activity.isIndependent) { // Bind to isIndependent field
+                    Text("Mandiri").tag(true as Bool?)
+                    Text("Dibimbing").tag(false as Bool?)
+                    
+                    
+                }
+                .pickerStyle(MenuPickerStyle())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(.ultraThinMaterial)
+                .cornerRadius(8)
+                .buttonStyle(.plain)
+                
+//                // Show corresponding text based on selected status
+//                if activity.isIndependent ?? false {
+//                    HStack {
+//                        Image(systemName: "checkmark.circle.fill")
+//                        Text("Mandiri")
+//                            .foregroundColor(.green)
+//                    }
+//                } else {
+//                     HStack {
+//                        Image(systemName: "xmark.circle.fill")
+//                        Text("Dibimbing")
+//                            .foregroundColor(.red)
+//                    }
+//                }
+                
                 Spacer()
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .foregroundColor(.red)
                 }
             }
-            .padding(.top, 4)
+            .padding(.top, 8)
+            
+            Button(action: onAddActivity) {
+                Label("Tambah", systemImage: "plus.app.fill")
+            }
+            .buttonStyle(.bordered)
         }
         .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 2)
     }
 }
 
