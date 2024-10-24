@@ -28,7 +28,6 @@ struct SummaryTabView: View {
                    }
                    DailyDateSlider(selectedDate: $viewModel.selectedDate)
                        .padding(16)
-
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
@@ -40,11 +39,11 @@ struct SummaryTabView: View {
                        } else {
                            ScrollView {
                                    studentsListView()
-                                   .padding(.horizontal)
                            }
                        }
                    }
                }
+               .background(.bgMain)
                .sheet(isPresented: $isShowingInputTypeSheet) {
                    InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
                        switch selectedInput {
@@ -128,17 +127,16 @@ struct SummaryTabView: View {
     
     @ViewBuilder
     private func studentsListView() -> some View {
-        ForEach(studentsWithSummariesOnSelectedDate) { student in
-            NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
-                StudentRowView(student: student, selectedDate: viewModel.selectedDate)
+        VStack(spacing: 12) {
+            ForEach(studentsWithSummariesOnSelectedDate) { student in
+                NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
+                    StudentSummaryCard(student: student, selectedDate: viewModel.selectedDate)
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(Color(red: 0.92, green: 0.96, blue: 0.96))
-            .cornerRadius(8)
         }
+        .padding(.horizontal, 16)
     }
-
+    
     struct StudentRowView: View {
         let student: Student
         let selectedDate: Date
@@ -206,12 +204,11 @@ struct SummaryTabView: View {
                             .padding(.horizontal, 4)
                             .multilineTextAlignment(.leading)
                             .foregroundColor(.black)
-                            .background(Color.white)
+                            .background(.white)
                             .cornerRadius(8)
                 }
             }
             .padding()
-
         }
         
     }

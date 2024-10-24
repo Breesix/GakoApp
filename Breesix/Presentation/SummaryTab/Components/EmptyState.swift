@@ -13,7 +13,7 @@ struct EmptyState: View {
     
     init(
         message: String,
-        imageName: String = "note.text"
+        imageName: String = "empty-state-logo"
     ) {
         self.message = message
         self.imageName = imageName
@@ -21,10 +21,13 @@ struct EmptyState: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: imageName)
-                .font(.system(size: 105))
-                .opacity(0.1)
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 105)
+                .opacity(0.3)
             Text(message)
+                .font(.body)
                 .opacity(0.5)
         }
     }

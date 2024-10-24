@@ -81,7 +81,7 @@ struct StudentTabView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
-            .background(Color(hex: "EAF0E4"))
+            .background(.bgMain)
             .navigationTitle("Daftar Murid")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
