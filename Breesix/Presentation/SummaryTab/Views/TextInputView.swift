@@ -81,17 +81,18 @@ struct TextInputView: View {
                     )
                     .padding(.bottom, 16)
                     
-                    Button("Simpan") {
+                    Button {
                         processReflectionActivity()
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity, maxHeight: 50)
+                            .background(.buttonPrimaryOnBg)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .padding(.bottom, 16)
                     }
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity, maxHeight: 50)
-                    .background(.buttonPrimaryOnBg)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .padding(.bottom, 16)
-                    
                     
                     Button("Batal") {
                         showAlert = true
