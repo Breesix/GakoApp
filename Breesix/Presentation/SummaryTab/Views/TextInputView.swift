@@ -33,18 +33,17 @@ struct TextInputView: View {
     private let ttProcessor = OpenAIService(apiToken: "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")
 
     var body: some View {
-        ZStack{
+        ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     isTextEditorFocused = false
                 }
-            VStack {
+            VStack (spacing: 16) {
                 datePickerView()
-                    .padding(.bottom, 16)
-                    .padding(.top, 36)
-                VStack{
+                    .padding(.top, 24)
+                VStack (spacing: 16) {
                     ZStack (alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(.cardFieldBG)
@@ -79,7 +78,6 @@ struct TextInputView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(.monochrome50, lineWidth: 1)
                     )
-                    .padding(.bottom, 16)
                     
                     Button {
                         processReflectionActivity()
@@ -91,12 +89,12 @@ struct TextInputView: View {
                             .background(.buttonPrimaryOnBg)
                             .foregroundColor(.white)
                             .cornerRadius(12)
-                            .padding(.bottom, 16)
                     }
                     
                     Button("Batal") {
                         showAlert = true
                     }
+                    .padding(.top, 9)
                     .font(.body)
                     .fontWeight(.semibold)
                     .foregroundStyle(.destructive)
