@@ -17,14 +17,17 @@ struct InputTypeSheet: View {
     @ObservedObject var studentListViewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     var onSelect: (InputTypeUser) -> Void
-
+    
     var body: some View {
         VStack {
+            Spacer()
+
             Text("Pilih Metode Input")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .padding(.bottom, 24)
-
+            
+            Spacer()
+            
             HStack {
                 Button(action: {
                     onSelect(.voice)
@@ -32,8 +35,7 @@ struct InputTypeSheet: View {
                 }) {
                     InputTypeCard(inputType: "[Suara]")
                 }
-                .padding(.trailing, 20)
-
+                
                 Button(action: {
                     onSelect(.text)
                     presentationMode.wrappedValue.dismiss()
@@ -41,12 +43,20 @@ struct InputTypeSheet: View {
                     InputTypeCard(inputType: "[Teks]")
                 }
             }
-            .padding(.bottom, 29)
-
+            .foregroundStyle(.black)
+            
+            Spacer()
+            
             Button("Batalkan") {
                 presentationMode.wrappedValue.dismiss()
             }
+            .foregroundStyle(.destructive)
+            .font(.body)
+            .fontWeight(.semibold)
+            
+            Spacer()
+
         }
-        .padding()
+        .padding(.horizontal, 16)
     }
 }

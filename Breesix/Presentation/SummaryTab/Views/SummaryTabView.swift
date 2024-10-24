@@ -21,75 +21,84 @@ struct SummaryTabView: View {
     @State private var searchText = ""
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    datePickerView()
-                    HStack {
-                        PlusButton(action: {
-                            isShowingInputTypeSheet = true
-                        }, imageName: "plus.circle.fill")
-                        Spacer()
-                    }
-                    studentsListView()
-                }
-                .padding()
-            }
-            .navigationTitle("Curhat")
-            
-            .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
-                    switch selectedInput {
-                    case .voice:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToVoiceInput = true
-                    case .text:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToTextInput = true
-                    }
-                })
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-            }
-            .sheet(isPresented: $navigateToPreview){
-                PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: viewModel.selectedDate)
-                
-            }
-            .background(
-                NavigationLink(destination: VoiceInputView(studentListViewModel: studentListViewModel, onDismiss: {
-                    isNavigatingToVoiceInput = false
-                    navigateToPreview = true
-                }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
-            )
-            .background(
-                NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
-                    isNavigatingToTextInput = false
-                    navigateToPreview = true
-                }), isActive: $isNavigatingToTextInput) { EmptyView() }
-            )
-        }
-        .task {
-            await studentListViewModel.fetchAllStudents()
-        }
-        .searchable(text: $searchText)
-    }
+           NavigationView { 
+               VStack(spacing: 0) {
+                   CustomNavigationBar(title: "Ringkasan") {
+                       isShowingInputTypeSheet = true
+                   }
+                   DailyDateSlider(selectedDate: $viewModel.selectedDate)
+                       .padding(16)
+                   Group {
+                       if studentsWithSummariesOnSelectedDate.isEmpty {
+                           VStack {
+                               Spacer()
+                               EmptyState(message: "Belum ada catatan di hari ini.")
+                               Spacer()
+                           }
+                         
+                       } else {
+                           ScrollView {
+                                   studentsListView()
+                           }
+                       }
+                   }
+               }
+               .background(.bgMain)
+               .sheet(isPresented: $isShowingInputTypeSheet) {
+                   InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
+                       switch selectedInput {
+                       case .voice:
+                           isShowingInputTypeSheet = false
+                           isNavigatingToVoiceInput = true
+                       case .text:
+                           isShowingInputTypeSheet = false
+                           isNavigatingToTextInput = true
+                       }
+                   })
+                   .presentationDetents([.medium])
+                   .presentationDragIndicator(.visible)
+               }
+               .sheet(isPresented: $navigateToPreview){
+                   PreviewView(viewModel: studentListViewModel,
+                             isShowingPreview: $navigateToPreview,
+                             isShowingActivity: Binding.constant(false),
+                             selectedDate: viewModel.selectedDate)
+               }
+               .background(
+                   NavigationLink(destination: VoiceInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                       isNavigatingToVoiceInput = false
+                       navigateToPreview = true
+                   }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+               )
+               .background(
+                   NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                       isNavigatingToTextInput = false
+                       navigateToPreview = true
+                   }), isActive: $isNavigatingToTextInput) { EmptyView() }
+               )
+           }
+           .navigationBarHidden(true)
+           .task {
+               await studentListViewModel.fetchAllStudents()
+           }
+       }
     
-    private var filteredStudents: [Student] {
+    private var studentsWithSummariesOnSelectedDate: [Student] {
         if searchText.isEmpty {
-            return studentListViewModel.students
+            return studentListViewModel.students.filter { student in
+                student.summaries.contains { summary in
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                }
+            }
         } else {
             return studentListViewModel.students.filter { student in
-                student.fullname.lowercased().contains(searchText.lowercased()) ||
-                student.nickname.lowercased().contains(searchText.lowercased())
+                (student.fullname.lowercased().contains(searchText.lowercased()) ||
+                 student.nickname.lowercased().contains(searchText.lowercased())) &&
+                student.summaries.contains { summary in
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                }
             }
         }
-    }
-    
-    @ViewBuilder
-    private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
     }
      
     struct InputTypeButton: View {
@@ -118,16 +127,16 @@ struct SummaryTabView: View {
     
     @ViewBuilder
     private func studentsListView() -> some View {
-        ForEach(filteredStudents) { student in
-            NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
-                StudentRowView(student: student, selectedDate: viewModel.selectedDate)
+        VStack(spacing: 12) {
+            ForEach(studentsWithSummariesOnSelectedDate) { student in
+                NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
+                    StudentSummaryCard(student: student, selectedDate: viewModel.selectedDate)
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(Color(red: 0.92, green: 0.96, blue: 0.96))
-            .cornerRadius(8)
         }
+        .padding(.horizontal, 16)
     }
+    
     struct StudentRowView: View {
         let student: Student
         let selectedDate: Date
@@ -195,12 +204,11 @@ struct SummaryTabView: View {
                             .padding(.horizontal, 4)
                             .multilineTextAlignment(.leading)
                             .foregroundColor(.black)
-                            .background(Color.white)
+                            .background(.white)
                             .cornerRadius(8)
                 }
             }
             .padding()
-
         }
         
     }
@@ -222,3 +230,4 @@ enum InputType {
     case speech
     case manual
 }
+

@@ -91,9 +91,7 @@ struct StudentTabView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
-            .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .background(Color(hex: "EAF0E4"))
+            .background(.bgMain)
             .navigationTitle("Daftar Murid")
             .searchable(text: $searchQuery) // Add searchable modifier
             .toolbar {
