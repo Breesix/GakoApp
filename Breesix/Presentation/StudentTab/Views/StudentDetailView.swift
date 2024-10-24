@@ -18,26 +18,13 @@ struct StudentDetailView: View {
     @State private var activity: Activity?
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
+    @State private var noActivityAlertPresented = false
     
     private let calendar = Calendar.current
     
     init(student: Student, viewModel: StudentTabViewModel) {
         self.student = student
         self.viewModel = viewModel
-        
-        // Configure the navigation bar appearance
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(red: 0.43, green: 0.64, blue: 0.32, alpha: 1.0)
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        
-        // Make the navigation bar buttons white
-        UINavigationBar.appearance().tintColor = .white
     }
     
     private var formattedMonth: String {
@@ -60,7 +47,6 @@ struct StudentDetailView: View {
                 ProfileHeader(student: student)
                 
                 VStack(spacing: 8) {
-                    
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
@@ -79,32 +65,58 @@ struct StudentDetailView: View {
                         }
                         
                         Spacer()
-                        
-                        CalendarButton(selectedDate: $selectedDate,
-                                       isShowingCalendar: $isShowingCalendar)
+                        CalendarButton(
+                            selectedDate: $selectedDate,
+                            isShowingCalendar: $isShowingCalendar,
+                            onDateSelected: { newDate in
+                                if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+                                    if activitiesOnSelectedDate.isEmpty {
+                                        noActivityAlertPresented = true
+                                    } else {
+                                        isShowingCalendar = false
+                                    }
+                                } else {
+                                    noActivityAlertPresented = true
+                                }
+                            }
+                        )
                     }
                     .padding(.horizontal, 16)
                     
-                    ScrollView {
-                        ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                            VStack(alignment: .leading) {
-                                Text("\(day, formatter: dateFormatter)") // Show the day
-                                    .font(.headline)
-                                    .padding(.top)
+                    ScrollViewReader { scrollProxy in
+                        ScrollView {
+                            ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
+                                VStack(alignment: .leading) {
+                                    Text("\(day, formatter: dateFormatter)") // Show the day
+                                        .font(.headline)
+                                        .padding(.top)
+                                        .padding(.horizontal, 16)
+                                        .foregroundStyle(Color.customGreen.g300)
+                                    
+                                    ActivityCard(
+                                        activities: activitiesForSelectedMonth[day] ?? [],
+                                        notes: notesForSelectedMonth[day] ?? [],
+                                        onAddNote: { isAddingNewNote = true },
+                                        onAddActivity: { isAddingNewActivity = true },
+                                        onEditActivity: { self.activity = $0 },
+                                        onDeleteActivity: deleteActivity,
+                                        onEditNote: { self.selectedNote = $0 },
+                                        onDeleteNote: deleteNote
+                                    )
                                     .padding(.horizontal, 16)
-                                    .foregroundStyle(Color.customGreen.g300)
-                                
-                                ActivityCard(
-                                    activities: activitiesForSelectedMonth[day] ?? [],
-                                    notes: notesForSelectedMonth[day] ?? [],
-                                    onAddNote: { isAddingNewNote = true },
-                                    onAddActivity: { isAddingNewActivity = true },
-                                    onEditActivity: { self.activity = $0 },
-                                    onDeleteActivity: deleteActivity,
-                                    onEditNote: { self.selectedNote = $0 },
-                                    onDeleteNote: deleteNote
-                                )
-                                .padding(.horizontal, 16)
+                                    .id(day) // Assign an ID for scrolling
+                                }
+                            }
+                        }
+                        .onChange(of: selectedDate) { newDate in
+                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+                                if activitiesOnSelectedDate.isEmpty {
+                                    noActivityAlertPresented = true
+                                } else {
+                                    // Close the calendar and scroll to the activity card
+                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
+                                    isShowingCalendar = false
+                                }
                             }
                         }
                     }
@@ -112,13 +124,18 @@ struct StudentDetailView: View {
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
+        .alert(isPresented: $noActivityAlertPresented) {
+            Alert(title: Text("No Activities"), message: Text("No activities found for the selected date."), dismissButton: .default(Text("OK")))
+        }
+        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Profil Murid")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(trailing: Button("Edit") {
             isEditing = true
         }
-        .foregroundColor(.white))
-
+            .foregroundColor(.white))
+        
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
@@ -203,7 +220,7 @@ struct StudentDetailView: View {
             calendar.isDate(date, equalTo: selectedDate, toGranularity: .month)
         }
     }
-
+    
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in
             calendar.startOfDay(for: note.createdAt)
@@ -216,6 +233,7 @@ struct StudentDetailView: View {
 struct CalendarButton: View {
     @Binding var selectedDate: Date
     @Binding var isShowingCalendar: Bool
+    var onDateSelected: (Date) -> Void // Closure for date selection
     
     var body: some View {
         Button(action: { isShowingCalendar = true }) {
@@ -223,15 +241,19 @@ struct CalendarButton: View {
                 Image(systemName: "calendar")
             }
             .padding()
-            .background(Color(red: 0.92, green: 0.96, blue: 0.96))
-            .cornerRadius(10)
+            .background(Color(red: 0.43, green: 0.64, blue: 0.32))
+            .cornerRadius(999)
         }
         .sheet(isPresented: $isShowingCalendar) {
             DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
-                .presentationDetents([.fraction(0.5)])
+                .presentationDetents([.fraction(0.55)])
+                .tint(.green)
+                .onChange(of: selectedDate) { newDate in
+                    onDateSelected(newDate) // Call the closure when date changes
+                }
         }
-    }
+ }
 }
 
 struct FutureMessageView: View {

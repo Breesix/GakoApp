@@ -13,39 +13,47 @@ struct StudentListCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 0) {
-                if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 104, height: 104)
-                        .clipped()
-                } else {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 104, height: 104)
-                }
+            VStack(alignment: .center, spacing: 8) {
+                Rectangle()
+                    .foregroundColor(.clear)
+                    .frame(width: 104, height: 104)
+                    .background(
+                        Group {
+                            if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 104, height: 104)
+                                    .clipped()
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 104, height: 104)
+                            }
+                        }
+                    )
+                    .cornerRadius(999)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 999)
+                            .inset(by: 2.5)
+                            .stroke(.white, lineWidth: 5)
+                    )
                 VStack(alignment: .center, spacing: 8) {
                     Text(student.nickname)
                         .font(.body)
                         .foregroundStyle(.black)
                         .fontWeight(.bold)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 21, maxHeight: 21, alignment: .center)
                 }
                 .padding(.horizontal, 0)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .top)
+                .background(.white)
+                .cornerRadius(32)
             }
         }
-        .padding(0)
-        .frame(minWidth: 120, maxWidth: .infinity, alignment: .topLeading)
-        .background(.white)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .inset(by: 1.5)
-                .stroke(.white, lineWidth: 3)
-        )
         .contextMenu {
             Button(action: onDelete) {
                 Text("Delete")
@@ -59,7 +67,8 @@ struct StudentTabView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
-
+    @State private var searchQuery = "" // State for search query
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -68,7 +77,8 @@ struct StudentTabView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ], spacing: 16) {
-                    ForEach(viewModel.students) { student in
+                    // Filter students based on search query
+                    ForEach(filteredStudents) { student in
                         NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
                             StudentListCard(student: student) {
                                 Task {
@@ -83,14 +93,15 @@ struct StudentTabView: View {
             }
             .background(.bgMain)
             .navigationTitle("Daftar Murid")
+            .searchable(text: $searchQuery) // Add searchable modifier
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Tambah", systemImage: "plus.app.fill", action: { isAddingStudent = true })
-                    .labelStyle(.titleAndIcon)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.regular)
-                    .tint(.white)
-                    .foregroundStyle(.black)
+                        .labelStyle(.titleAndIcon)
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        .tint(.white)
+                        .foregroundStyle(.black)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -101,13 +112,9 @@ struct StudentTabView: View {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
-                ToolbarItem(placement: .bottomBar) {
-                    Button("Tambah Catatan") {
-                        isAddingNote = true
-                    }
-                }
             }
         }
+        .tint(.white)
         .refreshable {
             await viewModel.fetchAllStudents()
         }
@@ -116,6 +123,19 @@ struct StudentTabView: View {
         }
         .task {
             await viewModel.fetchAllStudents()
+        }
+    }
+    
+    // Computed property to filter students based on the search query
+    private var filteredStudents: [Student] {
+        if searchQuery.isEmpty {
+            return viewModel.students // Return all students if no search query
+        } else {
+            return viewModel.students.filter { student in
+                // Check if nickname or fullname contains the search query (case insensitive)
+                student.nickname.localizedCaseInsensitiveContains(searchQuery) ||
+                student.fullname.localizedCaseInsensitiveContains(searchQuery)
+            }
         }
     }
 }

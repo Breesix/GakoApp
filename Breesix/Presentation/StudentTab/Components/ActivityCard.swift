@@ -106,6 +106,7 @@ struct ActivityRow: View {
                     .labelStyle(.iconOnly)
                     .buttonStyle(.bordered)
                     .tint(.red)
+                    .cornerRadius(999)
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
                             onDelete(activity) // Delete confirmed
@@ -159,6 +160,7 @@ struct NoteDetailRow: View {
             .labelStyle(.iconOnly)
             .buttonStyle(.bordered)
             .tint(.red)
+            .cornerRadius(999)
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {
                     onDelete(note) // Delete confirmed
