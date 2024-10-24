@@ -7,14 +7,16 @@
 
 import SwiftUI
 import SwiftData
+import Speech
 
 @main
 struct BreesixApp: App {
     let container: ModelContainer
-    
+    @State private var showTabBar: Bool = true
     init() {
         do {
             container = try ModelContainer(for: Student.self, Note.self, Activity.self)
+            requestSpeechAuthorization()
         } catch {
             fatalError("Failed to create ModelContainer for Student and Activity: \(error)")
         }
@@ -44,9 +46,25 @@ struct BreesixApp: App {
 
 
             let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase, summaryUseCase: summaryUseCase, summaryService: summaryService)
-            
-            MainTabView(studentListViewModel: viewModel)
+            MainTabView(studentListViewModel: viewModel )
         }
         .modelContainer(container)
+    }
+}
+
+func requestSpeechAuthorization() {
+    SFSpeechRecognizer.requestAuthorization { authStatus in
+        switch authStatus {
+        case .authorized:
+            print("Speech recognition authorized")
+        case .denied:
+            print("Speech recognition denied")
+        case .restricted:
+            print("Speech recognition restricted")
+        case .notDetermined:
+            print("Speech recognition not determined")
+        @unknown default:
+            print("Unknown status")
+        }
     }
 }

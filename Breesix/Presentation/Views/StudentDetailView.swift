@@ -18,6 +18,7 @@ struct StudentDetailView: View {
     @State private var activity: Activity?
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
+    @State private var showTabBar = false
     
     private let calendar = Calendar.current
     
@@ -78,7 +79,7 @@ struct StudentDetailView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                        
+                         
                         Spacer()
                         
                         CalendarButton(selectedDate: $selectedDate,
@@ -96,6 +97,7 @@ struct StudentDetailView: View {
                                     .foregroundStyle(Color.customGreen.g300)
                                 
                                 ActivityCardView(
+                                    viewModel: viewModel,
                                     activities: activitiesForSelectedMonth[day] ?? [],
                                     notes: notesForSelectedMonth[day] ?? [],
                                     onAddNote: { isAddingNewNote = true },
@@ -112,6 +114,10 @@ struct StudentDetailView: View {
                 }
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
+        }
+        .toolbar(showTabBar ? .visible : .hidden , for: .tabBar)
+        .onDisappear {
+                showTabBar = true
         }
         .navigationTitle("Profil Murid")
         .navigationBarTitleDisplayMode(.inline)

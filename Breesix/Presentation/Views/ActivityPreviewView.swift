@@ -16,48 +16,49 @@ struct ActivityPreviewView: View {
     @State private var isAddingNewActivity = false
     @State private var selectedStudent: Student?
     var onDismiss: () -> Void
-
-
+    
+        
+    
     var body: some View {
         NavigationView {
-            List {
-                ForEach(viewModel.students) { student in
-                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
-                    if !studentActivities.isEmpty {
-                        Section(header: Text(student.fullname)) {
-                            ForEach(studentActivities) { activity in
-                                ActivityDetailRow(activity: activity, student: student, onEdit: {
-                                    unsavedActivity = activity
-                                }, onDelete: {
-                                    deleteUnsavedActivity(activity)
-                                })
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Preview Aktivitas")
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    viewModel.clearUnsavedActivities()
-                    isShowingActivity = false
-                },
-                trailing: Button("Save") {
-                    saveActivities()
-                }
-                .disabled(isSaving)
-            )
-            .overlay(
-                Group {
-                    if isSaving {
-                        ProgressView("Saving...")
-                            .padding()
-                            .background(Color.secondary.colorInvert())
-                            .cornerRadius(10)
-                            .shadow(radius: 10)
-                    }
-                }
-            )
+            //            List {
+            //                ForEach(viewModel.students) { student in
+            //                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+            //                    if !studentActivities.isEmpty {
+            //                        Section(header: Text(student.fullname)) {
+            //                            ForEach(studentActivities) { activity in
+            //                                ActivityDetailRow(activity: activity, student: student, onEdit: {
+            //                                    unsavedActivity = activity
+            //                                }, onDelete: {
+            //                                    deleteUnsavedActivity(activity)
+            //                                })
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //            .navigationTitle("Preview Aktivitas")
+            //            .navigationBarItems(
+            //                leading: Button("Cancel") {
+            //                    viewModel.clearUnsavedActivities()
+            //                    isShowingActivity = false
+            //                },
+            //                trailing: Button("Save") {
+            //                    saveActivities()
+            //                }
+            //                .disabled(isSaving)
+            //            )
+            //            .overlay(
+            //                Group {
+            //                    if isSaving {
+            //                        ProgressView("Saving...")
+            //                            .padding()
+            //                            .background(Color.secondary.colorInvert())
+            //                            .cornerRadius(10)
+            //                            .shadow(radius: 10)
+            //                    }
+            //                }
+            //            )
         }
         .sheet(item: $unsavedActivity) { activity in
             UnsavedActivityEditView(unsavedActivity: activity, onSave: { updatedActivity in
@@ -65,7 +66,7 @@ struct ActivityPreviewView: View {
             })
         }
     }
-
+    
     private func saveActivities() {
         isSaving = true
         Task {
@@ -87,42 +88,69 @@ struct ActivityPreviewView: View {
 }
 
 struct ActivityDetailRow: View {
-    let activity: UnsavedActivity
+    @Binding var activity: UnsavedActivity
     let student: Student
-    let onEdit: () -> Void
+    let onAddActivity: () -> Void
     let onDelete: () -> Void
+    @State private var showPicker = false
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(activity.activity)
-            if activity.isIndependent ?? false {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                    Text("Mandiri")
+                .font(.headline)
+            
+            // Dropdown menu
+            Menu {
+                Button(action: {
+                    activity.isIndependent = true
+                }) {
+                    HStack {
+                        Text("Mandiri")
+                        if activity.isIndependent == true {
+                            Image(systemName: "checkmark")
+                        }
+                    }
                 }
-                .foregroundColor(.green)
-            } else {
-                HStack {
-                    Image(systemName: "xmark.circle.fill")
-                    Text("Dibimbing")
+                
+                Button(action: {
+                    activity.isIndependent = false
+                }) {
+                    HStack {
+                        Text("Dibimbing")
+                        if activity.isIndependent == false {
+                            Image(systemName: "checkmark")
+                        }
+                    }
                 }
-                .foregroundColor(.red)
+            } label: {
+                HStack {
+                    Text(activity.isIndependent == true ? "Mandiri" : "Dibimbing")
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
             }
-            Text("Date: \(activity.createdAt, formatter: itemFormatter)")
+            
+            HStack {
+                Spacer()
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
+            }
+            .padding(.top, 4)
         }
-        .contextMenu {
-            Button("Edit", action: onEdit)
-            Button("Delete", role: .destructive, action: onDelete)
-        }
+        .padding()
     }
-    
-    private let itemFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
 }
+
+
+
 
 struct UnsavedActivityEditView: View {
     @Environment(\.presentationMode) var presentationMode

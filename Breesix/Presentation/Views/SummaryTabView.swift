@@ -10,6 +10,7 @@ import SwiftUI
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
     @ObservedObject var studentListViewModel: StudentListViewModel
+    @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
     @State private var selectedInputType: InputType = .manual
@@ -19,6 +20,9 @@ struct SummaryTabView: View {
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
     @State private var searchText = ""
+    @State private var showTabBar = true
+    @State private var hideTabBar = false
+
     
     var body: some View {
         NavigationView {
@@ -46,9 +50,11 @@ struct SummaryTabView: View {
                     case .voice:
                         isShowingInputTypeSheet = false
                         isNavigatingToVoiceInput = true
+                        showTabBar = false
                     case .text:
                         isShowingInputTypeSheet = false
                         isNavigatingToTextInput = true
+                        showTabBar = false
                     }
                 })
                 .presentationDetents([.medium])
@@ -56,7 +62,6 @@ struct SummaryTabView: View {
             }
             .sheet(isPresented: $navigateToPreview){
                 PreviewView(viewModel: studentListViewModel, isShowingPreview: $navigateToPreview, isShowingActivity: Binding.constant(false), selectedDate: viewModel.selectedDate)
-                
             }
             .background(
                 NavigationLink(destination: VoiceInputView(viewModel: studentListViewModel, inputType: .speech, isAllStudentsFilled: $isAllStudentsFilled, onDismiss: {
@@ -64,14 +69,21 @@ struct SummaryTabView: View {
                     navigateToPreview = true
                 }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
             )
+            
             .background(
                 NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
                     isNavigatingToTextInput = false
                     navigateToPreview = true
-                }), isActive: $isNavigatingToTextInput) { EmptyView() }
+                    showTabBar = true
+                }), isActive: $isNavigatingToTextInput)
+                
+                { EmptyView() }
             )
+            
         }
         .searchable(text: $searchText)
+        
+        
     }
     
     private var filteredStudents: [Student] {
@@ -91,7 +103,7 @@ struct SummaryTabView: View {
             .datePickerStyle(CompactDatePickerStyle())
             .labelsHidden()
     }
-     
+    
     struct InputTypeButton: View {
         let title: String
         let action: () -> Void
@@ -137,9 +149,9 @@ struct SummaryTabView: View {
                 Text(student.fullname)
                     .font(.title)
                 
-//                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
-//                    ActivityView(activity: latestActivity)
-//                }
+                //                if let latestActivity = student.activities.sorted(by: { $0.createdAt > $1.createdAt }).first {
+                //                    ActivityView(activity: latestActivity)
+                //                }
                 
                 let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
@@ -194,17 +206,17 @@ struct SummaryTabView: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(summaries, id: \.id) { summary in
                     Text(summary.summary)
-                            .font(.body)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 4)
-                            .multilineTextAlignment(.leading)
-                            .foregroundColor(.black)
-                            .background(Color.white)
-                            .cornerRadius(8)
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 4)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.black)
+                        .background(Color.white)
+                        .cornerRadius(8)
                 }
             }
             .padding()
-
+            
         }
         
     }
@@ -226,3 +238,5 @@ enum InputType {
     case speech
     case manual
 }
+
+

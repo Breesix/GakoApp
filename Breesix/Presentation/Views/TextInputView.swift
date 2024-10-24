@@ -19,6 +19,7 @@ struct TextInputView: View {
     @FocusState private var isTextEditorFocused: Bool
     var onDismiss: () -> Void
 
+    @State private var showTabBar = false
     @State private var selectedDate: Date = Date()
 
     private let ttProcessor = OpenAIService(apiToken: "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")
@@ -85,7 +86,8 @@ struct TextInputView: View {
             }
             .padding()
         }
-        .safeAreaPadding()         
+        .hideTabBar()
+        .safeAreaPadding()
 
         .alert(isPresented: $showAlert) {
             Alert(

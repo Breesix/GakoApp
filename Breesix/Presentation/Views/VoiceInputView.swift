@@ -28,25 +28,20 @@ struct VoiceInputView: View {
     @FocusState private var isTextEditorFocused: Bool
     @State private var showProTips: Bool = true
     @State private var selectedDate: Date = Date()
-
+    @State private var showTabBar = false
+    
+    
     var onDismiss: () -> Void
     
     private let ttProcessor = OpenAIService(apiToken: "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")
     
     var body: some View {
         ZStack{
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundColor(Color(red: 0.92, green: 0.96, blue: 0.96))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             VStack(alignment: .center) {
-                Text("[General Activity]")
-                    .font(.title)
-                    .bold()
                 
-            
                 datePickerView()
-                    
+                
                 
                 ZStack {
                     TextEditor(text: $reflection)
@@ -54,7 +49,7 @@ struct VoiceInputView: View {
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .scrollContentBackground(.hidden)
-                        .lineSpacing(10)
+                        .lineSpacing(5)
                         .multilineTextAlignment(.leading)
                         .cornerRadius(10)
                         .focused($isTextEditorFocused)
@@ -66,73 +61,46 @@ struct VoiceInputView: View {
                 
                 Spacer()
                 
-               
-                    ZStack(alignment: .bottom) {
-                        HStack(alignment: .center, spacing: 20) {
+                
+                ZStack(alignment: .bottom) {
+                    HStack(alignment: .center, spacing: 30) {
+                        
+                        Button(action: {
+                            self.speechRecognizer.stopTranscribing()
+                            showAlert = true
+                            
+                        }) {
+                            Image("cancel-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                        }
+                        
+                        
+                        if !isRecord {
                             
                             Button(action: {
-                                self.speechRecognizer.stopTranscribing()
-                                showAlert = true
+                                isRecord = true
+                                isPaused = false
+                                self.speechRecognizer.startTranscribing()
                             }) {
-                                Image("cancel-mic-button")
+                                Image("play-mic-button")
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 60)
+                                    .frame(width: 80)
                             }
+                        } else {
                             
-                            
-                            if !isRecord {
-                               
+                            if isRecord {
                                 Button(action: {
-                                    isRecord = true
-                                    isPaused = false
-                                    self.speechRecognizer.startTranscribing()
-                                }) {
-                                    Image("play-mic-button")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 80)
-                                }
-                            } else {
-                                
-                                if isPaused {
-                                    Button(action: {
-                                        isPaused = false
-                                        self.speechRecognizer.resumeTranscribing()
-                                    }) {
-                                        Image("play-mic-button")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 80)
-                                    }
-                                } else {
-                                    Button(action: {
-                                        isRecord = false
-                                        self.speechRecognizer.stopTranscribing()
-                                        self.reflection = self.speechRecognizer.transcript
-                                        self.processReflectionActivity()
-                                    }) {
-                                        if isLoading {
-                                           
-                                            Circle()
-                                                .fill(Color.white)
-                                                .frame(width: 80, height: 80)
-                                                .overlay {
-                                                    ProgressView()
-                                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                                        .scaleEffect(1.5) // Scale to make it larger
-                                                }
+                                    isPaused.toggle()
+                                        if isPaused {
+                                            self.speechRecognizer.pauseTranscribing()
                                         } else {
-                                            
-                                            Image("save-mic-button")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 80, height: 80)
-                                        }
+                                            self.speechRecognizer.resumeTranscribing()
+                                        
                                     }
-                                    .disabled(isLoading)
-
-                                   
+                                }) {
                                     if isLoading {
                                         Circle()
                                             .fill(Color.white)
@@ -140,38 +108,45 @@ struct VoiceInputView: View {
                                             .overlay {
                                                 ProgressView()
                                                     .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                                    .scaleEffect(1.5)
+                                                    .scaleEffect(1.5) // Scale to make it larger
                                             }
-                                    } else if let error = errorMessage {
-                                        Text(error)
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                            }
-                            
-                            
-                            Button(action: {
-                                if isRecord {
-                                    isPaused.toggle()
-                                    if isPaused {
-                                        self.speechRecognizer.pauseTranscribing()
                                     } else {
-                                        self.speechRecognizer.resumeTranscribing()
+                                        Image(isPaused  ? "pause-mic-button" : "play-mic-button")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 80)
                                     }
                                 }
-                            }) {
-                                Image("pause-mic-button")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 60)
+                                
+                                
                             }
                         }
-                        .padding(10)
+                        
+                        
+                        Button(action: {
+                            if isRecord {
+                                isRecord.toggle()
+                                self.speechRecognizer.stopTranscribing()
+                                self.reflection = self.speechRecognizer.transcript
+                                self.processReflectionActivity()
+                            }
+                        }) {
+                            Image("save-mic-button")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60)
+                        }
+                        .disabled(!isRecord)
+                    }
+                    .padding(10)
                     
                 }
             }
             .padding()
         }
+        .hideTabBar()
+        .navigationBarBackButtonHidden(true)
+        .edgesIgnoringSafeArea(.all)
         .padding()
         .navigationBarBackButtonHidden(true)
         .alert(isPresented: $showAlert) {
@@ -190,10 +165,8 @@ struct VoiceInputView: View {
             }
         }
         .safeAreaPadding()
-        .padding(.vertical, 20)
         .onAppear {
             resetIsFilledTodayIfNeeded()
-            requestSpeechAuthorization()
         }
     }
     
@@ -208,8 +181,11 @@ struct VoiceInputView: View {
     private func processReflectionActivity() {
         Task {
             do {
-                isLoading = true
-                errorMessage = nil
+                // Show the loading state immediately
+                DispatchQueue.main.async {
+                    isLoading = true
+                    errorMessage = nil
+                }
                 
                 await viewModel.fetchAllStudents()
                 
@@ -218,40 +194,46 @@ struct VoiceInputView: View {
                 let (activityList, noteList) = TTCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
                 
                 await MainActor.run {
-                    isLoading = false
-                    isAllStudentsFilled = true
-                    
-                    viewModel.addUnsavedActivities(activityList)
-                    viewModel.addUnsavedNotes(noteList)
-                    
-                    onDismiss()
+                    DispatchQueue.main.async {
+                        // Hide loading and update the view
+                        isLoading = false
+                        isAllStudentsFilled = true
+                        
+                        viewModel.addUnsavedActivities(activityList)
+                        viewModel.addUnsavedNotes(noteList)
+                        
+                        onDismiss()  // Dismiss the view after completion
+                    }
                 }
             } catch {
                 await MainActor.run {
-                    isLoading = false
-                    errorMessage = error.localizedDescription
-                    print("Error in processReflection: \(error)")
+                    DispatchQueue.main.async {
+                        isLoading = false
+                        errorMessage = error.localizedDescription
+                        print("Error in processReflection: \(error)")
+                    }
                 }
             }
         }
     }
     
-    public func requestSpeechAuthorization() {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            switch authStatus {
-            case .authorized:
-                print("Speech recognition authorized")
-            case .denied:
-                print("Speech recognition denied")
-            case .restricted:
-                print("Speech recognition restricted")
-            case .notDetermined:
-                print("Speech recognition not determined")
-            @unknown default:
-                print("Unknown status")
-            }
-        }
-    }
+    
+    //    public func requestSpeechAuthorization() {
+    //        SFSpeechRecognizer.requestAuthorization { authStatus in
+    //            switch authStatus {
+    //            case .authorized:
+    //                print("Speech recognition authorized")
+    //            case .denied:
+    //                print("Speech recognition denied")
+    //            case .restricted:
+    //                print("Speech recognition restricted")
+    //            case .notDetermined:
+    //                print("Speech recognition not determined")
+    //            @unknown default:
+    //                print("Unknown status")
+    //            }
+    //        }
+    //    }
     
     private func datePickerView() -> some View {
         DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)

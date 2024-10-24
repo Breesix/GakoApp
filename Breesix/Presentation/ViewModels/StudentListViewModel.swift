@@ -155,6 +155,10 @@ class StudentListViewModel: ObservableObject {
     func addUnsavedNote(_ note: UnsavedNote) {
         unsavedNotes.append(note)
     }
+    func addUnsavedActivity(_ activity: UnsavedActivity) {
+        unsavedActivities.append(activity)
+    }
+
     
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
         unsavedActivities.append(contentsOf: activities)
