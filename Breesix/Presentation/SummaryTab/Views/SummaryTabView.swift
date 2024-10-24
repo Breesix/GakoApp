@@ -71,11 +71,12 @@ struct SummaryTabView: View {
                    }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
                )
                .background(
-                   NavigationLink(destination: TextInputView(studentListViewModel: studentListViewModel, onDismiss: {
+                   NavigationLink(destination: TextInputView(selectedDate: $viewModel.selectedDate, studentListViewModel: studentListViewModel, onDismiss: {
                        isNavigatingToTextInput = false
                        navigateToPreview = true
                    }), isActive: $isNavigatingToTextInput) { EmptyView() }
                )
+
            }
            .navigationBarHidden(true)
            .task {
