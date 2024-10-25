@@ -19,7 +19,7 @@ struct InputTypeSheet: View {
     var onSelect: (InputTypeUser) -> Void
     
     var body: some View {
-        VStack {
+        VStack (spacing: 0) {
             Spacer()
 
             Text("Pilih Metode Input")
@@ -28,19 +28,27 @@ struct InputTypeSheet: View {
             
             Spacer()
             
-            HStack {
+            HStack (spacing: 0) {
                 Button(action: {
                     onSelect(.voice)
                     presentationMode.wrappedValue.dismiss()
                 }) {
-                    InputTypeCard(inputType: "[Suara]")
+                    Image("voice-input-card")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 208)
                 }
+                
+                Spacer()
                 
                 Button(action: {
                     onSelect(.text)
                     presentationMode.wrappedValue.dismiss()
                 }) {
-                    InputTypeCard(inputType: "[Teks]")
+                    Image("text-input-card")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 208)
                 }
             }
             .foregroundStyle(.black)
