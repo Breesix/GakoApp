@@ -21,6 +21,8 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     var onDismiss: () -> Void
+    @State private var showEmptyStudentsAlert: Bool = false
+    @State private var showEmptyReflectionAlert: Bool = false
 
     init(selectedDate: Binding<Date>, studentListViewModel: StudentTabViewModel, onDismiss: @escaping () -> Void) {
         self.studentListViewModel = studentListViewModel
@@ -82,7 +84,7 @@ struct TextInputView: View {
                     Button {
                         processReflectionActivity()
                     } label: {
-                        Text("Simpan")
+                        Text("Lanjutkan")
                             .font(.body)
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity, maxHeight: 50)
@@ -110,15 +112,23 @@ struct TextInputView: View {
         }
         .navigationBarHidden(true)
 
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Batalkan Dokumentasi?"),
-                message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
-                primaryButton: .destructive(Text("Ya")) {
+        .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
+                Button("Batalkan Dokumentasi", role: .destructive, action: {
                     presentationMode.wrappedValue.dismiss()
-                },
-                secondaryButton: .cancel(Text("Tidak"))
-            )
+                })
+                Button("Lanjut Dokumentasi", role: .cancel, action: {})
+        } message: {
+            Text("Semua teks yang baru saja Anda masukkan akan terhapus secara permanen.")
+        }
+        .alert("Tidak Ada Data Murid", isPresented: $showEmptyStudentsAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Anda perlu menambahkan data murid terlebih dahulu sebelum membuat dokumentasi.")
+        }
+        .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Mohon isi curhatan sebelum melanjutkan.")
         }
         .sheet(isPresented: $isShowingDatePicker) {
             DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
@@ -138,6 +148,7 @@ struct TextInputView: View {
     }
     
     private func processReflectionActivity() {
+        
         Task {
             do {
                 isLoading = true
@@ -145,6 +156,19 @@ struct TextInputView: View {
 
                 await studentListViewModel.fetchAllStudents()
 
+                if studentListViewModel.students.isEmpty {
+                                await MainActor.run {
+                                    isLoading = false
+                                    showEmptyStudentsAlert = true
+                                }
+                                return
+                            }
+
+                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showEmptyReflectionAlert = true
+                    return
+                }
+                
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
 
                 let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
