@@ -33,6 +33,10 @@ struct StudentSummaryCard: View {
                         .foregroundColor(.white)
                         .background(.green600)
                         .clipShape(Circle())
+                        .overlay {
+                            Circle()
+                                .stroke(.green600, lineWidth: 1)
+                        }
                 }
                 Text(student.fullname)
                 Spacer()
