@@ -32,7 +32,7 @@ struct TextInputView: View {
         self.onDismiss = onDismiss
     }
     
-    private let ttProcessor = NemotronService(apiKey: "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")
+    private let ttProcessor = NemotronService(apiKey: "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")
     
     var body: some View {
         ZStack {

@@ -29,7 +29,7 @@ class NemotronService {
 
                 1. Bacalah curhatan dengan seksama dan identifikasi semua siswa yang disebutkan dalam curhatan, baik dengan nama lengkap maupun nama panggilan.
                 2. Ekstrak semua aktivitas yang tercantum dalam curhatan untuk setiap siswa.
-        3.  tolong bedakan menjadi 2 tipe aktivitas: aktivitas tipe A, yaitu aktivitas-aktivitas yang umumnya menjadi sebuah materi aktivitas pembelajaran harian di sebuah sekolah SLB untuk anak-anak autisme (kegiatan-kegiatan seputar latihan motorik, wicara, rohani, dsb); aktivitas tipe  B, yaitu observasi perilaku non-pelajaran atau perilaku tak terduga, yaitu  terkait hal-hal yang diluar pembelajaran formal, misalnya hal-hal interpersonal, intrapersonal, sosial, sikap dengan teman sekelas dan sebagainya (mis: dia berantem, dia tantrum, dia jatuh, dsb)..
+        3.  tolong bedakan menjadi 2 tipe aktivitas: aktivitas tipe A, yaitu aktivitas-aktivitas yang umumnya menjadi sebuah materi aktivitas pembelajaran harian di sebuah sekolah SLB untuk anak-anak autisme (kegiatan-kegiatan seputar latihan motorik, wicara, rohani, dsb); aktivitas tipe  B, yaitu observasi perilaku non-pelajaran atau perilaku tak terduga, yaitu  terkait hal-hal yang diluar pembelajaran formal, misalnya hal-hal interpersonal, intrapersonal, sosial, sikap dengan teman sekelas dan sebagainya (mis: dia berantem, dia tantrum, dia jatuh, dsb).
                 4. Tentukan untuk setiap aktivitas yang termasuk ke tipe aktivitas A, apakah siswa melakukannya secara "mandiri" atau "dibimbing”. Jika Mandiri = True, Jika Dibimbing = False.
                 Jika ada indikasi pengecualian, maka bukan berarti murid tersebut tidak melakukan aktivitas tersebut. Misal “Semua anak Bermain Balok dengan hebat kecuali Rangga“ atau “Semua anak kecuali Rangga Bermain Balok dengan hebat” maka dalam kasus ini status kemandirian Rangga adalah “Bermain Balok (false)”
                 5. Jika suatu aktivitas yang termasuk ke tipe aktivitas A tidak disebutkan untuk siswa tertentu, isikan status kemandirian aktivitas tersebut dengan "null".
@@ -38,9 +38,11 @@ class NemotronService {
                 8. Format output harus dalam bentuk CSV dengan kolom sesuai dengan Input User:
                 - Nama Lengkap
                 - Nama Panggilan
-                - Aktivitas pembelajaran  (status kemandirian)
-                - Curhatan 
-                9. Output adalah berupa CSV saja
+                - Aktivitas  (status kemandirian)
+                - Curhatan
+        9. yang dimasukkan ke kolom Aktivitas (status kemandirian) hanyalah aktivitas tipe A saja
+        10. yang dimasukkan ke kolom curhattan adalah sesuai instruksi nomor 6.
+                11. Output yang anda berikan berupa CSV saja, tidak perlu penjelasan atau catatan tambahan terkait hasil yang anda berikan.
 
                 Contoh Versi 1:
 
@@ -50,7 +52,7 @@ class NemotronService {
 
                 **Contoh Output:**
                 ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
                 Rangga Hadi,Rangga,"Upacara (true)|Memotong kuku (true)", "Rangga menunjukkan kedisiplinan dalam upacara."
                 Joko Sambodo,JokSa,"Upacara (true)|Memotong kuku (false)", "JokSa perlu banyak latih diri agar bisa mandiri."
                 Samuel Suharto,Samuel,”Upacara (true)|Memotong kuku (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
@@ -64,7 +66,7 @@ class NemotronService {
 
                 **Contoh Output:**
                 ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
                 Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara."
                 Joko Sambodo,JokSa,"Upacara (false)”, "JokSa perlu banyak latih diri agar bisa disiplin.”
                 Samuel Suharto,Samuel,”Upacara (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
@@ -79,7 +81,7 @@ class NemotronService {
 
                 **Contoh Output:**
                 ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
                 Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (true)”, "Rangga menunjukkan kedisiplinan dalam upacara dan menyanyi sangat merdu.”
                 Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (true)”, "Joko menyanyi sangat merdu."
                 Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (true)”, “Samuel Menyanyi Sangat Merdu.”
@@ -88,7 +90,7 @@ class NemotronService {
                 Contoh Versi 4:
 
                 **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+                Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
                 curhatan Guru: “Rangga Upacara dengan baik dan Samuel bernyanyi dengan butuh bimbingan”
 
                 **Contoh Output:**
@@ -102,7 +104,7 @@ class NemotronService {
                 Contoh Versi 5:
 
                 **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+                Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
                 curhatan Guru: “Rangga Upacara dengan baik”
 
                 **Contoh Output:**
@@ -120,12 +122,12 @@ class NemotronService {
 
                 **Contoh Output:**
                 ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
                 Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
                 Joko Sambodo,JokSa,"Upacara (false)|Senam (null)”, “Joko membutuhkan bimbingan dalam upacara.”
                 Samuel Suharto,Samuel,”Upacara (true)|Senam (false)”, “Samuel Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam.”
-        ————
 
+        Hasilkan CSV Output only sesuai dengan instruksi yang telah diberikan
         """
 
         let userInput = """
@@ -141,7 +143,7 @@ class NemotronService {
         
         // Buat request body untuk Nemotron
         let requestBody: [String: Any] = [
-            "model": "nvidia/llama-3.1-nemotron-70b-instruct",
+            "model": "meta/llama-3.1-405b-instruct",
             "messages": [
                 ["role": "user", "content": fullPrompt]
             ],
@@ -149,6 +151,8 @@ class NemotronService {
             "max_tokens": 1024,
             "top_p": 1
         ]
+        
+        print(fullPrompt)
         
         var request = URLRequest(url: URL(string: baseURL)!)
         request.httpMethod = "POST"

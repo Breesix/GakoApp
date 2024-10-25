@@ -17,9 +17,9 @@ class StudentTabViewModel: ObservableObject {
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
-    private let summaryService: SummaryService
     private let summaryUseCase: SummaryUseCase
-    
+    private let nemotronService: NemotronSummaryService
+
     @Published var newStudentImage: UIImage? {
         didSet {
             if let image = newStudentImage {
@@ -32,12 +32,13 @@ class StudentTabViewModel: ObservableObject {
     
     @Published private(set) var compressedImageData: Data?
     
-    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService) {
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, nemotronService: NemotronSummaryService) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
         self.activityUseCases = activityUseCases
         self.summaryUseCase = summaryUseCase
-        self.summaryService = summaryService
+        self.nemotronService = nemotronService
+
     }
     
     @MainActor
@@ -231,7 +232,8 @@ class StudentTabViewModel: ObservableObject {
             print("Error updating activity: \(error)")
         }
     }
-    func generateAndSaveSummaries(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: students, on: date)
-    }
+    
+    func generateAndSaveNemotronSummaries(for date: Date) async throws {
+          try await nemotronService.generateAndSaveSummaries(for: students, on: date)
+      }
 }

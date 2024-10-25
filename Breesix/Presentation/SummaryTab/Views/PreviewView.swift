@@ -75,7 +75,6 @@ struct PreviewView: View {
                 },
                 trailing: Button("Simpan") {
                     saveActivities()
-//                    saveNotes()
                 }
                 .disabled(isSaving)
             )
@@ -133,7 +132,7 @@ struct PreviewView: View {
                 
                 try await viewModel.saveUnsavedNotes()
                 
-                try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                try await viewModel.generateAndSaveNemotronSummaries(for: viewModel.selectedDate)
                 
                 await MainActor.run {
                     isSaving = false
