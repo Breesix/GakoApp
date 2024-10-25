@@ -12,12 +12,11 @@ struct ProfileHeader: View {
     
     var body: some View {
         ZStack {
-            Color(red: 0.43, green: 0.64, blue: 0.32)
-                .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
+            Color.bgMain
                 .ignoresSafeArea(edges: .top)
             
-            VStack(spacing: 0) {
-                HStack(spacing: 12) {
+            VStack(spacing: 8) {
+                HStack(alignment:.center, spacing: 12) {
                     if let imageData = student.imageData,
                        let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
@@ -29,25 +28,28 @@ struct ProfileHeader: View {
                         Image(systemName: "person.circle.fill")
                             .resizable()
                             .frame(width: 40, height: 40)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.bgSecondary)
                             .clipShape(Circle())
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(student.fullname)
                             .font(.title3)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
                             .fontWeight(.semibold)
                         
                         Text(student.nickname)
                             .font(.callout)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
                     }
                     Spacer()
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
+                
+                Divider()
             }
         }
         .frame(height: 84)

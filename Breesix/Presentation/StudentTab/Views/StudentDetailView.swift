@@ -20,7 +20,12 @@ struct StudentDetailView: View {
     @State private var isShowingCalendar: Bool = false
     @State private var noActivityAlertPresented = false
     
+    // Add this to handle tab bar visibility
+    @State private var isTabBarHidden = true
+    
     private let calendar = Calendar.current
+    
+    @Environment(\.presentationMode) var presentationMode
     
     init(student: Student, viewModel: StudentTabViewModel) {
         self.student = student
@@ -29,12 +34,14 @@ struct StudentDetailView: View {
     
     private var formattedMonth: String {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "id_ID")
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: selectedDate)
     }
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "id_ID")
         formatter.dateFormat = "dd MMM yyyy"
         return formatter
     }()
@@ -44,6 +51,44 @@ struct StudentDetailView: View {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 8) {
+                
+                ZStack {
+                    Color(.bgSecondary)
+                        .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
+                        .ignoresSafeArea(edges: .top)
+                    
+                    VStack(spacing: 0) {
+                        HStack(spacing: 16) {
+                            Button(action: {
+                                // Show tab bar before dismissing
+                                isTabBarHidden = false
+                                presentationMode.wrappedValue.dismiss()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "chevron.left")
+                                        .foregroundColor(.white)
+                                    Text("Murid")
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                            Spacer()
+                            
+                            Button(action: {
+                                isEditing = true
+                            }) {
+                                HStack(spacing: 4) {
+                                    Text("Edit Profil")
+                                        .foregroundStyle(.white)
+                                }
+                                // Reduce left padding to move closer to edge
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                    }
+                }
+                .frame(height: 58)
+                
                 ProfileHeader(student: student)
                 
                 VStack(spacing: 8) {
@@ -55,10 +100,12 @@ struct StudentDetailView: View {
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
                                 Image(systemName: "chevron.left")
+                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
                             }
                             
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
+                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
                             }
                         }
                         
@@ -80,30 +127,25 @@ struct StudentDetailView: View {
                         )
                     }
                     .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     
                     ScrollViewReader { scrollProxy in
                         ScrollView {
                             ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                                VStack(alignment: .leading) {
-                                    Text("\(day, formatter: dateFormatter)") // Show the day
-                                        .font(.headline)
-                                        .padding(.top)
-                                        .padding(.horizontal, 16)
-                                        .foregroundStyle(Color.customGreen.g300)
-                                    
-                                    ActivityCard(
-                                        activities: activitiesForSelectedMonth[day] ?? [],
-                                        notes: notesForSelectedMonth[day] ?? [],
-                                        onAddNote: { isAddingNewNote = true },
-                                        onAddActivity: { isAddingNewActivity = true },
-                                        onEditActivity: { self.activity = $0 },
-                                        onDeleteActivity: deleteActivity,
-                                        onEditNote: { self.selectedNote = $0 },
-                                        onDeleteNote: deleteNote
-                                    )
-                                    .padding(.horizontal, 16)
-                                    .id(day) // Assign an ID for scrolling
-                                }
+                                ActivityCard(
+                                    activities: activitiesForSelectedMonth[day] ?? [],
+                                    notes: notesForSelectedMonth[day] ?? [],
+                                    date: day,
+                                    onAddNote: { isAddingNewNote = true },
+                                    onAddActivity: { isAddingNewActivity = true },
+                                    onEditActivity: { self.activity = $0 },
+                                    onDeleteActivity: deleteActivity,
+                                    onEditNote: { self.selectedNote = $0 },
+                                    onDeleteNote: deleteNote
+                                )
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .id(day)
                             }
                         }
                         .onChange(of: selectedDate) { newDate in
@@ -120,34 +162,39 @@ struct StudentDetailView: View {
                                 noActivityAlertPresented = true
                             }
                         }
-//                        .onChange(of: selectedDate) { newDate in
-//                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-//                                if activitiesOnSelectedDate.isEmpty {
-//                                    noActivityAlertPresented = true
-//                                } else {
-//                                    // Close the calendar and scroll to the activity card
-//                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
-//                                    isShowingCalendar = false
-//                                }
-//                            }
-//                        }
+                        //                        .onChange(of: selectedDate) { newDate in
+                        //                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+                        //                                if activitiesOnSelectedDate.isEmpty {
+                        //                                    noActivityAlertPresented = true
+                        //                                } else {
+                        //                                    // Close the calendar and scroll to the activity card
+                        //                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
+                        //                                    isShowingCalendar = false
+                        //                                }
+                        //                            }
+                        //                        }
                     }
                 }
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(
-            leading: BackButton(),
-            trailing: Button("Edit Profil") {
-                isEditing = true
-            }
-                .foregroundColor(.white)
-        )
+        .toolbar(.hidden, for: .tabBar)
+        .onDisappear {
+            // Ensure tab bar is shown when view disappears
+            isTabBarHidden = false
+        }
+        .navigationBarHidden(true) // Add this line
+        //        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        //
+        //        .navigationBarTitleDisplayMode(.inline)
+        //        .navigationBarItems(
+        //            leading: BackButton(),
+        //            trailing: Button("Edit Profil") {
+        //                isEditing = true
+        //            }
+        //                .foregroundColor(.white)
+        //        )
         
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
@@ -254,18 +301,21 @@ struct CalendarButton: View {
     var onDateSelected: (Date) -> Void // Closure for date selection
     
     var body: some View {
+        
         Button(action: { isShowingCalendar = true }) {
-            HStack(spacing: 8) {
-                Image(systemName: "calendar")
-                    .foregroundStyle(.white)
-            }
-            .padding()
-            .background(Color(red: 0.43, green: 0.64, blue: 0.32))
-            .cornerRadius(999)
+            Label("Kalender", systemImage: "calendar")
         }
+        .frame(width: 34, height: 34)
+        .labelStyle(.iconOnly)
+        .buttonStyle(.bordered)
+        .foregroundStyle(.white)
+        .background(Color(red: 1, green: 0.68, blue: 0.12))
+        .cornerRadius(999)
+        
         .sheet(isPresented: $isShowingCalendar) {
             DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
+                .environment(\.locale, Locale(identifier: "id_ID")) // Set locale to Indonesian
                 .presentationDetents([.fraction(0.55)])
                 .onChange(of: selectedDate) { newDate in
                     onDateSelected(newDate) // Call the closure when date changes
@@ -309,7 +359,23 @@ struct BackButton: View {
                 Text("Murid")
                     .foregroundStyle(.white)
             }
-             // Reduce left padding to move closer to edge
+            // Reduce left padding to move closer to edge
         }
     }
 }
+
+//struct EditProfilButton: View {
+//    @Environment(\.presentationMode) var presentationMode
+//
+//    var body: some View {
+//        Button(action: {
+//            isEditing = true
+//        }) {
+//            HStack(spacing: 4) {
+//                Text("Edit Profil")
+//                    .foregroundStyle(.white)
+//            }
+//             // Reduce left padding to move closer to edge
+//        }
+//    }
+//}

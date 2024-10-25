@@ -10,6 +10,7 @@ import SwiftUI
 struct ActivityCard: View {
     let activities: [Activity]
     let notes: [Note]
+    let date: Date  // Add date parameter
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
@@ -17,14 +18,47 @@ struct ActivityCard: View {
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     
+    func indonesianFormattedDate(date: Date) -> String {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "id_ID")
+            formatter.dateStyle = .full
+            formatter.timeStyle = .none
+            return formatter.string(from: date)
+        }
+    
     var body: some View {
-        VStack(alignment: .trailing, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Date header
+            HStack {
+                Text(indonesianFormattedDate(date: date))
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+                    .padding(.bottom, 8)
+                
+                Spacer()
+                
+                Button("Share", systemImage: "square.and.arrow.up.fill", action: onAddActivity)
+                    .frame(width: 34, height: 34)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+                    .background(Color.buttonOncard)
+                    .cornerRadius(999)
+            }
+            
+            // Activities section
             ActivitySection(
                 activities: activities,
                 onEditActivity: onEditActivity,
-                onDeleteActivity: onDeleteActivity, onAddActivity: onAddActivity
+                onDeleteActivity: onDeleteActivity,
+                onAddActivity: onAddActivity
             )
             
+            // Divider
+            Divider()
+                .padding(.vertical, 8)
+            
+            // Notes section
             NoteSection(
                 notes: notes,
                 onEditNote: onEditNote,
@@ -32,11 +66,16 @@ struct ActivityCard: View {
                 onAddNote: onAddNote
             )
         }
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(16)
+        .background(.white)
+        .cornerRadius(20)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
     }
 }
-
 struct ActivitySection: View {
     let activities: [Activity]
     let onEditActivity: (Activity) -> Void
@@ -58,15 +97,17 @@ struct ActivitySection: View {
                 Label("Tambah", systemImage: "plus.app.fill")
             }
             .buttonStyle(.bordered)
+            .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+            .background(Color.buttonOncard)
         }
-        .padding(12)
-        .background(.white)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .inset(by: 0.25)
-                .stroke(.green, lineWidth: 0.5)
-        )
+//        .padding(12)
+//        .background(.white)
+//        .cornerRadius(8)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
     }
 }
 
@@ -103,6 +144,7 @@ struct ActivityRow: View {
                     Button("Hapus", systemImage: "trash.fill", action: {
                         showDeleteAlert = true // Show alert when button is pressed
                     })
+                    .frame(width: 34, height: 34)
                     .labelStyle(.iconOnly)
                     .buttonStyle(.bordered)
                     .tint(.red)
