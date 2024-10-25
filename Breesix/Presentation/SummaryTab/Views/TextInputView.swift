@@ -106,7 +106,6 @@ struct TextInputView: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(isLoading ?  .labelTertiary : .destructive)
                     .disabled(isLoading)
-                    .opacity(isLoading ? 0.5 : 1)
                 }
                 .padding(.horizontal, 28)
                 Spacer()
