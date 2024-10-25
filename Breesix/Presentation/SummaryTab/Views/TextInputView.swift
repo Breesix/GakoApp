@@ -42,9 +42,11 @@ struct TextInputView: View {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     isTextEditorFocused = false
                 }
+            
             VStack (spacing: 16) {
                 datePickerView()
                     .padding(.top, 24)
+                    .disabled(isLoading)
                 VStack (spacing: 16) {
                     ZStack (alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 8)
@@ -69,6 +71,8 @@ struct TextInputView: View {
                             .cornerRadius(8)
                             .focused($isTextEditorFocused)
                             .scrollContentBackground(.hidden)
+                            .disabled(isLoading)
+                            .opacity(isLoading ? 0.5 : 1)
                     }
                     .onAppear() {
                         UITextView.appearance().backgroundColor = .clear
@@ -88,10 +92,11 @@ struct TextInputView: View {
                             .font(.body)
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity, maxHeight: 50)
-                            .background(.buttonPrimaryOnBg)
-                            .foregroundColor(.white)
+                            .background(isLoading ? .fillTertiary : .buttonPrimaryOnBg)
+                            .foregroundStyle(isLoading ?  .labelTertiary : .white)
                             .cornerRadius(12)
                     }
+                    .disabled(isLoading)
                     
                     Button("Batal") {
                         showAlert = true
@@ -99,14 +104,31 @@ struct TextInputView: View {
                     .padding(.top, 9)
                     .font(.body)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.destructive)
+                    .foregroundStyle(isLoading ?  .labelTertiary : .destructive)
+                    .disabled(isLoading)
+                    .opacity(isLoading ? 0.5 : 1)
                 }
                 .padding(.horizontal, 28)
                 Spacer()
                 if showProTips {
-                    TipsCard()
-                        .padding(.horizontal, 40)
-                    Spacer()
+                    if isLoading {
+                        VStack (spacing: 40) {
+                            Text("Memproses Informasi...")
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.greenClr)
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .scaleEffect(3)
+                                .padding(.horizontal, 40)
+                                .tint(.buttonPrimaryOnBg)
+                        }
+                        .padding(.bottom, 44)
+                    } else {
+                        TipsCard()
+                            .padding(.horizontal, 40)
+                        Spacer()
+                    }
                 }
             }
         }
@@ -148,7 +170,9 @@ struct TextInputView: View {
     }
     
     private func processReflectionActivity() {
-        
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        isTextEditorFocused = false
+
         Task {
             do {
                 isLoading = true
@@ -162,10 +186,13 @@ struct TextInputView: View {
                                     showEmptyStudentsAlert = true
                                 }
                                 return
-                            }
+                }
 
                 if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    showEmptyReflectionAlert = true
+                    await MainActor.run {
+                        isLoading = false
+                        showEmptyReflectionAlert = true
+                    }
                     return
                 }
                 
@@ -201,10 +228,10 @@ struct TextInputView: View {
             }
             .font(.subheadline)
             .fontWeight(.semibold)
-            .foregroundStyle(.buttonPrimaryLabel)
+            .foregroundStyle(isLoading ?  .labelTertiary : .buttonPrimaryLabel)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(.bgMain)
+            .background(isLoading ? .buttonOncard : .bgMain)
             .cornerRadius(8)
         }
     }
