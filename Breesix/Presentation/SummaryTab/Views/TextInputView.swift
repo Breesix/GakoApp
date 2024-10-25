@@ -32,8 +32,8 @@ struct TextInputView: View {
         self.onDismiss = onDismiss
     }
     
-    private let ttProcessor = OpenAIService(apiToken: "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")
-
+    private let ttProcessor = NemotronService(apiKey: "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")
+    
     var body: some View {
         ZStack {
             Color.clear
