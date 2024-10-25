@@ -71,41 +71,52 @@ struct StudentTabView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                CustomNavigationBar(title: "Daftar Murid") {
-                    isAddingStudent = true
-                }
-                CustomSearchBar(text: $searchQuery)
-                    .padding(.vertical)
+            ZStack {
+                // Background view to handle taps
+                Color.bgMain
+                    .dismissKeyboardOnTap()
                 
-                if viewModel.students.isEmpty {
-                    EmptyState(message: "Belum ada murid yang terdaftar.")
-                } else if filteredStudents.isEmpty {
-                    EmptyState(message: "Tidak ada murid yang sesuai dengan pencarian.")
-                } else {
-                    ScrollView {
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: 16) {
-                            ForEach(filteredStudents) { student in
-                                NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
-                                    StudentListCard(student: student) {
-                                        Task {
-                                            await viewModel.deleteStudent(student)
+                VStack {
+                    CustomNavigationBar(title: "Daftar Murid") {
+                        isAddingStudent = true
+                    }
+                    CustomSearchBar(text: $searchQuery)
+                        .padding(.vertical)
+                    
+                    if viewModel.students.isEmpty {
+                        Spacer()
+                        EmptyState(message: "Belum ada murid yang terdaftar.")
+                    } else if filteredStudents.isEmpty {
+                        Spacer()
+                        EmptyState(message: "Tidak ada murid yang sesuai dengan pencarian.")
+                    } else {
+                        ScrollView {
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: 16) {
+                                ForEach(filteredStudents) { student in
+                                    NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
+                                        StudentListCard(student: student) {
+                                            Task {
+                                                await viewModel.deleteStudent(student)
+                                            }
                                         }
                                     }
                                 }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
                     }
+                    
+                    Spacer()
                 }
             }
             .background(Color.bgMain)
         }
+        .searchable(text: $searchQuery)
         .refreshable {
             await viewModel.fetchAllStudents()
         }
@@ -149,7 +160,7 @@ struct CustomSearchBar: View {
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 8)
                         
-                        if isEditing {
+                        if !text.isEmpty {
                             Button(action: {
                                 self.text = ""
                             }) {
@@ -162,22 +173,26 @@ struct CustomSearchBar: View {
                 )
                 .padding(.horizontal, 10)
                 .onTapGesture {
-                    self.isEditing = true
+                    withAnimation {
+                        self.isEditing = true
+                    }
                 }
             
             if isEditing {
                 Button(action: {
-                    self.isEditing = false
-                    self.text = ""
-                    // Dismiss the keyboard
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    withAnimation {
+                        self.isEditing = false
+                        self.text = ""
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                        to: nil,
+                                                        from: nil,
+                                                        for: nil)
+                    }
                 }) {
                     Text("Cancel")
                         .foregroundStyle(.destructive)
                 }
                 .padding(.trailing, 10)
-                .transition(.move(edge: .trailing))
-                .animation(.default)
             }
         }
     }

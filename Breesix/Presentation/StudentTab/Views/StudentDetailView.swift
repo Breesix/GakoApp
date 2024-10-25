@@ -55,12 +55,10 @@ struct StudentDetailView: View {
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
                                 Image(systemName: "chevron.left")
-                                    .foregroundColor(.green)
                             }
                             
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.green)
                             }
                         }
                         
@@ -269,7 +267,6 @@ struct CalendarButton: View {
             DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 .presentationDetents([.fraction(0.55)])
-                .tint(.green)
                 .onChange(of: selectedDate) { newDate in
                     onDateSelected(newDate) // Call the closure when date changes
                 }
