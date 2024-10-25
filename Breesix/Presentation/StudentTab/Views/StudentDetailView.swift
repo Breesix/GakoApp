@@ -18,6 +18,8 @@ struct StudentDetailView: View {
     @State private var activity: Activity?
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
+    @State private var showTabBar = false
+
     @State private var noActivityAlertPresented = false
     
     // Add this to handle tab bar visibility
@@ -108,7 +110,7 @@ struct StudentDetailView: View {
                                     .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
                             }
                         }
-                        
+                         
                         Spacer()
                         CalendarButton(
                             selectedDate: $selectedDate,
@@ -132,20 +134,24 @@ struct StudentDetailView: View {
                     ScrollViewReader { scrollProxy in
                         ScrollView {
                             ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                                ActivityCard(
+                                
+                                ActivityCardView(
+                                    viewModel: viewModel,
                                     activities: activitiesForSelectedMonth[day] ?? [],
                                     notes: notesForSelectedMonth[day] ?? [],
                                     date: day,
+
                                     onAddNote: { isAddingNewNote = true },
                                     onAddActivity: { isAddingNewActivity = true },
                                     onEditActivity: { self.activity = $0 },
                                     onDeleteActivity: deleteActivity,
                                     onEditNote: { self.selectedNote = $0 },
-                                    onDeleteNote: deleteNote
+                                    onDeleteNote: deleteNote, student: student
                                 )
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                                 .id(day)
+
                             }
                         }
                         .onChange(of: selectedDate) { newDate in
@@ -178,14 +184,9 @@ struct StudentDetailView: View {
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
-        .toolbar(.hidden, for: .tabBar)
-        .onDisappear {
-            // Ensure tab bar is shown when view disappears
-            isTabBarHidden = false
-        }
-        .navigationBarHidden(true) // Add this line
-        //        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
-        .toolbarBackground(.hidden, for: .navigationBar)
+
+        .hideTabBar()
+
         
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
