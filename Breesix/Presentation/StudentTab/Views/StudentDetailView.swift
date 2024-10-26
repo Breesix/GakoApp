@@ -19,14 +19,9 @@ struct StudentDetailView: View {
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
     @State private var showTabBar = false
-
     @State private var noActivityAlertPresented = false
-    
-    // Add this to handle tab bar visibility
     @State private var isTabBarHidden = true
-    
     private let calendar = Calendar.current
-    
     @Environment(\.presentationMode) var presentationMode
     
     init(student: Student, viewModel: StudentTabViewModel) {
@@ -62,7 +57,6 @@ struct StudentDetailView: View {
                     VStack(spacing: 0) {
                         HStack(spacing: 16) {
                             Button(action: {
-                                // Show tab bar before dismissing
                                 isTabBarHidden = false
                                 presentationMode.wrappedValue.dismiss()
                             }) {
@@ -165,20 +159,8 @@ struct StudentDetailView: View {
                                 noActivityAlertPresented = true
                             }
                         }
-                        //                        .onChange(of: selectedDate) { newDate in
-                        //                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                        //                                if activitiesOnSelectedDate.isEmpty {
-                        //                                    noActivityAlertPresented = true
-                        //                                } else {
-                        //                                    // Close the calendar and scroll to the activity card
-                        //                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
-                        //                                    isShowingCalendar = false
-                        //                                }
-                        //                            }
-                        //                        }
                     }
                 }
-                .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
         .hideTabBar()

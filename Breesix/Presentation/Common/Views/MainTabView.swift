@@ -48,7 +48,7 @@ struct MainTabView: View {
             HStack(spacing: 0) {
                 ForEach(TabbedItems.allCases, id: \.self) { item in
                     Button {
-                        withAnimation(.none) { // Menghilangkan animasi saat pergantian tab
+                        withAnimation(.none) {
                             selectedTab = item.rawValue
                         }
                     } label: {
@@ -65,7 +65,6 @@ struct MainTabView: View {
             }
             .background(Color.white)
             .frame(height: 72)
-            //.padding(.horizontal, -10)
             .padding(.bottom, 5)
         }
     }
@@ -134,7 +133,6 @@ final class ImageCache {
     }
 }
 
-// Modifikasi cara loading gambar background
 extension MainTabView {
     func getBackgroundImage(isActive: Bool, activeImage: String, inactiveImage: String) -> Image {
         let imageName = isActive ? activeImage : inactiveImage

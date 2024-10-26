@@ -78,22 +78,29 @@ struct StudentTabView: View {
                         dismissKeyboard()
                     }
                 
-                VStack {
+                VStack (spacing: 0) {
                     CustomNavigationBar(title: "Daftar Murid") {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)
-                        .padding(.vertical)
-                    ScrollView {
-                        VStack {
-                            
-                            if viewModel.students.isEmpty {
+//                        .padding(.vertical)
+                        .padding(16)
+                    
+                    Group {
+                        if viewModel.students.isEmpty {
+                            VStack {
                                 Spacer()
                                 EmptyState(message: "Belum ada murid yang terdaftar.")
-                            } else if filteredStudents.isEmpty {
+                                Spacer()
+                            }
+                        } else if filteredStudents.isEmpty {
+                            VStack {
                                 Spacer()
                                 EmptyState(message: "Tidak ada murid yang sesuai dengan pencarian.")
-                            } else {
+                                Spacer()
+                            }
+                        } else {
+                            ScrollView {
                                 LazyVGrid(columns: [
                                     GridItem(.flexible()),
                                     GridItem(.flexible()),
@@ -112,15 +119,17 @@ struct StudentTabView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                             }
+                            .simultaneousGesture(DragGesture().onChanged({ _ in
+                                dismissKeyboard()
+                            }))
                         }
                     }
-                    .simultaneousGesture(DragGesture().onChanged({ _ in
-                        dismissKeyboard()
-                    }))
                 }
             }
+            .background(.bgMain)
+            .navigationBarHidden(true)
         }
-        .navigationBarHidden(true)
+//        .navigationBarHidden(true)
         .refreshable {
             await viewModel.fetchAllStudents()
         }
@@ -132,13 +141,12 @@ struct StudentTabView: View {
         }
     }
     
-    // Computed property to filter students based on the search query
+    // Computed property untuk filter students tetap sama
     private var filteredStudents: [Student] {
         if searchQuery.isEmpty {
-            return viewModel.students // Return all students if no search query
+            return viewModel.students
         } else {
             return viewModel.students.filter { student in
-                // Check if nickname or fullname contains the search query (case insensitive)
                 student.nickname.localizedCaseInsensitiveContains(searchQuery) ||
                 student.fullname.localizedCaseInsensitiveContains(searchQuery)
             }
