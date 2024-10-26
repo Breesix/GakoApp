@@ -34,7 +34,6 @@ struct ActivityCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Date header
             HStack {
                 Text(indonesianFormattedDate(date: date))
                     .font(.headline)
@@ -51,12 +50,10 @@ struct ActivityCardView: View {
                     .background(Color.buttonOncard)
                     .cornerRadius(999)
             }
-            
-            // Activities section
+        
             ActivitySection(
                 activities: $activities,
                 onEditActivity: { activity in
-                    // Show sheet to edit activity
                     editingActivity = activity
                     isShowingNewActivity = true
                 },
@@ -64,17 +61,14 @@ struct ActivityCardView: View {
                     activities.removeAll(where: { $0.id == activity.id })
                 },
                 onAddActivity: {
-                    // Show sheet to add a new activity
                     editingActivity = Activity(id: UUID(), activity: "", createdAt: Date(), isIndependent: false, student: student )
                     isShowingNewActivity = true
                 }
             )
             
-            // Divider
             Divider()
                 .padding(.vertical, 8)
             
-            // Notes section
             NoteSection(
                 notes: notes,
                 onEditNote: onEditNote,
@@ -82,7 +76,8 @@ struct ActivityCardView: View {
                 onAddNote: onAddNote
             )
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)

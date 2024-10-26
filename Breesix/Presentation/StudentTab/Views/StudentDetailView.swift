@@ -47,13 +47,12 @@ struct StudentDetailView: View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
             
-            VStack(spacing: 8) {
+            VStack(spacing: 0) {
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                         .ignoresSafeArea(edges: .top)
                     
-                    VStack(spacing: 0) {
                         HStack(spacing: 16) {
                             Button(action: {
                                 isTabBarHidden = false
@@ -62,9 +61,12 @@ struct StudentDetailView: View {
                                 HStack(spacing: 4) {
                                     Image(systemName: "chevron.left")
                                         .foregroundColor(.white)
+                                        .fontWeight(.semibold)
                                     Text("Kembali")
                                         .foregroundStyle(.white)
+                                        .fontWeight(.regular)
                                 }
+                                .font(.body)
                             }
                             Spacer()
                             
@@ -74,18 +76,22 @@ struct StudentDetailView: View {
                                 HStack(spacing: 4) {
                                     Text("Edit Profil")
                                         .foregroundStyle(.white)
+                                        .font(.subheadline)
+                                        .fontWeight(.regular)
                                 }
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                    }
+                        .padding(.leading, 8)
+                        .padding(.trailing, 14)
                 }
                 .frame(height: 58)
                 
                 ProfileHeader(student: student)
+                    .padding(16)
                 
-                VStack(spacing: 8) {
+                Divider()
+                
+                VStack(spacing: 0) {
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
@@ -139,7 +145,7 @@ struct StudentDetailView: View {
                                     onDeleteNote: deleteNote, student: student
                                 )
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.bottom, 12)
                                 .id(day)
                             }
                         }
@@ -160,8 +166,8 @@ struct StudentDetailView: View {
                     }
                 }
             }
-            .navigationBarBackButtonHidden(true) // Add this
-            .navigationBarHidden(true) // Add this
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true) 
             .hideTabBar()
         }
         
