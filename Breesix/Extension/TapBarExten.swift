@@ -78,12 +78,24 @@ extension MainTabView {
             Image(isActive ? imageBackground : negativeImage)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 210 ,height: 72)
-                
-            )
-        .frame(width: UIScreen.main.bounds.width / 2, height: 72 ) // Adjust width to split evenly
-        
+                .frame(width: 210, height: 100)
+                .clipped() // Tambahkan clipping
+                .allowsHitTesting(false) // Mencegah interaksi dengan background
+        )
+        .frame(width: UIScreen.main.bounds.width / 2, height: 99)
+        .contentShape(Rectangle()) // Memastikan area tap mencakup seluruh item
+        .animation(.none, value: isActive) // Menghilangkan animasi default
     }
 }
+
+// Tambahkan extension untuk optimasi performa
+extension View {
+    func optimizedTabBarItem() -> some View {
+        self
+            //.drawingGroup() // Menggunakan Metal untuk rendering
+            .compositingGroup() // Menggabungkan layers
+    }
+}
+
 
 

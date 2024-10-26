@@ -26,11 +26,9 @@ class SpeechRecognizer: ObservableObject {
     
     func startTranscribing() {
         Task {
-            // Check permissions asynchronously
             let speechPermissionGranted = await SFSpeechRecognizer.hasAuthorizationToRecognize()
             let micPermissionGranted = await AVAudioSession.sharedInstance().hasPermissionToRecord()
             
-            // Update permissions on the main thread
             DispatchQueue.main.async {
                 self.hasSpeechPermission = speechPermissionGranted
                 self.hasMicPermission = micPermissionGranted
@@ -50,45 +48,52 @@ class SpeechRecognizer: ObservableObject {
             recognitionTask?.cancel()
             recognitionTask = nil
         }
-        
+
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: .defaultToSpeaker)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("Failed to configure audio session: \(error.localizedDescription)")
             return
         }
-        
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        recognitionRequest?.shouldReportPartialResults = true
-        
+
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
-        
+
+        if recordingFormat.sampleRate <= 0 {
+            print("Invalid sample rate: \(recordingFormat.sampleRate)")
+            return
+        }
+
+        print("Recording Format Sample Rate: \(recordingFormat.sampleRate), Channels: \(recordingFormat.channelCount)")
+
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        recognitionRequest?.shouldReportPartialResults = true
+
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, when) in
+            self.recognitionRequest?.append(buffer)
+        }
+
+        do {
+            try audioEngine.start()
+        } catch {
+            print("AudioEngine failed to start: \(error.localizedDescription)")
+        }
+
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest!) { result, error in
             var isFinal = false
-            
+
             if let result = result {
                 DispatchQueue.main.async {
                     self.transcript = result.bestTranscription.formattedString
                 }
                 isFinal = result.isFinal
             }
-            
+
             if error != nil || isFinal {
                 self.stopTranscribing()
             }
-        }
-        
-        inputNode.installTap(onBus: 0, bufferSize: 10240, format: recordingFormat) { (buffer, when) in
-            self.recognitionRequest?.append(buffer)
-        }
-        
-        do {
-            try audioEngine.start()
-        } catch {
-            print("AudioEngine failed to start: \(error.localizedDescription)")
         }
     }
     

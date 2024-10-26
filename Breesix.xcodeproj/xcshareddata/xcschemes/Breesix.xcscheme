@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8FD81E672C9C0F5F00CEE379"
-               BuildableName = "Breesix.app"
+               BuildableName = "GAKO.app"
                BlueprintName = "Breesix"
                ReferencedContainer = "container:Breesix.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8FD81E672C9C0F5F00CEE379"
-            BuildableName = "Breesix.app"
+            BuildableName = "GAKO.app"
             BlueprintName = "Breesix"
             ReferencedContainer = "container:Breesix.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8FD81E672C9C0F5F00CEE379"
-            BuildableName = "Breesix.app"
+            BuildableName = "GAKO.app"
             BlueprintName = "Breesix"
             ReferencedContainer = "container:Breesix.xcodeproj">
          </BuildableReference>

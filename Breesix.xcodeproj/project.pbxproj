@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8FD81E682C9C0F5F00CEE379 /* Breesix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breesix.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FD81E682C9C0F5F00CEE379 /* GAKO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GAKO.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,7 +45,7 @@
 		8FD81E692C9C0F5F00CEE379 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8FD81E682C9C0F5F00CEE379 /* Breesix.app */,
+				8FD81E682C9C0F5F00CEE379 /* GAKO.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,7 +73,7 @@
 				465F8DB12CC3837A0068EB61 /* OpenAI */,
 			);
 			productName = Breesix;
-			productReference = 8FD81E682C9C0F5F00CEE379 /* Breesix.app */;
+			productReference = 8FD81E682C9C0F5F00CEE379 /* GAKO.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -264,18 +264,23 @@
 				DEVELOPMENT_TEAM = SMF997D256;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.breesix.Breesix;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevin.GAKO;
+				PRODUCT_MODULE_NAME = GAKO;
+				PRODUCT_NAME = GAKO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -290,21 +295,27 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = A23N5QDWR3;
+				DEVELOPMENT_TEAM = 69R63P7AM6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.breesix.Breesix;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevin.GAKO;
+				PRODUCT_MODULE_NAME = GAKO;
+				PRODUCT_NAME = GAKO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

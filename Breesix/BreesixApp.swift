@@ -15,6 +15,7 @@ struct BreesixApp: App {
     @State private var showTabBar: Bool = true
     init() {
         do {
+
             container = try ModelContainer(for: Student.self, Note.self, Activity.self)
             requestSpeechAuthorization()
         } catch {
@@ -44,9 +45,9 @@ struct BreesixApp: App {
                 summaryUseCase: summaryUseCase
             )
 
+            let viewModel = StudentTabViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase, summaryUseCase: summaryUseCase, summaryService: summaryService)
+            MainTabView(studentTabViewModel: viewModel )
 
-            let viewModel = StudentListViewModel(studentUseCases: studentUseCase, noteUseCases: noteUseCases, activityUseCases: activityUseCase, summaryUseCase: summaryUseCase, summaryService: summaryService)
-            MainTabView(studentListViewModel: viewModel )
         }
         .modelContainer(container)
     }
