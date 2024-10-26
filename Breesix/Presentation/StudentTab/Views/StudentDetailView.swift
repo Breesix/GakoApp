@@ -167,7 +167,7 @@ struct StudentDetailView: View {
                 }
             }
             .navigationBarBackButtonHidden(true)
-            .navigationBarHidden(true) 
+            .navigationBarHidden(true)
             .hideTabBar()
         }
         

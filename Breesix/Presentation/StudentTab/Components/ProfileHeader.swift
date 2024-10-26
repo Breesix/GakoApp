@@ -32,13 +32,13 @@ struct ProfileHeader: View {
                         Text(student.fullname)
                             .font(.title3)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+                            .foregroundColor(.labelPrimaryBlack)
                             .fontWeight(.semibold)
                         
                         Text(student.nickname)
                             .font(.callout)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+                            .foregroundColor(.labelPrimaryBlack)
                     }
                     Spacer()
                 }

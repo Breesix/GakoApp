@@ -10,9 +10,9 @@ import SwiftUI
 
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    @State var activities: [Activity] // Use @State to enable updates
+    @State var activities: [Activity]
     let notes: [Note]
-    let date: Date  // Add date parameter
+    let date: Date
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
@@ -33,12 +33,12 @@ struct ActivityCardView: View {
     @State private var editingActivity: Activity?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text(indonesianFormattedDate(date: date))
-                    .font(.headline)
-                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
-                    .padding(.bottom, 8)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.labelPrimaryBlack)
                 
                 Spacer()
                 
@@ -48,8 +48,9 @@ struct ActivityCardView: View {
                     .buttonStyle(.bordered)
                     .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
                     .background(Color.buttonOncard)
-                    .cornerRadius(999)
+                    .clipShape(.circle)
             }
+            .padding(.bottom, 12)
         
             ActivitySection(
                 activities: $activities,
@@ -65,9 +66,10 @@ struct ActivityCardView: View {
                     isShowingNewActivity = true
                 }
             )
+            .padding(.bottom, 16)
             
             Divider()
-                .padding(.vertical, 8)
+                .padding(.bottom, 20)
             
             NoteSection(
                 notes: notes,
@@ -101,35 +103,27 @@ struct ActivitySection: View {
     let onDeleteActivity: (Activity) -> Void
     let onAddActivity: () -> Void
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.secondary)
             } else {
-                ForEach($activities, id: \.id) { $activity in // Pass Binding to ActivityRow
+                ForEach($activities, id: \.id) { $activity in
                     ActivityRow(activity: $activity, onEdit: {_ in 
-                        onEditActivity(activity) // Passing the activity object back to the parent
+                        onEditActivity(activity)
                     }, onDelete: {_ in 
-                        onDeleteActivity(activity) // Trigger delete
+                        onDeleteActivity(activity)
                     })
                 }
             }
             
-            Button(action: onAddActivity) { // This button calls the add activity action
-                Label("Tambah Aktivitas", systemImage: "plus.app.fill")
+            Button(action: onAddActivity) {
+                Label("Tambah", systemImage: "plus.app.fill")
             }
             .buttonStyle(.bordered)
             .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
             .background(Color.buttonOncard)
         }
-//        .padding(12)
-//        .background(.white)
-//        .cornerRadius(8)
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 8)
-//                .inset(by: 0.25)
-//                .stroke(.green, lineWidth: 0.5)
-//        )
     }
 }
 
@@ -138,49 +132,43 @@ struct ActivitySection: View {
 
 
 struct ActivityRow: View {
-    @Binding var activity: Activity // Use Binding to reflect changes
+    @Binding var activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
     
     @State private var showDeleteAlert = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            VStack {
+        VStack(alignment: .leading, spacing: 10) {
                 Text(activity.activity)
                     .font(.callout)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.labelPrimaryBlack)
             
             if let status = activity.isIndependent {
-                HStack {
-                    
+                HStack (spacing: 0) {
                     Picker("Status", selection: $activity.isIndependent) {
                         Text("Mandiri").tag(true as Bool?)
                         Text("Dibimbing").tag(false as Bool?)
                     }
                     .pickerStyle(MenuPickerStyle()) 
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
                     .background(.ultraThinMaterial)
                     .cornerRadius(8)
 
-                    Spacer()
+                    .padding(.trailing, 8)
                     
                     Button("Hapus", systemImage: "trash.fill", action: {
-                        showDeleteAlert = true // Show alert when button is pressed
+                        showDeleteAlert = true 
                     })
                     .frame(width: 34, height: 34)
                     .labelStyle(.iconOnly)
                     .buttonStyle(.bordered)
                     .tint(.red)
-                    .cornerRadius(999)
+                    .clipShape(.circle)
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
-                            onDelete(activity) // Delete confirmed
+                            onDelete(activity)
                         }
                         Button("Batal", role: .cancel) { }
                     } message: {

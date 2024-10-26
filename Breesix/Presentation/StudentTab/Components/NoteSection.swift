@@ -14,20 +14,23 @@ struct NoteSection: View {
     let onAddNote: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Catatan")
-                .fontWeight(.semibold)
-                .foregroundColor(.black)
-                .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
-            
-            if notes.isEmpty {
-                Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.secondary)
-            } else {
-                ForEach(notes, id: \.id) { note in
-                    NoteDetailRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack (spacing: 8) {
+                Text("Catatan")
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
+                
+                if notes.isEmpty {
+                    Text("Tidak ada catatan untuk tanggal ini")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(notes, id: \.id) { note in
+                        NoteDetailRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
+                    }
                 }
             }
+            .padding(.bottom, 12)
             
             Button(action: onAddNote) {
                 Label("Tambah", systemImage: "plus.app.fill")
@@ -36,13 +39,5 @@ struct NoteSection: View {
             .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
             .background(Color.buttonOncard)
         }
-//        .padding(12)
-//        .background(.white)
-//        .cornerRadius(8)
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 8)
-//                .inset(by: 0.25)
-//                .stroke(.green, lineWidth: 0.5)
-//        )
     }
 }
