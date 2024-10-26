@@ -21,8 +21,10 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     var onDismiss: () -> Void
+    @State private var showEmptyStudentsAlert: Bool = false
+    @State private var showEmptyReflectionAlert: Bool = false
     @State private var showTabBar = false
-
+    
     init(selectedDate: Binding<Date>, studentListViewModel: StudentTabViewModel, onDismiss: @escaping () -> Void) {
         self.studentListViewModel = studentListViewModel
         self._selectedDate = selectedDate
@@ -32,71 +34,123 @@ struct TextInputView: View {
     }
     
     private let ttProcessor = OpenAIService(apiToken: "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")
-    
+
     var body: some View {
-        VStack {
-            datePickerView()
-                .padding(.bottom, 16)
-            VStack{
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.cardFieldBG)
-                        .shadow(radius: 2)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    isTextEditorFocused = false
+                }
+            
+            VStack (spacing: 16) {
+                datePickerView()
+                    .padding(.top, 24)
+                    .disabled(isLoading)
+                VStack (spacing: 16) {
+                    ZStack (alignment: .topLeading) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.cardFieldBG)
+                            .frame(maxWidth: .infinity, maxHeight: 170)
+                        
+                        if reflection.isEmpty {
+                            Text("Ceritakan mengenai Murid Anda...")
+                                .font(.callout)
+                                .fontWeight(.regular)
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                                .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
+                                .foregroundColor(.labelDisabled)
+                                .cornerRadius(8)
+                        }
+                        TextEditor(text: $reflection)
+                            .font(.callout)
+                            .fontWeight(.regular)
+                            .padding(.horizontal, 8)
+                            .frame(maxWidth: .infinity, maxHeight: 170)
+                            .cornerRadius(8)
+                            .focused($isTextEditorFocused)
+                            .scrollContentBackground(.hidden)
+                            .disabled(isLoading)
+                            .opacity(isLoading ? 0.5 : 1)
+                    }
+                    .onAppear() {
+                        UITextView.appearance().backgroundColor = .clear
+                    }
+                    .onDisappear() {
+                        UITextView.appearance().backgroundColor = nil
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.monochrome50, lineWidth: 1)
+                    )
                     
-                    TextEditor(text: $reflection)
-                        .padding()
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                        .cornerRadius(10)
-                        .focused($isTextEditorFocused)
+                    Button {
+                        processReflectionActivity()
+                    } label: {
+                        Text("Lanjutkan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity, maxHeight: 50)
+                            .background(isLoading ? .fillTertiary : .buttonPrimaryOnBg)
+                            .foregroundStyle(isLoading ?  .labelTertiary : .white)
+                            .cornerRadius(12)
+                    }
+                    .disabled(isLoading)
+                    
+                    Button("Batal") {
+                        showAlert = true
+                    }
+                    .padding(.top, 9)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(isLoading ?  .labelTertiary : .destructive)
+                    .disabled(isLoading)
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.monochrome50, lineWidth: 1)
-                )
-                .padding(.bottom, 16)
-                
-                Button("Simpan") {
-                    processReflectionActivity()
-                }
-                .font(.body)
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity, maxHeight: 50)
-                .background(.buttonPrimaryOnBg)
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                .padding(.bottom, 16)
-                
-                
-                Button("Batal") {
-                    showAlert = true
-                }
-                .font(.body)
-                .fontWeight(.semibold)
-                .foregroundStyle(.destructive)
-            }
-            .padding(.horizontal, 28)
-            Spacer()
-            if showProTips {
-                TipsCard()
-                    .padding(.horizontal, 40)
+                .padding(.horizontal, 28)
                 Spacer()
+                if showProTips {
+                    if isLoading {
+                        VStack (spacing: 40) {
+                            Text("Memproses Informasi...")
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.greenClr)
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .scaleEffect(3)
+                                .padding(.horizontal, 40)
+                                .tint(.buttonPrimaryOnBg)
+                        }
+                        .padding(.bottom, 44)
+                    } else {
+                        TipsCard()
+                            .padding(.horizontal, 40)
+                        Spacer()
+                    }
+                }
             }
         }
-        .padding()
+        .navigationBarHidden(true)
         .hideTabBar()
-        .safeAreaPadding()
-        
-        
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Batalkan Dokumentasi?"),
-                message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
-                primaryButton: .destructive(Text("Ya")) {
+        .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
+                Button("Batalkan Dokumentasi", role: .destructive, action: {
                     presentationMode.wrappedValue.dismiss()
-                },
-                secondaryButton: .cancel(Text("Tidak"))
-            )
+                })
+                Button("Lanjut Dokumentasi", role: .cancel, action: {})
+        } message: {
+            Text("Semua teks yang baru saja Anda masukkan akan terhapus secara permanen.")
+        }
+        .alert("Tidak Ada Data Murid", isPresented: $showEmptyStudentsAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Anda perlu menambahkan data murid terlebih dahulu sebelum membuat dokumentasi.")
+        }
+        .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Mohon isi curhatan sebelum melanjutkan.")
         }
         .sheet(isPresented: $isShowingDatePicker) {
             DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
@@ -108,36 +162,50 @@ struct TextInputView: View {
                     isShowingDatePicker = false
                 }
         }
-        .onTapGesture {
-            isTextEditorFocused = false
-        }
         .onChange(of: isTextEditorFocused) { focused in
             withAnimation {
                 showProTips = !focused
             }
         }
-        
     }
     
     private func processReflectionActivity() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        isTextEditorFocused = false
+
         Task {
             do {
                 isLoading = true
                 errorMessage = nil
-                
+
                 await studentListViewModel.fetchAllStudents()
+
+                if studentListViewModel.students.isEmpty {
+                                await MainActor.run {
+                                    isLoading = false
+                                    showEmptyStudentsAlert = true
+                                }
+                                return
+                }
+
+                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    await MainActor.run {
+                        isLoading = false
+                        showEmptyReflectionAlert = true
+                    }
+                    return
+                }
                 
                 let csvString = try await ttProcessor.processReflection(reflection: reflection, students: studentListViewModel.students)
-
 
                 let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: studentListViewModel.students, createdAt: selectedDate)
 
                 await MainActor.run {
                     isLoading = false
-                    
+
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
-                    studentListViewModel.selectedDate = selectedDate 
+                    studentListViewModel.selectedDate = selectedDate
                     onDismiss()
                 }
             } catch {
@@ -149,7 +217,7 @@ struct TextInputView: View {
             }
         }
     }
-    
+
     private func datePickerView() -> some View {
         Button(action: {
             isShowingDatePicker = true
@@ -160,13 +228,11 @@ struct TextInputView: View {
             }
             .font(.subheadline)
             .fontWeight(.semibold)
-            .foregroundStyle(.buttonPrimaryLabel)
+            .foregroundStyle(isLoading ?  .labelTertiary : .buttonPrimaryLabel)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(.bgMain)
+            .background(isLoading ? .buttonOncard : .bgMain)
             .cornerRadius(8)
         }
     }
-
 }
-
