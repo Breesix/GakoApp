@@ -33,14 +33,16 @@ struct NoteSection: View {
                 Label("Tambah", systemImage: "plus.app.fill")
             }
             .buttonStyle(.bordered)
+            .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+            .background(Color.buttonOncard)
         }
-        .padding(12)
-        .background(.white)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .inset(by: 0.25)
-                .stroke(.green, lineWidth: 0.5)
-        )
+//        .padding(12)
+//        .background(.white)
+//        .cornerRadius(8)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
     }
 }

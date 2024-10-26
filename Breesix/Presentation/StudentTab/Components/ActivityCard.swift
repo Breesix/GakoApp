@@ -12,6 +12,7 @@ struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @State var activities: [Activity] // Use @State to enable updates
     let notes: [Note]
+    let date: Date  // Add date parameter
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
@@ -20,12 +21,44 @@ struct ActivityCardView: View {
     let onDeleteNote: (Note) -> Void
     let student: Student
     
+    func indonesianFormattedDate(date: Date) -> String {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "id_ID")
+            formatter.dateStyle = .full
+            formatter.timeStyle = .none
+            return formatter.string(from: date)
+        }
+    
+<<<<<<< HEAD
+
     @State private var isShowingNewActivity = false
     @State private var editingActivity: Activity?
 
+=======
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     var body: some View {
-        VStack(alignment: .trailing, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Date header
+            HStack {
+                Text(indonesianFormattedDate(date: date))
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+                    .padding(.bottom, 8)
+                
+                Spacer()
+                
+                Button("Share", systemImage: "square.and.arrow.up.fill", action: onAddActivity)
+                    .frame(width: 34, height: 34)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+                    .background(Color.buttonOncard)
+                    .cornerRadius(999)
+            }
+            
+            // Activities section
             ActivitySection(
+<<<<<<< HEAD
                 activities: $activities,
                 onEditActivity: { activity in
                     // Show sheet to edit activity
@@ -40,8 +73,19 @@ struct ActivityCardView: View {
                     editingActivity = Activity(id: UUID(), activity: "", createdAt: Date(), isIndependent: false, student: student )
                     isShowingNewActivity = true
                 }
+=======
+                activities: activities,
+                onEditActivity: onEditActivity,
+                onDeleteActivity: onDeleteActivity,
+                onAddActivity: onAddActivity
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
             )
             
+            // Divider
+            Divider()
+                .padding(.vertical, 8)
+            
+            // Notes section
             NoteSection(
                 notes: notes,
                 onEditNote: onEditNote,
@@ -49,7 +93,10 @@ struct ActivityCardView: View {
                 onAddNote: onAddNote
             )
         }
-        .padding(.vertical, 12)
+        .padding(16)
+        .background(.white)
+        .cornerRadius(20)
+<<<<<<< HEAD
         .frame(maxWidth: .infinity, alignment: .trailing)
         .sheet(isPresented: $isShowingNewActivity) {
             if let activity = editingActivity {
@@ -63,12 +110,15 @@ struct ActivityCardView: View {
                 )
             }
         }
+=======
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     }
 }
-
-
-
-
 struct ActivitySection: View {
     @Binding var activities: [Activity] 
     let onEditActivity: (Activity) -> Void
@@ -93,14 +143,20 @@ struct ActivitySection: View {
                 Label("Tambah Aktivitas", systemImage: "plus.app.fill")
             }
             .buttonStyle(.bordered)
+            .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
+            .background(Color.buttonOncard)
         }
-        .padding(12)
-        .background(Color.white)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.green, lineWidth: 0.5)
-        )
+<<<<<<< HEAD
+=======
+//        .padding(12)
+//        .background(.white)
+//        .cornerRadius(8)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     }
 }
 
@@ -140,16 +196,15 @@ struct ActivityRow: View {
                     .cornerRadius(8)
 
                     Spacer()
-
-                    // Delete Button
-                    Button(action: {
-                        showDeleteAlert = true
-                    }) {
-                        Image("custom.trash.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 34)
-                    }
+                    
+                    Button("Hapus", systemImage: "trash.fill", action: {
+                        showDeleteAlert = true // Show alert when button is pressed
+                    })
+                    .frame(width: 34, height: 34)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.bordered)
+                    .tint(.red)
+                    .cornerRadius(999)
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
                             onDelete(activity) // Delete confirmed

@@ -78,7 +78,7 @@ struct StudentEditView: View {
                         showingSourceTypeMenu = true
                     }) {
                         VStack {
-                            Text("Select Profile Picture")
+                            Text("Pilih Foto")
                         }
                     }
                 }
@@ -106,6 +106,7 @@ struct StudentEditView: View {
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
             .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
