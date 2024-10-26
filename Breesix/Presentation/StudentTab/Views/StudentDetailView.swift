@@ -134,38 +134,21 @@ struct StudentDetailView: View {
                     ScrollViewReader { scrollProxy in
                         ScrollView {
                             ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-<<<<<<< HEAD
-                                
                                 ActivityCardView(
                                     viewModel: viewModel,
                                     activities: activitiesForSelectedMonth[day] ?? [],
                                     notes: notesForSelectedMonth[day] ?? [],
                                     date: day,
-
-=======
-                                ActivityCard(
-                                    activities: activitiesForSelectedMonth[day] ?? [],
-                                    notes: notesForSelectedMonth[day] ?? [],
-                                    date: day,
->>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
                                     onAddNote: { isAddingNewNote = true },
                                     onAddActivity: { isAddingNewActivity = true },
                                     onEditActivity: { self.activity = $0 },
                                     onDeleteActivity: deleteActivity,
                                     onEditNote: { self.selectedNote = $0 },
-<<<<<<< HEAD
                                     onDeleteNote: deleteNote, student: student
-=======
-                                    onDeleteNote: deleteNote
->>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
                                 )
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                                 .id(day)
-<<<<<<< HEAD
-
-=======
->>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
                             }
                         }
                         .onChange(of: selectedDate) { newDate in
@@ -198,30 +181,7 @@ struct StudentDetailView: View {
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
-<<<<<<< HEAD
-
         .hideTabBar()
-
-=======
-        .toolbar(.hidden, for: .tabBar)
-        .onDisappear {
-            // Ensure tab bar is shown when view disappears
-            isTabBarHidden = false
-        }
-        .navigationBarHidden(true) // Add this line
-        //        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        //
-        //        .navigationBarTitleDisplayMode(.inline)
-        //        .navigationBarItems(
-        //            leading: BackButton(),
-        //            trailing: Button("Edit Profil") {
-        //                isEditing = true
-        //            }
-        //                .foregroundColor(.white)
-        //        )
->>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
-        
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
