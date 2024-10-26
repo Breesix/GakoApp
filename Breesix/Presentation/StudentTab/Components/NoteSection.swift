@@ -15,7 +15,7 @@ struct NoteSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack (spacing: 8) {
+            VStack (alignment: .leading, spacing: 8) {
                 Text("Catatan")
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
@@ -35,9 +35,13 @@ struct NoteSection: View {
             Button(action: onAddNote) {
                 Label("Tambah", systemImage: "plus.app.fill")
             }
-            .buttonStyle(.bordered)
-            .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
-            .background(Color.buttonOncard)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.labelPrimaryBlack)
+            .background(.buttonOncard)
+            .cornerRadius(8)
         }
     }
 }

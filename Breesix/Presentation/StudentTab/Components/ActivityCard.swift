@@ -39,18 +39,8 @@ struct ActivityCardView: View {
                     .font(.body)
                     .fontWeight(.semibold)
                     .foregroundStyle(.labelPrimaryBlack)
-                
-                Spacer()
-                
-                Button("Share", systemImage: "square.and.arrow.up.fill", action: onAddActivity)
-                    .frame(width: 34, height: 34)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.bordered)
-                    .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
-                    .background(Color.buttonOncard)
-                    .clipShape(.circle)
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, 19)
         
             ActivitySection(
                 activities: $activities,
@@ -61,10 +51,12 @@ struct ActivityCardView: View {
                 onDeleteActivity: { activity in
                     activities.removeAll(where: { $0.id == activity.id })
                 },
-                onAddActivity: {
-                    editingActivity = Activity(id: UUID(), activity: "", createdAt: Date(), isIndependent: false, student: student )
-                    isShowingNewActivity = true
-                }
+                onAddActivity:
+                    onAddActivity
+//                    {
+//                    editingActivity = Activity(id: UUID(), activity: "", createdAt: Date(), isIndependent: false, student: student )
+//                    isShowingNewActivity = true
+//                }
             )
             .padding(.bottom, 16)
             
@@ -86,8 +78,8 @@ struct ActivityCardView: View {
         .sheet(isPresented: $isShowingNewActivity) {
             if let activity = editingActivity {
                 NewActivityView(
-                    viewModel: viewModel, // Pass your view model
-                    student: Student(id: UUID(), fullname: "", nickname: ""), // Pass your student
+                    viewModel: viewModel,
+                    student: Student(id: UUID(), fullname: "", nickname: ""),
                     selectedDate: Date(),
                     onDismiss: {
                         isShowingNewActivity = false
@@ -120,16 +112,16 @@ struct ActivitySection: View {
             Button(action: onAddActivity) {
                 Label("Tambah", systemImage: "plus.app.fill")
             }
-            .buttonStyle(.bordered)
-            .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
-            .background(Color.buttonOncard)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.labelPrimaryBlack)
+            .background(.buttonOncard)
+            .cornerRadius(8)
         }
     }
 }
-
-
-
-
 
 struct ActivityRow: View {
     @Binding var activity: Activity
@@ -181,7 +173,7 @@ struct ActivityRow: View {
         .contextMenu {
             Button("Edit") { onEdit(activity) }
             Button("Hapus", role: .destructive) {
-                showDeleteAlert = true // Show alert for context menu delete
+                showDeleteAlert = true
             }
         }
     }
@@ -200,7 +192,7 @@ struct NoteDetailRow: View {
         HStack {
             Text(note.note)
                 .font(.subheadline)
-                .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13))
+                .foregroundColor(.labelPrimaryBlack)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -222,7 +214,7 @@ struct NoteDetailRow: View {
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {
-                    onDelete(note) // Delete confirmed
+                    onDelete(note)
                 }
                 Button("Batal", role: .cancel) { }
             } message: {
