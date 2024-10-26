@@ -19,7 +19,7 @@ class StudentTabViewModel: ObservableObject {
     private let activityUseCases: ActivityUseCase
     private let summaryService: SummaryService
     private let summaryUseCase: SummaryUseCase
-    
+
     @Published var newStudentImage: UIImage? {
         didSet {
             if let image = newStudentImage {
@@ -183,6 +183,10 @@ class StudentTabViewModel: ObservableObject {
     func addUnsavedNote(_ note: UnsavedNote) {
         unsavedNotes.append(note)
     }
+    func addUnsavedActivity(_ activity: UnsavedActivity) {
+        unsavedActivities.append(activity)
+    }
+    
     
     func addUnsavedActivities(_ activities: [UnsavedActivity]) {
         unsavedActivities.append(contentsOf: activities)
@@ -204,11 +208,15 @@ class StudentTabViewModel: ObservableObject {
         }
     }
     
+    
+    
     func updateUnsavedActivity(_ activity: UnsavedActivity) {
         if let index = unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
             unsavedActivities[index] = activity
+            objectWillChange.send()
         }
     }
+    
     
     func deleteUnsavedActivity(_ activity: UnsavedActivity) {
         unsavedActivities.removeAll { $0.id == activity.id }

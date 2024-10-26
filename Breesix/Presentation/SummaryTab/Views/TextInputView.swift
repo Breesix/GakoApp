@@ -23,7 +23,8 @@ struct TextInputView: View {
     var onDismiss: () -> Void
     @State private var showEmptyStudentsAlert: Bool = false
     @State private var showEmptyReflectionAlert: Bool = false
-
+    @State private var showTabBar = false
+    
     init(selectedDate: Binding<Date>, studentListViewModel: StudentTabViewModel, onDismiss: @escaping () -> Void) {
         self.studentListViewModel = studentListViewModel
         self._selectedDate = selectedDate
@@ -132,7 +133,7 @@ struct TextInputView: View {
             }
         }
         .navigationBarHidden(true)
-
+        .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
                 Button("Batalkan Dokumentasi", role: .destructive, action: {
                     presentationMode.wrappedValue.dismiss()
@@ -204,7 +205,7 @@ struct TextInputView: View {
 
                     studentListViewModel.addUnsavedActivities(activityList)
                     studentListViewModel.addUnsavedNotes(noteList)
-                    studentListViewModel.selectedDate = selectedDate 
+                    studentListViewModel.selectedDate = selectedDate
                     onDismiss()
                 }
             } catch {
@@ -235,4 +236,3 @@ struct TextInputView: View {
         }
     }
 }
-

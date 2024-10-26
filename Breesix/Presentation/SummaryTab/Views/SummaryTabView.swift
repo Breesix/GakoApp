@@ -9,19 +9,25 @@ import SwiftUI
 
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
-    @ObservedObject var studentListViewModel: StudentTabViewModel
+    @State private var isAddingNewActivity = false
+
+    @ObservedObject var studentTabViewModel: StudentTabViewModel
+
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
-    @State private var selectedInputType: InputType = .manual
+    //@State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
     @State private var isShowingInputTypeSheet = false
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
     @State private var searchText = ""
-    
+    @State private var showTabBar = true
+    @State private var hideTabBar = false
+
+    @EnvironmentObject var tabBarController: TabBarController
     var body: some View {
-           NavigationView { 
+           NavigationView {
                VStack(spacing: 0) {
                    CustomNavigationBar(title: "Ringkasan") {
                        isShowingInputTypeSheet = true
@@ -45,7 +51,7 @@ struct SummaryTabView: View {
                }
                .background(.bgMain)
                .sheet(isPresented: $isShowingInputTypeSheet) {
-                   InputTypeSheet(studentListViewModel: studentListViewModel, onSelect: { selectedInput in
+                   InputTypeSheet(studentListViewModel: studentTabViewModel, onSelect: { selectedInput in
                        switch selectedInput {
                        case .voice:
                            isShowingInputTypeSheet = false
@@ -58,41 +64,47 @@ struct SummaryTabView: View {
                    .presentationDetents([.medium])
                    .presentationDragIndicator(.visible)
                }
-               .sheet(isPresented: $navigateToPreview){
-                   PreviewView(viewModel: studentListViewModel,
-                             isShowingPreview: $navigateToPreview,
-                             isShowingActivity: Binding.constant(false),
-                             selectedDate: viewModel.selectedDate)
-               }
                .background(
-                   NavigationLink(destination: VoiceInputView(studentListViewModel: studentListViewModel, onDismiss: {
-                       isNavigatingToVoiceInput = false
-                       navigateToPreview = true
-                   }), isActive: $isNavigatingToVoiceInput) { EmptyView() }
+                   NavigationLink(
+                       destination: PreviewView(
+                        selectedDate: $viewModel.selectedDate,
+                        viewModel: studentTabViewModel,
+                        isShowingPreview: $navigateToPreview,
+                        isShowingActivity: .constant(false)
+                       ),isActive: $navigateToPreview
+                   ) { EmptyView() }
                )
                .background(
-                   NavigationLink(destination: TextInputView(selectedDate: $viewModel.selectedDate, studentListViewModel: studentListViewModel, onDismiss: {
+                NavigationLink(destination: VoiceInputView(selectedDate: $viewModel.selectedDate, viewModel: studentTabViewModel, onDismiss: {
+                       isNavigatingToVoiceInput = false
+                       navigateToPreview = true
+                   })
+                   ,isActive: $isNavigatingToVoiceInput) { EmptyView() }
+               )
+               .background(
+                NavigationLink(destination: TextInputView(selectedDate: $viewModel.selectedDate, studentListViewModel: studentTabViewModel, onDismiss: {
                        isNavigatingToTextInput = false
                        navigateToPreview = true
-                   }), isActive: $isNavigatingToTextInput) { EmptyView() }
+                   })
+                   , isActive: $isNavigatingToTextInput) { EmptyView() }
                )
 
            }
            .navigationBarHidden(true)
            .task {
-               await studentListViewModel.fetchAllStudents()
+               await studentTabViewModel.fetchAllStudents()
            }
        }
     
     private var studentsWithSummariesOnSelectedDate: [Student] {
         if searchText.isEmpty {
-            return studentListViewModel.students.filter { student in
+            return studentTabViewModel.students.filter { student in
                 student.summaries.contains { summary in
                     Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
                 }
             }
         } else {
-            return studentListViewModel.students.filter { student in
+            return studentTabViewModel.students.filter { student in
                 (student.fullname.lowercased().contains(searchText.lowercased()) ||
                  student.nickname.lowercased().contains(searchText.lowercased())) &&
                 student.summaries.contains { summary in
@@ -101,7 +113,15 @@ struct SummaryTabView: View {
             }
         }
     }
-     
+
+    
+    @ViewBuilder
+    private func datePickerView() -> some View {
+        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
+            .datePickerStyle(CompactDatePickerStyle())
+            .labelsHidden()
+    }
+    
     struct InputTypeButton: View {
         let title: String
         let action: () -> Void
@@ -130,7 +150,7 @@ struct SummaryTabView: View {
     private func studentsListView() -> some View {
         VStack(spacing: 12) {
             ForEach(studentsWithSummariesOnSelectedDate) { student in
-                NavigationLink(destination: StudentDetailView(student: student, viewModel: studentListViewModel)) {
+                NavigationLink(destination: StudentDetailView(student: student, viewModel: studentTabViewModel)) {
                     StudentSummaryCard(student: student, selectedDate: viewModel.selectedDate)
                 }
             }
@@ -146,7 +166,7 @@ struct SummaryTabView: View {
             VStack(alignment: .leading) {
                 Text(student.fullname)
                     .font(.title)
-                
+
                 let dailySummaries = student.summaries.filter {
                     Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
                 }

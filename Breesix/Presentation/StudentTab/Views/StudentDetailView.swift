@@ -18,8 +18,10 @@ struct StudentDetailView: View {
     @State private var activity: Activity?
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
+    @State private var showTabBar = false
+
     @State private var noActivityAlertPresented = false
-    
+
     private let calendar = Calendar.current
     
     init(student: Student, viewModel: StudentTabViewModel) {
@@ -63,7 +65,7 @@ struct StudentDetailView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                        
+                         
                         Spacer()
                         CalendarButton(
                             selectedDate: $selectedDate,
@@ -93,19 +95,25 @@ struct StudentDetailView: View {
                                         .padding(.horizontal, 16)
                                         .foregroundStyle(Color.customGreen.g300)
                                     
-                                    ActivityCard(
-                                        activities: activitiesForSelectedMonth[day] ?? [],
-                                        notes: notesForSelectedMonth[day] ?? [],
-                                        onAddNote: { isAddingNewNote = true },
-                                        onAddActivity: { isAddingNewActivity = true },
-                                        onEditActivity: { self.activity = $0 },
-                                        onDeleteActivity: deleteActivity,
-                                        onEditNote: { self.selectedNote = $0 },
-                                        onDeleteNote: deleteNote
-                                    )
-                                    .padding(.horizontal, 16)
+
+                                    .foregroundStyle(Color.customGreen.g300)
+                                
+                                ActivityCardView(
+                                    viewModel: viewModel,
+                                    activities: activitiesForSelectedMonth[day] ?? [],
+                                    notes: notesForSelectedMonth[day] ?? [],
+                                    onAddNote: { isAddingNewNote = true },
+                                    onAddActivity: { isAddingNewActivity = true },
+                                    onEditActivity: { self.activity = $0 },
+                                    onDeleteActivity: deleteActivity,
+                                    onEditNote: { self.selectedNote = $0 },
+                                    onDeleteNote: deleteNote, student: student
+                                )
+                                .padding(.horizontal, 16)
+
                                     .id(day) // Assign an ID for scrolling
                                 }
+
                             }
                         }
                         .onChange(of: selectedDate) { newDate in
@@ -138,10 +146,8 @@ struct StudentDetailView: View {
                 .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
         }
+        .hideTabBar()
         .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(
             leading: BackButton(),

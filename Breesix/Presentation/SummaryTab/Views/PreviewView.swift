@@ -20,64 +20,69 @@ struct PreviewView: View {
     @State private var isAddingNewActivity = false
     @State private var showingSummaryError = false
     @State private var summaryErrorMessage = ""
+    @Binding var selectedDate: Date
+    @State private var tempDate: Date
+    @State private var isShowingDatePicker = false
+    
+    @State private var activities: [Activity] = []
+    
+    init(
+        selectedDate: Binding<Date>,
+        viewModel: StudentTabViewModel,
+        isShowingPreview: Binding<Bool>,
+        isShowingActivity: Binding<Bool>
+    ) {
+        self.viewModel = viewModel
+        self._selectedDate = selectedDate
+        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+        self._isShowingPreview = isShowingPreview
+        self._isShowingActivity = isShowingActivity
+    }
 
-    let selectedDate: Date
-
+    
     var body: some View {
-        NavigationView {
-            List {
+        ScrollView {
+            VStack(spacing: 24) { // Spacing between each student's section
                 ForEach(viewModel.students) { student in
-                    let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
-                    if !studentActivities.isEmpty {
-                        Section(header: Text(student.fullname)) {
-                            ForEach(studentActivities) { activity in
-                                ActivityDetailRow(activity: activity, student: student, onEdit: {
-                                    editingActivity = activity
-                                }, onDelete: {
-                                    deleteUnsavedActivity(activity)
-                                })
-                            }
-                        }
-                    }
+                    StudentSectionView(
+                        student: student,
+                        viewModel: viewModel,
+                        selectedDate: selectedDate,
+                        selectedStudent: $selectedStudent,
+                        isAddingNewActivity: $isAddingNewActivity,
+                        isAddingNewNote: $isAddingNewNote
+                    )
                 }
-                ForEach(viewModel.students) { student in
-                    let studentNotes = viewModel.unsavedNotes.filter { $0.studentId == student.id }
-                    if !studentNotes.isEmpty {
-                        Section(header: Text(student.fullname)) {
-                            ForEach(studentNotes) { note in
-                                NoteRow(note: note, student: student, onEdit: {
-                                    editingNote = note
-                                }, onDelete: {
-                                    deleteNote(note)
-                                })
-                            }
-                            
-                            Button("Add New Note") {
-                                selectedStudent = student
-                                isAddingNewNote = true
-                            }
-                            .onChange(of: selectedStudent) { oldValue, newValue in
-                                if newValue != nil {
-                                    isAddingNewNote = true
-                                }
-                            }
-
-                        }
-                    }
+                Button("Simpan") {
+                    saveActivities()
+                    
                 }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color(.orangeClickAble))
+                .cornerRadius(12)
+                .padding()
             }
-            .navigationTitle("Preview")
+            .toolbarBackground(Color(.bgMain), for: .navigationBar)
+            .padding(.vertical, 20)
+            .background(.bgMain)
+            .padding(.top)
+            .hideTabBar()
+            .navigationBarBackButtonHidden(true)
             .navigationBarItems(
-                leading: Button("Batal") {
+                leading: Button {
                     viewModel.clearUnsavedNotes()
                     viewModel.clearUnsavedActivities()
                     isShowingPreview = false
+                } label: {
+                    HStack{
+                        Image(systemName: "chevron.backward")
+                        Text("Pratinjau")
+                            .font(.title3)
+                    }
                 },
-                trailing: Button("Simpan") {
-                    saveActivities()
-//                    saveNotes()
-                }
-                .disabled(isSaving)
+                trailing: datePickerView().disabled(true)
             )
             .overlay(
                 Group {
@@ -90,6 +95,18 @@ struct PreviewView: View {
                     }
                 }
             )
+        }
+        
+
+        .sheet(isPresented: $isAddingNewActivity) {
+            if let student = selectedStudent {
+                NewActivityView(viewModel: viewModel,
+                                student: student,
+                                selectedDate: selectedDate,
+                                onDismiss: {
+                    isAddingNewActivity = false
+                })
+            }
         }
         .sheet(item: $editingNote) { note in
             UnsavedNoteEditView(note: note, onSave: { updatedNote in
@@ -106,7 +123,7 @@ struct PreviewView: View {
             }
         }
     }
-
+    
     private let itemFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
@@ -114,15 +131,13 @@ struct PreviewView: View {
         return formatter
     }()
     
-    private func saveNotes() {
-        isSaving = true
-        Task {
-            await viewModel.saveUnsavedNotes()
-            await MainActor.run {
-                isSaving = false
-                isShowingPreview = false
+    private func binding(for student: Student) -> [Binding<UnsavedActivity>] {
+        viewModel.unsavedActivities
+            .filter { $0.studentId == student.id }
+            .map { activity in
+                let index = viewModel.unsavedActivities.firstIndex { $0.id == activity.id }!
+                return $viewModel.unsavedActivities[index]
             }
-        }
     }
     
     private func saveActivities() {
@@ -130,11 +145,8 @@ struct PreviewView: View {
         Task {
             do {
                 try await viewModel.saveUnsavedActivities()
-                
                 try await viewModel.saveUnsavedNotes()
-                
                 try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
-                
                 await MainActor.run {
                     isSaving = false
                     isShowingPreview = false
@@ -148,6 +160,7 @@ struct PreviewView: View {
             }
         }
     }
+    
     private func deleteUnsavedActivity(_ activity: UnsavedActivity) {
         viewModel.deleteUnsavedActivity(activity)
     }
@@ -163,23 +176,67 @@ struct PreviewView: View {
     private func addNewNote(_ newNote: UnsavedNote) {
         viewModel.addUnsavedNote(newNote)
     }
+    
+    private func datePickerView() -> some View {
+        Button(action: {
+            isShowingDatePicker = true
+        }) {
+            HStack {
+                Image(systemName: "calendar")
+                Text(selectedDate, format: .dateTime.day().month().year())
+            }
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Color(.orangeClickAble))
+            .cornerRadius(8)
+        }
+    }
 }
+
+
+
+
+
 
 struct NoteRow: View {
     let note: UnsavedNote
+    @State private var showDeleteAlert = false
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading) {
+        HStack() {
             Text(note.note)
-            Text("Tanggal: \(note.createdAt, formatter: itemFormatter)")
+
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(.ultraThinMaterial)
+                .cornerRadius(8)
+            
+            
+            Button(action: {
+                showDeleteAlert = true
+            }) {
+                Image("custom.trash.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 34)
+            }
+            .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+                Button("Hapus", role: .destructive) {
+                    onDelete()
+                }
+                Button("Batal", role: .cancel) { }
+            } message: {
+                Text("Apakah kamu yakin ingin menghapus catatan ini?")
+            }
+            
         }
-        .contextMenu {
-            Button("Edit", action: onEdit)
-            Button("Delete", role: .destructive, action: onDelete)
-        }
+        
     }
     
     private let itemFormatter: DateFormatter = {
@@ -227,7 +284,7 @@ struct UnsavedNoteCreateView: View {
     let onSave: (UnsavedNote) -> Void
     
     let selectedDate: Date
-
+    
     var body: some View {
         NavigationView {
             Form {
