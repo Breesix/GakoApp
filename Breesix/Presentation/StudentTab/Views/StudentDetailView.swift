@@ -76,7 +76,6 @@ struct StudentDetailView: View {
                                     Text("Edit Profil")
                                         .foregroundStyle(.white)
                                 }
-                                // Reduce left padding to move closer to edge
                             }
                         }
                         .padding(.horizontal, 16)

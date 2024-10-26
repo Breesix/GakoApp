@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Speech
 
 struct StudentListCard: View {
     let student: Student
@@ -33,9 +34,9 @@ struct StudentListCard: View {
                             }
                         }
                     )
-                    .cornerRadius(999)
+                    .clipShape(.circle)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 999)
+                        Circle()
                             .inset(by: 2.5)
                             .stroke(.white, lineWidth: 5)
                     )
@@ -79,13 +80,12 @@ struct StudentTabView: View {
                     }
                 
                 VStack (spacing: 0) {
-                    CustomNavigationBar(title: "Daftar Murid") {
+                    CustomNavigationBar(title: "Murid") {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)
-//                        .padding(.vertical)
-                        .padding(16)
-                    
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
                     Group {
                         if viewModel.students.isEmpty {
                             VStack {
@@ -117,7 +117,6 @@ struct StudentTabView: View {
                                     }
                                 }
                                 .padding(.horizontal, 16)
-                                .padding(.top, 16)
                             }
                             .simultaneousGesture(DragGesture().onChanged({ _ in
                                 dismissKeyboard()
@@ -129,7 +128,6 @@ struct StudentTabView: View {
             .background(.bgMain)
             .navigationBarHidden(true)
         }
-//        .navigationBarHidden(true)
         .refreshable {
             await viewModel.fetchAllStudents()
         }
@@ -141,7 +139,6 @@ struct StudentTabView: View {
         }
     }
     
-    // Computed property untuk filter students tetap sama
     private var filteredStudents: [Student] {
         if searchQuery.isEmpty {
             return viewModel.students
@@ -157,65 +154,96 @@ struct StudentTabView: View {
 struct CustomSearchBar: View {
     @Binding var text: String
     @State private var isEditing = false
+    @StateObject private var speechRecognizer = SpeechRecognizer()
+    @State private var isRecording = false
     
     var body: some View {
-        HStack {
-            TextField("Search", text: $text)
-                .padding(7)
-                .padding(.horizontal, 25)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-                .overlay(
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 8)
-                        
-                        if !text.isEmpty {
-                            Button(action: {
-                                self.text = ""
-                            }) {
-                                Image(systemName: "multiply.circle.fill")
-                                    .foregroundColor(.gray)
-                                    .padding(.trailing, 8)
+            HStack {
+                TextField("Search", text: $text)
+                    .padding(.horizontal, 33)
+                    .padding(.vertical, 7)
+                    .background(.fillTertiary)
+                    .cornerRadius(10)
+                    .overlay(
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(.labelSecondary)
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, 8)
+                            
+                            if isRecording {
+                                Button(action: {
+                                    isRecording = false
+                                    speechRecognizer.stopTranscribing()
+                                }) {
+                                    Image(systemName: "mic.fill.badge.xmark")
+                                        .foregroundStyle(.red)
+                                        .padding(.trailing, 8)
+                                }
+                            } else {
+                                if text.isEmpty {
+                                    Button(action: {
+                                        isRecording = true
+                                        speechRecognizer.startTranscribing()
+                                    }) {
+                                        Image(systemName: "mic.fill")
+                                            .foregroundStyle(.labelSecondary)
+                                            .padding(.trailing, 8)
+                                    }
+                                } else {
+                                    Button(action: {
+                                        self.text = ""
+                                    }) {
+                                        Image(systemName: "multiply.circle.fill")
+                                            .foregroundStyle(.labelSecondary)
+                                            .padding(.trailing, 8)
+                                    }
+                                }
                             }
                         }
+                    )
+                    .onTapGesture {
+                        withAnimation {
+                            self.isEditing = true
+                        }
                     }
-                )
-                .padding(.horizontal, 10)
-                .onTapGesture {
-                    withAnimation {
-                        self.isEditing = true
-                    }
-                }
-            
-            if isEditing {
-                Button(action: {
-                    withAnimation {
-                        self.isEditing = false
-                        self.text = ""
-                        hideKeyboard()
-                    }
-                }) {
-                    Text("Cancel")
-                        .foregroundStyle(.destructive)
-                }
-                .padding(.trailing, 10)
-                .transition(.move(edge: .trailing))
+            }
+            .onAppear {
+                requestSpeechAuthorization()
+            }
+            .onReceive(speechRecognizer.$transcript) { newTranscript in
+                self.text = newTranscript
             }
         }
-    }
+
     
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                     to: nil,
-                                     from: nil,
-                                     for: nil)
+                                      to: nil,
+                                      from: nil,
+                                      for: nil)
+    }
+    
+    private func requestSpeechAuthorization() {
+        SFSpeechRecognizer.requestAuthorization { authStatus in
+            DispatchQueue.main.async {
+                switch authStatus {
+                case .authorized:
+                    print("Speech recognition authorized")
+                case .denied:
+                    print("Speech recognition denied")
+                case .restricted:
+                    print("Speech recognition restricted")
+                case .notDetermined:
+                    print("Speech recognition not determined")
+                @unknown default:
+                    print("Unknown status")
+                }
+            }
+        }
     }
 }
 
-// Add this extension to handle keyboard dismissal
 extension View {
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
