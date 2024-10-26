@@ -175,6 +175,8 @@ struct StudentDetailView: View {
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {
                 selectedNote = nil
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(item: $activity) { currentActivity in
             ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
