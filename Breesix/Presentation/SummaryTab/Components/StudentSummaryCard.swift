@@ -23,7 +23,7 @@ struct StudentSummaryCard: View {
                 if let imageData = student.imageData {
                     Image(uiImage: UIImage(data: imageData)!)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
                         .frame(width: 50, height: 50)
                         .clipShape(Circle())
                 } else {
