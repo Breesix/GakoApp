@@ -29,10 +29,13 @@ struct ActivityCardView: View {
             return formatter.string(from: date)
         }
     
+<<<<<<< HEAD
 
     @State private var isShowingNewActivity = false
     @State private var editingActivity: Activity?
 
+=======
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Date header
@@ -55,6 +58,7 @@ struct ActivityCardView: View {
             
             // Activities section
             ActivitySection(
+<<<<<<< HEAD
                 activities: $activities,
                 onEditActivity: { activity in
                     // Show sheet to edit activity
@@ -69,6 +73,12 @@ struct ActivityCardView: View {
                     editingActivity = Activity(id: UUID(), activity: "", createdAt: Date(), isIndependent: false, student: student )
                     isShowingNewActivity = true
                 }
+=======
+                activities: activities,
+                onEditActivity: onEditActivity,
+                onDeleteActivity: onDeleteActivity,
+                onAddActivity: onAddActivity
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
             )
             
             // Divider
@@ -86,6 +96,7 @@ struct ActivityCardView: View {
         .padding(16)
         .background(.white)
         .cornerRadius(20)
+<<<<<<< HEAD
         .frame(maxWidth: .infinity, alignment: .trailing)
         .sheet(isPresented: $isShowingNewActivity) {
             if let activity = editingActivity {
@@ -99,9 +110,15 @@ struct ActivityCardView: View {
                 )
             }
         }
+=======
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     }
 }
-
 struct ActivitySection: View {
     @Binding var activities: [Activity] 
     let onEditActivity: (Activity) -> Void
@@ -129,6 +146,17 @@ struct ActivitySection: View {
             .foregroundStyle(Color(red: 0.24, green: 0.24, blue: 0.24))
             .background(Color.buttonOncard)
         }
+<<<<<<< HEAD
+=======
+//        .padding(12)
+//        .background(.white)
+//        .cornerRadius(8)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 8)
+//                .inset(by: 0.25)
+//                .stroke(.green, lineWidth: 0.5)
+//        )
+>>>>>>> 6f3b7d1 (fix hifi but still bug on tabBar hidden)
     }
 }
 
