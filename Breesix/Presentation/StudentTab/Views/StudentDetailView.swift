@@ -220,6 +220,8 @@ struct StudentDetailView: View {
                     await fetchActivities()
                 }
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }

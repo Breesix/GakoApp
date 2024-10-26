@@ -100,7 +100,7 @@ struct PreviewView: View {
 
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                NewActivityView(viewModel: viewModel,
+                NewUnsavedActivityView(viewModel: viewModel,
                                 student: student,
                                 selectedDate: selectedDate,
                                 onDismiss: {
