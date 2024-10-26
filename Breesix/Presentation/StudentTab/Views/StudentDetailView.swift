@@ -112,11 +112,6 @@ struct StudentDetailView: View {
                             isShowingCalendar: $isShowingCalendar,
                             onDateSelected: { newDate in
                                 if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                                    if activitiesOnSelectedDate.isEmpty {
-                                        noActivityAlertPresented = true
-                                    } else {
-                                        isShowingCalendar = false
-                                    }
                                 } else {
                                     noActivityAlertPresented = true
                                 }
@@ -126,48 +121,48 @@ struct StudentDetailView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
                     
-                    Group {
-                        if activitiesForSelectedMonth.isEmpty {
-                            VStack {
-                                Spacer()
-                                EmptyState(message: "Belum ada aktivitas yang tercatat.")
-                                Spacer()
-                            }
-                        } else {
-                            ScrollViewReader { scrollProxy in
-                                ScrollView {
-                                    ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                                        ActivityCardView(
-                                            viewModel: viewModel,
-                                            activities: activitiesForSelectedMonth[day] ?? [],
-                                            notes: notesForSelectedMonth[day] ?? [],
-                                            date: day,
-                                            onAddNote: { isAddingNewNote = true },
-                                            onAddActivity: { isAddingNewActivity = true },
-                                            onEditActivity: { self.activity = $0 },
-                                            onDeleteActivity: deleteActivity,
-                                            onEditNote: { self.selectedNote = $0 },
-                                            onDeleteNote: deleteNote,
-                                            student: student
-                                        )
-                                        .padding(.horizontal, 16)
-                                        .padding(.bottom, 12)
-                                        .id(day)
-                                    }
+                    if activitiesForSelectedMonth.isEmpty {
+                        VStack {
+                            Spacer()
+                            EmptyState(message: "Belum ada aktivitas yang tercatat.")
+                            Spacer()
+                        }
+                    } else {
+                        ScrollViewReader { scrollProxy in
+                            ScrollView {
+                                ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
+                                    let dayItems = activitiesForSelectedMonth[day]!
+                                    ActivityCardView(
+                                        viewModel: viewModel,
+                                        activities: dayItems.activities,
+                                        notes: dayItems.notes,
+                                        date: day,
+                                        onAddNote: { isAddingNewNote = true },
+                                        onAddActivity: { isAddingNewActivity = true },
+                                        onEditActivity: { self.activity = $0 },
+                                        onDeleteActivity: deleteActivity,
+                                        onEditNote: { self.selectedNote = $0 },
+                                        onDeleteNote: deleteNote,
+                                        student: student
+                                    )
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 12)
+                                    .id(day)
                                 }
-                                .onChange(of: selectedDate) { newDate in
-                                    if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                                        if activitiesOnSelectedDate.isEmpty {
-                                            noActivityAlertPresented = true
-                                        } else {
-                                            withAnimation(.smooth) {
-                                                scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
-                                            }
-                                            isShowingCalendar = false
-                                        }
-                                    } else {
+                            }
+                            .onChange(of: selectedDate) { newDate in
+                                let startOfDay = calendar.startOfDay(for: newDate)
+                                if let dayItems = activitiesForSelectedMonth[startOfDay] {
+                                    if dayItems.activities.isEmpty && dayItems.notes.isEmpty {
                                         noActivityAlertPresented = true
+                                    } else {
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                        }
+                                        isShowingCalendar = false
                                     }
+                                } else {
+                                    noActivityAlertPresented = true
                                 }
                             }
                         }
@@ -270,14 +265,32 @@ struct StudentDetailView: View {
         }
     }
     
-    private var activitiesForSelectedMonth: [Date: [Activity]] {
-        Dictionary(grouping: activities) { activity in
+    private var activitiesForSelectedMonth: [Date: DayItems] {
+        let calendar = Calendar.current
+        
+        let groupedActivities = Dictionary(grouping: activities) { activity in
             calendar.startOfDay(for: activity.createdAt)
-        }.filter { date, _ in
-            calendar.isDate(date, equalTo: selectedDate, toGranularity: .month)
         }
+        
+        let groupedNotes = Dictionary(grouping: notes) { note in
+            calendar.startOfDay(for: note.createdAt)
+        }
+        
+        let allDates = Set(groupedActivities.keys).union(groupedNotes.keys)
+        
+        var result: [Date: DayItems] = [:]
+        
+        for date in allDates {
+            if calendar.isDate(date, equalTo: selectedDate, toGranularity: .month) {
+                result[date] = DayItems(
+                    activities: groupedActivities[date] ?? [],
+                    notes: groupedNotes[date] ?? []
+                )
+            }
+        }
+        
+        return result
     }
-    
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in
             calendar.startOfDay(for: note.createdAt)
@@ -285,6 +298,11 @@ struct StudentDetailView: View {
             calendar.isDate(date, equalTo: selectedDate, toGranularity: .month)
         }
     }
+}
+
+struct DayItems {
+    var activities: [Activity]
+    var notes: [Note]
 }
 
 struct CalendarButton: View {
