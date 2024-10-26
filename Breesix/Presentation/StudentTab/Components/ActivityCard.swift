@@ -172,12 +172,6 @@ struct ActivityRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .contextMenu {
-            Button("Edit") { onEdit(activity) }
-            Button("Hapus", role: .destructive) {
-                showDeleteAlert = true
-            }
-        }
     }
 }
 

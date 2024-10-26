@@ -133,6 +133,8 @@ struct StudentTabView: View {
         }
         .sheet(isPresented: $isAddingStudent) {
             StudentEditView(viewModel: viewModel, mode: .add)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .task {
             await viewModel.fetchAllStudents()

@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+
 struct StudentEditView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -15,7 +16,6 @@ struct StudentEditView: View {
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
     
     @State private var showAlert = false
-    
     
     enum Mode: Equatable {
         case add
@@ -77,45 +77,87 @@ struct StudentEditView: View {
                     Button(action: {
                         showingSourceTypeMenu = true
                     }) {
-                        VStack {
-                            Text("Pilih Foto")
-                        }
+                        Text("Tambah Foto")
                     }
                 }
-                .padding(.top, 24)
+                .padding(.top, 34.5)
                 
                 VStack(alignment: .leading, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("Nama Lengkap")
                             .font(.callout)
                             .fontWeight(.semibold)
                         TextField("Nama Lengkap Murid", text: $fullname)
-                            .textFieldStyle(.roundedBorder)
+                            .font(.callout)
+                            .fontWeight(.regular)
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 9)
+                            .background(.cardFieldBG)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(.monochrome50, lineWidth: 1)
+                            )
                     }
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("Nama Panggilan")
                             .font(.callout)
                             .fontWeight(.semibold)
                         TextField("Nama Panggilan Murid", text: $nickname)
-                            .textFieldStyle(.roundedBorder)
+                            .font(.callout)
+                            .fontWeight(.regular)
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 9)
+                            .background(.cardFieldBG)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(.monochrome50, lineWidth: 1)
+                            )
                     }
                 }
+                .padding(.horizontal, 16)
                 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity)
             .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button("Cancel") {
-                presentationMode.wrappedValue.dismiss()
-            }, trailing: Button("Save") {
-                saveStudent()
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(mode == .add ? "Tambah Murid" : "Edit Murid")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .padding(.top, 27)
+                }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        HStack(spacing: 3) {
+                            Image(systemName: "chevron.left")
+                                .fontWeight(.semibold)
+                            Text("Kembali")
+                        }
+                        .font(.body)
+                        .fontWeight(.medium)
+                    }
+                    .padding(.top, 27)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        saveStudent()
+                    }) {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.medium)
+                    }
+                    .padding(.top, 27)
+                }
             }
-                .alert(isPresented: $showAlert) {
-                    Alert(title: Text("Error"), message: Text("Please fill in all fields"), dismissButton: .default(Text("OK")))
-                })
         }
+        
         .actionSheet(isPresented: $showingSourceTypeMenu) {
             ActionSheet(title: Text("Choose Image Source"), buttons: [
                 .default(Text("Camera")) {
@@ -131,6 +173,13 @@ struct StudentEditView: View {
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: $viewModel.newStudentImage, sourceType: sourceType)
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Peringatan"),
+                message: Text("Pastikan nama lengkap dan nama panggilan sudah terisi"),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
     
@@ -157,42 +206,6 @@ struct StudentEditView: View {
             }
             selectedImageData = nil
             presentationMode.wrappedValue.dismiss()
-        }
-    }
-}
-struct CameraView: UIViewControllerRepresentable {
-    @Binding var capturedImage: UIImage?
-    @Binding var isShowingCamera: Bool
-    
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: CameraView
-        
-        init(_ parent: CameraView) {
-            self.parent = parent
-        }
-        
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.capturedImage = image
-            }
-            parent.isShowingCamera = false
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.isShowingCamera = false
         }
     }
 }

@@ -170,6 +170,8 @@ struct StudentDetailView: View {
         
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(item: $selectedNote) { note in
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {

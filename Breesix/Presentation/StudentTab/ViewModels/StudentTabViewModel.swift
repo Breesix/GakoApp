@@ -52,17 +52,15 @@ class StudentTabViewModel: ObservableObject {
     @MainActor
     func addStudent(_ student: Student) async {
         do {
-            // Create a new student with the compressed image data
             let studentWithCompressedImage = Student(
                 fullname: student.fullname,
                 nickname: student.nickname,
-                imageData: compressedImageData // Use the compressed image data
+                imageData: compressedImageData
             )
             
             try await studentUseCases.addStudent(studentWithCompressedImage)
             await fetchAllStudents()
             
-            // Clear the temporary image data
             await MainActor.run {
                 self.newStudentImage = nil
                 self.compressedImageData = nil
@@ -76,11 +74,16 @@ class StudentTabViewModel: ObservableObject {
         do {
             try await studentUseCases.updateStudent(student)
             await fetchAllStudents()
+            
+            // Tambahkan reset state
+            await MainActor.run {
+                self.newStudentImage = nil
+                self.compressedImageData = nil
+            }
         } catch {
             print("Error updating student: \(error)")
         }
     }
-    
     func deleteStudent(_ student: Student) async {
         do {
             try await studentUseCases.deleteStudent(student)
