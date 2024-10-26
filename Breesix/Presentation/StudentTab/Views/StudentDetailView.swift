@@ -48,7 +48,6 @@ struct StudentDetailView: View {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 8) {
-                
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
@@ -63,7 +62,7 @@ struct StudentDetailView: View {
                                 HStack(spacing: 4) {
                                     Image(systemName: "chevron.left")
                                         .foregroundColor(.white)
-                                    Text("Murid")
+                                    Text("Kembali")
                                         .foregroundStyle(.white)
                                 }
                             }
@@ -161,8 +160,11 @@ struct StudentDetailView: View {
                     }
                 }
             }
+            .navigationBarBackButtonHidden(true) // Add this
+            .navigationBarHidden(true) // Add this
+            .hideTabBar()
         }
-        .hideTabBar()
+        
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
         }
