@@ -186,15 +186,6 @@ struct StudentDetailView: View {
         .navigationBarHidden(true) // Add this line
         //        .toolbarBackground(Color(red: 0.43, green: 0.64, blue: 0.32), for: .navigationBar)
         .toolbarBackground(.hidden, for: .navigationBar)
-        //
-        //        .navigationBarTitleDisplayMode(.inline)
-        //        .navigationBarItems(
-        //            leading: BackButton(),
-        //            trailing: Button("Edit Profil") {
-        //                isEditing = true
-        //            }
-        //                .foregroundColor(.white)
-        //        )
         
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
