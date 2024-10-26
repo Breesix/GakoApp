@@ -58,7 +58,7 @@ struct StudentDetailView: View {
                                 isTabBarHidden = false
                                 presentationMode.wrappedValue.dismiss()
                             }) {
-                                HStack(spacing: 4) {
+                                HStack(spacing: 3) {
                                     Image(systemName: "chevron.left")
                                         .foregroundColor(.white)
                                         .fontWeight(.semibold)
@@ -73,16 +73,13 @@ struct StudentDetailView: View {
                             Button(action: {
                                 isEditing = true
                             }) {
-                                HStack(spacing: 4) {
                                     Text("Edit Profil")
                                         .foregroundStyle(.white)
                                         .font(.subheadline)
                                         .fontWeight(.regular)
-                                }
                             }
                         }
-                        .padding(.leading, 8)
-                        .padding(.trailing, 14)
+                        .padding(14)
                 }
                 .frame(height: 58)
                 
@@ -95,7 +92,7 @@ struct StudentDetailView: View {
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.labelPrimaryBlack)
                         
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
@@ -194,7 +191,10 @@ struct StudentDetailView: View {
                     await fetchAllNotes()
                 }
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
+
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel,
                             student: student,
@@ -273,7 +273,7 @@ struct StudentDetailView: View {
 struct CalendarButton: View {
     @Binding var selectedDate: Date
     @Binding var isShowingCalendar: Bool
-    var onDateSelected: (Date) -> Void // Closure for date selection
+    var onDateSelected: (Date) -> Void
     
     var body: some View {
         
@@ -334,7 +334,6 @@ struct BackButton: View {
                 Text("Murid")
                     .foregroundStyle(.white)
             }
-            // Reduce left padding to move closer to edge
         }
     }
 }

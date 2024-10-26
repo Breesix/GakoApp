@@ -61,6 +61,8 @@ struct ActivityCardView: View {
             .padding(.bottom, 16)
             
             Divider()
+                .frame(height: 1)
+                .background(.tabbarInactiveLabel)
                 .padding(.bottom, 20)
             
             NoteSection(
