@@ -28,7 +28,6 @@ struct CustomNavigationBar: View {
                     AddButton(action: action)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
             }
         }
         .frame(height: 58)

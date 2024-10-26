@@ -11,12 +11,8 @@ struct ProfileHeader: View {
     let student: Student
     
     var body: some View {
-        ZStack {
-            Color.bgMain
-                .ignoresSafeArea(edges: .top)
-            
-            VStack(spacing: 8) {
-                HStack(alignment:.center, spacing: 12) {
+            VStack(spacing: 0) {
+                HStack(alignment:.center, spacing: 16) {
                     if let imageData = student.imageData,
                        let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
@@ -27,7 +23,7 @@ struct ProfileHeader: View {
                     } else {
                         Image(systemName: "person.circle.fill")
                             .resizable()
-                            .frame(width: 40, height: 40)
+                            .frame(width: 64, height: 64)
                             .foregroundColor(Color.bgSecondary)
                             .clipShape(Circle())
                     }
@@ -35,25 +31,20 @@ struct ProfileHeader: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(student.fullname)
                             .font(.title3)
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.labelPrimaryBlack)
                             .fontWeight(.semibold)
                         
                         Text(student.nickname)
                             .font(.callout)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+                            .foregroundColor(.labelPrimaryBlack)
                     }
                     Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 12)
-                
-                Divider()
             }
         }
-        .frame(height: 84)
-    }
+    
 }
 
 struct RoundedCorner: Shape {

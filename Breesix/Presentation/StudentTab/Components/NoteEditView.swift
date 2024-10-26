@@ -1,26 +1,29 @@
 //
-//  NewActivityView.swift
+//  NoteEditView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 04/10/24.
+//  Created by Rangga Biner on 03/10/24.
 //
 
 import SwiftUI
 
-import SwiftUI
-
-struct NewActivityView: View {
+struct NoteEditView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let student: Student
-    let selectedDate: Date
+    let note: Note
     let onDismiss: () -> Void
-    @State private var activityText: String = ""
-    @State private var isIndependent: Bool = false
+    @State private var noteText: String
+
+    init(viewModel: StudentTabViewModel, note: Note, onDismiss: @escaping () -> Void) {
+        self.viewModel = viewModel
+        self.note = note
+        self.onDismiss = onDismiss
+        _noteText = State(initialValue: note.note)
+    }
 
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Tambah Aktivitas")
+                Text("Edit Catatan")
                     .font(.callout)
                     .fontWeight(.semibold)
                 
@@ -29,8 +32,8 @@ struct NewActivityView: View {
                         .fill(.cardFieldBG)
                         .frame(maxWidth: .infinity, maxHeight: 170)
                     
-                    if activityText.isEmpty {
-                        Text("Tuliskan aktivitas murid...")
+                    if noteText.isEmpty {
+                        Text("Tuliskan catatan untuk murid...")
                             .font(.callout)
                             .fontWeight(.regular)
                             .padding(.horizontal, 11)
@@ -40,7 +43,7 @@ struct NewActivityView: View {
                             .cornerRadius(8)
                     }
                     
-                    TextEditor(text: $activityText)
+                    TextEditor(text: $noteText)
                         .font(.callout)
                         .fontWeight(.regular)
                         .padding(.horizontal, 8)
@@ -59,20 +62,15 @@ struct NewActivityView: View {
                         .stroke(.monochrome50, lineWidth: 1)
                 )
                 
-                Toggle("Mandiri", isOn: $isIndependent)
-                    .font(.callout)
-                    .fontWeight(.regular)
-                    .padding(.top, 8)
-                
                 Spacer()
             }
             .padding(.top, 34.5)
             .padding(.horizontal, 16)
-            .navigationTitle("Tambah Aktivitas")
+            .navigationTitle("Edit Catatan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tambah Aktivitas")
+                    Text("Edit Catatan")
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)
@@ -95,7 +93,7 @@ struct NewActivityView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewActivity()
+                        saveNote()
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -107,16 +105,13 @@ struct NewActivityView: View {
         }
     }
 
-    private func saveNewActivity() {
-        let newActivity = Activity(
-            activity: activityText,
-            createdAt: selectedDate,
-            isIndependent: isIndependent,
-            student: student
-        )
+    private func saveNote() {
+        note.note = noteText
         Task {
-            await viewModel.addActivity(newActivity, for: student)
+            await viewModel.updateNote(note)
             onDismiss()
         }
     }
 }
+
+

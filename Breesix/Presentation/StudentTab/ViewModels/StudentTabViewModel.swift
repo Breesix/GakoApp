@@ -52,17 +52,15 @@ class StudentTabViewModel: ObservableObject {
     @MainActor
     func addStudent(_ student: Student) async {
         do {
-            // Create a new student with the compressed image data
             let studentWithCompressedImage = Student(
                 fullname: student.fullname,
                 nickname: student.nickname,
-                imageData: compressedImageData // Use the compressed image data
+                imageData: compressedImageData
             )
             
             try await studentUseCases.addStudent(studentWithCompressedImage)
             await fetchAllStudents()
             
-            // Clear the temporary image data
             await MainActor.run {
                 self.newStudentImage = nil
                 self.compressedImageData = nil
@@ -76,11 +74,16 @@ class StudentTabViewModel: ObservableObject {
         do {
             try await studentUseCases.updateStudent(student)
             await fetchAllStudents()
+            
+            // Tambahkan reset state
+            await MainActor.run {
+                self.newStudentImage = nil
+                self.compressedImageData = nil
+            }
         } catch {
             print("Error updating student: \(error)")
         }
     }
-    
     func deleteStudent(_ student: Student) async {
         do {
             try await studentUseCases.deleteStudent(student)
@@ -241,5 +244,28 @@ class StudentTabViewModel: ObservableObject {
     }
     func generateAndSaveSummaries(for date: Date) async throws {
         try await summaryService.generateAndSaveSummaries(for: students, on: date)
+    }
+    
+    func updateActivityStatus(_ activity: Activity, isIndependent: Bool) async {
+        do {
+            // Buat activity baru dengan status yang diperbarui
+            let updatedActivity = Activity(
+                id: activity.id,
+                activity: activity.activity,
+                createdAt: activity.createdAt,
+                isIndependent: isIndependent,
+                student: activity.student!
+            )
+            
+            // Update activity menggunakan use case yang ada
+            try await activityUseCases.updateActivity(updatedActivity)
+            
+            // Refresh data
+            if let student = activity.student {
+                _ = await fetchActivities(student)
+            }
+        } catch {
+            print("Error updating activity status: \(error)")
+        }
     }
 }

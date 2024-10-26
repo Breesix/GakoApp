@@ -19,14 +19,9 @@ struct StudentDetailView: View {
     @State private var activities: [Activity] = []
     @State private var isShowingCalendar: Bool = false
     @State private var showTabBar = false
-
     @State private var noActivityAlertPresented = false
-    
-    // Add this to handle tab bar visibility
     @State private var isTabBarHidden = true
-    
     private let calendar = Calendar.current
-    
     @Environment(\.presentationMode) var presentationMode
     
     init(student: Student, viewModel: StudentTabViewModel) {
@@ -52,52 +47,52 @@ struct StudentDetailView: View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
             
-            VStack(spacing: 8) {
-                
+            VStack(spacing: 0) {
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                         .ignoresSafeArea(edges: .top)
                     
-                    VStack(spacing: 0) {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                // Show tab bar before dismissing
-                                isTabBarHidden = false
-                                presentationMode.wrappedValue.dismiss()
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "chevron.left")
-                                        .foregroundColor(.white)
-                                    Text("Murid")
-                                        .foregroundStyle(.white)
-                                }
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            isTabBarHidden = false
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            HStack(spacing: 3) {
+                                Image(systemName: "chevron.left")
+                                    .foregroundColor(.white)
+                                    .fontWeight(.semibold)
+                                Text("Kembali")
+                                    .foregroundStyle(.white)
+                                    .fontWeight(.regular)
                             }
-                            Spacer()
-                            
-                            Button(action: {
-                                isEditing = true
-                            }) {
-                                HStack(spacing: 4) {
-                                    Text("Edit Profil")
-                                        .foregroundStyle(.white)
-                                }
-                                // Reduce left padding to move closer to edge
-                            }
+                            .font(.body)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+                        Spacer()
+                        
+                        Button(action: {
+                            isEditing = true
+                        }) {
+                            Text("Edit Profil")
+                                .foregroundStyle(.white)
+                                .font(.subheadline)
+                                .fontWeight(.regular)
+                        }
                     }
+                    .padding(14)
                 }
                 .frame(height: 58)
                 
                 ProfileHeader(student: student)
+                    .padding(16)
                 
-                VStack(spacing: 8) {
+                Divider()
+                
+                VStack(spacing: 0) {
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.labelPrimaryBlack)
                         
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
@@ -117,11 +112,6 @@ struct StudentDetailView: View {
                             isShowingCalendar: $isShowingCalendar,
                             onDateSelected: { newDate in
                                 if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                                    if activitiesOnSelectedDate.isEmpty {
-                                        noActivityAlertPresented = true
-                                    } else {
-                                        isShowingCalendar = false
-                                    }
                                 } else {
                                     noActivityAlertPresented = true
                                 }
@@ -131,64 +121,70 @@ struct StudentDetailView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
                     
-                    ScrollViewReader { scrollProxy in
-                        ScrollView {
-                            ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                                ActivityCardView(
-                                    viewModel: viewModel,
-                                    activities: activitiesForSelectedMonth[day] ?? [],
-                                    notes: notesForSelectedMonth[day] ?? [],
-                                    date: day,
-                                    onAddNote: { isAddingNewNote = true },
-                                    onAddActivity: { isAddingNewActivity = true },
-                                    onEditActivity: { self.activity = $0 },
-                                    onDeleteActivity: deleteActivity,
-                                    onEditNote: { self.selectedNote = $0 },
-                                    onDeleteNote: deleteNote, student: student
-                                )
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .id(day)
-                            }
+                    if activitiesForSelectedMonth.isEmpty {
+                        VStack {
+                            Spacer()
+                            EmptyState(message: "Belum ada aktivitas yang tercatat.")
+                            Spacer()
                         }
-                        .onChange(of: selectedDate) { newDate in
-                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                                if activitiesOnSelectedDate.isEmpty {
-                                    noActivityAlertPresented = true
-                                } else {
-                                    withAnimation(.smooth) {
-                                        scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
-                                    }
-                                    isShowingCalendar = false
+                    } else {
+                        ScrollViewReader { scrollProxy in
+                            ScrollView {
+                                ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
+                                    let dayItems = activitiesForSelectedMonth[day]!
+                                    ActivityCardView(
+                                        viewModel: viewModel,
+                                        activities: dayItems.activities,
+                                        notes: dayItems.notes,
+                                        date: day,
+                                        onAddNote: { isAddingNewNote = true },
+                                        onAddActivity: { isAddingNewActivity = true },
+                                        onEditActivity: { self.activity = $0 },
+                                        onDeleteActivity: deleteActivity,
+                                        onEditNote: { self.selectedNote = $0 },
+                                        onDeleteNote: deleteNote,
+                                        student: student
+                                    )
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 12)
+                                    .id(day)
                                 }
-                            } else {
-                                noActivityAlertPresented = true
+                            }
+                            .onChange(of: selectedDate) { newDate in
+                                let startOfDay = calendar.startOfDay(for: newDate)
+                                if let dayItems = activitiesForSelectedMonth[startOfDay] {
+                                    if dayItems.activities.isEmpty && dayItems.notes.isEmpty {
+                                        noActivityAlertPresented = true
+                                    } else {
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                        }
+                                        isShowingCalendar = false
+                                    }
+                                } else {
+                                    noActivityAlertPresented = true
+                                }
                             }
                         }
-                        //                        .onChange(of: selectedDate) { newDate in
-                        //                            if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
-                        //                                if activitiesOnSelectedDate.isEmpty {
-                        //                                    noActivityAlertPresented = true
-                        //                                } else {
-                        //                                    // Close the calendar and scroll to the activity card
-                        //                                    scrollProxy.scrollTo(calendar.startOfDay(for: newDate), anchor: .top)
-                        //                                    isShowingCalendar = false
-                        //                                }
-                        //                            }
-                        //                        }
                     }
                 }
-                .background(Color(red: 0.94, green: 0.95, blue: 0.93))
             }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
+            .hideTabBar()
         }
-        .hideTabBar()
+        
         .sheet(isPresented: $isEditing) {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(item: $selectedNote) { note in
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {
                 selectedNote = nil
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(item: $activity) { currentActivity in
             ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
@@ -205,7 +201,10 @@ struct StudentDetailView: View {
                     await fetchAllNotes()
                 }
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
+
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel,
                             student: student,
@@ -216,6 +215,8 @@ struct StudentDetailView: View {
                     await fetchActivities()
                 }
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
@@ -264,14 +265,32 @@ struct StudentDetailView: View {
         }
     }
     
-    private var activitiesForSelectedMonth: [Date: [Activity]] {
-        Dictionary(grouping: activities) { activity in
+    private var activitiesForSelectedMonth: [Date: DayItems] {
+        let calendar = Calendar.current
+        
+        let groupedActivities = Dictionary(grouping: activities) { activity in
             calendar.startOfDay(for: activity.createdAt)
-        }.filter { date, _ in
-            calendar.isDate(date, equalTo: selectedDate, toGranularity: .month)
         }
+        
+        let groupedNotes = Dictionary(grouping: notes) { note in
+            calendar.startOfDay(for: note.createdAt)
+        }
+        
+        let allDates = Set(groupedActivities.keys).union(groupedNotes.keys)
+        
+        var result: [Date: DayItems] = [:]
+        
+        for date in allDates {
+            if calendar.isDate(date, equalTo: selectedDate, toGranularity: .month) {
+                result[date] = DayItems(
+                    activities: groupedActivities[date] ?? [],
+                    notes: groupedNotes[date] ?? []
+                )
+            }
+        }
+        
+        return result
     }
-    
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in
             calendar.startOfDay(for: note.createdAt)
@@ -281,10 +300,15 @@ struct StudentDetailView: View {
     }
 }
 
+struct DayItems {
+    var activities: [Activity]
+    var notes: [Note]
+}
+
 struct CalendarButton: View {
     @Binding var selectedDate: Date
     @Binding var isShowingCalendar: Bool
-    var onDateSelected: (Date) -> Void // Closure for date selection
+    var onDateSelected: (Date) -> Void
     
     var body: some View {
         
@@ -345,7 +369,6 @@ struct BackButton: View {
                 Text("Murid")
                     .foregroundStyle(.white)
             }
-            // Reduce left padding to move closer to edge
         }
     }
 }
