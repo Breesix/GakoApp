@@ -227,10 +227,15 @@ struct NoteRow: View {
             Button(action: {
                 showDeleteAlert = true
             }) {
-                Image("custom.trash.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 34)
+                ZStack {
+                    Circle()
+                        .frame(width: 34)
+                        .foregroundStyle(.buttonDestructiveOnCard)
+                    Image(systemName: "trash.fill")
+                        .font(.subheadline)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.destructive)
+                }
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {
