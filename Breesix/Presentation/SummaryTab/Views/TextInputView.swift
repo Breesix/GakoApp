@@ -168,7 +168,7 @@ struct TextInputView: View {
     private func processReflectionActivity() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         isTextEditorFocused = false
-
+        
         Task {
             do {
                 isLoading = true
