@@ -1,6 +1,15 @@
 {
-  "originHash" : "0f6fa789e3ccd649ba0dc0bf0e62d112b1bbe417fa1c42d661c1038d7c38a0a3",
+  "originHash" : "5a29550a9ed6e46d747f9c7a6a655373a335b5fac83dc101b9f92fd031fdcafa",
   "pins" : [
+    {
+      "identity" : "dotlottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LottieFiles/dotlottie-ios",
+      "state" : {
+        "branch" : "main",
+        "revision" : "d84ba19c566a8b787893b3c4dbb796961638bce7"
+      }
+    },
     {
       "identity" : "openai",
       "kind" : "remoteSourceControl",
