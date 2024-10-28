@@ -23,7 +23,7 @@ struct PreviewView: View {
     @Binding var selectedDate: Date
     @State private var tempDate: Date
     @State private var isShowingDatePicker = false
-    
+    @State private var isShowingEditSheet = false
     @State private var activities: [Activity] = []
     
     init(
@@ -38,7 +38,7 @@ struct PreviewView: View {
         self._isShowingPreview = isShowingPreview
         self._isShowingActivity = isShowingActivity
     }
-
+    
     
     var body: some View {
         ScrollView {
@@ -50,7 +50,11 @@ struct PreviewView: View {
                         selectedDate: selectedDate,
                         selectedStudent: $selectedStudent,
                         isAddingNewActivity: $isAddingNewActivity,
-                        isAddingNewNote: $isAddingNewNote
+                        isAddingNewNote: $isAddingNewNote,
+                        onDeleteActivity: { activity in
+                            viewModel.deleteUnsavedActivity(activity)
+                        }
+                        
                     )
                     .padding(.bottom, 12)
                 }
@@ -107,9 +111,9 @@ struct PreviewView: View {
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
                 NewUnsavedActivityView(viewModel: viewModel,
-                                student: student,
-                                selectedDate: selectedDate,
-                                onDismiss: {
+                                       student: student,
+                                       selectedDate: selectedDate,
+                                       onDismiss: {
                     isAddingNewActivity = false
                 })
             }
@@ -119,6 +123,7 @@ struct PreviewView: View {
                 updateNote(updatedNote)
             })
         }
+        
         .sheet(isPresented: $isAddingNewNote) {
             if let student = selectedStudent {
                 UnsavedNoteCreateView(student: student, onSave: { newNote in
@@ -204,10 +209,10 @@ struct PreviewView: View {
 
 struct NoteRow: View {
     let note: UnsavedNote
-    @State private var showDeleteAlert = false
     let student: Student
     let onEdit: () -> Void
     let onDelete: () -> Void
+    @State private var showDeleteAlert = false
     
     var body: some View {
         HStack(spacing: 8) {
@@ -223,7 +228,9 @@ struct NoteRow: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.noteStroke, lineWidth: 0.5)
                 }
-            
+                .contextMenu {
+                    Button("Edit") { onEdit() }
+                }
             Button(action: {
                 showDeleteAlert = true
             }) {
@@ -240,21 +247,12 @@ struct NoteRow: View {
             } message: {
                 Text("Apakah kamu yakin ingin menghapus catatan ini?")
             }
-            
         }
-        
     }
-    
-    private let itemFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
 }
 
 struct UnsavedNoteEditView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     @State private var textNote: String
     let note: UnsavedNote
     let onSave: (UnsavedNote) -> Void
@@ -266,19 +264,36 @@ struct UnsavedNoteEditView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
-                TextField("Note", text: $textNote)
+                TextField("Catatan", text: $textNote)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.vertical, 8)
             }
-            .navigationTitle("Edit Note")
-            .navigationBarItems(
-                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
-                trailing: Button("Save") {
-                    let updatedNote = UnsavedNote(id: note.id, note: textNote, createdAt: note.createdAt, studentId: note.studentId)
-                    onSave(updatedNote)
-                    presentationMode.wrappedValue.dismiss()
+            .navigationTitle("Edit Catatan")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Batal") {
+                        dismiss()
+                    }
+                    .foregroundStyle(.red)
                 }
-            )
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Simpan") {
+                        let updatedNote = UnsavedNote(
+                            id: note.id,
+                            note: textNote,
+                            createdAt: note.createdAt,
+                            studentId: note.studentId
+                        )
+                        onSave(updatedNote)
+                        dismiss()
+                    }
+                    .disabled(textNote.isEmpty)
+                }
+            }
         }
     }
 }

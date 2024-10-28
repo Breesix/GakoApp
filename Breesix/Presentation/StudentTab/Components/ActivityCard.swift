@@ -8,11 +8,13 @@
 import SwiftUI
 
 
+
+
+
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let activities: [Activity]  // Changed from @State to let
+    let activities: [Activity]
     let notes: [Note]
-    let date: Date
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
@@ -20,6 +22,7 @@ struct ActivityCardView: View {
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let student: Student
+    let date: Date
     
     func indonesianFormattedDate(date: Date) -> String {
         let formatter = DateFormatter()
@@ -29,8 +32,9 @@ struct ActivityCardView: View {
         return formatter.string(from: date)
     }
     
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .trailing, spacing: 12) {
             HStack {
                 Text(indonesianFormattedDate(date: date))
                     .font(.body)
@@ -38,47 +42,57 @@ struct ActivityCardView: View {
                     .foregroundStyle(.labelPrimaryBlack)
             }
             .padding(.bottom, 19)
-        
-            ActivitySection(
-                activities: activities,
-                onEditActivity: onEditActivity,
-                onDeleteActivity: onDeleteActivity,
-                onAddActivity: onAddActivity,
-                onStatusChanged: { activity, newStatus in
-                    Task {
-                        await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
-                    }
+            if !activities.isEmpty {
+                ForEach(activities) { activity in
+                    ActivitySection(
+                        activities: activities,
+                        onEditActivity: onEditActivity,
+                        onDeleteActivity: onDeleteActivity,
+                        onAddActivity: onAddActivity,
+                        onStatusChanged: { activity, newStatus in
+                            Task {
+                                await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                            }
+                        }
+                    )
+                    .padding(.bottom, 16)
                 }
-            )
-            .padding(.bottom, 16)
+            } else {
+                Text("Tidak ada aktivitas untuk tanggal ini")
+                    .foregroundColor(.secondary)
+            }
             
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
                 .padding(.bottom, 20)
             
-            NoteSection(
-                notes: notes,
-                onEditNote: onEditNote,
-                onDeleteNote: onDeleteNote,
-                onAddNote: onAddNote
-            )
+            
+            if !notes.isEmpty {
+                NoteSection(
+                    notes: notes,
+                    onEditNote: onEditNote,
+                    onDeleteNote: onDeleteNote,
+                    onAddNote: onAddNote
+                )
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
+        
     }
 }
 
 
 struct ActivitySection: View {
-    let activities: [Activity]  // Changed from @Binding to let
+    let activities: [Activity]
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
     let onAddActivity: () -> Void
-    let onStatusChanged: (Activity, Bool) -> Void  // Tambahkan ini
+    let onStatusChanged: (Activity, Bool) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -89,9 +103,11 @@ struct ActivitySection: View {
                 ForEach(activities, id: \.id) { activity in
                     ActivityRow(
                         activity: activity,
-                        onEdit: onEditActivity,
-                        onDelete: onDeleteActivity,
-                        onStatusChanged: onStatusChanged  // Teruskan handler
+                        onEdit: { _ in onEditActivity(activity) },
+                        onDelete: { _ in onDeleteActivity(activity) },
+                        onStatusChanged: { newStatus  in
+                            onStatusChanged(activity, newStatus)
+                        }
                     )
                 }
             }
@@ -111,25 +127,24 @@ struct ActivitySection: View {
 }
 
 struct ActivityRow: View {
-    let activity: Activity  // Changed from @Binding to let
+    let activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
-    let onStatusChanged: (Activity, Bool) -> Void  // Tambahkan handler untuk perubahan status
-
+    let onStatusChanged: (Bool) -> Void
     @State private var showDeleteAlert = false
-    @State private var isIndependent: Bool  // Add this to handle the picker state
-
+    @State private var isIndependent: Bool
+    
     init(activity: Activity,
          onEdit: @escaping (Activity) -> Void,
          onDelete: @escaping (Activity) -> Void,
-         onStatusChanged: @escaping (Activity, Bool) -> Void) {
+         onStatusChanged: @escaping (Bool) -> Void) {
         self.activity = activity
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onStatusChanged = onStatusChanged
         _isIndependent = State(initialValue: activity.isIndependent ?? false)
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(activity.activity)
@@ -138,29 +153,45 @@ struct ActivityRow: View {
                 .foregroundStyle(.labelPrimaryBlack)
             
             if activity.isIndependent != nil {
-                HStack(spacing: 0) {
-                    Picker("Status", selection: $isIndependent) {
-                        Text("Mandiri").tag(true)
-                        Text("Dibimbing").tag(false)
+                HStack(spacing: 8) {
+                    Menu {
+                        Button("Mandiri") {
+                            isIndependent = true
+                            onStatusChanged(true)
+                        }
+                        Button("Dibimbing") {
+                            isIndependent = false
+                            onStatusChanged(false)
+                        }
+                    } label: {
+                        HStack {
+                            Text(getStatusText())
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.up.chevron.down")
+                        }
+                        .font(.body)
+                        .fontWeight(.regular)
+                        .foregroundColor(.labelPrimaryBlack)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 11)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.cardFieldBG)
+                        .cornerRadius(8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.statusStroke, lineWidth: 2)
+                        }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(8)
-                    .padding(.trailing, 8)
-                    .onChange(of: isIndependent) { newValue in
-                        onStatusChanged(activity, newValue)  // Panggil handler saat status berubah
-                    }
-
                     
-                    Button("Hapus", systemImage: "trash.fill", action: {
-                        showDeleteAlert = true
-                    })
-                    .frame(width: 34, height: 34)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.bordered)
-                    .tint(.red)
-                    .clipShape(.circle)
+                    
+                    Button(action: { showDeleteAlert = true }) {
+                        Image("custom.trash.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 34)
+                    }
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
                             onDelete(activity)
@@ -174,11 +205,15 @@ struct ActivityRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+    
+    private func getStatusText() -> String {
+        return isIndependent ? "Mandiri" : "Dibimbing"
+    }
 }
 
 
 
-    
+
 
 struct NoteDetailRow: View {
     let note: Note
@@ -197,11 +232,14 @@ struct NoteDetailRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.ultraThinMaterial)
                 .cornerRadius(8)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(.noteStroke, lineWidth: 0.5)
+                }
                 .contextMenu {
                     Button("Edit") { onEdit(note) }
                 }
             
-            Spacer()
             
             Button(action: {
                 showDeleteAlert = true

@@ -130,24 +130,32 @@ struct StudentDetailView: View {
                     } else {
                         ScrollViewReader { scrollProxy in
                             ScrollView {
-                                ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
-                                    let dayItems = activitiesForSelectedMonth[day]!
-                                    ActivityCardView(
-                                        viewModel: viewModel,
-                                        activities: dayItems.activities,
-                                        notes: dayItems.notes,
-                                        date: day,
-                                        onAddNote: { isAddingNewNote = true },
-                                        onAddActivity: { isAddingNewActivity = true },
-                                        onEditActivity: { self.activity = $0 },
-                                        onDeleteActivity: deleteActivity,
-                                        onEditNote: { self.selectedNote = $0 },
-                                        onDeleteNote: deleteNote,
-                                        student: student
-                                    )
-                                    .padding(.horizontal, 16)
-                                    .padding(.bottom, 12)
-                                    .id(day)
+                                LazyVStack(spacing: 0) {
+                                    ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
+                                        let dayItems = activitiesForSelectedMonth[day]!
+                                            ActivityCardView(
+                                                viewModel: viewModel,
+                                                activities: dayItems.activities,
+                                                notes: dayItems.notes,
+                                                onAddNote: {
+                                                    selectedDate = day
+                                                    isAddingNewNote = true
+                                                },
+                                                onAddActivity: {
+                                                    selectedDate = day
+                                                    isAddingNewActivity = true
+                                                },
+                                                onEditActivity: { self.activity = $0 },
+                                                onDeleteActivity: deleteActivity,
+                                                onEditNote: { self.selectedNote = $0 },
+                                                onDeleteNote: deleteNote,
+                                                student: student, date: day
+                                            )
+                                            .padding(.horizontal, 16)
+                                            .padding(.bottom, 12)
+                                            .id(day)
+                                        }
+                    
                                 }
                             }
                             .onChange(of: selectedDate) { newDate in
@@ -255,7 +263,10 @@ struct StudentDetailView: View {
     private func deleteActivity(_ activity: Activity) {
         Task {
             await viewModel.deleteActivities(activity, from: student)
+            // Hapus dari array activities lokal
             activities.removeAll(where: { $0.id == activity.id })
+            // Refresh data setelah menghapus
+            await fetchActivities()
         }
     }
     

@@ -144,8 +144,11 @@ class StudentTabViewModel: ObservableObject {
     func deleteActivities(_ activity: Activity, from student: Student) async {
         do {
             try await activityUseCases.deleteActivity(activity, from: student)
-            if let index = students.firstIndex(where: { $0.id == student.id }) {
-                students[index].activities.removeAll(where: { $0.id == activity.id })
+            await MainActor.run {
+                if let index = students.firstIndex(where: { $0.id == student.id }) {
+                    students[index].activities.removeAll(where: { $0.id == activity.id })
+                }
+                objectWillChange.send()
             }
         } catch {
             print("Error deleting activity: \(error)")
@@ -176,12 +179,15 @@ class StudentTabViewModel: ObservableObject {
     func updateUnsavedNote(_ note: UnsavedNote) {
         if let index = unsavedNotes.firstIndex(where: { $0.id == note.id }) {
             unsavedNotes[index] = note
+            objectWillChange.send()
         }
     }
     
     func deleteUnsavedNote(_ note: UnsavedNote) {
         unsavedNotes.removeAll { $0.id == note.id }
+        objectWillChange.send()
     }
+
     
     func addUnsavedNote(_ note: UnsavedNote) {
         unsavedNotes.append(note)
@@ -222,8 +228,12 @@ class StudentTabViewModel: ObservableObject {
     
     
     func deleteUnsavedActivity(_ activity: UnsavedActivity) {
-        unsavedActivities.removeAll { $0.id == activity.id }
+        withAnimation {
+            unsavedActivities.removeAll { $0.id == activity.id }
+            objectWillChange.send()
+        }
     }
+
     
     func addActivity(_ activity: Activity, for student: Student) async {
         do {
@@ -233,6 +243,8 @@ class StudentTabViewModel: ObservableObject {
             print("Error adding activity: \(error)")
         }
     }
+    
+    
     
     func updateActivity(_ activity: Activity) async {
         do {

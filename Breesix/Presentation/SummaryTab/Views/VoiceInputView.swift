@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Speech
+import DotLottie
 
 struct VoiceInputView: View {
     @ObservedObject var viewModel: StudentTabViewModel
@@ -37,7 +38,7 @@ struct VoiceInputView: View {
         self.viewModel = viewModel
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
-
+        
         self.onDismiss = onDismiss
     }
     
@@ -103,20 +104,29 @@ struct VoiceInputView: View {
                         }) {
                             if isLoading {
                                 // Loading indicator
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 80, height: 80)
-                                    .overlay {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                            .scaleEffect(1.5)
-                                    }
+                                DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true)).view()
+                                
                             } else {
-                                // Dynamic button image based on state
-                                Image(isRecording ? (isPaused ? "play-mic-button" : "pause-mic-button") : "start-mic-button")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 80)
+                                if isRecording {
+                                    if isPaused {
+                                        Image("play-mic-button")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 80)
+                                        
+                                    } else {
+                                        DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true)).view()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                        
+                                    }
+                                } else {
+                                    Image("start-mic-button")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 80)
+                                    
+                                }
                             }
                         }
                         .disabled(isLoading) // Disable during loading
@@ -146,7 +156,7 @@ struct VoiceInputView: View {
                     }
                     .padding(10)
                 }
-               
+                
             }
         }
         .hideTabBar()
