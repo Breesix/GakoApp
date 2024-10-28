@@ -17,7 +17,6 @@ struct ActivitySectionPreview: View {
         let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
         
         if !studentActivities.isEmpty {
-            Section(header: Text("Aktivitas").font(.headline)) {
                 ForEach(studentActivities) { activity in
                     ActivityDetailRow(
                         activity: binding(for: activity, in: viewModel),
@@ -29,13 +28,13 @@ struct ActivitySectionPreview: View {
                             viewModel.deleteUnsavedActivity(activity)
                         }
                     )
+                    .padding(.bottom, 12)
                 }
                 
                 AddButton{
                     selectedStudent = student
                     isAddingNewActivity = true
                 }
-            }
         } else {
             Text("No activities for this student.")
                 .italic()

@@ -18,10 +18,12 @@ struct AddButton: View {
                 Text("Tambah")
                     .font(.subheadline)
             }
-            .foregroundStyle(.black)
             .padding(.vertical, 7)
             .padding(.horizontal, 14)
-            .background(Color.white)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .background(.buttonOncard)
             .cornerRadius(8)
         }
     }

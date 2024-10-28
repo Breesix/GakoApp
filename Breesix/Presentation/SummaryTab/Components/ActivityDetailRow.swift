@@ -11,62 +11,74 @@ struct ActivityDetailRow: View {
     let student: Student
     let onAddActivity: () -> Void
     let onDelete: () -> Void
+    
+    @State private var showDeleteAlert = false
 
     @State private var selectedStatus: Bool?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(activity.activity)
-                .font(.headline)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
+                .padding(.bottom, 12)
             
-            HStack {
+            HStack (spacing: 8) {
                 Menu {
                     Button("Mandiri") {
                         activity.isIndependent = true
-                        selectedStatus = true // Update state
+                        selectedStatus = true
                     }
                     Button("Dibimbing") {
                         activity.isIndependent = false
-                        selectedStatus = false // Update state
+                        selectedStatus = false 
                     }
                 } label: {
                     HStack {
                         Text(getStatusText())
-                            .foregroundColor(.primary)
                         
                         Spacer()
                         
                         Image(systemName: "chevron.up.chevron.down")
-                            .foregroundColor(.gray)
                     }
-                    .padding(8)
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .foregroundColor(.labelPrimaryBlack)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 11)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial)
+                    .background(.cardFieldBG)
                     .cornerRadius(8)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.statusStroke, lineWidth: 2)
+                    }
                 }
                 
-                Spacer()
-                
-                Button(action: onDelete) {
-                    Image("custom.trash.circle")
+                Button(action: {
+                    showDeleteAlert = true
+                }) {
+                    Image("custom.trash.circle.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24) // Perbesar ukuran icon
+                        .frame(width: 34)
+                }
+                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+                    Button("Hapus", role: .destructive) {
+                        onDelete()
+                    }
+                    Button("Batal", role: .cancel) { }
+                } message: {
+                    Text("Apakah kamu yakin ingin menghapus catatan ini?")
                 }
             }
-            .padding(.top, 8)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(10)
-        .shadow(radius: 2)
         .onAppear {
-            // Initialize selectedStatus when view appears
             selectedStatus = activity.isIndependent
         }
     }
     
-    // Helper function untuk mendapatkan text status
     private func getStatusText() -> String {
         if let isIndependent = activity.isIndependent {
             return isIndependent ? "Mandiri" : "Dibimbing"
