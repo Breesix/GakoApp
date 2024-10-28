@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4606F7BA2CCF707A00A80153 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4606F7B92CCF707A00A80153 /* OpenAI */; };
-		4606F7BC2CCF70B800A80153 /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 4606F7BB2CCF70B800A80153 /* DotLottie */; };
+		465F8DB22CC3837A0068EB61 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 465F8DB12CC3837A0068EB61 /* OpenAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,8 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4606F7BA2CCF707A00A80153 /* OpenAI in Frameworks */,
-				4606F7BC2CCF70B800A80153 /* DotLottie in Frameworks */,
+				465F8DB22CC3837A0068EB61 /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,8 +70,7 @@
 			);
 			name = Breesix;
 			packageProductDependencies = (
-				4606F7B92CCF707A00A80153 /* OpenAI */,
-				4606F7BB2CCF70B800A80153 /* DotLottie */,
+				465F8DB12CC3837A0068EB61 /* OpenAI */,
 			);
 			productName = Breesix;
 			productReference = 8FD81E682C9C0F5F00CEE379 /* GAKO.app */;
@@ -104,8 +101,7 @@
 			mainGroup = 8FD81E5F2C9C0F5F00CEE379;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
-				4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				465F8DB02CC3837A0068EB61 /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8FD81E692C9C0F5F00CEE379 /* Products */;
@@ -265,7 +261,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R63P7AM6;
+				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
@@ -299,7 +295,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Breesix/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R63P7AM6;
+				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
@@ -350,15 +346,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+		465F8DB02CC3837A0068EB61 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
 			requirement = {
@@ -369,15 +357,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4606F7B92CCF707A00A80153 /* OpenAI */ = {
+		465F8DB12CC3837A0068EB61 /* OpenAI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			package = 465F8DB02CC3837A0068EB61 /* XCRemoteSwiftPackageReference "OpenAI" */;
 			productName = OpenAI;
-		};
-		4606F7BB2CCF70B800A80153 /* DotLottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
-			productName = DotLottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
