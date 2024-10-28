@@ -142,51 +142,6 @@ struct PreviewView: View {
         .toolbar(.hidden, for: .bottomBar , .tabBar )
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
-
-        //            .overlay(
-        //                Group {
-        //                    if isSaving {
-        //                        ZStack {
-        //                            // Background overlay
-        //                            Color.white
-        //                                .opacity(0.9)
-        //                                .ignoresSafeArea()
-        //
-        //                            VStack(spacing: 20) {
-        //                                // Image Expressions
-        //                                Image("Expressions") // Pastikan asset image tersedia
-        //                                    .resizable()
-        //                                    .scaledToFit()
-        //                                    .frame(width: 200, height: 200)
-        //
-        //                                Text("Menyimpan Dokumentasi...")
-        //                                    .font(.title3)
-        //                                    .fontWeight(.semibold)
-        //                                    .foregroundColor(.labelPrimaryBlack)
-        //
-        //                                // Progress Bar
-        //                                ProgressView()
-        //                                    .progressViewStyle(LinearProgressViewStyle())
-        //                                    .frame(width: 200)
-        //                                    .tint(Color(.orangeClickAble))
-        //
-        //                                Text("Mohon tunggu sebentar")
-        //                                    .font(.subheadline)
-        //                                    .foregroundColor(.gray)
-        //                            }
-        //                            .padding()
-        //                            .background(
-        //                                RoundedRectangle(cornerRadius: 16)
-        //                                    .fill(Color.white)
-        //                                    .shadow(radius: 10)
-        //                            )
-        //                            .padding(.horizontal, 40)
-        //                        }
-        //                    }
-        //
-        //                }
-        //            )
-        
         .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
