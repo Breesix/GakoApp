@@ -21,7 +21,6 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     var onDismiss: () -> Void
-    @State private var showEmptyStudentsAlert: Bool = false
     @State private var showEmptyReflectionAlert: Bool = false
     @State private var showTabBar = false
     
@@ -144,11 +143,6 @@ struct TextInputView: View {
         } message: {
             Text("Semua teks yang baru saja Anda masukkan akan terhapus secara permanen.")
         }
-        .alert("Tidak Ada Data Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Anda perlu menambahkan data murid terlebih dahulu sebelum membuat dokumentasi.")
-        }
         .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -181,14 +175,6 @@ struct TextInputView: View {
                 errorMessage = nil
 
                 await studentListViewModel.fetchAllStudents()
-
-                if studentListViewModel.students.isEmpty {
-                                await MainActor.run {
-                                    isLoading = false
-                                    showEmptyStudentsAlert = true
-                                }
-                                return
-                }
 
                 if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     await MainActor.run {
