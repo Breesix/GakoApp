@@ -8,10 +8,11 @@ import SwiftUI
 
 struct NoteSectionPreview: View {
     let student: Student
-    let viewModel: StudentTabViewModel
+    @ObservedObject var viewModel: StudentTabViewModel
     @Binding var selectedStudent: Student?
     @Binding var isAddingNewNote: Bool
     let selectedDate: Date
+    @State private var editingNote: UnsavedNote?
     
     var body: some View {
         let studentNotes = viewModel.unsavedNotes.filter { $0.studentId == student.id }
@@ -23,7 +24,7 @@ struct NoteSectionPreview: View {
                         note: note,
                         student: student,
                         onEdit: {
-                            // Handle edit
+                            editingNote = note
                         },
                         onDelete: {
                             viewModel.deleteUnsavedNote(note)
@@ -31,15 +32,24 @@ struct NoteSectionPreview: View {
                     )
                     .padding(.bottom, 12)
                 }
-                AddButton {
-                    selectedStudent = student
-                    isAddingNewNote = true
+                
+                
+            }
+            .sheet(item: $editingNote) { note in
+                UnsavedNoteEditView(note: note) { updatedNote in
+                    viewModel.updateUnsavedNote(updatedNote)
+                    editingNote = nil
                 }
             }
         } else {
             Text("No notes for this student.")
                 .italic()
                 .foregroundColor(.gray)
+        }
+        
+        AddButton {
+            selectedStudent = student
+            isAddingNewNote = true
         }
     }
 }

@@ -23,7 +23,7 @@ struct PreviewView: View {
     @Binding var selectedDate: Date
     @State private var tempDate: Date
     @State private var isShowingDatePicker = false
-    
+    @State private var isShowingEditSheet = false
     @State private var activities: [Activity] = []
     
     init(
@@ -38,7 +38,7 @@ struct PreviewView: View {
         self._isShowingPreview = isShowingPreview
         self._isShowingActivity = isShowingActivity
     }
-
+    
     
     var body: some View {
         ScrollView {
@@ -50,7 +50,11 @@ struct PreviewView: View {
                         selectedDate: selectedDate,
                         selectedStudent: $selectedStudent,
                         isAddingNewActivity: $isAddingNewActivity,
-                        isAddingNewNote: $isAddingNewNote
+                        isAddingNewNote: $isAddingNewNote,
+                        onDeleteActivity: { activity in
+                            viewModel.deleteUnsavedActivity(activity)
+                        }
+                        
                     )
                     .padding(.bottom, 12)
                 }
@@ -70,7 +74,6 @@ struct PreviewView: View {
             }
             .padding(.top, 12)
             .padding(.horizontal, 16)
-            .toolbarBackground(Color(.bgMain), for: .navigationBar)
             .background(.bgMain)
             .hideTabBar()
             .navigationBarBackButtonHidden(true)
@@ -107,9 +110,9 @@ struct PreviewView: View {
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
                 NewUnsavedActivityView(viewModel: viewModel,
-                                student: student,
-                                selectedDate: selectedDate,
-                                onDismiss: {
+                                       student: student,
+                                       selectedDate: selectedDate,
+                                       onDismiss: {
                     isAddingNewActivity = false
                 })
                 .presentationDetents([.large])
@@ -125,6 +128,7 @@ struct PreviewView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+        
         .sheet(isPresented: $isAddingNewNote) {
             if let student = selectedStudent {
                 UnsavedNoteCreateView(student: student, onSave: { newNote in
@@ -211,168 +215,9 @@ struct PreviewView: View {
     }
 }
 
-struct NoteRow: View {
-    let note: UnsavedNote
-    @State private var showDeleteAlert = false
-    let student: Student
-    let onEdit: () -> Void
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(note.note)
-                .font(.subheadline)
-                .fontWeight(.regular)
-                .foregroundStyle(.labelPrimaryBlack)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
-                .background(.monochrome100)
-                .cornerRadius(8)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.noteStroke, lineWidth: 0.5)
-                }
-            
-            Button(action: {
-                showDeleteAlert = true
-            }) {
-                ZStack {
-                    Circle()
-                        .frame(width: 34)
-                        .foregroundStyle(.buttonDestructiveOnCard)
-                    Image(systemName: "trash.fill")
-                        .font(.subheadline)
-                        .fontWeight(.regular)
-                        .foregroundStyle(.destructive)
-                }
-            }
-            .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-                Button("Hapus", role: .destructive) {
-                    onDelete()
-                }
-                Button("Batal", role: .cancel) { }
-            } message: {
-                Text("Apakah kamu yakin ingin menghapus catatan ini?")
-            }
-            
-        }
-        
-    }
-    
-    private let itemFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
-}
 
-struct UnsavedNoteEditView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @State private var textNote: String
-    let note: UnsavedNote
-    let onSave: (UnsavedNote) -> Void
-    
-    init(note: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
-        self.note = note
-        self.onSave = onSave
-        _textNote = State(initialValue: note.note)
-    }
-    
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Edit Catatan")
-                    .foregroundStyle(.labelPrimaryBlack)
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                
-                ZStack(alignment: .topLeading) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.cardFieldBG)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                    
-                    if textNote.isEmpty {
-                        Text("Tuliskan catatan untuk murid...")
-                            .font(.callout)
-                            .fontWeight(.regular)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
-                            .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
-                            .foregroundColor(.labelDisabled)
-                            .cornerRadius(8)
-                    }
-                    
-                    TextEditor(text: $textNote)
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .font(.callout)
-                        .fontWeight(.regular)
-                        .padding(.horizontal, 8)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                        .cornerRadius(8)
-                        .scrollContentBackground(.hidden)
-                }
-                .onAppear() {
-                    UITextView.appearance().backgroundColor = .clear
-                }
-                .onDisappear() {
-                    UITextView.appearance().backgroundColor = nil
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.monochrome50, lineWidth: 1)
-                )
-                
-                Spacer()
-            }
-            .padding(.top, 34.5)
-            .padding(.horizontal, 16)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Edit Catatan")
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .padding(.top, 27)
-                }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        HStack(spacing: 3) {
-                            Image(systemName: "chevron.left")
-                                .fontWeight(.semibold)
-                            Text("Kembali")
-                        }
-                        .font(.body)
-                        .fontWeight(.medium)
-                    }
-                    .padding(.top, 27)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        let updatedNote = UnsavedNote(
-                            id: note.id,
-                            note: textNote,
-                            createdAt: note.createdAt,
-                            studentId: note.studentId
-                        )
-                        onSave(updatedNote)
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Text("Simpan")
-                            .font(.body)
-                            .fontWeight(.medium)
-                    })
-                    .padding(.top, 27)
-                }
-            }
-        }
-    }
-}
+
+
 
 struct UnsavedNoteCreateView: View {
     @Environment(\.presentationMode) var presentationMode

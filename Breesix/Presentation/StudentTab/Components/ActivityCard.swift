@@ -7,11 +7,14 @@
 
 import SwiftUI
 
+
+
+
+
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let activities: [Activity] 
+    let activities: [Activity]
     let notes: [Note]
-    let date: Date
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onEditActivity: (Activity) -> Void
@@ -19,6 +22,7 @@ struct ActivityCardView: View {
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let student: Student
+    let date: Date
     
     func indonesianFormattedDate(date: Date) -> String {
         let formatter = DateFormatter()
@@ -28,8 +32,9 @@ struct ActivityCardView: View {
         return formatter.string(from: date)
     }
     
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(indonesianFormattedDate(date: date))
                     .font(.body)
@@ -37,37 +42,47 @@ struct ActivityCardView: View {
                     .foregroundStyle(.labelPrimaryBlack)
             }
             .padding(.bottom, 19)
-        
-            ActivitySection(
-                activities: activities,
-                onEditActivity: onEditActivity,
-                onDeleteActivity: onDeleteActivity,
-                onAddActivity: onAddActivity,
-                onStatusChanged: { activity, newStatus in
-                    Task {
-                        await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
-                    }
-                }
-            )
-            .padding(.bottom, 16)
+            if !activities.isEmpty {
+                
+                    ActivitySection(
+                        activities: activities,
+                        onEditActivity: onEditActivity,
+                        onDeleteActivity: onDeleteActivity,
+                        onAddActivity: onAddActivity,
+                        onStatusChanged: { activity, newStatus in
+                            Task {
+                                await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                            }
+                        }
+                    )
+                    .padding(.bottom, 16)
+                
+            } else {
+                Text("Tidak ada aktivitas untuk tanggal ini")
+                    .foregroundColor(.secondary)
+            }
             
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
                 .padding(.bottom, 20)
             
-            NoteSection(
-                notes: notes,
-                onEditNote: onEditNote,
-                onDeleteNote: onDeleteNote,
-                onAddNote: onAddNote
-            )
+            
+            if !notes.isEmpty {
+                NoteSection(
+                    notes: notes,
+                    onEditNote: onEditNote,
+                    onDeleteNote: onDeleteNote,
+                    onAddNote: onAddNote
+                )
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
+        
     }
 }
 
@@ -88,10 +103,12 @@ struct ActivitySection: View {
                 ForEach(activities, id: \.id) { activity in
                     ActivityRow(
                         activity: activity,
-                        onEdit: onEditActivity,
-                        onDelete: onDeleteActivity,
-                        onStatusChanged: onStatusChanged
-                    )
+                        onEdit: { _ in onEditActivity(activity) },
+                        onDelete: { _ in onDeleteActivity(activity) },
+                        onStatusChanged: { newStatus  in
+                            onStatusChanged(activity, newStatus)
+                        }
+                        )
                 }
             }
             
@@ -113,21 +130,21 @@ struct ActivityRow: View {
     let activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
-    let onStatusChanged: (Activity, Bool) -> Void
+    let onStatusChanged: (Bool) -> Void
     @State private var showDeleteAlert = false
     @State private var isIndependent: Bool
-
+    
     init(activity: Activity,
          onEdit: @escaping (Activity) -> Void,
          onDelete: @escaping (Activity) -> Void,
-         onStatusChanged: @escaping (Activity, Bool) -> Void) {
+         onStatusChanged: @escaping (Bool) -> Void) {
         self.activity = activity
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onStatusChanged = onStatusChanged
         _isIndependent = State(initialValue: activity.isIndependent ?? false)
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(activity.activity)
@@ -141,11 +158,11 @@ struct ActivityRow: View {
                     Menu {
                         Button("Mandiri") {
                             isIndependent = true
-                            onStatusChanged(activity, true)
+                            onStatusChanged(true)
                         }
                         Button("Dibimbing") {
                             isIndependent = false
-                            onStatusChanged(activity, false)
+                            onStatusChanged(false)
                         }
                     } label: {
                         HStack {
@@ -169,18 +186,12 @@ struct ActivityRow: View {
                         }
                     }
                     
-                    Button(action: {
-                        showDeleteAlert = true
-                    }) {
-                        ZStack {
-                            Circle()
-                                .frame(width: 34)
-                                .foregroundStyle(.buttonDestructiveOnCard)
-                            Image(systemName: "trash.fill")
-                                .font(.subheadline)
-                                .fontWeight(.regular)
-                                .foregroundStyle(.destructive)
-                        }
+                    
+                    Button(action: { showDeleteAlert = true }) {
+                        Image("custom.trash.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 34)
                     }
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
@@ -203,7 +214,7 @@ struct ActivityRow: View {
 
 
 
-    
+
 
 struct NoteDetailRow: View {
     let note: Note

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Speech
+import DotLottie
 
 struct VoiceInputView: View {
     @ObservedObject var viewModel: StudentTabViewModel
@@ -37,7 +38,7 @@ struct VoiceInputView: View {
         self.viewModel = viewModel
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
-
+        
         self.onDismiss = onDismiss
     }
     
@@ -49,7 +50,18 @@ struct VoiceInputView: View {
             VStack(alignment: .center) {
                 
                 datePickerView()
-                
+                if reflection.isEmpty && !isRecording {
+                    VStack(alignment: .leading,spacing: 16) {
+                        Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
+                            .foregroundColor(.gray)
+        
+                        
+                        Text("Bagaimana murid Anda mengikuti kegiatan pada hari ini?")
+                            .foregroundColor(.gray)
+                            
+                    }
+                    .padding()
+                }
                 
                 ZStack {
                     TextEditor(text: $reflection)
@@ -62,6 +74,8 @@ struct VoiceInputView: View {
                         .multilineTextAlignment(.leading)
                         .cornerRadius(10)
                         .focused($isTextEditorFocused)
+                        .disabled(isLoading)
+                        .opacity(isLoading ? 0.5 : 1)
                 }
                 Spacer()
                 if !isRecording  {
@@ -73,8 +87,8 @@ struct VoiceInputView: View {
                 
                 
                 ZStack(alignment: .bottom) {
-                    HStack(alignment: .center, spacing: 30) {
-                        // Cancel Button
+                    HStack(alignment: .center, spacing: 35) {
+                        
                         Button(action: {
                             self.speechRecognizer.stopTranscribing()
                             showAlert = true
@@ -85,15 +99,15 @@ struct VoiceInputView: View {
                                 .frame(width: 60)
                         }
                         
-                        // Record/Pause/Play Button
+                        
                         Button(action: {
                             if !isRecording {
-                                // Start Recording
+                               
                                 isRecording = true
                                 isPaused = false
                                 self.speechRecognizer.startTranscribing()
                             } else {
-                                // Toggle Pause/Play
+                               
                                 isPaused.toggle()
                                 if isPaused {
                                     self.speechRecognizer.pauseTranscribing()
@@ -103,35 +117,47 @@ struct VoiceInputView: View {
                             }
                         }) {
                             if isLoading {
-                                // Loading indicator
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 80, height: 80)
-                                    .overlay {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                            .scaleEffect(1.5)
-                                    }
+                                
+                                DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                    .view()
+                                    .scaleEffect(1.5)
+                                    .frame(width: 100, height: 100)
+                                
                             } else {
-                                // Dynamic button image based on state
-                                Image(isRecording ? (isPaused ? "play-mic-button" : "pause-mic-button") : "start-mic-button")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 80)
+                                if isRecording {
+                                    if isPaused {
+                                        Image("play-mic-button")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 80)
+                                        
+                                    } else {
+                                        DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                            .view()
+                                            .scaleEffect(1.5)
+                                            .frame(width: 100, height: 100)
+                                    }
+                                } else {
+                                    Image("start-mic-button")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 80)
+                                    
+                                }
                             }
                         }
-                        .disabled(isLoading) // Disable during loading
+                        .disabled(isLoading)
                         
-                        // Save Button
+                       
                         Button(action: {
                             if isRecording {
                                 DispatchQueue.main.async {
-                                    isLoading = true // Show loading
+                                    isLoading = true
                                     isRecording = false
                                     self.speechRecognizer.stopTranscribing()
                                     self.reflection = self.speechRecognizer.transcript
                                     
-                                    // Process with delay to show loading
+                                   
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                         self.processReflectionActivity()
                                     }
@@ -142,12 +168,14 @@ struct VoiceInputView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60)
+                            
                         }
-                        .disabled(!isRecording || isLoading) // Disable during loading or when not recording
+                        .disabled(!isRecording || isLoading)
                     }
-                    .padding(10)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 10)
                 }
-               
+                
             }
         }
         .background(.white)

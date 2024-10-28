@@ -7,6 +7,7 @@
 import SwiftUI
 
 struct ActivityDetailRow: View {
+    @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student
     let onAddActivity: () -> Void
@@ -71,7 +72,9 @@ struct ActivityDetailRow: View {
                 }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
+                        viewModel.deleteUnsavedActivity(activity)
                         onDelete()
+                        
                     }
                     Button("Batal", role: .cancel) { }
                 } message: {

@@ -12,41 +12,55 @@ struct ActivitySectionPreview: View {
     let viewModel: StudentTabViewModel
     @Binding var selectedStudent: Student?
     @Binding var isAddingNewActivity: Bool
+    let onDeleteActivity: (UnsavedActivity) -> Void
     
     var body: some View {
-        let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
-        
-        if !studentActivities.isEmpty {
+        VStack(alignment: .leading, spacing: 8) {
+            let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+            
+            if !studentActivities.isEmpty {
                 ForEach(studentActivities) { activity in
                     ActivityDetailRow(
+                        viewModel: viewModel,
                         activity: binding(for: activity, in: viewModel),
                         student: student,
                         onAddActivity: {
                             isAddingNewActivity = true
                         },
                         onDelete: {
-                            viewModel.deleteUnsavedActivity(activity)
+                            onDeleteActivity(activity)
                         }
                     )
                     .padding(.bottom, 12)
                 }
-                
-                AddButton{
-                    selectedStudent = student
-                    isAddingNewActivity = true
-                }
-        } else {
-            Text("No activities for this student.")
-                .italic()
-                .foregroundColor(.gray)
+            } else {
+                Text("No activities for this student.")
+                    .italic()
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 8)
+            }
+            
+            // Button tambah selalu muncul
+            AddButton {
+                selectedStudent = student
+                isAddingNewActivity = true
+            }
         }
     }
     
     private func binding(for activity: UnsavedActivity, in viewModel: StudentTabViewModel) -> Binding<UnsavedActivity> {
-        let index = viewModel.unsavedActivities.firstIndex { $0.id == activity.id }!
-        return .init(
-            get: { viewModel.unsavedActivities[index] },
-            set: { viewModel.unsavedActivities[index] = $0 }
+        Binding<UnsavedActivity>(
+            get: {
+                if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+                    return viewModel.unsavedActivities[index]
+                }
+                return activity
+            },
+            set: { newValue in
+                if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+                    viewModel.unsavedActivities[index] = newValue
+                }
+            }
         )
     }
 }
