@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct NewActivityView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
