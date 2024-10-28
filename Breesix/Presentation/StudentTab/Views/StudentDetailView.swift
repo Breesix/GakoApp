@@ -137,7 +137,10 @@ struct StudentDetailView: View {
                                         activities: dayItems.activities,
                                         notes: dayItems.notes,
                                         date: day,
-                                        onAddNote: { isAddingNewNote = true },
+                                        onAddNote: {
+                                            selectedDate = day
+                                            isAddingNewNote = true
+                                        },
                                         onAddActivity: {
                                             selectedDate = day
                                             isAddingNewActivity = true
