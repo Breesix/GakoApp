@@ -43,7 +43,7 @@ struct ActivityCardView: View {
             }
             .padding(.bottom, 19)
             if !activities.isEmpty {
-                ForEach(activities) { activity in
+                
                     ActivitySection(
                         activities: activities,
                         onEditActivity: onEditActivity,
@@ -56,7 +56,7 @@ struct ActivityCardView: View {
                         }
                     )
                     .padding(.bottom, 16)
-                }
+                
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.secondary)
