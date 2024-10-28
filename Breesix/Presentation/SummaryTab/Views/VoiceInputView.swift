@@ -117,7 +117,7 @@ struct VoiceInputView: View {
                                         
                                     } else {
                                         DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true)).view()
-                                            .scaledToFit()
+                                            .scaledToFill()
                                             .frame(width: 100, height: 100)
                                         
                                     }
@@ -130,18 +130,18 @@ struct VoiceInputView: View {
                                 }
                             }
                         }
-                        .disabled(isLoading) // Disable during loading
+                        .disabled(isLoading)
                         
-                        // Save Button
+                       
                         Button(action: {
                             if isRecording {
                                 DispatchQueue.main.async {
-                                    isLoading = true // Show loading
+                                    isLoading = true
                                     isRecording = false
                                     self.speechRecognizer.stopTranscribing()
                                     self.reflection = self.speechRecognizer.transcript
                                     
-                                    // Process with delay to show loading
+                                   
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                         self.processReflectionActivity()
                                     }
@@ -153,8 +153,9 @@ struct VoiceInputView: View {
                                 .scaledToFit()
                                 .frame(width: 60)
                         }
-                        .disabled(!isRecording || isLoading) // Disable during loading or when not recording
+                        .disabled(!isRecording || isLoading)
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(10)
                 }
                 

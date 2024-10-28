@@ -1,31 +1,29 @@
 //
-//  NoteEditView.swift
+//  UnsavedNoteEditView.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 28/10/24.
 //
-
-
 import SwiftUI
 
-struct NoteEditPreview: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+struct UnsavedNoteEditView: View {
+    @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
+    @State private var textNote: String
     let note: UnsavedNote
-    let onDismiss: () -> Void
-    @State private var noteText: String
     let onSave: (UnsavedNote) -> Void
     
-    init(viewModel: StudentTabViewModel, note: UnsavedNote, onDismiss: @escaping () -> Void) {
-        self.viewModel = viewModel
+    init(note: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
         self.note = note
-        self.onDismiss = onDismiss
-        _noteText = State(initialValue: note.note)
+        self.onSave = onSave
+        _textNote = State(initialValue: note.note)
     }
-
+    
     var body: some View {
+        NavigationView {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Edit Catatan")
+                    .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
                 
@@ -34,7 +32,7 @@ struct NoteEditPreview: View {
                         .fill(.cardFieldBG)
                         .frame(maxWidth: .infinity, maxHeight: 170)
                     
-                    if noteText.isEmpty {
+                    if textNote.isEmpty {
                         Text("Tuliskan catatan untuk murid...")
                             .font(.callout)
                             .fontWeight(.regular)
@@ -45,7 +43,8 @@ struct NoteEditPreview: View {
                             .cornerRadius(8)
                     }
                     
-                    TextEditor(text: $noteText)
+                    TextEditor(text: $textNote)
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
                         .padding(.horizontal, 8)
@@ -68,11 +67,11 @@ struct NoteEditPreview: View {
             }
             .padding(.top, 34.5)
             .padding(.horizontal, 16)
-            .navigationTitle("Edit Catatan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Edit Catatan")
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)
@@ -80,7 +79,7 @@ struct NoteEditPreview: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        onDismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         HStack(spacing: 3) {
                             Image(systemName: "chevron.left")
@@ -94,21 +93,23 @@ struct NoteEditPreview: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Simpan") {
+                    Button(action: {
                         let updatedNote = UnsavedNote(
                             id: note.id,
-                            note: noteText,
+                            note: textNote,
                             createdAt: note.createdAt,
                             studentId: note.studentId
                         )
                         onSave(updatedNote)
-                        dismiss()
-                    }
-                    .disabled(noteText.isEmpty)
+                        presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.medium)
+                    })
+                    .padding(.top, 27)
                 }
             }
         }
     }
-
-
-
+}

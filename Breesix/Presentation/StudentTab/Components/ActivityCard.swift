@@ -13,6 +13,7 @@ import SwiftUI
 
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
+    let activities: [Activity]
     let notes: [Note]
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
@@ -33,7 +34,7 @@ struct ActivityCardView: View {
     
     
     var body: some View {
-        VStack(alignment: .trailing, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(indonesianFormattedDate(date: date))
                     .font(.body)
@@ -103,11 +104,11 @@ struct ActivitySection: View {
                     ActivityRow(
                         activity: activity,
                         onEdit: { _ in onEditActivity(activity) },
-                        onEdit: { _ in onEditActivity(activity) },
                         onDelete: { _ in onDeleteActivity(activity) },
                         onStatusChanged: { newStatus  in
                             onStatusChanged(activity, newStatus)
                         }
+                        )
                 }
             }
             

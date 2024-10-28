@@ -33,10 +33,7 @@ struct NoteSectionPreview: View {
                     .padding(.bottom, 12)
                 }
                 
-                AddButton {
-                    selectedStudent = student
-                    isAddingNewNote = true
-                }
+                
             }
             .sheet(item: $editingNote) { note in
                 UnsavedNoteEditView(note: note) { updatedNote in
@@ -48,6 +45,11 @@ struct NoteSectionPreview: View {
             Text("No notes for this student.")
                 .italic()
                 .foregroundColor(.gray)
+        }
+        
+        AddButton {
+            selectedStudent = student
+            isAddingNewNote = true
         }
     }
 }
