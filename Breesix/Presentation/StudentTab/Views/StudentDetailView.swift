@@ -211,7 +211,7 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel,
                             student: student,
-                            selectedDate: day,
+                            selectedDate: selectedDate,
                             onDismiss: {
                 isAddingNewActivity = false
                 Task {
