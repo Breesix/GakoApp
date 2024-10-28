@@ -10,12 +10,9 @@ import SwiftUI
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
     @State private var isAddingNewActivity = false
-
     @ObservedObject var studentTabViewModel: StudentTabViewModel
-
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
-    //@State private var selectedInputType: InputType = .manual
     @State private var isAllStudentsFilled = true
     @State private var isShowingInputTypeSheet = false
     @State private var isNavigatingToVoiceInput = false
@@ -41,7 +38,6 @@ struct SummaryTabView: View {
                                EmptyState(message: "Belum ada catatan di hari ini.")
                                Spacer()
                            }
-                         
                        } else {
                            ScrollView {
                                    studentsListView()
@@ -156,6 +152,7 @@ struct SummaryTabView: View {
             }
         }
         .padding(.horizontal, 16)
+        .padding(.bottom, 72)
     }
     
     struct StudentRowView: View {
