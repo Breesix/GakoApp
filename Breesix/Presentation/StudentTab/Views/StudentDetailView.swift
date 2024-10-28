@@ -182,6 +182,7 @@ struct StudentDetailView: View {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+                .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {
@@ -189,11 +190,15 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .sheet(item: $activity) { currentActivity in
             ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
                 activity = nil
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .sheet(isPresented: $isAddingNewNote) {
             NewNoteView(viewModel: viewModel,
@@ -207,6 +212,7 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
 
         .sheet(isPresented: $isAddingNewActivity) {
@@ -221,6 +227,7 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
