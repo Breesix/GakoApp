@@ -18,6 +18,7 @@ struct NewNoteView: View {
         NavigationView {
             VStack (alignment: .leading, spacing: 8){
                 Text("Tambah Catatan")
+                    .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
                 ZStack(alignment: .topLeading) {
@@ -36,6 +37,7 @@ struct NewNoteView: View {
                             .cornerRadius(8)
                     }
                     TextEditor(text: $note)
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
                         .padding(.horizontal, 8)
@@ -57,11 +59,11 @@ struct NewNoteView: View {
             }
             .padding(.top, 34.5)
             .padding(.horizontal, 16)
-            .navigationTitle("Tambah Catatan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Tambah Catatan")
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)

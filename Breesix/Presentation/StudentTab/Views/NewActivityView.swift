@@ -19,6 +19,7 @@ struct NewActivityView: View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Tambah Aktivitas")
+                    .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
                 
@@ -39,6 +40,7 @@ struct NewActivityView: View {
                     }
                     
                     TextEditor(text: $activityText)
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
                         .padding(.horizontal, 8)
@@ -58,6 +60,7 @@ struct NewActivityView: View {
                 )
                 
                 Toggle("Mandiri", isOn: $isIndependent)
+                    .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.regular)
                     .padding(.top, 8)
@@ -66,11 +69,11 @@ struct NewActivityView: View {
             }
             .padding(.top, 34.5)
             .padding(.horizontal, 16)
-            .navigationTitle("Tambah Aktivitas")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Tambah Aktivitas")
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)
