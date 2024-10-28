@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let activities: [Activity]  // Changed from @State to let

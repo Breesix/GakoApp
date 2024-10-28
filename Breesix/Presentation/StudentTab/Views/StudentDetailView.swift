@@ -138,7 +138,10 @@ struct StudentDetailView: View {
                                         notes: dayItems.notes,
                                         date: day,
                                         onAddNote: { isAddingNewNote = true },
-                                        onAddActivity: { isAddingNewActivity = true },
+                                        onAddActivity: {
+                                            selectedDate = day
+                                            isAddingNewActivity = true
+                                        },
                                         onEditActivity: { self.activity = $0 },
                                         onDeleteActivity: deleteActivity,
                                         onEditNote: { self.selectedNote = $0 },
@@ -208,7 +211,7 @@ struct StudentDetailView: View {
         .sheet(isPresented: $isAddingNewActivity) {
             NewActivityView(viewModel: viewModel,
                             student: student,
-                            selectedDate: selectedDate,
+                            selectedDate: day,
                             onDismiss: {
                 isAddingNewActivity = false
                 Task {
@@ -372,19 +375,3 @@ struct BackButton: View {
         }
     }
 }
-
-//struct EditProfilButton: View {
-//    @Environment(\.presentationMode) var presentationMode
-//
-//    var body: some View {
-//        Button(action: {
-//            isEditing = true
-//        }) {
-//            HStack(spacing: 4) {
-//                Text("Edit Profil")
-//                    .foregroundStyle(.white)
-//            }
-//             // Reduce left padding to move closer to edge
-//        }
-//    }
-//}
