@@ -181,7 +181,7 @@ struct StudentDetailView: View {
                 .navigationBarHidden(true)
                 .hideTabBar()
             }
-            
+            .toolbar(.hidden, for: .bottomBar , .tabBar )
             .sheet(isPresented: $isEditing) {
                 StudentEditView(viewModel: viewModel, mode: .edit(student))
                     .presentationDetents([.large])
