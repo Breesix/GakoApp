@@ -25,6 +25,9 @@ struct PreviewView: View {
     @State private var isShowingDatePicker = false
     @State private var isShowingEditSheet = false
     @State private var activities: [Activity] = []
+    @State private var progress: Float = 0.0
+    @State private var progressTimer: Timer?
+    
     
     init(
         selectedDate: Binding<Date>,
@@ -41,71 +44,149 @@ struct PreviewView: View {
     
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(viewModel.students) { student in
-                    StudentSectionView(
-                        student: student,
-                        viewModel: viewModel,
-                        selectedDate: selectedDate,
-                        selectedStudent: $selectedStudent,
-                        isAddingNewActivity: $isAddingNewActivity,
-                        isAddingNewNote: $isAddingNewNote,
-                        onDeleteActivity: { activity in
-                            viewModel.deleteUnsavedActivity(activity)
+        ZStack {
+            if !isSaving {
+                // Main Content
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(viewModel.students) { student in
+                            StudentSectionView(
+                                student: student,
+                                viewModel: viewModel,
+                                selectedDate: selectedDate,
+                                selectedStudent: $selectedStudent,
+                                isAddingNewActivity: $isAddingNewActivity,
+                                isAddingNewNote: $isAddingNewNote,
+                                onDeleteActivity: { activity in
+                                    viewModel.deleteUnsavedActivity(activity)
+                                }
+                            )
+                            .padding(.bottom, 12)
                         }
                         
-                    )
-                    .padding(.bottom, 12)
+                        Button {
+                            saveActivities()
+                        } label: {
+                            Text("Simpan")
+                                .font(.body)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color(.orangeClickAble))
+                                .cornerRadius(12)
+                        }
+                    }
+                    
+                    .padding(.top, 12)
+                    .padding(.horizontal, 16)
+                    .background(.bgMain)
                 }
-                
-                Button {
-                    saveActivities()
-                } label: {
-                    Text("Simpan")
-                        .font(.body)
+                .navigationBarItems(
+                    leading: Button {
+                        viewModel.clearUnsavedNotes()
+                        viewModel.clearUnsavedActivities()
+                        isShowingPreview = false
+                    } label: {
+                        HStack{
+                            Image(systemName: "chevron.backward")
+                                .foregroundStyle(.buttonLinkOnSheet)
+                            Text("Pratinjau")
+                                .foregroundStyle(.monochromeBlack)
+                        }
+                        .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(.orangeClickAble))
-                        .cornerRadius(12)
+                    },
+                    trailing: datePickerView().disabled(true)
+                )
+            }
+            
+            
+            // Loading Overlay
+            if isSaving {
+                ZStack {
+                    Color.white
+                        .opacity(0.9)
+                        .ignoresSafeArea()
+                    
+                    VStack(spacing: 20) {
+                        Image("Expressions")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                        
+                        Text("Menyimpan Dokumentasi...")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.labelPrimaryBlack)
+                        
+                        ProgressView(value: progress,total: 1.0)
+                            .progressViewStyle(LinearProgressViewStyle())
+                            .frame(width: 200)
+                            .tint(Color(.orangeClickAble))
+                        
+                        Text("Mohon tunggu sebentar")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                            .shadow(radius: 10)
+                    )
+                    .padding(.horizontal, 40)
                 }
             }
-            .padding(.top, 12)
-            .padding(.horizontal, 16)
-            .background(.bgMain)
-            .hideTabBar()
-            .navigationBarBackButtonHidden(true)
-            .navigationBarItems(
-                leading: Button {
-                    viewModel.clearUnsavedNotes()
-                    viewModel.clearUnsavedActivities()
-                    isShowingPreview = false
-                } label: {
-                    HStack{
-                        Image(systemName: "chevron.backward")
-                            .foregroundStyle(.buttonLinkOnSheet)
-                        Text("Pratinjau")
-                            .foregroundStyle(.monochromeBlack)
-                    }
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                },
-                trailing: datePickerView().disabled(true)
-            )
-            .overlay(
-                Group {
-                    if isSaving {
-                        ProgressView("Menyimpan...")
-                            .padding()
-                            .background(Color.secondary.colorInvert())
-                            .cornerRadius(10)
-                            .shadow(radius: 10)
-                    }
-                }
-            )
         }
+        .toolbar(.hidden, for: .bottomBar , .tabBar )
+        .hideTabBar()
+        .navigationBarBackButtonHidden(true)
+
+        //            .overlay(
+        //                Group {
+        //                    if isSaving {
+        //                        ZStack {
+        //                            // Background overlay
+        //                            Color.white
+        //                                .opacity(0.9)
+        //                                .ignoresSafeArea()
+        //
+        //                            VStack(spacing: 20) {
+        //                                // Image Expressions
+        //                                Image("Expressions") // Pastikan asset image tersedia
+        //                                    .resizable()
+        //                                    .scaledToFit()
+        //                                    .frame(width: 200, height: 200)
+        //
+        //                                Text("Menyimpan Dokumentasi...")
+        //                                    .font(.title3)
+        //                                    .fontWeight(.semibold)
+        //                                    .foregroundColor(.labelPrimaryBlack)
+        //
+        //                                // Progress Bar
+        //                                ProgressView()
+        //                                    .progressViewStyle(LinearProgressViewStyle())
+        //                                    .frame(width: 200)
+        //                                    .tint(Color(.orangeClickAble))
+        //
+        //                                Text("Mohon tunggu sebentar")
+        //                                    .font(.subheadline)
+        //                                    .foregroundColor(.gray)
+        //                            }
+        //                            .padding()
+        //                            .background(
+        //                                RoundedRectangle(cornerRadius: 16)
+        //                                    .fill(Color.white)
+        //                                    .shadow(radius: 10)
+        //                            )
+        //                            .padding(.horizontal, 40)
+        //                        }
+        //                    }
+        //
+        //                }
+        //            )
+        
         .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
@@ -141,6 +222,10 @@ struct PreviewView: View {
                 Text("No student selected. Please try again.")
             }
         }
+        .onDisappear {
+            progressTimer?.invalidate()
+            progressTimer = nil
+        }
     }
     
     private let itemFormatter: DateFormatter = {
@@ -161,17 +246,45 @@ struct PreviewView: View {
     
     private func saveActivities() {
         isSaving = true
+        progress = 0.0
+        
+        let duration = Double.random(in: 2...4)
+        let stepTime = 0.1 // Update setiap 50ms
+        let stepValue = stepTime / duration
+        
+        // Start progress timer
+        progressTimer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { timer in
+            withAnimation {
+                if progress < 1.0 {
+                    progress = min(progress + Float(stepValue), 1.0)
+                }
+            }
+        }
+        
         Task {
             do {
                 try await viewModel.saveUnsavedActivities()
                 try await viewModel.saveUnsavedNotes()
                 try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                
+                // Tunggu hingga minimal duration tercapai
+                try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+                
                 await MainActor.run {
-                    isSaving = false
-                    isShowingPreview = false
+                    progress = 1.0
+                    progressTimer?.invalidate()
+                    progressTimer = nil
+                    
+                   
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        isSaving = false
+                        isShowingPreview = false
+                    }
                 }
             } catch {
                 await MainActor.run {
+                    progressTimer?.invalidate()
+                    progressTimer = nil
                     isSaving = false
                     showingSummaryError = true
                     summaryErrorMessage = "Failed to save data or generate summaries: \(error.localizedDescription)"
