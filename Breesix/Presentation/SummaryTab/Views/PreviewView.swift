@@ -73,8 +73,6 @@ struct PreviewView: View {
                 }
             }
             .padding(.top, 12)
-            .scrollIndicators(.hidden)
-            .toolbar(.hidden)
             .padding(.horizontal, 16)
             .background(.bgMain)
             .hideTabBar()

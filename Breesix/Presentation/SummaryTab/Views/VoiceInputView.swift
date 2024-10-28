@@ -50,7 +50,18 @@ struct VoiceInputView: View {
             VStack(alignment: .center) {
                 
                 datePickerView()
-                
+                if reflection.isEmpty && !isRecording {
+                    VStack(alignment: .leading,spacing: 16) {
+                        Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
+                            .foregroundColor(.gray)
+        
+                        
+                        Text("Bagaimana murid Anda mengikuti kegiatan pada hari ini?")
+                            .foregroundColor(.gray)
+                            
+                    }
+                    .padding()
+                }
                 
                 ZStack {
                     TextEditor(text: $reflection)
@@ -63,6 +74,8 @@ struct VoiceInputView: View {
                         .multilineTextAlignment(.leading)
                         .cornerRadius(10)
                         .focused($isTextEditorFocused)
+                        .disabled(isLoading)
+                        .opacity(isLoading ? 0.5 : 1)
                 }
                 Spacer()
                 if !isRecording  {
@@ -74,8 +87,8 @@ struct VoiceInputView: View {
                 
                 
                 ZStack(alignment: .bottom) {
-                    HStack(alignment: .center, spacing: 30) {
-                        // Cancel Button
+                    HStack(alignment: .center, spacing: 35) {
+                        
                         Button(action: {
                             self.speechRecognizer.stopTranscribing()
                             showAlert = true
@@ -86,15 +99,15 @@ struct VoiceInputView: View {
                                 .frame(width: 60)
                         }
                         
-                        // Record/Pause/Play Button
+                        
                         Button(action: {
                             if !isRecording {
-                                // Start Recording
+                               
                                 isRecording = true
                                 isPaused = false
                                 self.speechRecognizer.startTranscribing()
                             } else {
-                                // Toggle Pause/Play
+                               
                                 isPaused.toggle()
                                 if isPaused {
                                     self.speechRecognizer.pauseTranscribing()
@@ -104,8 +117,11 @@ struct VoiceInputView: View {
                             }
                         }) {
                             if isLoading {
-                                // Loading indicator
-                                DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true)).view()
+                                
+                                DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                    .view()
+                                    .scaleEffect(1.5)
+                                    .frame(width: 100, height: 100)
                                 
                             } else {
                                 if isRecording {
@@ -116,10 +132,10 @@ struct VoiceInputView: View {
                                             .frame(width: 80)
                                         
                                     } else {
-                                        DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true)).view()
-                                            .scaledToFill()
+                                        DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                            .view()
+                                            .scaleEffect(1.5)
                                             .frame(width: 100, height: 100)
-                                        
                                     }
                                 } else {
                                     Image("start-mic-button")
@@ -152,11 +168,12 @@ struct VoiceInputView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60)
+                            
                         }
                         .disabled(!isRecording || isLoading)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(10)
+                    .padding(.horizontal, 10)
                 }
                 
             }

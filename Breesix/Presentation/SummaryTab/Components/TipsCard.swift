@@ -10,6 +10,10 @@ import SwiftUI
 struct TipsCard: View {
     var body: some View {
         VStack() {
+            Image("Expressions")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 53)
             HStack {
                 Image(systemName: "sparkles")
             Text("TIPS")
@@ -27,7 +31,6 @@ struct TipsCard: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 16)
         .foregroundStyle(.green300)
-        .background(.bgMain)
         .cornerRadius(12)
     }
 }
@@ -35,3 +38,4 @@ struct TipsCard: View {
 #Preview {
     TipsCard()
 }
+
