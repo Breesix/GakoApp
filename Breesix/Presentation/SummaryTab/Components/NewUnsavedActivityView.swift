@@ -14,7 +14,7 @@ struct NewUnsavedActivityView: View {
     let onDismiss: () -> Void
     
     @State private var activityText: String = ""
-    @State private var status: Bool = false
+    @State private var selectedStatus: Bool?
 
     var body: some View {
         NavigationView {
@@ -24,47 +24,54 @@ struct NewUnsavedActivityView: View {
                     .font(.callout)
                     .fontWeight(.semibold)
                 
-                ZStack(alignment: .topLeading) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.cardFieldBG)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                    
-                    if activityText.isEmpty {
-                        Text("Tuliskan aktivitas murid...")
-                            .font(.callout)
+                VStack(alignment: .leading, spacing: 8) {
+                    ZStack(alignment: .leading) {
+                        if activityText.isEmpty {
+                            Text("Tuliskan aktivitas murid...")
+                                .foregroundStyle(.labelTertiary)
+                                .font(.body)
+                                .fontWeight(.regular)
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                        }
+                        
+                        TextField("", text: $activityText)
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .font(.body)
                             .fontWeight(.regular)
                             .padding(.horizontal, 11)
                             .padding(.vertical, 9)
-                            .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
-                            .foregroundColor(.labelDisabled)
-                            .cornerRadius(8)
                     }
-                    
-                    TextEditor(text: $activityText)
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .font(.callout)
-                        .fontWeight(.regular)
-                        .padding(.horizontal, 8)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                        .cornerRadius(8)
-                        .scrollContentBackground(.hidden)
+                    .background(.cardFieldBG)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.monochrome50, lineWidth: 0.5)
+                    )
                 }
-                .onAppear() {
-                    UITextView.appearance().backgroundColor = .clear
-                }
-                .onDisappear() {
-                    UITextView.appearance().backgroundColor = nil
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.monochrome50, lineWidth: 1)
-                )
                 
-                Toggle("Mandiri", isOn: $status)
-                    .foregroundStyle(.labelPrimaryBlack)
-                    .font(.callout)
+                Menu {
+                    Button("Mandiri") {
+                        selectedStatus = true
+                    }
+                    Button("Dibimbing") {
+                        selectedStatus = false
+                    }
+                } label: {
+                    HStack (spacing: 9){
+                        Text(getStatusText())
+                        Image(systemName: "chevron.up.chevron.down")
+                    }
+                    .font(.body)
                     .fontWeight(.regular)
-                    .padding(.top, 8)
+                    .foregroundColor(.labelPrimaryBlack)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 11)
+                    
+                    .background(.statusSheet)
+                    .cornerRadius(8)
+                }
+                .padding(.top, 8)
                 
                 Spacer()
             }
@@ -108,12 +115,19 @@ struct NewUnsavedActivityView: View {
             }
         }
     }
+    
+    private func getStatusText() -> String {
+        if let isIndependent = selectedStatus {
+            return isIndependent ? "Mandiri" : "Dibimbing"
+        }
+        return "Status"
+    }
 
     private func saveNewActivity() {
         let newActivity = UnsavedActivity(
             activity: activityText,
             createdAt: selectedDate,
-            isIndependent: status,
+            isIndependent: selectedStatus ?? false,
             studentId: student.id
         )
         Task {
@@ -122,7 +136,3 @@ struct NewUnsavedActivityView: View {
         }
     }
 }
-
-
-
-

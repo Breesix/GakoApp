@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Gako Logo Main.png",
+      "filename" : "Gako Logo (1).png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Gako Logo Main 2.png",
+      "filename" : "Gako Logo (1) 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Gako Logo Main 1.png",
+      "filename" : "Gako Logo (1) 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

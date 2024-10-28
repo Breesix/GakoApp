@@ -21,13 +21,18 @@ struct SummaryTabView: View {
     @State private var searchText = ""
     @State private var showTabBar = true
     @State private var hideTabBar = false
+    @State private var showEmptyStudentsAlert: Bool = false
 
     @EnvironmentObject var tabBarController: TabBarController
     var body: some View {
            NavigationView {
                VStack(spacing: 0) {
                    CustomNavigationBar(title: "Ringkasan") {
-                       isShowingInputTypeSheet = true
+                       if studentTabViewModel.students.isEmpty {
+                           showEmptyStudentsAlert = true
+                       } else {
+                           isShowingInputTypeSheet = true
+                       }
                    }
                    DailyDateSlider(selectedDate: $viewModel.selectedDate)
                        .padding(16)
@@ -87,6 +92,11 @@ struct SummaryTabView: View {
                    , isActive: $isNavigatingToTextInput) { EmptyView() }
                )
 
+           }
+           .alert("Tidak Ada Data Murid", isPresented: $showEmptyStudentsAlert) {
+               Button("OK", role: .cancel) {}
+           } message: {
+               Text("Anda perlu menambahkan data murid terlebih dahulu sebelum membuat dokumentasi.")
            }
            .navigationBarHidden(true)
            .task {
