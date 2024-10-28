@@ -25,8 +25,9 @@ struct EmptyState: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 105)
-                .opacity(0.3)
+                .opacity(0.5)
             Text(message)
+                .foregroundStyle(.labelPrimaryBlack)
                 .font(.body)
                 .opacity(0.5)
         }

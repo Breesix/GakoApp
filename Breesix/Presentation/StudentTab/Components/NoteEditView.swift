@@ -24,6 +24,7 @@ struct NoteEditView: View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Edit Catatan")
+                    .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
                 
@@ -44,6 +45,7 @@ struct NoteEditView: View {
                     }
                     
                     TextEditor(text: $noteText)
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
                         .padding(.horizontal, 8)
@@ -66,11 +68,11 @@ struct NoteEditView: View {
             }
             .padding(.top, 34.5)
             .padding(.horizontal, 16)
-            .navigationTitle("Edit Catatan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Edit Catatan")
+                        .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)

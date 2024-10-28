@@ -85,46 +85,73 @@ struct StudentEditView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Nama Lengkap")
+                            .foregroundStyle(.labelPrimaryBlack)
                             .font(.callout)
                             .fontWeight(.semibold)
-                        TextField("Nama Lengkap Murid", text: $fullname)
-                            .font(.callout)
-                            .fontWeight(.regular)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
-                            .background(.cardFieldBG)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(.monochrome50, lineWidth: 1)
-                            )
+                        ZStack(alignment: .leading) {
+                            if fullname.isEmpty {
+                                Text("Nama Lengkap Murid")
+                                    .foregroundStyle(.labelTertiary)
+                                    .font(.body)
+                                    .fontWeight(.regular)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 9)
+                            }
+                            TextField("", text: $fullname)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .font(.body)
+                                .fontWeight(.regular)
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                        }
+                        .background(.cardFieldBG)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.monochrome50, lineWidth: 0.5)
+                        )
                     }
+                    
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Nama Panggilan")
+                            .foregroundStyle(.labelPrimaryBlack)
                             .font(.callout)
                             .fontWeight(.semibold)
-                        TextField("Nama Panggilan Murid", text: $nickname)
-                            .font(.callout)
-                            .fontWeight(.regular)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
-                            .background(.cardFieldBG)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(.monochrome50, lineWidth: 1)
-                            )
+                        ZStack(alignment: .leading) {
+                            if nickname.isEmpty {
+                                Text("Nama Panggilan Murid")
+                                    .foregroundStyle(.labelTertiary)
+                                    .font(.body)
+                                    .fontWeight(.regular)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 9)
+                            }
+                            
+                            TextField("", text: $nickname)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .font(.body)
+                                .fontWeight(.regular)
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                        }
+                        .background(.cardFieldBG)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.monochrome50, lineWidth: 0.5)
+                        )
                     }
                 }
                 .padding(.horizontal, 16)
                 
                 Spacer()
             }
-            .navigationTitle(mode == .add ? "Tambah Murid" : "Edit Murid")
+            .background(.white)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text(mode == .add ? "Tambah Murid" : "Edit Murid")
+                        .foregroundStyle(.buttonPrimaryLabel)
                         .font(.body)
                         .fontWeight(.semibold)
                         .padding(.top, 27)

@@ -13,7 +13,6 @@ import SwiftUI
 
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let activities: [Activity]
     let notes: [Note]
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
@@ -104,11 +103,11 @@ struct ActivitySection: View {
                     ActivityRow(
                         activity: activity,
                         onEdit: { _ in onEditActivity(activity) },
+                        onEdit: { _ in onEditActivity(activity) },
                         onDelete: { _ in onDeleteActivity(activity) },
                         onStatusChanged: { newStatus  in
                             onStatusChanged(activity, newStatus)
                         }
-                    )
                 }
             }
             
@@ -146,11 +145,12 @@ struct ActivityRow: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(activity.activity)
                 .font(.callout)
                 .fontWeight(.semibold)
                 .foregroundStyle(.labelPrimaryBlack)
+                .padding(.bottom, 12)
             
             if activity.isIndependent != nil {
                 HStack(spacing: 8) {
@@ -223,14 +223,14 @@ struct NoteDetailRow: View {
     @State private var showDeleteAlert = false
     
     var body: some View {
-        HStack {
+        HStack (spacing: 8) {
             Text(note.note)
                 .font(.subheadline)
-                .foregroundColor(.labelPrimaryBlack)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 8)
+                .fontWeight(.regular)
+                .foregroundStyle(.labelPrimaryBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.ultraThinMaterial)
+                .padding(8)
+                .background(.monochrome100)
                 .cornerRadius(8)
                 .overlay {
                     RoundedRectangle(cornerRadius: 8)
@@ -244,10 +244,15 @@ struct NoteDetailRow: View {
             Button(action: {
                 showDeleteAlert = true
             }) {
-                Image("custom.trash.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 34)
+                ZStack {
+                    Circle()
+                        .frame(width: 34)
+                        .foregroundStyle(.buttonDestructiveOnCard)
+                    Image(systemName: "trash.fill")
+                        .font(.subheadline)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.destructive)
+                }
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {

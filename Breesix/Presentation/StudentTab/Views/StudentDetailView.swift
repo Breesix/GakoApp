@@ -97,12 +97,12 @@ struct StudentDetailView: View {
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
                                 Image(systemName: "chevron.left")
-                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
+                                    .foregroundStyle(.buttonLinkOnSheet)
                             }
                             
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
+                                    .foregroundStyle(.buttonLinkOnSheet)
                             }
                         }
                          
@@ -130,34 +130,33 @@ struct StudentDetailView: View {
                     } else {
                         ScrollViewReader { scrollProxy in
                             ScrollView {
-                                LazyVStack(spacing: 0) {
-                                    ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
-                                        let dayItems = activitiesForSelectedMonth[day]!
-                                            ActivityCardView(
-                                                viewModel: viewModel,
-                                                activities: dayItems.activities,
-                                                notes: dayItems.notes,
-                                                onAddNote: {
-                                                    selectedDate = day
-                                                    isAddingNewNote = true
-                                                },
-                                                onAddActivity: {
-                                                    selectedDate = day
-                                                    isAddingNewActivity = true
-                                                },
-                                                onEditActivity: { self.activity = $0 },
-                                                onDeleteActivity: deleteActivity,
-                                                onEditNote: { self.selectedNote = $0 },
-                                                onDeleteNote: deleteNote,
-                                                student: student, date: day
-                                            )
-                                            .padding(.horizontal, 16)
-                                            .padding(.bottom, 12)
-                                            .id(day)
-                                        }
-                    
+                                ForEach(activitiesForSelectedMonth.keys.sorted(), id: \.self) { day in
+                                    let dayItems = activitiesForSelectedMonth[day]!
+                                    ActivityCardView(
+                                        viewModel: viewModel,
+                                        activities: dayItems.activities,
+                                        notes: dayItems.notes,
+                                        date: day,
+                                        onAddNote: {
+                                            selectedDate = day
+                                            isAddingNewNote = true
+                                        },
+                                        onAddActivity: {
+                                            selectedDate = day
+                                            isAddingNewActivity = true
+                                        },
+                                        onEditActivity: { self.activity = $0 },
+                                        onDeleteActivity: deleteActivity,
+                                        onEditNote: { self.selectedNote = $0 },
+                                        onDeleteNote: deleteNote,
+                                        student: student
+                                    )
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 12)
+                                    .id(day)
                                 }
                             }
+                             
                             .onChange(of: selectedDate) { newDate in
                                 let startOfDay = calendar.startOfDay(for: newDate)
                                 if let dayItems = activitiesForSelectedMonth[startOfDay] {
@@ -186,6 +185,7 @@ struct StudentDetailView: View {
             StudentEditView(viewModel: viewModel, mode: .edit(student))
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+                .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {
@@ -193,11 +193,15 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .sheet(item: $activity) { currentActivity in
             ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
                 activity = nil
             })
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .sheet(isPresented: $isAddingNewNote) {
             NewNoteView(viewModel: viewModel,
@@ -211,6 +215,7 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
 
         .sheet(isPresented: $isAddingNewActivity) {
@@ -225,6 +230,7 @@ struct StudentDetailView: View {
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
@@ -324,22 +330,23 @@ struct CalendarButton: View {
     var body: some View {
         
         Button(action: { isShowingCalendar = true }) {
-            Label("Kalender", systemImage: "calendar")
+            ZStack {
+                Circle()
+                    .frame(width: 36)
+                    .foregroundStyle(.buttonLinkOnSheet)
+                Image(systemName: "calendar")
+                    .font(.system(size: 21))
+                    .foregroundStyle(.white)
+            }
         }
-        .frame(width: 34, height: 34)
-        .labelStyle(.iconOnly)
-        .buttonStyle(.bordered)
-        .foregroundStyle(.white)
-        .background(Color(red: 1, green: 0.68, blue: 0.12))
-        .cornerRadius(999)
         
         .sheet(isPresented: $isShowingCalendar) {
             DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "id_ID")) // Set locale to Indonesian
+                .environment(\.locale, Locale(identifier: "id_ID"))
                 .presentationDetents([.fraction(0.55)])
                 .onChange(of: selectedDate) { newDate in
-                    onDateSelected(newDate) // Call the closure when date changes
+                    onDateSelected(newDate)
                 }
         }
     }
@@ -383,19 +390,3 @@ struct BackButton: View {
         }
     }
 }
-
-//struct EditProfilButton: View {
-//    @Environment(\.presentationMode) var presentationMode
-//
-//    var body: some View {
-//        Button(action: {
-//            isEditing = true
-//        }) {
-//            HStack(spacing: 4) {
-//                Text("Edit Profil")
-//                    .foregroundStyle(.white)
-//            }
-//             // Reduce left padding to move closer to edge
-//        }
-//    }
-//}

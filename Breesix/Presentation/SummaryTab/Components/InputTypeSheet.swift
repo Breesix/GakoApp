@@ -25,6 +25,7 @@ struct InputTypeSheet: View {
             Text("Pilih Metode Input")
                 .font(.title3)
                 .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
             
             Spacer()
             
@@ -65,6 +66,7 @@ struct InputTypeSheet: View {
             Spacer()
 
         }
+        .background(.white)
         .padding(.horizontal, 16)
     }
 }

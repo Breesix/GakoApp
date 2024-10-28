@@ -1,33 +1,36 @@
 //
-//  NewNoteView.swift
+//  NewActivityView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 04/10/24.
+//  Created by Rangga Biner on 13/10/24.
 //
 
 import SwiftUI
 
-struct NewNoteView: View {
+struct NewUnsavedActivityView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
-    @State private var note: String = ""
+    
+    @State private var activityText: String = ""
+    @State private var status: Bool = false
 
     var body: some View {
         NavigationView {
-            VStack (alignment: .leading, spacing: 8){
-                Text("Tambah Catatan")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Tambah Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
+                
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(.cardFieldBG)
                         .frame(maxWidth: .infinity, maxHeight: 170)
                     
-                    if note.isEmpty {
-                        Text("Tuliskan catatan untuk murid...")
+                    if activityText.isEmpty {
+                        Text("Tuliskan aktivitas murid...")
                             .font(.callout)
                             .fontWeight(.regular)
                             .padding(.horizontal, 11)
@@ -36,7 +39,8 @@ struct NewNoteView: View {
                             .foregroundColor(.labelDisabled)
                             .cornerRadius(8)
                     }
-                    TextEditor(text: $note)
+                    
+                    TextEditor(text: $activityText)
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
@@ -55,6 +59,13 @@ struct NewNoteView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.monochrome50, lineWidth: 1)
                 )
+                
+                Toggle("Mandiri", isOn: $status)
+                    .foregroundStyle(.labelPrimaryBlack)
+                    .font(.callout)
+                    .fontWeight(.regular)
+                    .padding(.top, 8)
+                
                 Spacer()
             }
             .padding(.top, 34.5)
@@ -62,7 +73,7 @@ struct NewNoteView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tambah Catatan")
+                    Text("Tambah Aktivitas")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -86,7 +97,7 @@ struct NewNoteView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewNote()
+                        saveNewActivity()
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -98,11 +109,20 @@ struct NewNoteView: View {
         }
     }
 
-    private func saveNewNote() {
-        let newNote = Note(note: note, createdAt: selectedDate, student: student)
+    private func saveNewActivity() {
+        let newActivity = UnsavedActivity(
+            activity: activityText,
+            createdAt: selectedDate,
+            isIndependent: status,
+            studentId: student.id
+        )
         Task {
-            await viewModel.addNote(newNote, for: student)
+            viewModel.addUnsavedActivities([newActivity])
             onDismiss()
         }
     }
 }
+
+
+
+

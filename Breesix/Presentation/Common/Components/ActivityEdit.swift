@@ -32,7 +32,16 @@ struct ActivityEdit: View {
                     saveActivity()
                 }
             }
-            .navigationTitle("Edit Catatan")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Edit Aktivitas")
+                        .foregroundStyle(.buttonPrimaryLabel)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .padding(.top, 27)
+                }
+            }
             .navigationBarItems(trailing: Button("Tutup") {
                 onDismiss()
             })

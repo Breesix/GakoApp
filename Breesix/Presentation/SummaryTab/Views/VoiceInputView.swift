@@ -46,7 +46,7 @@ struct VoiceInputView: View {
     
     var body: some View {
         ZStack{
-            
+
             VStack(alignment: .center) {
                 
                 datePickerView()
@@ -54,6 +54,7 @@ struct VoiceInputView: View {
                 
                 ZStack {
                     TextEditor(text: $reflection)
+                        .foregroundStyle(.labelPrimaryBlack)
                         .disabled(isRecording)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -159,6 +160,7 @@ struct VoiceInputView: View {
                 
             }
         }
+        .background(.white)
         .hideTabBar()
         .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)

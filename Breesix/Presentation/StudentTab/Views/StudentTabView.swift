@@ -161,54 +161,64 @@ struct CustomSearchBar: View {
     
     var body: some View {
             HStack {
-                TextField("Search", text: $text)
-                    .padding(.horizontal, 33)
-                    .padding(.vertical, 7)
-                    .background(.fillTertiary)
-                    .cornerRadius(10)
-                    .overlay(
-                        HStack {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundStyle(.labelSecondary)
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, 8)
-                            
-                            if isRecording {
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text("Search")
+                            .foregroundStyle(.labelSecondary)
+                            .padding(.horizontal, 33)
+                            .padding(.vertical, 7)
+                    }
+                    TextField("", text: $text)
+                        .foregroundStyle(.buttonPrimaryLabel)
+                        .padding(.horizontal, 33)
+                        .padding(.vertical, 7)
+                }
+                .background(.fillTertiary)
+                .cornerRadius(10)
+                .overlay(
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.labelSecondary)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 8)
+                        
+                        if isRecording {
+                            Button(action: {
+                                isRecording = false
+                                speechRecognizer.stopTranscribing()
+                            }) {
+                                Image(systemName: "mic.fill.badge.xmark")
+                                    .foregroundStyle(.red)
+                                    .padding(.trailing, 8)
+                            }
+                        } else {
+                            if text.isEmpty {
                                 Button(action: {
-                                    isRecording = false
-                                    speechRecognizer.stopTranscribing()
+                                    isRecording = true
+                                    speechRecognizer.startTranscribing()
                                 }) {
-                                    Image(systemName: "mic.fill.badge.xmark")
-                                        .foregroundStyle(.red)
+                                    Image(systemName: "mic.fill")
+                                        .foregroundStyle(.labelSecondary)
                                         .padding(.trailing, 8)
                                 }
                             } else {
-                                if text.isEmpty {
-                                    Button(action: {
-                                        isRecording = true
-                                        speechRecognizer.startTranscribing()
-                                    }) {
-                                        Image(systemName: "mic.fill")
-                                            .foregroundStyle(.labelSecondary)
-                                            .padding(.trailing, 8)
-                                    }
-                                } else {
-                                    Button(action: {
-                                        self.text = ""
-                                    }) {
-                                        Image(systemName: "multiply.circle.fill")
-                                            .foregroundStyle(.labelSecondary)
-                                            .padding(.trailing, 8)
-                                    }
+                                Button(action: {
+                                    self.text = ""
+                                }) {
+                                    Image(systemName: "multiply.circle.fill")
+                                        .foregroundStyle(.labelSecondary)
+                                        .padding(.trailing, 8)
                                 }
                             }
                         }
-                    )
-                    .onTapGesture {
-                        withAnimation {
-                            self.isEditing = true
-                        }
                     }
+                )
+                .onTapGesture {
+                    withAnimation {
+                        self.isEditing = true
+                    }
+                }
+
             }
             .onAppear {
                 requestSpeechAuthorization()
