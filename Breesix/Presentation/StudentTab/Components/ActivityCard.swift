@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let activities: [Activity]  // Changed from @State to let
+    let activities: [Activity] 
     let notes: [Note]
     let date: Date
     let onAddNote: () -> Void
@@ -74,11 +74,11 @@ struct ActivityCardView: View {
 
 
 struct ActivitySection: View {
-    let activities: [Activity]  // Changed from @Binding to let
+    let activities: [Activity]
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
     let onAddActivity: () -> Void
-    let onStatusChanged: (Activity, Bool) -> Void  // Tambahkan ini
+    let onStatusChanged: (Activity, Bool) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -91,7 +91,7 @@ struct ActivitySection: View {
                         activity: activity,
                         onEdit: onEditActivity,
                         onDelete: onDeleteActivity,
-                        onStatusChanged: onStatusChanged  // Teruskan handler
+                        onStatusChanged: onStatusChanged
                     )
                 }
             }
@@ -111,13 +111,12 @@ struct ActivitySection: View {
 }
 
 struct ActivityRow: View {
-    let activity: Activity  // Changed from @Binding to let
+    let activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
-    let onStatusChanged: (Activity, Bool) -> Void  // Tambahkan handler untuk perubahan status
-
+    let onStatusChanged: (Activity, Bool) -> Void
     @State private var showDeleteAlert = false
-    @State private var isIndependent: Bool  // Add this to handle the picker state
+    @State private var isIndependent: Bool
 
     init(activity: Activity,
          onEdit: @escaping (Activity) -> Void,
@@ -131,36 +130,59 @@ struct ActivityRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(activity.activity)
                 .font(.callout)
                 .fontWeight(.semibold)
                 .foregroundStyle(.labelPrimaryBlack)
+                .padding(.bottom, 12)
             
             if activity.isIndependent != nil {
-                HStack(spacing: 0) {
-                    Picker("Status", selection: $isIndependent) {
-                        Text("Mandiri").tag(true)
-                        Text("Dibimbing").tag(false)
+                HStack(spacing: 8) {
+                    Menu {
+                        Button("Mandiri") {
+                            isIndependent = true
+                            onStatusChanged(activity, true)
+                        }
+                        Button("Dibimbing") {
+                            isIndependent = false
+                            onStatusChanged(activity, false)
+                        }
+                    } label: {
+                        HStack {
+                            Text(getStatusText())
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.up.chevron.down")
+                        }
+                        .font(.body)
+                        .fontWeight(.regular)
+                        .foregroundColor(.labelPrimaryBlack)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 11)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.cardFieldBG)
+                        .cornerRadius(8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.statusStroke, lineWidth: 2)
+                        }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(8)
-                    .padding(.trailing, 8)
-                    .onChange(of: isIndependent) { newValue in
-                        onStatusChanged(activity, newValue)  // Panggil handler saat status berubah
-                    }
-
                     
-                    Button("Hapus", systemImage: "trash.fill", action: {
+                    Button(action: {
                         showDeleteAlert = true
-                    })
-                    .frame(width: 34, height: 34)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.bordered)
-                    .tint(.red)
-                    .clipShape(.circle)
+                    }) {
+                        ZStack {
+                            Circle()
+                                .frame(width: 34)
+                                .foregroundStyle(.buttonDestructiveOnCard)
+                            Image(systemName: "trash.fill")
+                                .font(.subheadline)
+                                .fontWeight(.regular)
+                                .foregroundStyle(.destructive)
+                        }
+                    }
                     .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                         Button("Hapus", role: .destructive) {
                             onDelete(activity)
@@ -173,6 +195,10 @@ struct ActivityRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func getStatusText() -> String {
+        return isIndependent ? "Mandiri" : "Dibimbing"
     }
 }
 
@@ -188,28 +214,36 @@ struct NoteDetailRow: View {
     @State private var showDeleteAlert = false
     
     var body: some View {
-        HStack {
+        HStack (spacing: 8) {
             Text(note.note)
                 .font(.subheadline)
-                .foregroundColor(.labelPrimaryBlack)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 8)
+                .fontWeight(.regular)
+                .foregroundStyle(.labelPrimaryBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.ultraThinMaterial)
+                .padding(8)
+                .background(.monochrome100)
                 .cornerRadius(8)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(.noteStroke, lineWidth: 0.5)
+                }
                 .contextMenu {
                     Button("Edit") { onEdit(note) }
                 }
             
-            Spacer()
             
             Button(action: {
                 showDeleteAlert = true
             }) {
-                Image("custom.trash.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 34)
+                ZStack {
+                    Circle()
+                        .frame(width: 34)
+                        .foregroundStyle(.buttonDestructiveOnCard)
+                    Image(systemName: "trash.fill")
+                        .font(.subheadline)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.destructive)
+                }
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {

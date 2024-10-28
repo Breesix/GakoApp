@@ -57,6 +57,7 @@ struct SummaryTabView: View {
                            isNavigatingToTextInput = true
                        }
                    })
+                   .background(.white)
                    .presentationDetents([.medium])
                    .presentationDragIndicator(.visible)
                }
@@ -75,6 +76,7 @@ struct SummaryTabView: View {
                        isNavigatingToVoiceInput = false
                        navigateToPreview = true
                    })
+                    .background(.white)
                    ,isActive: $isNavigatingToVoiceInput) { EmptyView() }
                )
                .background(

@@ -97,12 +97,12 @@ struct StudentDetailView: View {
                         HStack(spacing: 8) {
                             Button(action: { moveMonth(by: -1) }) {
                                 Image(systemName: "chevron.left")
-                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
+                                    .foregroundStyle(.buttonLinkOnSheet)
                             }
                             
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(Color(red: 1, green: 0.68, blue: 0.12))
+                                    .foregroundStyle(.buttonLinkOnSheet)
                             }
                         }
                          
@@ -150,6 +150,7 @@ struct StudentDetailView: View {
                                     .id(day)
                                 }
                             }
+                             
                             .onChange(of: selectedDate) { newDate in
                                 let startOfDay = calendar.startOfDay(for: newDate)
                                 if let dayItems = activitiesForSelectedMonth[startOfDay] {
@@ -313,22 +314,23 @@ struct CalendarButton: View {
     var body: some View {
         
         Button(action: { isShowingCalendar = true }) {
-            Label("Kalender", systemImage: "calendar")
+            ZStack {
+                Circle()
+                    .frame(width: 36)
+                    .foregroundStyle(.buttonLinkOnSheet)
+                Image(systemName: "calendar")
+                    .font(.system(size: 21))
+                    .foregroundStyle(.white)
+            }
         }
-        .frame(width: 34, height: 34)
-        .labelStyle(.iconOnly)
-        .buttonStyle(.bordered)
-        .foregroundStyle(.white)
-        .background(Color(red: 1, green: 0.68, blue: 0.12))
-        .cornerRadius(999)
         
         .sheet(isPresented: $isShowingCalendar) {
             DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "id_ID")) // Set locale to Indonesian
+                .environment(\.locale, Locale(identifier: "id_ID"))
                 .presentationDetents([.fraction(0.55)])
                 .onChange(of: selectedDate) { newDate in
-                    onDateSelected(newDate) // Call the closure when date changes
+                    onDateSelected(newDate)
                 }
         }
     }

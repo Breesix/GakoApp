@@ -68,6 +68,7 @@ struct TextInputView: View {
                             .font(.callout)
                             .fontWeight(.regular)
                             .padding(.horizontal, 8)
+                            .foregroundStyle(.labelPrimaryBlack)
                             .frame(maxWidth: .infinity, maxHeight: 170)
                             .cornerRadius(8)
                             .focused($isTextEditorFocused)
@@ -132,6 +133,7 @@ struct TextInputView: View {
                 }
             }
         }
+        .background(.white)
         .navigationBarHidden(true)
         .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
