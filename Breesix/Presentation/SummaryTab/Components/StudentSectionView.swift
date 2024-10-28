@@ -15,35 +15,34 @@ struct StudentSectionView: View {
     @Binding var isAddingNewNote: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Profile Header
+        VStack(alignment: .leading, spacing: 0) {
             ProfileHeaderPreview(student: student)
-                .padding(.bottom, 8)
+                .padding(12)
+                
+            Divider()
             
-            Divider().frame(maxWidth: .infinity)
+            VStack (alignment: .leading, spacing: 0) {
+                ActivitySectionPreview(
+                    student: student,
+                    viewModel: viewModel,
+                    selectedStudent: $selectedStudent,
+                    isAddingNewActivity: $isAddingNewActivity
+                )
+       
+            Divider()
+                    .padding(.vertical, 16)
             
-            // Activity Section
-            ActivitySectionPreview(
-                student: student,
-                viewModel: viewModel,
-                selectedStudent: $selectedStudent,
-                isAddingNewActivity: $isAddingNewActivity
-            )
-            
-            Divider().frame(maxWidth: .infinity)
-            
-            // Note Section
-            NoteSectionPreview(
-                student: student,
-                viewModel: viewModel,
-                selectedStudent: $selectedStudent,
-                isAddingNewNote: $isAddingNewNote,
-                selectedDate: selectedDate
-            )
+                NoteSectionPreview(
+                    student: student,
+                    viewModel: viewModel,
+                    selectedStudent: $selectedStudent,
+                    isAddingNewNote: $isAddingNewNote,
+                    selectedDate: selectedDate
+                )
+            }
+            .padding(16)
         }
-        .padding(16)
-        .background(Color.white)
+        .background(.white)
         .cornerRadius(10)
-        .padding(.horizontal)
     }
 }

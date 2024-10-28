@@ -42,7 +42,7 @@ struct PreviewView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) { // Spacing between each student's section
+            VStack(spacing: 0) {
                 ForEach(viewModel.students) { student in
                     StudentSectionView(
                         student: student,
@@ -52,22 +52,26 @@ struct PreviewView: View {
                         isAddingNewActivity: $isAddingNewActivity,
                         isAddingNewNote: $isAddingNewNote
                     )
+                    .padding(.bottom, 12)
                 }
-                Button("Simpan") {
+                
+                Button {
                     saveActivities()
-                    
+                } label: {
+                    Text("Simpan")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.labelPrimaryBlack)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color(.orangeClickAble))
+                        .cornerRadius(12)
                 }
-                .buttonStyle(.plain)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color(.orangeClickAble))
-                .cornerRadius(12)
-                .padding()
             }
+            .padding(.top, 12)
+            .padding(.horizontal, 16)
             .toolbarBackground(Color(.bgMain), for: .navigationBar)
-            .padding(.vertical, 20)
             .background(.bgMain)
-            .padding(.top)
             .hideTabBar()
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(
@@ -78,9 +82,12 @@ struct PreviewView: View {
                 } label: {
                     HStack{
                         Image(systemName: "chevron.backward")
+                            .foregroundStyle(.buttonLinkOnSheet)
                         Text("Pratinjau")
-                            .font(.title3)
+                            .foregroundStyle(.monochromeBlack)
                     }
+                    .font(.title3)
+                    .fontWeight(.semibold)
                 },
                 trailing: datePickerView().disabled(true)
             )
@@ -96,8 +103,7 @@ struct PreviewView: View {
                 }
             )
         }
-        
-
+        .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
                 NewUnsavedActivityView(viewModel: viewModel,
@@ -196,11 +202,6 @@ struct PreviewView: View {
     }
 }
 
-
-
-
-
-
 struct NoteRow: View {
     let note: UnsavedNote
     @State private var showDeleteAlert = false
@@ -209,14 +210,19 @@ struct NoteRow: View {
     let onDelete: () -> Void
     
     var body: some View {
-        HStack() {
+        HStack(spacing: 8) {
             Text(note.note)
-
+                .font(.subheadline)
+                .fontWeight(.regular)
+                .foregroundStyle(.labelPrimaryBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(.ultraThinMaterial)
+                .padding(8)
+                .background(.monochrome100)
                 .cornerRadius(8)
-            
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(.noteStroke, lineWidth: 0.5)
+                }
             
             Button(action: {
                 showDeleteAlert = true

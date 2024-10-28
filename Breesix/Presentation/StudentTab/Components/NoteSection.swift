@@ -39,7 +39,7 @@ struct NoteSection: View {
             .padding(.horizontal, 14)
             .font(.footnote)
             .fontWeight(.regular)
-            .foregroundStyle(.labelPrimaryBlack)
+            .foregroundStyle(.buttonPrimaryLabel)
             .background(.buttonOncard)
             .cornerRadius(8)
         }

@@ -12,40 +12,36 @@ struct ProfileHeaderPreview: View {
     let student: Student
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            // Profile Image
+        HStack(alignment: .center, spacing: 8) {
             if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 64, height: 64)
-                    .background(Color.green.opacity(0.2))
+                    .scaledToFill()
+                    .frame(width: 47, height: 50)
                     .clipShape(Circle())
             } else {
                 Image(systemName: "person.circle.fill")
                     .resizable()
-                    .frame(width: 64, height: 64)
-                    .foregroundColor(.black)
-                    .background(Color.green)
+                    .frame(width: 47, height: 50)
+                    .foregroundColor(Color.bgSecondary)
                     .clipShape(Circle())
             }
             
-            // Name and Nickname
             VStack(alignment: .leading, spacing: 4) {
                 Text(student.fullname)
                     .fontWeight(.semibold)
-                    .font(.title3)
-                    .foregroundColor(.black)
+                    .font(.body)
+                    .foregroundColor(.labelPrimaryBlack)
                 
                 Text(student.nickname)
                     .fontWeight(.regular)
                     .font(.subheadline)
-                    .foregroundColor(.black)
+                    .foregroundColor(.labelPrimaryBlack)
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
+}
+
+#Preview {
+    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
 }

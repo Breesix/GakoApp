@@ -17,7 +17,7 @@ struct NoteSectionPreview: View {
         let studentNotes = viewModel.unsavedNotes.filter { $0.studentId == student.id }
         
         if !studentNotes.isEmpty {
-            Section(header: Text("Catatan").font(.headline)) {
+            Section(header: Text("Catatan").font(.callout).padding(.bottom, 8).fontWeight(.semibold)) {
                 ForEach(studentNotes) { note in
                     NoteRow(
                         note: note,
@@ -29,8 +29,8 @@ struct NoteSectionPreview: View {
                             viewModel.deleteUnsavedNote(note)
                         }
                     )
+                    .padding(.bottom, 12)
                 }
-                
                 AddButton {
                     selectedStudent = student
                     isAddingNewNote = true
