@@ -23,7 +23,7 @@ struct AddButton: View {
             .font(.footnote)
             .fontWeight(.regular)
             .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
+            .background(.buttonPrimaryOnGreen)
             .cornerRadius(8)
         }
     }
