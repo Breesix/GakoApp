@@ -220,7 +220,7 @@ struct PreviewView: View {
             do {
                 try await viewModel.saveUnsavedActivities()
                 try await viewModel.saveUnsavedNotes()
-                try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                try await viewModel.generateAndSaveSummariesLlama(for: viewModel.selectedDate)
                 
                 // Tunggu hingga minimal duration tercapai
                 try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
