@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TipsCard: View {
     var body: some View {
-        VStack() {
+        VStack {
             Image("Expressions")
                 .resizable()
                 .scaledToFit()
@@ -28,8 +28,6 @@ struct TipsCard: View {
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 16)
         .foregroundStyle(.green300)
         .cornerRadius(12)
     }

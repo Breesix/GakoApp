@@ -48,19 +48,29 @@ struct ActivityCardView: View {
                         activities: activities,
                         onEditActivity: onEditActivity,
                         onDeleteActivity: onDeleteActivity,
-                        onAddActivity: onAddActivity,
                         onStatusChanged: { activity, newStatus in
                             Task {
                                 await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
                             }
                         }
                     )
-                    .padding(.bottom, 16)
+//                    .padding(.bottom, 16)
                 
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.secondary)
             }
+            
+            Button(action: onAddActivity) {
+                Label("Tambah", systemImage: "plus.app.fill")
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .background(.buttonOncard)
+            .cornerRadius(8)
             
             Divider()
                 .frame(height: 1)
@@ -75,7 +85,20 @@ struct ActivityCardView: View {
                     onDeleteNote: onDeleteNote,
                     onAddNote: onAddNote
                 )
+            } else {
+                Text("Tidak ada notes untuk tanggal ini")
+                    .foregroundColor(.secondary)
             }
+            Button(action: onAddNote) {
+                Label("Tambah", systemImage: "plus.app.fill")
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .background(.buttonOncard)
+            .cornerRadius(8)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -91,7 +114,6 @@ struct ActivitySection: View {
     let activities: [Activity]
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
-    let onAddActivity: () -> Void
     let onStatusChanged: (Activity, Bool) -> Void
     
     var body: some View {
@@ -112,16 +134,6 @@ struct ActivitySection: View {
                 }
             }
             
-            Button(action: onAddActivity) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
         }
     }
 }

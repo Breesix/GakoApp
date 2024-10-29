@@ -35,7 +35,7 @@ struct SummaryTabView: View {
                        }
                    }
                    DailyDateSlider(selectedDate: $viewModel.selectedDate)
-                       .padding(16)
+                       .padding(.vertical, 12)
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
@@ -93,10 +93,10 @@ struct SummaryTabView: View {
                )
 
            }
-           .alert("Tidak Ada Data Murid", isPresented: $showEmptyStudentsAlert) {
-               Button("OK", role: .cancel) {}
+           .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {
+               Button("Tambahkan Murid", role: .cancel) {}
            } message: {
-               Text("Anda perlu menambahkan data murid terlebih dahulu sebelum membuat dokumentasi.")
+               Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
            }
            .navigationBarHidden(true)
            .task {

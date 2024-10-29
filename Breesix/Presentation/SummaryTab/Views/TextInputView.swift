@@ -32,7 +32,10 @@ struct TextInputView: View {
         self.onDismiss = onDismiss
     }
     
-    private let ttProcessor = OpenAIService(apiToken: "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")
+//    private let ttProcessor = OpenAIService(apiToken: "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")
+    
+    private let ttProcessor = LlamaService(apiKey: "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")
+
 
     var body: some View {
         ZStack {
@@ -47,10 +50,10 @@ struct TextInputView: View {
                 datePickerView()
                     .padding(.top, 24)
                     .disabled(isLoading)
-                VStack (spacing: 16) {
+                VStack (spacing: 0) {
                     ZStack (alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(.cardFieldBG)
+                            .fill(.white)
                             .frame(maxWidth: .infinity, maxHeight: 170)
                         
                         if reflection.isEmpty {
@@ -59,16 +62,16 @@ struct TextInputView: View {
                                 .fontWeight(.regular)
                                 .padding(.horizontal, 11)
                                 .padding(.vertical, 9)
-                                .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
+                                .frame(maxWidth: .infinity, maxHeight: 230, alignment: .topLeading)
                                 .foregroundColor(.labelDisabled)
                                 .cornerRadius(8)
                         }
                         TextEditor(text: $reflection)
                             .font(.callout)
-                            .fontWeight(.regular)
+                            .fontWeight(.semibold)
                             .padding(.horizontal, 8)
                             .foregroundStyle(.labelPrimaryBlack)
-                            .frame(maxWidth: .infinity, maxHeight: 170)
+                            .frame(maxWidth: .infinity, maxHeight: 230)
                             .cornerRadius(8)
                             .focused($isTextEditorFocused)
                             .scrollContentBackground(.hidden)
@@ -83,53 +86,56 @@ struct TextInputView: View {
                     }
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(.monochrome50, lineWidth: 1)
+                            .stroke(.monochrome9002, lineWidth: 2)
                     )
-                    
-                    Button {
-                        processReflectionActivity()
-                    } label: {
-                        Text("Lanjutkan")
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity, maxHeight: 50)
-                            .background(isLoading ? .fillTertiary : .buttonPrimaryOnBg)
-                            .foregroundStyle(isLoading ?  .labelTertiary : .white)
-                            .cornerRadius(12)
-                    }
-                    .disabled(isLoading)
-                    
-                    Button("Batal") {
-                        showAlert = true
-                    }
-                    .padding(.top, 9)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(isLoading ?  .labelTertiary : .destructive)
-                    .disabled(isLoading)
-                }
-                .padding(.horizontal, 28)
-                Spacer()
-                if showProTips {
-                    if isLoading {
-                        VStack (spacing: 40) {
-                            Text("Memproses Informasi...")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.greenClr)
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .scaleEffect(3)
-                                .padding(.horizontal, 40)
-                                .tint(.buttonPrimaryOnBg)
-                        }
-                        .padding(.bottom, 44)
-                    } else {
+
+                    if showProTips {
+                        GuidingQuestions()
+                            .padding(.top, 12)
+                        Spacer()
                         TipsCard()
-                            .padding(.horizontal, 40)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack (spacing: 16){
+                        Button {
+                            processReflectionActivity()
+                        } label: {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .frame(maxWidth: .infinity, maxHeight: 50)
+                                    .background(.buttonLinkOnSheet)
+                                    .cornerRadius(12)
+                            } else {
+                                Text("Lanjutkan")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity, maxHeight: 50)
+                                    .background(.buttonLinkOnSheet)
+                                    .foregroundStyle(.buttonPrimaryLabel)
+                                    .cornerRadius(12)
+                            }
+                        }
+                        .disabled(isLoading)
+                        
+                        Button("Batal") {
+                            showAlert = true
+                        }
+                        .padding(.top, 9)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(isLoading ?  .labelTertiary : .destructive)
+                        .disabled(isLoading)
+                    }
+                    .padding(.bottom, showProTips ? 24 : 0 )
+                    if !showProTips {
                         Spacer()
                     }
                 }
+                .padding(.horizontal, 28)
+
             }
         }
         .background(.white)
@@ -168,7 +174,7 @@ struct TextInputView: View {
     private func processReflectionActivity() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         isTextEditorFocused = false
-
+        
         Task {
             do {
                 isLoading = true
@@ -219,7 +225,7 @@ struct TextInputView: View {
             .foregroundStyle(isLoading ?  .labelTertiary : .buttonPrimaryLabel)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(isLoading ? .buttonOncard : .bgMain)
+            .background(.buttonOncard)
             .cornerRadius(8)
         }
     }
