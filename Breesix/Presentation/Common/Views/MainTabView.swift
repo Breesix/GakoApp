@@ -87,9 +87,9 @@ enum TabbedItems: Int, CaseIterable {
     var iconName: String {
         switch self {
         case .home:
-            return "house"
+            return "house.fill"
         case .student:
-            return "person.3"
+            return "person.3.fill"
         }
     }
     

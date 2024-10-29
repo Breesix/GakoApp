@@ -49,7 +49,7 @@ struct PreviewView: View {
                 // Main Content
                 ScrollView {
                     VStack(spacing: 0) {
-                        ForEach(viewModel.students) { student in
+                        ForEach(sortedStudents) { student in
                             StudentSectionView(
                                 student: student,
                                 viewModel: viewModel,
@@ -59,7 +59,7 @@ struct PreviewView: View {
                                 isAddingNewNote: $isAddingNewNote,
                                 onDeleteActivity: { activity in
                                     viewModel.deleteUnsavedActivity(activity)
-                                }
+                                }, hasDefaultActivities: hasAllDefaultActivities(for: student)
                             )
                             .padding(.bottom, 12)
                         }
@@ -139,6 +139,7 @@ struct PreviewView: View {
                 }
             }
         }
+        
         .toolbar(.hidden, for: .bottomBar , .tabBar )
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
@@ -183,6 +184,29 @@ struct PreviewView: View {
         }
     }
     
+    private var sortedStudents: [Student] {
+        viewModel.students.sorted { student1, student2 in
+            let hasDefaultActivities1 = hasAllDefaultActivities(for: student1)
+            let hasDefaultActivities2 = hasAllDefaultActivities(for: student2)
+            
+            if hasDefaultActivities1 != hasDefaultActivities2 {
+                return hasDefaultActivities1 // Yang memiliki semua aktivitas default di atas
+            }
+            return student1.fullname < student2.fullname // Urutkan berdasarkan nama jika status sama
+        }
+    }
+
+    private func hasAllDefaultActivities(for student: Student) -> Bool {
+        let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+        // Jika tidak ada aktivitas sama sekali, return true
+        if studentActivities.isEmpty {
+            return true
+        }
+        // Cek apakah semua aktivitas memiliki status default/null
+        return studentActivities.allSatisfy { activity in
+            activity.isIndependent == nil
+        }
+    }
     private let itemFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
