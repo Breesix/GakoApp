@@ -15,12 +15,12 @@ struct StudentSectionView: View {
     @Binding var isAddingNewNote: Bool
     let onDeleteActivity: (UnsavedActivity) -> Void
     @State private var isEditing = false
-    
+    let hasDefaultActivities: Bool
     var body: some View {
         ZStack {
             
             VStack(alignment: .leading, spacing: 0) {
-                ProfileHeaderPreview(student: student)
+                ProfileHeaderPreview(student: student, hasDefaultActivities: hasDefaultActivities)
                     .padding(12)
                 
                 Divider()

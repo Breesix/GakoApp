@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ProfileHeaderPreview: View {
     let student: Student
-    
+    let hasDefaultActivities: Bool
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
@@ -28,20 +28,31 @@ struct ProfileHeaderPreview: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(student.fullname)
-                    .fontWeight(.semibold)
-                    .font(.body)
-                    .foregroundColor(.labelPrimaryBlack)
-                
+                HStack{
+                    Text(student.fullname)
+                        .fontWeight(.semibold)
+                        .font(.body)
+                        .foregroundColor(.labelPrimaryBlack)
+                    HStack(alignment: .lastTextBaseline) {
+                        if hasDefaultActivities {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .foregroundColor(.yellow)
+                                
+                        }
+                    }
+                    
+                    
+                }
                 Text(student.nickname)
                     .fontWeight(.regular)
                     .font(.subheadline)
                     .foregroundColor(.labelPrimaryBlack)
+                
             }
         }
     }
 }
 
-#Preview {
-    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
-}
+//#Preview {
+//    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+//}

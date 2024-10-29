@@ -11,12 +11,20 @@ import Speech
 import DotLottie
 
 struct VoiceInputView: View {
-    @ObservedObject var viewModel: StudentTabViewModel
-    @StateObject private var sumaryTabViewModel = SummaryTabViewModel()
-    @ObservedObject var speechRecognizer = SpeechRecognizer()
-    @State private var isShowingPreview = false
     @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var viewModel: StudentTabViewModel
+    @ObservedObject var speechRecognizer = SpeechRecognizer()
+    
+    @StateObject private var sumaryTabViewModel = SummaryTabViewModel()
+    
+    @State private var isShowingPreview = false
+    
     @State private var reflection: String = ""
+    @State private var previousText: String = ""
+    @State private var editedText: String = ""
+    @State private var isFirstTranscript: Bool = true
+    
+    
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     
@@ -72,7 +80,7 @@ struct VoiceInputView: View {
                     }
                     
                     ZStack {
-                        TextEditor(text: $reflection)
+                        TextEditor(text: $editedText)
                             .foregroundStyle(.labelPrimaryBlack)
                             .padding()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -84,6 +92,12 @@ struct VoiceInputView: View {
                             .disabled(isLoading)
                             .opacity(isLoading ? 0.5 : 1)
                     }
+                    .onChange(of: editedText) { newValue in
+                                        // Update reflection ketika user mengedit teks
+                                        reflection = newValue
+                        speechRecognizer.previousTranscript = newValue
+                                    }
+
                     Spacer()
                     if !isRecording  {
                         TipsCard()
@@ -111,10 +125,10 @@ struct VoiceInputView: View {
                         
                         Button(action: {
                             if !isRecording {
-                                
+                                speechRecognizer.previousTranscript = editedText
                                 isRecording = true
                                 isPaused = false
-                                self.speechRecognizer.startTranscribing()
+                                speechRecognizer.startTranscribing()
                             } else {
                                 
                                 isPaused.toggle()
@@ -228,10 +242,16 @@ struct VoiceInputView: View {
                 }
         }
         .onReceive(speechRecognizer.$transcript) { newTranscript in
-            DispatchQueue.main.async {
-                self.reflection = newTranscript
+            if isRecording {
+                DispatchQueue.main.async{
+                    if let lastWord = newTranscript.components(separatedBy: " ").last {
+                        editedText = editedText + " " + lastWord
+                    }
+                    reflection = editedText
+                }
             }
         }
+        
         .onAppear {
             requestSpeechAuthorization()
             
@@ -246,45 +266,58 @@ struct VoiceInputView: View {
     private func processReflectionActivity() {
         Task {
             do {
-                // Loading state sudah diset sebelum fungsi ini dipanggil
+                isLoading = true
+                errorMessage = nil
+
                 await viewModel.fetchAllStudents()
-                
-                let csvString = try await ttProcessor.processReflection(
-                    reflection: reflection,
-                    students: viewModel.students
-                )
-                
-                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
-                    csvString: csvString,
-                    students: viewModel.students,
-                    createdAt: selectedDate
-                )
-                
-                await MainActor.run {
-                    DispatchQueue.main.async {
-                        // Update data
-                        viewModel.addUnsavedActivities(activityList)
-                        viewModel.addUnsavedNotes(noteList)
-                        
-                        // Hide loading
+                if viewModel.students.isEmpty {
+                                await MainActor.run {
+                                    isLoading = false
+                                    
+                                }
+                                return
+                }
+
+                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    await MainActor.run {
                         isLoading = false
                         
-                        // Dismiss view
-                        onDismiss()
                     }
+                    return
+                }
+                
+                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
+
+                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
+
+                await MainActor.run {
+                    isLoading = false
+
+                    viewModel.addUnsavedActivities(activityList)
+                    viewModel.addUnsavedNotes(noteList)
+                    viewModel.selectedDate = selectedDate
+                    onDismiss()
                 }
             } catch {
                 await MainActor.run {
-                    DispatchQueue.main.async {
-                        isLoading = false
-                        errorMessage = error.localizedDescription
-                        print("Error in processReflection: \(error)")
-                    }
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    print("Error in processReflection: \(error)")
                 }
             }
         }
+        
+        
     }
     
+    private func clearText() {
+        reflection = ""
+        previousText = ""
+        speechRecognizer.transcript = ""
+        isRecording = false
+        isPaused = false
+    }
+
     
     public func requestSpeechAuthorization() {
         SFSpeechRecognizer.requestAuthorization { authStatus in

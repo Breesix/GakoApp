@@ -65,22 +65,22 @@ extension MainTabView {
             Image(systemName: imageName)
                 .resizable()
                 .renderingMode(.template)
-                .foregroundColor(isActive ? .green : .gray)
+                .foregroundColor(isActive ? .accentColor : .gray)
                 .scaledToFit()
                 .frame(width: 30, height: 20)
             Text(title)
                 .font(.system(size: 10))
-                .foregroundColor(isActive ? .green : .gray)
+                .foregroundColor(isActive ? .accentColor : .gray)
             Spacer()
         }
         .padding(.bottom, 10)
         .background(
             Image(isActive ? imageBackground : negativeImage)
                 .resizable()
-                .scaledToFill()
-                .frame(width: 210, height: 100)
-                .clipped() // Tambahkan clipping
+                .scaledToFit()
+                .frame(width: 210)
                 .allowsHitTesting(false) // Mencegah interaksi dengan background
+                .padding(.bottom, 22)
         )
         .frame(width: UIScreen.main.bounds.width / 2, height: 99)
         .contentShape(Rectangle()) // Memastikan area tap mencakup seluruh item
