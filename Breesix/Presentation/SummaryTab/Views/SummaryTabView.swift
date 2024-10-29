@@ -35,7 +35,7 @@ struct SummaryTabView: View {
                        }
                    }
                    DailyDateSlider(selectedDate: $viewModel.selectedDate)
-                       .padding(16)
+                       .padding(.vertical, 12)
                    Group {
                        if studentsWithSummariesOnSelectedDate.isEmpty {
                            VStack {
