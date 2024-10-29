@@ -58,7 +58,7 @@ class SummaryLlamaService {
         Catatan:
         \(noteDescriptions.joined(separator: "\n"))
 
-        Tolong buatkan rangkuman yang singkat, padat, dan informatif. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat. Tidak perlu menyebutkan tanggal nya.
+        Tolong buatkan rangkuman yang singkat, padat, dan informatif. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat. Tidak perlu menyebutkan tanggal nya. jadikan deskriptif.
         """
         
         let requestBody: [String: Any] = [
