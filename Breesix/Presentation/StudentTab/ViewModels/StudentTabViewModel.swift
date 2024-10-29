@@ -18,7 +18,6 @@ class StudentTabViewModel: ObservableObject {
     private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
     private let summaryService: SummaryService
-    private let summaryLlamaService: SummaryLlamaService
     private let summaryUseCase: SummaryUseCase
 
     @Published var newStudentImage: UIImage? {
@@ -33,13 +32,12 @@ class StudentTabViewModel: ObservableObject {
     
     @Published private(set) var compressedImageData: Data?
     
-    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService, summaryLlamaService: SummaryLlamaService) {
+    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService) {
         self.studentUseCases = studentUseCases
         self.noteUseCases = noteUseCases
         self.activityUseCases = activityUseCases
         self.summaryUseCase = summaryUseCase
         self.summaryService = summaryService
-        self.summaryLlamaService = summaryLlamaService
     }
     
     @MainActor
@@ -256,12 +254,7 @@ class StudentTabViewModel: ObservableObject {
             print("Error updating activity: \(error)")
         }
     }
-    
     func generateAndSaveSummaries(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: students, on: date)
-    }
-    
-    func generateAndSaveSummariesLlama(for date: Date) async throws {
         try await summaryService.generateAndSaveSummaries(for: students, on: date)
     }
     

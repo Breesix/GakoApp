@@ -30,8 +30,18 @@ struct NoteSection: View {
                     }
                 }
             }
-//            .padding(.bottom, 12)
+            .padding(.bottom, 12)
             
+            Button(action: onAddNote) {
+                Label("Tambah", systemImage: "plus.app.fill")
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .font(.footnote)
+            .fontWeight(.regular)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .background(.buttonOncard)
+            .cornerRadius(8)
         }
     }
 }

@@ -17,19 +17,6 @@ struct StudentEditView: View {
     
     @State private var showAlert = false
     
-    @State private var isDuplicateNickname = false
-    
-    private func checkDuplicateNickname(_ nickname: String) -> Bool {
-        switch mode {
-        case .add:
-            return viewModel.students.contains { $0.nickname.lowercased() == nickname.lowercased() }
-        case .edit(let currentStudent):
-            return viewModel.students.contains { student in
-                student.nickname.lowercased() == nickname.lowercased() && student.id != currentStudent.id
-            }
-        }
-    }
-    
     enum Mode: Equatable {
         case add
         case edit(Student)
@@ -146,22 +133,13 @@ struct StudentEditView: View {
                                 .fontWeight(.regular)
                                 .padding(.horizontal, 11)
                                 .padding(.vertical, 9)
-                                .onChange(of: nickname) { newValue in
-                                    isDuplicateNickname = checkDuplicateNickname(newValue)
-                                }
                         }
                         .background(.cardFieldBG)
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(isDuplicateNickname ? Color.red : .monochrome50, lineWidth: isDuplicateNickname ? 1 : 0.5)
+                                .stroke(.monochrome50, lineWidth: 0.5)
                         )
-                        
-                        if isDuplicateNickname {
-                            Text("Nama panggilan sudah digunakan")
-                                .font(.caption)
-                                .foregroundColor(.red)
-                        }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -230,15 +208,6 @@ struct StudentEditView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Peringatan"),
-                message: Text(isDuplicateNickname ?
-                    "Nama panggilan sudah digunakan. Mohon gunakan nama panggilan lain." :
-                    "Pastikan nama lengkap dan nama panggilan sudah terisi"),
-                dismissButton: .default(Text("OK"))
-            )
-        }
     }
     
     private func saveStudent() {
@@ -247,12 +216,6 @@ struct StudentEditView: View {
                 showAlert = true
                 return
             }
-            
-            if isDuplicateNickname {
-                showAlert = true
-                return
-            }
-            
             switch mode {
             case .add:
                 let newStudent = Student(
@@ -271,4 +234,5 @@ struct StudentEditView: View {
             selectedImageData = nil
             presentationMode.wrappedValue.dismiss()
         }
-    }}
+    }
+}

@@ -18,67 +18,49 @@ struct DailyDateSlider: View {
     }
     
     var body: some View {
-        HStack (spacing: 17) {
+        HStack {
             Button {
                 selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
             } label: {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 22))
-                    .foregroundStyle(.buttonPrimaryOnBg)
+                    .font(.system(size: 20))
+                    .foregroundStyle(.green600)
             }
+            Spacer()
             Button {
                 tempDate = selectedDate
                 isShowingDatePicker = true
             } label: {
-                HStack (spacing: 12) {
+                HStack {
                     Image(systemName: "calendar")
                     Text(formatDate(selectedDate))
                 }
                 .font(.callout)
                 .fontWeight(.semibold)
-                .foregroundStyle(.buttonPrimaryOnBgLabel)
+                .foregroundStyle(.white)
                 .padding(.vertical, 6)
                 .frame(width: 289)
-                .background(.green300)
-                .cornerRadius(8)
+                .background(.green600)
+                .cornerRadius(32)
             }
+            Spacer()
             .sheet(isPresented: $isShowingDatePicker) {
-                NavigationView {
-                    DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
-                        .datePickerStyle(.graphical)
-                        .padding(.horizontal, 16)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Text("Pilih Tanggal")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .padding(.top, 14)
-                                    .padding(.horizontal, 12)
-                            }
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button {
-                                    isShowingDatePicker = false
-                                } label: {
-                                    Image(systemName: "xmark")
-                                }
-                                .padding(.top, 14)
-                                .padding(.horizontal, 12)
-                            }
-                        }
-                        .onChange(of: tempDate) { newDate in
-                            selectedDate = newDate
-                            isShowingDatePicker = false
-                        }
-                }
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
+                DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.visible)
+                    .onChange(of: tempDate) { newDate in
+                        selectedDate = newDate
+                        isShowingDatePicker = false
+                    }
             }
+            
             Button {
                 selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
             } label: {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 22))
-                    .foregroundStyle(.buttonPrimaryOnBg)
+                    .font(.system(size: 20))
+                    .foregroundStyle(.bgSecondary)
             }
         }
     }

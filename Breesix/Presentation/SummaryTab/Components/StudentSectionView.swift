@@ -24,7 +24,6 @@ struct StudentSectionView: View {
                     .padding(12)
                 
                 Divider()
-                    .frame(maxWidth: .infinity)
                 
                 VStack (alignment: .leading, spacing: 0) {
                     ActivitySectionPreview(
