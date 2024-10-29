@@ -87,7 +87,8 @@ enum ProcessingError: Error {
     case noStudentData
     case noContent
     case insufficientInformation
-    
+    case apiError
+
     var localizedDescription: String {
         switch self {
         case .noStudentData:
@@ -96,9 +97,12 @@ enum ProcessingError: Error {
             return "Tidak ada konten dalam respons."
         case .insufficientInformation:
             return "Refleksi tidak mengandung informasi yang cukup tentang aktivitas murid. Mohon berikan detail lebih spesifik."
+        case .apiError:
+            return "api error"
         }
     }
 }
+
 
 class CSVParser {
     static func parseUnsavedNotes(csvString: String, students: [Student], createdAt: Date) -> [UnsavedNote] {

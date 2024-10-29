@@ -50,8 +50,10 @@ struct VoiceInputView: View {
         self.onDismiss = onDismiss
     }
     
-    private let reflectionProcessor = OpenAIService(apiToken: "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")
-    
+    //    private let ttProcessor = OpenAIService(apiToken: "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")
+        
+        private let ttProcessor = LlamaService(apiKey: "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")
+
     var body: some View {
         ZStack{
             Color.clear
@@ -268,7 +270,6 @@ struct VoiceInputView: View {
                 errorMessage = nil
 
                 await viewModel.fetchAllStudents()
-
                 if viewModel.students.isEmpty {
                                 await MainActor.run {
                                     isLoading = false
@@ -285,7 +286,7 @@ struct VoiceInputView: View {
                     return
                 }
                 
-                let csvString = try await reflectionProcessor.processReflection(reflection: reflection, students: viewModel.students)
+                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
 
                 let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
 
