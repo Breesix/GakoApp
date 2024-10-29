@@ -249,7 +249,7 @@ struct VoiceInputView: View {
                 // Loading state sudah diset sebelum fungsi ini dipanggil
                 await viewModel.fetchAllStudents()
                 
-                let csvString = try await reflectionProcessor.processReflection(
+                let csvString = try await ttProcessor.processReflection(
                     reflection: reflection,
                     students: viewModel.students
                 )

@@ -26,107 +26,106 @@ class LlamaService {
         let botPrompt = """
         Saya ingin Anda membantu saya menghasilkan format CSV berdasarkan curhatan harian seorang guru mengenai aktivitas siswa di sekolah. Berikut adalah panduan yang harus Anda ikuti:
 
-                1. Bacalah curhatan dengan seksama dan identifikasi semua siswa yang disebutkan dalam curhatan, baik dengan nama lengkap maupun nama panggilan.
-                2. Ekstrak semua aktivitas yang tercantum dalam curhatan untuk setiap siswa.
+        1. Bacalah curhatan dengan seksama dan identifikasi semua siswa yang disebutkan dalam curhatan, baik dengan nama lengkap maupun nama panggilan.
+        2. Ekstrak semua aktivitas yang tercantum dalam curhatan untuk setiap siswa.
         3.  tolong bedakan menjadi 2 tipe aktivitas: aktivitas tipe A, yaitu aktivitas-aktivitas yang umumnya menjadi sebuah materi aktivitas pembelajaran harian di sebuah sekolah SLB untuk anak-anak autisme (kegiatan-kegiatan seputar latihan motorik, wicara, rohani, dsb); aktivitas tipe  B, yaitu observasi perilaku non-pelajaran atau perilaku tak terduga, yaitu  terkait hal-hal yang diluar pembelajaran formal, misalnya hal-hal interpersonal, intrapersonal, sosial, sikap dengan teman sekelas dan sebagainya (mis: dia berantem, dia tantrum, dia jatuh, dsb).
-                4. Tentukan untuk setiap aktivitas yang termasuk ke tipe aktivitas A, apakah siswa melakukannya secara "mandiri" atau "dibimbing”. Jika Mandiri = True, Jika Dibimbing = False.
-                Jika ada indikasi pengecualian, maka bukan berarti murid tersebut tidak melakukan aktivitas tersebut. Misal “Semua anak Bermain Balok dengan hebat kecuali Rangga“ atau “Semua anak kecuali Rangga Bermain Balok dengan hebat” maka dalam kasus ini status kemandirian Rangga adalah “Bermain Balok (false)”
-                5. Jika suatu aktivitas yang termasuk ke tipe aktivitas A tidak disebutkan untuk siswa tertentu, isikan status kemandirian aktivitas tersebut dengan "null".
-                6. Tambahkan kolom "Curhatan" yang menggambarkan kesan atau komentar guru tentang masing-masing siswa terkait kegiatan yang dilakukan, baik aktivitas tipe A maupun tipe B.
-                7. Pastikan hanya mencantumkan aktivitas yang disebutkan dalam curhatan tanpa menambahkan aktivitas lain.
-                8. Format output harus dalam bentuk CSV dengan kolom sesuai dengan Input User:
-                - Nama Lengkap
-                - Nama Panggilan
-                - Aktivitas  (status kemandirian)
-                - Curhatan
+        4. Tentukan untuk setiap aktivitas yang termasuk ke tipe aktivitas A, apakah siswa melakukannya secara "mandiri" atau "dibimbing”. Jika Mandiri = True, Jika Dibimbing = False.
+        Jika ada indikasi pengecualian, maka bukan berarti murid tersebut tidak melakukan aktivitas tersebut. Misal “Semua anak Bermain Balok dengan hebat kecuali Rangga“ atau “Semua anak kecuali Rangga Bermain Balok dengan hebat” maka dalam kasus ini status kemandirian Rangga adalah “Bermain Balok (false)”
+        5. Jika suatu aktivitas yang termasuk ke tipe aktivitas A tidak disebutkan untuk siswa tertentu, isikan status kemandirian aktivitas tersebut dengan "null".
+        6. Tambahkan kolom "Curhatan" yang menggambarkan kesan atau komentar guru tentang masing-masing siswa terkait kegiatan yang dilakukan, baik aktivitas tipe A maupun tipe B.
+        7. Pastikan hanya mencantumkan aktivitas yang disebutkan dalam curhatan tanpa menambahkan aktivitas lain.
+        8. Format output harus dalam bentuk CSV dengan kolom sesuai dengan Input User:
+        - Nama Lengkap
+        - Nama Panggilan
+        - Aktivitas  (status kemandirian)
+        - Curhatan
         9. yang dimasukkan ke kolom Aktivitas (status kemandirian) hanyalah aktivitas tipe A saja
         10. yang dimasukkan ke kolom curhattan adalah sesuai instruksi nomor 6.
-                11. Output yang anda berikan berupa CSV saja, tidak perlu penjelasan atau catatan tambahan terkait hasil yang anda berikan.
+        11. Output yang anda berikan berupa CSV saja, tidak perlu penjelasan atau catatan tambahan terkait hasil yang anda berikan.
 
-                Contoh Versi 1:
+        Contoh Versi 1:
 
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “Semua anak upacara dengan disiplin, lalu mereka memotong kuku sendiri kecuali JokSa yang harus digunting kukunya oleh gurunya."
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “Semua anak upacara dengan disiplin, lalu mereka memotong kuku sendiri kecuali JokSa yang harus digunting kukunya oleh gurunya."
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)|Memotong kuku (true)", "Rangga menunjukkan kedisiplinan dalam upacara."
-                Joko Sambodo,JokSa,"Upacara (true)|Memotong kuku (false)", "JokSa perlu banyak latih diri agar bisa mandiri."
-                Samuel Suharto,Samuel,”Upacara (true)|Memotong kuku (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
-                ```
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)|Memotong kuku (true)", "Rangga menunjukkan kedisiplinan dalam upacara."
+        Joko Sambodo,JokSa,"Upacara (true)|Memotong kuku (false)", "JokSa perlu banyak latih diri agar bisa mandiri."
+        Samuel Suharto,Samuel,”Upacara (true)|Memotong kuku (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
+        ```
 
-                Contoh versi 2:
+        Contoh versi 2:
 
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “Semua anak kecuali JokSa upacara dengan disiplin."
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “Semua anak kecuali JokSa upacara dengan disiplin."
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara."
-                Joko Sambodo,JokSa,"Upacara (false)”, "JokSa perlu banyak latih diri agar bisa disiplin.”
-                Samuel Suharto,Samuel,”Upacara (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
-                ```
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara."
+        Joko Sambodo,JokSa,"Upacara (false)”, "JokSa perlu banyak latih diri agar bisa disiplin.”
+        Samuel Suharto,Samuel,”Upacara (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
+        ```
 
 
-                Contoh versi 3:
+        Contoh versi 3:
 
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “Rangga Upacara dengan baik. Semua anak bernyanyi dengan sangat baik dan merdu”
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “Rangga Upacara dengan baik. Semua anak bernyanyi dengan sangat baik dan merdu”
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (true)”, "Rangga menunjukkan kedisiplinan dalam upacara dan menyanyi sangat merdu.”
-                Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (true)”, "Joko menyanyi sangat merdu."
-                Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (true)”, “Samuel Menyanyi Sangat Merdu.”
-                ```
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (true)”, "Rangga menunjukkan kedisiplinan dalam upacara dan menyanyi sangat merdu.”
+        Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (true)”, "Joko menyanyi sangat merdu."
+        Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (true)”, “Samuel Menyanyi Sangat Merdu.”
+        ```
 
-                Contoh Versi 4:
+        Contoh Versi 4:
 
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “Rangga Upacara dengan baik dan Samuel bernyanyi dengan butuh bimbingan”
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “Rangga Upacara dengan baik dan Samuel bernyanyi dengan butuh bimbingan”
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
-                Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (null)”, "Tidak ada informasi satupun."
-                Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (false)”, “Tidak ada informasi satupun.”
-                ```
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
+        Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (null)”, "Tidak ada informasi satupun."
+        Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (false)”, “Tidak ada informasi satupun.”
+        ```
 
-                Contoh Versi 5:
+        Contoh Versi 5:
 
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “Rangga Upacara dengan baik”
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “Rangga Upacara dengan baik”
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
-                Joko Sambodo,JokSa,"Upacara (null)”, "Tidak ada informasi satupun."
-                Samuel Suharto,Samuel,”Upacara (null)”, “Tidak ada informasi satupun.”
-                ```
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas pembelajaran (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
+        Joko Sambodo,JokSa,"Upacara (null)”, "Tidak ada informasi satupun."
+        Samuel Suharto,Samuel,”Upacara (null)”, “Tidak ada informasi satupun.”
+        ```
 
-                Contoh Versi 6:
-                **Contoh Input:**
-                Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-                curhatan Guru: “woy gw mau curhat huhuhu semua anak kecuali Joko upacara dengan sangat hebatttt. Adapun Samuel tadi senamnya memerlukan bantuan untuk gerakan khusus seperti tepuk tangan dalam senam”
+        Contoh Versi 6:
+        **Contoh Input:**
+        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
+        curhatan Guru: “woy gw mau curhat huhuhu semua anak kecuali Joko upacara dengan sangat hebatttt. Adapun Samuel tadi senamnya memerlukan bantuan untuk gerakan khusus seperti tepuk tangan dalam senam”
 
-                **Contoh Output:**
-                ```csv
-                Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-                Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
-                Joko Sambodo,JokSa,"Upacara (false)|Senam (null)”, “Joko membutuhkan bimbingan dalam upacara.”
-                Samuel Suharto,Samuel,”Upacara (true)|Senam (false)”, “Samuel Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam.”
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+        Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
+        Joko Sambodo,JokSa,"Upacara (false)|Senam (null)”, “Joko membutuhkan bimbingan dalam upacara.”
+        Samuel Suharto,Samuel,”Upacara (true)|Senam (false)”, “Samuel Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam.”
 
-        Hasilkan CSV Output only sesuai dengan instruksi yang telah diberikan
         """
 
         let userInput = """
@@ -136,6 +135,8 @@ class LlamaService {
         Data Murid: \(studentInfo)
 
         Curhatan Guru: \(reflection)
+        
+        Hasilkan CSV Output only sesuai dengan instruksi yang telah diberikan
         """
 
         let fullPrompt = botPrompt + "\n\n" + userInput
