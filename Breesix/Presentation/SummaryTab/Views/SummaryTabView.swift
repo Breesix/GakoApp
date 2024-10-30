@@ -212,7 +212,7 @@ struct SummaryTabView: View {
                 } else {
                     Text("Tidak ada aktivitas terbaru")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.labelPrimaryBlack)
                 }
             }
             .background(Color.blue)
