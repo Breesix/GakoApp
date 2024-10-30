@@ -270,9 +270,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Gako;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi memerlukan izin akses kamera untuk keperluan pengambilan foto profil murid. Foto ini berfungsi sebagai identitas visual dalam sistem database murid dan memudahkan proses identifikasi. Kami menjamin privasi dan keamanan data foto yang diambil.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Untuk menggunakan fitur input suara, aplikasi memerlukan izin akses mikrofon. Dengan fitur ini, Anda dapat mendikte teks secara langsung tanpa perlu mengetik. Kami menjamin privasi dan keamanan data suara Anda.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Untuk memudahkan Anda membuat catatan curhat, aplikasi memerlukan izin akses fitur pengenalan suara. Fitur ini akan mengubah suara Anda menjadi teks secara otomatis. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -306,9 +306,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Gako;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi ini membutuhkan akses kamera";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Aplikasi ini memerlukan akses ke mikrofon untuk melakukan konversi teks menjadi suara secara langsung.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Aplikasi ini memerlukan akses ke fitur pengenalan suara. Kami berkomitmen untuk menjaga privasi dan keamanan data Anda.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi memerlukan izin akses kamera untuk keperluan pengambilan foto profil murid. Foto ini berfungsi sebagai identitas visual dalam sistem database murid dan memudahkan proses identifikasi. Kami menjamin privasi dan keamanan data foto yang diambil.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Untuk menggunakan fitur input suara, aplikasi memerlukan izin akses mikrofon. Dengan fitur ini, Anda dapat mendikte teks secara langsung tanpa perlu mengetik. Kami menjamin privasi dan keamanan data suara Anda.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Untuk memudahkan Anda membuat catatan curhat, aplikasi memerlukan izin akses fitur pengenalan suara. Fitur ini akan mengubah suara Anda menjadi teks secara otomatis. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
