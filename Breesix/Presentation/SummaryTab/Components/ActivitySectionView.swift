@@ -34,10 +34,8 @@ struct ActivitySectionPreview: View {
                     .padding(.bottom, 12)
                 }
             } else {
-                Text("No activities for this student.")
-                    .italic()
-                    .foregroundColor(.gray)
-                    .padding(.bottom, 8)
+                Text("Tidak ada aktivitas untuk tanggal ini")
+                    .foregroundColor(.labelSecondary)
             }
             
             // Button tambah selalu muncul

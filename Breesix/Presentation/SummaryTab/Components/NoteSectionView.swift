@@ -42,9 +42,8 @@ struct NoteSectionPreview: View {
                 }
             }
         } else {
-            Text("No notes for this student.")
-                .italic()
-                .foregroundColor(.gray)
+            Text("Tidak ada aktivitas untuk tanggal ini")
+                .foregroundColor(.labelSecondary)
         }
         
         AddButton {
