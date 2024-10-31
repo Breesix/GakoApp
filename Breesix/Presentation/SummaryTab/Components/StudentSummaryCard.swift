@@ -18,8 +18,8 @@ struct StudentSummaryCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack (spacing: 10) {
                 if let imageData = student.imageData {
                     Image(uiImage: UIImage(data: imageData)!)
                         .resizable()
@@ -30,13 +30,8 @@ struct StudentSummaryCard: View {
                     Image(systemName: "person.circle.fill")
                         .resizable()
                         .frame(width: 50, height: 50)
-                        .foregroundColor(.white)
-                        .background(.green600)
+                        .foregroundColor(Color.bgSecondary)
                         .clipShape(Circle())
-                        .overlay {
-                            Circle()
-                                .stroke(.green600, lineWidth: 1)
-                        }
                 }
                 Text(student.fullname)
                 Spacer()
@@ -50,6 +45,7 @@ struct StudentSummaryCard: View {
             if dailySummaries.isEmpty {
                 Text("Tidak ada rangkuman pada hari ini")
                     .font(.footnote)
+                    .fontWeight(.regular)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)

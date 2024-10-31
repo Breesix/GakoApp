@@ -54,7 +54,7 @@ struct ActivityCardView: View {
                 
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.labelSecondary)
             }
             
             Button(action: onAddActivity) {
@@ -83,7 +83,7 @@ struct ActivityCardView: View {
                 )
             } else {
                 Text("Tidak ada notes untuk tanggal ini")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.labelSecondary)
             }
             Button(action: onAddNote) {
                 Label("Tambah", systemImage: "plus.app.fill")
@@ -119,7 +119,7 @@ struct ActivitySection: View {
         VStack(alignment: .leading, spacing: 12) {
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.labelSecondary)
             } else {
                 ForEach(activities, id: \.id) { activity in
                     ActivityRow(

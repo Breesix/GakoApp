@@ -262,7 +262,7 @@ class StudentTabViewModel: ObservableObject {
     }
     
     func generateAndSaveSummariesLlama(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: students, on: date)
+        try await summaryLlamaService.generateAndSaveSummaries(for: students, on: date)
     }
     
     func updateActivityStatus(_ activity: Activity, isIndependent: Bool?) async {
