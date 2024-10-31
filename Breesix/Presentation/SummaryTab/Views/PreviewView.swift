@@ -245,19 +245,36 @@ struct PreviewView: View {
         // Create Task for async operations
         Task {
             do {
-                // Save activities and notes
+                // Save activities and notes first
                 await viewModel.saveUnsavedActivities()
                 await viewModel.saveUnsavedNotes()
                 
-                // Generate summaries
-                let summaries = try await summaryProcessor.processSummaries(
-                    for: viewModel.students,
-                    on: selectedDate
-                )
+                // Process summaries for each student individually
+                var allSummaries: [Summary] = []
                 
-                // Add summaries to viewModel
+                for student in viewModel.students {
+                    do {
+                        let summaryContent = try await summaryProcessor.processSummary(
+                            student: student,
+                            date: selectedDate
+                        )
+                        
+                        let summary = SummaryParser.parseSummary(
+                            summaryString: summaryContent,
+                            student: student,
+                            createdAt: selectedDate
+                        )
+                        
+                        allSummaries.append(summary)
+                    } catch {
+                        print("Error processing summary for student \(student.fullname): \(error)")
+                        continue
+                    }
+                }
+                
+                // Add all processed summaries to viewModel
                 await MainActor.run {
-                    viewModel.addSummaries(summaries)
+                    viewModel.addSummaries(allSummaries)
                     
                     // Complete the saving process
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -267,13 +284,13 @@ struct PreviewView: View {
                         self.isShowingPreview = false
                     }
                 }
+                
             } catch {
                 // Handle errors
                 await MainActor.run {
                     self.isSaving = false
                     self.progressTimer?.invalidate()
                     self.progressTimer = nil
-                    // You might want to show an error alert here
                     print("Error processing summaries: \(error)")
                 }
             }

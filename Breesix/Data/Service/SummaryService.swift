@@ -16,25 +16,13 @@ class SummaryService {
         self.openAI = OpenAI(apiToken: apiToken)
     }
     
-    func processSummaries(for students: [Student], on date: Date) async throws -> [Summary] {
-        var summaries: [Summary] = []
-        
-        for student in students {
-            let summaryContent = try await processSummary(student: student, date: date)
-            let summary = SummaryParser.parseSummary(
-                summaryString: summaryContent,
-                student: student,
-                createdAt: date
-            )
-            summaries.append(summary)
-        }
-        
-        return summaries
-    }
-    
-    private func processSummary(student: Student, date: Date) async throws -> String {
+    func processSummary(student: Student, date: Date) async throws -> String {
         let activities = student.activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
         let notes = student.notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
+        
+        if activities.isEmpty && notes.isEmpty {
+            throw ProcessingError.insufficientInformation
+        }
         
         let activityDescriptions = activities.map { "\($0.activity) (Mandiri: \($0.isIndependent ?? false))" }
         let noteDescriptions = notes.map { $0.note }
@@ -67,15 +55,11 @@ class SummaryService {
         
         let result = try await openAI.chats(query: query)
         
-        guard let summaryContent = result.choices.first?.message.content?.string else {
+        guard let summaryString = result.choices.first?.message.content?.string else {
             throw ProcessingError.noContent
         }
         
-        if activities.isEmpty && notes.isEmpty {
-            throw ProcessingError.insufficientInformation
-        }
-        
-        return summaryContent
+        return summaryString
     }
 }
 
@@ -86,15 +70,5 @@ class SummaryParser {
             createdAt: createdAt,
             student: student
         )
-    }
-    
-    static func parseSummaries(summaryStrings: [(Student, String)], createdAt: Date) -> [Summary] {
-        return summaryStrings.map { student, summaryString in
-            Summary(
-                summary: summaryString,
-                createdAt: createdAt,
-                student: student
-            )
-        }
     }
 }
