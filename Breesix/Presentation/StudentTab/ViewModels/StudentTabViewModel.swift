@@ -210,7 +210,7 @@ class StudentTabViewModel: ObservableObject {
     func saveUnsavedActivities() async {
         for unsavedActivity in unsavedActivities {
             if let student = students.first(where: { $0.id == unsavedActivity.studentId }) {
-                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? false, student: student)
+                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? nil, student: student)
                 await addActivity(activity, for: student)
             }
         }
@@ -265,9 +265,9 @@ class StudentTabViewModel: ObservableObject {
         try await summaryLlamaService.generateAndSaveSummaries(for: students, on: date)
     }
     
-    func updateActivityStatus(_ activity: Activity, isIndependent: Bool) async {
+    func updateActivityStatus(_ activity: Activity, isIndependent: Bool?) async {
         do {
-            // Buat activity baru dengan status yang diperbarui
+           
             let updatedActivity = Activity(
                 id: activity.id,
                 activity: activity.activity,
@@ -275,11 +275,9 @@ class StudentTabViewModel: ObservableObject {
                 isIndependent: isIndependent,
                 student: activity.student!
             )
-            
-            // Update activity menggunakan use case yang ada
+    
             try await activityUseCases.updateActivity(updatedActivity)
             
-            // Refresh data
             if let student = activity.student {
                 _ = await fetchActivities(student)
             }

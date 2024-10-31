@@ -131,11 +131,13 @@ struct VoiceInputView: View {
                                 speechRecognizer.startTranscribing()
                             } else {
                                 
-                                isPaused.toggle()
-                                if isPaused {
-                                    self.speechRecognizer.pauseTranscribing()
-                                } else {
-                                    self.speechRecognizer.resumeTranscribing()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isPaused.toggle()
+                                    if isPaused {
+                                        speechRecognizer.pauseTranscribing()
+                                    } else {
+                                        speechRecognizer.resumeTranscribing()
+                                    }
                                 }
                             }
                         }) {

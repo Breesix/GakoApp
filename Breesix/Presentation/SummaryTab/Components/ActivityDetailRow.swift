@@ -14,7 +14,6 @@ struct ActivityDetailRow: View {
     let onDelete: () -> Void
     
     @State private var showDeleteAlert = false
-
     @State private var selectedStatus: Bool?
     
     var body: some View {
@@ -25,7 +24,7 @@ struct ActivityDetailRow: View {
                 .foregroundStyle(.labelPrimaryBlack)
                 .padding(.bottom, 12)
             
-            HStack (spacing: 8) {
+            HStack(spacing: 8) {
                 Menu {
                     Button("Mandiri") {
                         activity.isIndependent = true
@@ -33,7 +32,11 @@ struct ActivityDetailRow: View {
                     }
                     Button("Dibimbing") {
                         activity.isIndependent = false
-                        selectedStatus = false 
+                        selectedStatus = false
+                    }
+                    Button("Tidak Melakukan") {
+                        activity.isIndependent = nil
+                        selectedStatus = nil
                     }
                 } label: {
                     HStack {
@@ -74,7 +77,6 @@ struct ActivityDetailRow: View {
                     Button("Hapus", role: .destructive) {
                         viewModel.deleteUnsavedActivity(activity)
                         onDelete()
-                        
                     }
                     Button("Batal", role: .cancel) { }
                 } message: {
@@ -88,10 +90,16 @@ struct ActivityDetailRow: View {
     }
     
     private func getStatusText() -> String {
-        if let isIndependent = activity.isIndependent {
-            return isIndependent ? "Mandiri" : "Dibimbing"
+        switch activity.isIndependent {
+        case true:
+            return "Mandiri"
+        case false:
+            return "Dibimbing"
+        case nil:
+            return "Tidak Melakukan"
+        default:
+            return "status"
         }
-        return "Status"
     }
 }
 

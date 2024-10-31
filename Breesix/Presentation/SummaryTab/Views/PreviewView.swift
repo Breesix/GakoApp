@@ -24,8 +24,9 @@ struct PreviewView: View {
     @State private var tempDate: Date
     @State private var isShowingDatePicker = false
     @State private var isShowingEditSheet = false
+    @State private var showingSaveAlert = false
     @State private var activities: [Activity] = []
-    @State private var progress: Float = 0.0
+    @State private var progress: Double = 0.0
     @State private var progressTimer: Timer?
     
     
@@ -46,7 +47,7 @@ struct PreviewView: View {
     var body: some View {
         ZStack {
             if !isSaving {
-                // Main Content
+               
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(sortedStudents) { student in
@@ -59,13 +60,17 @@ struct PreviewView: View {
                                 isAddingNewNote: $isAddingNewNote,
                                 onDeleteActivity: { activity in
                                     viewModel.deleteUnsavedActivity(activity)
-                                }, hasDefaultActivities: hasAllDefaultActivities(for: student)
+                                }, hasDefaultActivities: hasAnyDefaultActivity(for: student)
                             )
                             .padding(.bottom, 12)
                         }
                         
                         Button {
-                            saveActivities()
+                            if hasStudentsWithNilActivities() {
+                                showingSaveAlert = true
+                            } else {
+                                saveActivities()
+                            }
                         } label: {
                             Text("Simpan")
                                 .font(.body)
@@ -102,41 +107,9 @@ struct PreviewView: View {
             }
             
             
-            // Loading Overlay
+           
             if isSaving {
-                ZStack {
-                    Color.white
-                        .opacity(0.9)
-                        .ignoresSafeArea()
-                    
-                    VStack(spacing: 20) {
-                        Image("Expressions")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 200, height: 200)
-                        
-                        Text("Menyimpan Dokumentasi...")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.labelPrimaryBlack)
-                        
-                        ProgressView(value: progress,total: 1.0)
-                            .progressViewStyle(LinearProgressViewStyle())
-                            .frame(width: 200)
-                            .tint(Color(.orangeClickAble))
-                        
-                        Text("Mohon tunggu sebentar")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(radius: 10)
-                    )
-                    .padding(.horizontal, 40)
-                }
+                LoadingView(progress: progress)
             }
         }
         
@@ -178,6 +151,16 @@ struct PreviewView: View {
                 Text("No student selected. Please try again.")
             }
         }
+        .alert(isPresented: $showingSaveAlert) {
+            Alert(
+                title: Text("Konfirmasi"),
+                message: Text("Masih ada murid yang aktivitasnya masih \"Tidak Melakukan\". Apa mau disimpan?"),
+                primaryButton: .default(Text("Lanjut")) {
+                    saveActivities()
+                },
+                secondaryButton: .cancel(Text("Batalkan"))
+            )
+        }
         .onDisappear {
             progressTimer?.invalidate()
             progressTimer = nil
@@ -186,24 +169,29 @@ struct PreviewView: View {
     
     private var sortedStudents: [Student] {
         viewModel.students.sorted { student1, student2 in
-            let hasDefaultActivities1 = hasAllDefaultActivities(for: student1)
-            let hasDefaultActivities2 = hasAllDefaultActivities(for: student2)
+            let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
+            let hasDefaultActivity2 = hasAnyDefaultActivity(for: student2)
             
-            if hasDefaultActivities1 != hasDefaultActivities2 {
-                return hasDefaultActivities1 // Yang memiliki semua aktivitas default di atas
+            if hasDefaultActivity1 != hasDefaultActivity2 {
+                return hasDefaultActivity1 // Yang memiliki aktivitas default akan berada di atas
             }
             return student1.fullname < student2.fullname // Urutkan berdasarkan nama jika status sama
         }
     }
-
-    private func hasAllDefaultActivities(for student: Student) -> Bool {
-        let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
-        // Jika tidak ada aktivitas sama sekali, return true
-        if studentActivities.isEmpty {
-            return true
+    
+    private func hasStudentsWithNilActivities() -> Bool {
+        for student in viewModel.students {
+            let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+            if studentActivities.contains(where: { $0.isIndependent == nil }) {
+                return true
+            }
         }
-        // Cek apakah semua aktivitas memiliki status default/null
-        return studentActivities.allSatisfy { activity in
+        return false
+    }
+
+    private func hasAnyDefaultActivity(for student: Student) -> Bool {
+        let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+        return studentActivities.contains { activity in
             activity.isIndependent == nil
         }
     }
@@ -228,25 +216,31 @@ struct PreviewView: View {
         progress = 0.0
         
         let duration = Double.random(in: 2...4)
-        let stepTime = 0.1 // Update setiap 50ms
+        let stepTime = 0.1
         let stepValue = stepTime / duration
         
-        // Start progress timer
         progressTimer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { timer in
             withAnimation {
                 if progress < 1.0 {
-                    progress = min(progress + Float(stepValue), 1.0)
+                    progress = min(progress + Double(stepValue), 1.0)  // Pastikan menggunakan Double
                 }
             }
         }
         
         Task {
             do {
+                // Make sure the isIndependent status is properly saved
+                for activity in viewModel.unsavedActivities {
+                    if activity.isIndependent == nil {
+                        // Explicitly set to nil for "Tidak Melakukan"
+                        activity.isIndependent = nil
+                    }
+                }
+                
                 try await viewModel.saveUnsavedActivities()
                 try await viewModel.saveUnsavedNotes()
                 try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
                 
-                // Tunggu hingga minimal duration tercapai
                 try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
                 
                 await MainActor.run {
@@ -254,7 +248,6 @@ struct PreviewView: View {
                     progressTimer?.invalidate()
                     progressTimer = nil
                     
-                   
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         isSaving = false
                         isShowingPreview = false

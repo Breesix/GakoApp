@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-
-
-
-
 struct ActivityCardView: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let activities: [Activity]
@@ -100,13 +96,16 @@ struct ActivityCardView: View {
             .background(.buttonOncard)
             .cornerRadius(8)
         }
+        
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
         
+        
     }
+
 }
 
 
@@ -114,7 +113,7 @@ struct ActivitySection: View {
     let activities: [Activity]
     let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
-    let onStatusChanged: (Activity, Bool) -> Void
+    let onStatusChanged: (Activity, Bool?) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -127,9 +126,7 @@ struct ActivitySection: View {
                         activity: activity,
                         onEdit: { _ in onEditActivity(activity) },
                         onDelete: { _ in onDeleteActivity(activity) },
-                        onStatusChanged: { newStatus  in
-                            onStatusChanged(activity, newStatus)
-                        }
+                        onStatusChanged: onStatusChanged
                         )
                 }
             }
@@ -142,19 +139,19 @@ struct ActivityRow: View {
     let activity: Activity
     let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
-    let onStatusChanged: (Bool) -> Void
+    let onStatusChanged: (Activity, Bool?) -> Void
     @State private var showDeleteAlert = false
-    @State private var isIndependent: Bool
+    @State private var isIndependent: Bool?
     
     init(activity: Activity,
          onEdit: @escaping (Activity) -> Void,
          onDelete: @escaping (Activity) -> Void,
-         onStatusChanged: @escaping (Bool) -> Void) {
+         onStatusChanged: @escaping (Activity, Bool?) -> Void) {
         self.activity = activity
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onStatusChanged = onStatusChanged
-        _isIndependent = State(initialValue: activity.isIndependent ?? false)
+        _isIndependent = State(initialValue: activity.isIndependent)
     }
     
     var body: some View {
@@ -165,62 +162,75 @@ struct ActivityRow: View {
                 .foregroundStyle(.labelPrimaryBlack)
                 .padding(.bottom, 12)
             
-            if activity.isIndependent != nil {
-                HStack(spacing: 8) {
-                    Menu {
-                        Button("Mandiri") {
-                            isIndependent = true
-                            onStatusChanged(true)
-                        }
-                        Button("Dibimbing") {
-                            isIndependent = false
-                            onStatusChanged(false)
-                        }
-                    } label: {
-                        HStack {
-                            Text(getStatusText())
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.up.chevron.down")
-                        }
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundColor(.labelPrimaryBlack)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 11)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.cardFieldBG)
-                        .cornerRadius(8)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(.statusStroke, lineWidth: 2)
-                        }
+            HStack(spacing: 8) {
+                Menu {
+                    Button("Mandiri") {
+                        isIndependent = true
+                        onStatusChanged(activity, true)
                     }
-                    
-                    
-                    Button(action: { showDeleteAlert = true }) {
-                        Image("custom.trash.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 34)
+                    Button("Dibimbing") {
+                        isIndependent = false
+                        onStatusChanged(activity, false)
                     }
-                    .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-                        Button("Hapus", role: .destructive) {
-                            onDelete(activity)
-                        }
-                        Button("Batal", role: .cancel) { }
-                    } message: {
-                        Text("Apakah kamu yakin ingin menghapus aktivitas ini?")
+                    Button("Tidak Melakukan") {
+                        isIndependent = nil
+                        onStatusChanged(activity, nil)
                     }
+                } label: {
+                    HStack {
+                        Text(getStatusText())
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.up.chevron.down")
+                    }
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .foregroundColor(.labelPrimaryBlack)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 11)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.cardFieldBG)
+                    .cornerRadius(8)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.statusStroke, lineWidth: 2)
+                    }
+                }
+                
+                Button(action: { showDeleteAlert = true }) {
+                    Image("custom.trash.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 34)
+                }
+                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+                    Button("Hapus", role: .destructive) {
+                        onDelete(activity)
+                    }
+                    Button("Batal", role: .cancel) { }
+                } message: {
+                    Text("Apakah kamu yakin ingin menghapus aktivitas ini?")
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear {
+            isIndependent = activity.isIndependent
+        }
     }
     
     private func getStatusText() -> String {
-        return isIndependent ? "Mandiri" : "Dibimbing"
+        switch isIndependent {
+        case true:
+            return "Mandiri"
+        case false:
+            return "Dibimbing"
+        case nil:
+            return "Tidak Melakukan"
+        @unknown default:
+            return "status"
+        }
     }
 }
 
@@ -278,4 +288,5 @@ struct NoteDetailRow: View {
         }
     }
 }
+
 
