@@ -16,7 +16,7 @@ class Summary {
     var createdAt: Date
     weak var student: Student?
 
-    init(id: UUID = UUID(), summary: String, createdAt: Date, student: Student) {
+    init(id: UUID = UUID(), summary: String, createdAt: Date = Date(), student: Student) {
         self.id = id
         self.summary = summary
         self.createdAt = createdAt

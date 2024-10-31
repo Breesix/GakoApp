@@ -13,6 +13,7 @@ class StudentTabViewModel: ObservableObject {
     @Published var students: [Student] = []
     @Published var unsavedNotes: [UnsavedNote] = []
     @Published var unsavedActivities: [UnsavedActivity] = []
+    @Published var summariesModel: [Summary] = []
     @Published var selectedDate: Date = Date()
     private let studentUseCases: StudentUseCase
     private let noteUseCases: NoteUseCase
@@ -161,6 +162,10 @@ class StudentTabViewModel: ObservableObject {
         unsavedNotes.append(contentsOf: notes)
     }
     
+    func addSummaries(_ summaries: [Summary]) {
+        summariesModel.append(contentsOf: summaries)
+    }
+    
     func clearUnsavedNotes() {
         unsavedNotes.removeAll()
     }
@@ -257,9 +262,9 @@ class StudentTabViewModel: ObservableObject {
         }
     }
     
-    func generateAndSaveSummaries(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: students, on: date)
-    }
+//    func generateAndSaveSummaries(for date: Date) async throws {
+//        try await summaryService.generateAndSaveSummaries(for: students, on: date)
+//    }
     
     func generateAndSaveSummariesLlama(for date: Date) async throws {
         try await summaryLlamaService.generateAndSaveSummaries(for: students, on: date)

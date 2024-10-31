@@ -42,6 +42,8 @@ struct PreviewView: View {
         self._isShowingActivity = isShowingActivity
     }
     
+    private let summaryProcessor = SummaryService(apiToken: "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")
+
     
     var body: some View {
         ZStack {
@@ -228,7 +230,7 @@ struct PreviewView: View {
         progress = 0.0
         
         let duration = Double.random(in: 2...4)
-        let stepTime = 0.1 // Update setiap 50ms
+        let stepTime = 0.1
         let stepValue = stepTime / duration
         
         // Start progress timer
@@ -240,33 +242,39 @@ struct PreviewView: View {
             }
         }
         
+        // Create Task for async operations
         Task {
             do {
-                try await viewModel.saveUnsavedActivities()
-                try await viewModel.saveUnsavedNotes()
-                try await viewModel.generateAndSaveSummariesLlama(for: viewModel.selectedDate)
+                // Save activities and notes
+                await viewModel.saveUnsavedActivities()
+                await viewModel.saveUnsavedNotes()
                 
-                // Tunggu hingga minimal duration tercapai
-                try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+                // Generate summaries
+                let summaries = try await summaryProcessor.processSummaries(
+                    for: viewModel.students,
+                    on: selectedDate
+                )
                 
+                // Add summaries to viewModel
                 await MainActor.run {
-                    progress = 1.0
-                    progressTimer?.invalidate()
-                    progressTimer = nil
+                    viewModel.addSummaries(summaries)
                     
-                   
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        isSaving = false
-                        isShowingPreview = false
+                    // Complete the saving process
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.isSaving = false
+                        self.progressTimer?.invalidate()
+                        self.progressTimer = nil
+                        self.isShowingPreview = false
                     }
                 }
             } catch {
+                // Handle errors
                 await MainActor.run {
-                    progressTimer?.invalidate()
-                    progressTimer = nil
-                    isSaving = false
-                    showingSummaryError = true
-                    summaryErrorMessage = "Failed to save data or generate summaries: \(error.localizedDescription)"
+                    self.isSaving = false
+                    self.progressTimer?.invalidate()
+                    self.progressTimer = nil
+                    // You might want to show an error alert here
+                    print("Error processing summaries: \(error)")
                 }
             }
         }
