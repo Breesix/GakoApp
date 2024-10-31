@@ -33,6 +33,7 @@ class SpeechRecognizer: ObservableObject {
     }
     
     private func setupAudioSessionAndEngine() {
+        // Reset recognition task jika ada
         if recognitionTask != nil {
             recognitionTask?.cancel()
             recognitionTask = nil
@@ -40,48 +41,61 @@ class SpeechRecognizer: ObservableObject {
         
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            // Optimasi konfigurasi audio untuk speech recognition
-            try audioSession.setCategory(.playAndRecord,
-                                         mode: .spokenAudio, // Gunakan mode spokenAudio
-                                         options: [.defaultToSpeaker, .allowBluetooth])
-            try audioSession.setPreferredIOBufferDuration(0.005) // Kurangi latency
-            try audioSession.setPreferredSampleRate(44100) // Gunakan sample rate yang optimal
+            // Gunakan konfigurasi yang lebih aman
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            
+            let inputNode = audioEngine.inputNode
+            // Gunakan format yang didukung device
+            let recordingFormat = AVAudioFormat(standardFormatWithSampleRate: audioSession.sampleRate,
+                                              channels: 1)
+            
+            guard let format = recordingFormat else {
+                print("Failed to create audio format")
+                return
+            }
+            
+            // Pastikan input node dan format valid
+            inputNode.removeTap(onBus: 0) // Hapus tap yang ada sebelum menambah yang baru
+            
+            recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+            guard let recognitionRequest = recognitionRequest else { return }
+            
+            recognitionRequest.shouldReportPartialResults = true
+            
+            // Install tap dengan error handling
+            inputNode.installTap(onBus: 0,
+                               bufferSize: 1024,
+                               format: format) { (buffer, when) in
+                self.recognitionRequest?.append(buffer)
+            }
+            
+            // Start audio engine dengan error handling
+            if !audioEngine.isRunning {
+                try audioEngine.start()
+            }
+            
         } catch {
-            print("Failed to configure audio session: \(error.localizedDescription)")
+            print("Audio session/engine setup failed: \(error.localizedDescription)")
+            stopTranscribing() // Clean up jika terjadi error
             return
         }
         
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        // Setup recognition task
+        setupRecognitionTask()
+    }
+    
+    private func setupRecognitionTask() {
         guard let recognitionRequest = recognitionRequest else { return }
         
-        // Konfigurasi recognition request untuk akurasi lebih baik
-        recognitionRequest.shouldReportPartialResults = true
-        recognitionRequest.taskHint = .dictation
-        if #available(iOS 13, *) {
-            recognitionRequest.requiresOnDeviceRecognition = false // Gunakan server-side recognition untuk akurasi lebih baik
-        }
-        
-        // Tambahkan audio tap dengan buffer size yang lebih besar
-        inputNode.installTap(onBus: 0,
-                             bufferSize: 4096, // Tingkatkan buffer size
-                             format: recordingFormat) { (buffer, when) in
-            self.recognitionRequest?.append(buffer)
-        }
-        
-        do {
-            try audioEngine.start()
-        } catch {
-            print("AudioEngine failed to start: \(error.localizedDescription)")
-        }
-        
-        // Implementasi recognition task dengan penanganan hasil yang lebih baik
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
             guard let self = self else { return }
-            var isFinal = false
+            
+            if let error = error {
+                print("Recognition task error: \(error.localizedDescription)")
+                self.stopTranscribing()
+                return
+            }
             
             if let result = result {
                 DispatchQueue.main.async {
@@ -89,24 +103,19 @@ class SpeechRecognizer: ObservableObject {
                     
                     if newTranscript != self.currentTranscript {
                         self.currentTranscript = newTranscript
-                        
                         if !self.previousTranscript.isEmpty {
-                            // Gabungkan dengan mempertahankan editan sebelumnya
                             self.transcript = self.previousTranscript + " " + self.currentTranscript
                         } else {
                             self.transcript = self.currentTranscript
                         }
                     }
-                    
                 }
-                isFinal = result.isFinal
-            }
-            
-            if error != nil || isFinal {
-                self.stopTranscribing()
+                
+                if result.isFinal {
+                    self.stopTranscribing()
+                }
             }
         }
-        
     }
     
     func startTranscribing() {
@@ -195,27 +204,38 @@ class SpeechRecognizer: ObservableObject {
     
     
     func stopTranscribing() {
-        audioEngine.stop()
-        audioEngine.inputNode.removeTap(onBus: 0)
-        recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
+        // Pastikan semua resources dibersihkan dengan benar
+        if audioEngine.isRunning {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            audioEngine.stop()
+        }
         
+        recognitionRequest?.endAudio()
         recognitionRequest = nil
+        
+        recognitionTask?.cancel()
         recognitionTask = nil
         
-        let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        // Deactivate audio session
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to deactivate audio session: \(error)")
+        }
         
         DispatchQueue.main.async {
             self.isRecognitionInProgress = false
-            // Simpan transcript terakhir sebelum berhenti
             self.previousTranscript = self.transcript
         }
     }
     
     func pauseTranscribing() {
-        audioEngine.pause()
-        recognitionRequest?.endAudio()
+       
+        if audioEngine.isRunning {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            audioEngine.stop()
+            recognitionRequest?.endAudio()
+        }
         
         DispatchQueue.main.async {
             self.isRecognitionInProgress = false
@@ -223,18 +243,32 @@ class SpeechRecognizer: ObservableObject {
     }
     
     func resumeTranscribing() {
-        // Buat request baru untuk melanjutkan recognition
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        recognitionRequest?.shouldReportPartialResults = true
-        
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, when) in
-            self.recognitionRequest?.append(buffer)
-        }
+        // Pastikan audio engine tidak sedang running
+        guard !audioEngine.isRunning else { return }
         
         do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            
+            // Buat request baru
+            recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+            guard let recognitionRequest = recognitionRequest else { return }
+            recognitionRequest.shouldReportPartialResults = true
+            
+            let inputNode = audioEngine.inputNode
+            let recordingFormat = inputNode.outputFormat(forBus: 0)
+            
+            // Pastikan tidak ada tap yang aktif sebelum memasang tap baru
+            inputNode.removeTap(onBus: 0)
+            
+            // Install tap baru
+            inputNode.installTap(onBus: 0,
+                               bufferSize: 4096,
+                               format: recordingFormat) { (buffer, when) in
+                self.recognitionRequest?.append(buffer)
+            }
+            
+            // Start audio engine
             try audioEngine.start()
             
             DispatchQueue.main.async {
@@ -242,17 +276,15 @@ class SpeechRecognizer: ObservableObject {
             }
             
             // Setup recognition task baru
-            recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest!) { result, error in
-                var isFinal = false
+            recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
+                guard let self = self else { return }
                 
                 if let result = result {
                     DispatchQueue.main.async {
-                        // Proses transcript baru
                         let newTranscript = self.processTranscript(result.bestTranscription.formattedString)
                         
                         if newTranscript != self.currentTranscript {
                             self.currentTranscript = newTranscript
-                            
                             if !self.previousTranscript.isEmpty {
                                 self.transcript = self.previousTranscript + " " + self.currentTranscript
                             } else {
@@ -260,15 +292,16 @@ class SpeechRecognizer: ObservableObject {
                             }
                         }
                     }
-                    isFinal = result.isFinal
                 }
                 
-                if error != nil || isFinal {
+                if error != nil || result?.isFinal == true {
                     self.stopTranscribing()
                 }
             }
+            
         } catch {
             print("Failed to resume audio engine: \(error.localizedDescription)")
+            stopTranscribing()
         }
     }
     
@@ -301,7 +334,3 @@ extension AVAudioSession {
         }
     }
 }
-
-
-
-

@@ -28,16 +28,20 @@ class OpenAIService {
 
         1. Bacalah curhatan dengan seksama dan identifikasi semua siswa yang disebutkan dalam curhatan, baik dengan nama lengkap maupun nama panggilan.
         2. Ekstrak semua aktivitas yang tercantum dalam curhatan untuk setiap siswa.
-        3. Tentukan untuk setiap aktivitas apakah siswa melakukannya secara "mandiri" atau "dibimbing”. Jika Mandiri = True, Jika Dibimbing = False.
-        Jika ada indikasi pengecualian, maka bukan berarti murid tersebut tidak melakukan aktivitas tersebut. Misal “Semua anak Bermain Balok dengan hebat kecuali Rangga“ atau “Semua anak kecuali Rangga Bermain Balok dengan hebat” maka dalam kasus ini status kemandirian Rangga adalah “Bermain Balok (false)”
-        5. Jika suatu aktivitas tidak disebutkan untuk siswa tertentu, isikan status kemandirian aktivitas tersebut dengan "null".
-        6. Tambahkan kolom "Curhatan" yang menggambarkan kesan atau komentar guru tentang masing-masing siswa terkait kegiatan yang dilakukan.
-        7. Pastikan hanya mencantumkan aktivitas yang disebutkan dalam curhatan tanpa menambahkan aktivitas lain.
-        8. Format output harus dalam bentuk CSV dengan kolom sesuai dengan Input User:
-        - Nama Lengkap
-        - Nama Panggilan
-        - Aktivitas (status kemandirian)
-        - Curhatan 
+        3. Tentukan untuk setiap aktivitas dengan aturan berikut:
+           - "mandiri" = true (jika siswa melakukan sendiri)
+           - "dibimbing" = false (jika siswa membutuhkan bantuan)
+           - "tidak melakukan" = null (jika siswa tidak disebutkan dalam aktivitas tersebut atau eksplisit tidak melakukan)
+        4. PENTING: Jika seorang siswa tidak disebutkan dalam suatu aktivitas, HARUS diberikan status null (tidak melakukan).
+        5. Jika ada indikasi pengecualian seperti "Semua anak kecuali [nama]", maka:
+           - Siswa yang dikecualikan diberi status sesuai konteks
+           - Semua siswa lain diberi status sebaliknya
+        6. Tambahkan kolom "Curhatan" yang menggambarkan kesan atau komentar guru.
+        7. Format output harus dalam bentuk CSV dengan kolom:
+           - Nama Lengkap
+           - Nama Panggilan
+           - Aktivitas (status kemandirian)
+           - Curhatan
         9. Output adalah berupa CSV saja
 
         Contoh Versi 1:
@@ -119,11 +123,23 @@ class OpenAIService {
         **Contoh Output:**
         ```csv
         Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
+        Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara, tapi tidak melakukan senam.”
         Joko Sambodo,JokSa,"Upacara (false)|Senam (null)”, “Joko membutuhkan bimbingan dalam upacara.”
         Samuel Suharto,Samuel,”Upacara (true)|Senam (false)”, “Samuel Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam.”
         ```
 
+        **Contoh Input:**
+        ```csv
+        "Rangga bermain balok dengan mandiri"
+        
+        
+        **Contoh Output:**
+        ```csv
+        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian),Curhatan
+        Rangga Hadi,Rangga,"Bermain balok (true)","Rangga bermain balok dengan mandiri"
+        Joko Sambodo,JokSa,"Bermain balok (null)","Tidak ada informasi aktivitas"
+        Samuel Suharto,Samuel,"Bermain balok (null)","Tidak ada informasi aktivitas"
+        
         ————
 
         """
@@ -180,15 +196,27 @@ class ReflectionCSVParser {
                         let parts = activity.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "(")
                         if parts.count == 2 {
                             let activityName = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                            let statusString = parts[1].trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ")", with: "")
+                            let statusString = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                                .replacingOccurrences(of: ")", with: "")
+                                .lowercased()
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
                             
-                            let isIndependent: Bool?
-                            switch statusString.lowercased() {
+                            // Perbaikan penanganan status
+                            var isIndependent: Bool?
+                            switch statusString {
                             case "true":
                                 isIndependent = true
                             case "false":
                                 isIndependent = false
+                            case "null", "nil", "":
+                                isIndependent = nil
                             default:
+                                // Jika tidak ada informasi atau tidak melakukan, set nil
+                                isIndependent = nil
+                            }
+                            
+                            // Tambahkan pengecekan untuk "Tidak ada informasi aktivitas"
+                            if curhatan.contains("Tidak ada informasi aktivitas") {
                                 isIndependent = nil
                             }
                             
@@ -201,17 +229,14 @@ class ReflectionCSVParser {
                             unsavedActivities.append(unsavedActivity)
                         }
                     }
-                        let unsavedNote = UnsavedNote(
-                            note: curhatan,
-                            createdAt: createdAt,
-                            studentId: student.id
-                        )
-                        unsavedNotes.append(unsavedNote)
-                     
-                    print("No matching student found for: \(fullName) (\(nickname))")
+                    
+                    let unsavedNote = UnsavedNote(
+                        note: curhatan,
+                        createdAt: createdAt,
+                        studentId: student.id
+                    )
+                    unsavedNotes.append(unsavedNote)
                 }
-            } else {
-                print("Invalid column count in row: \(columns.count)")
             }
         }
         

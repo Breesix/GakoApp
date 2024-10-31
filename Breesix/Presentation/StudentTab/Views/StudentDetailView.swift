@@ -287,44 +287,16 @@ struct StudentDetailView: View {
         }
     }
     
-    //        private var activitiesForSelectedMonth: [Date: DayItems] {
-    //            let calendar = Calendar.current
-    //
-    //            let groupedActivities = Dictionary(grouping: activities) { activity in
-    //                calendar.startOfDay(for: activity.createdAt)
-    //            }
-    //
-    //            let groupedNotes = Dictionary(grouping: notes) { note in
-    //                calendar.startOfDay(for: note.createdAt)
-    //            }
-    //
-    //            let allDates = Set(groupedActivities.keys).union(groupedNotes.keys)
-    //
-    //            var result: [Date: DayItems] = [:]
-    //
-    //            for date in allDates {
-    //                if calendar.isDate(date, equalTo: selectedDate, toGranularity: .month) {
-    //                    result[date] = DayItems(
-    //                        activities: groupedActivities[date] ?? [],
-    //                        notes: groupedNotes[date] ?? []
-    //                    )
-    //                }
-    //            }
-    //
-    //            return result
-    //        }
     
     private var activitiesForSelectedMonth: [Date: DayItems] {
         let calendar = Calendar.current
         
-        // Get the start and end of the selected month
         let components = calendar.dateComponents([.year, .month], from: selectedDate)
         guard let startOfMonth = calendar.date(from: components),
               let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth) else {
             return [:]
         }
         
-        // Group existing activities and notes
         let groupedActivities = Dictionary(grouping: activities) { activity in
             calendar.startOfDay(for: activity.createdAt)
         }
@@ -356,6 +328,20 @@ struct StudentDetailView: View {
         
         return result
     }
+    
+    func updateActivityStatus(_ activityId: UUID, isIndependent: Bool?) async {
+        do {
+            if let index = activities.firstIndex(where: { $0.id == activityId }) {
+                
+                activities[index].isIndependent = isIndependent
+                
+                try await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
+            }
+        } catch {
+            print("Error updating activity status: \(error)")
+        }
+    }
+
     
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in
