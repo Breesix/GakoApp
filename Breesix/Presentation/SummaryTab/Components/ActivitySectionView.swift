@@ -38,11 +38,13 @@ struct ActivitySectionPreview: View {
                     .foregroundColor(.labelSecondary)
             }
             
-            // Button tambah selalu muncul
-            AddButton {
-                selectedStudent = student
-                isAddingNewActivity = true
-            }
+            AddButton(
+                action: {
+                    selectedStudent = student
+                    isAddingNewActivity = true
+                },
+                backgroundColor: .buttonOncard
+            )
         }
     }
     

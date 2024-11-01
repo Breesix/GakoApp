@@ -4,6 +4,7 @@
 //
 //  Created by Rangga Biner on 03/10/24.
 //
+
 import SwiftUI
 
 struct StudentDetailView: View {
@@ -111,7 +112,7 @@ struct StudentDetailView: View {
                             selectedDate: $selectedDate,
                             isShowingCalendar: $isShowingCalendar,
                             onDateSelected: { newDate in
-                                if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+                                if activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] != nil {
                                 } else {
                                     if selectedDate > Date() {
                                         noActivityAlertPresented = true
@@ -141,6 +142,8 @@ struct StudentDetailView: View {
                                                 viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
+                                                student: student,
+                                                date: day,
                                                 onAddNote: {
                                                     selectedDate = day
                                                     isAddingNewNote = true
@@ -151,8 +154,7 @@ struct StudentDetailView: View {
                                                 },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
-                                                onDeleteNote: deleteNote,
-                                                student: student, date: day
+                                                onDeleteNote: deleteNote
                                             )
                                             .padding(.horizontal, 16)
                                             .padding(.bottom, 12)
@@ -161,8 +163,8 @@ struct StudentDetailView: View {
                                     }
                                 }
                             }
-                            .onChange(of: selectedDate) { newDate in
-                                let startOfDay = calendar.startOfDay(for: newDate)
+                            .onChange(of: selectedDate) {
+                                let startOfDay = calendar.startOfDay(for: selectedDate)
                                 if let dayItems = activitiesForSelectedMonth[startOfDay] {
                                     if dayItems.activities.isEmpty && dayItems.notes.isEmpty && selectedDate > Date() {
                                         noActivityAlertPresented = true
@@ -265,9 +267,7 @@ struct StudentDetailView: View {
     private func deleteActivity(_ activity: Activity) {
         Task {
             await viewModel.deleteActivities(activity, from: student)
-            // Hapus dari array activities lokal
             activities.removeAll(where: { $0.id == activity.id })
-            // Refresh data setelah menghapus
             await fetchActivities()
         }
     }
@@ -298,19 +298,16 @@ struct StudentDetailView: View {
         
         var result: [Date: DayItems] = [:]
         
-        // Create a date for each day in the month
         var currentDate = startOfMonth
         while currentDate <= endOfMonth {
             if !(currentDate > Date()) {
                 let startOfDay = calendar.startOfDay(for: currentDate)
-                
-                // Create DayItems for each date, even if empty
+
                 result[startOfDay] = DayItems(
                     activities: groupedActivities[startOfDay] ?? [],
                     notes: groupedNotes[startOfDay] ?? []
                 )
                 
-                // Move to next day
                 currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
             } else {
                 break
@@ -321,15 +318,11 @@ struct StudentDetailView: View {
     }
     
     func updateActivityStatus(_ activityId: UUID, isIndependent: Bool?) async {
-        do {
-            if let index = activities.firstIndex(where: { $0.id == activityId }) {
-                
-                activities[index].isIndependent = isIndependent
-                
-                try await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
-            }
-        } catch {
-            print("Error updating activity status: \(error)")
+        if let index = activities.firstIndex(where: { $0.id == activityId }) {
+            
+            activities[index].isIndependent = isIndependent
+            
+            await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
         }
     }
 
@@ -371,8 +364,8 @@ struct CalendarButton: View {
                 .datePickerStyle(.graphical)
                 .environment(\.locale, Locale(identifier: "id_ID"))
                 .presentationDetents([.fraction(0.55)])
-                .onChange(of: selectedDate) { newDate in
-                    onDateSelected(newDate)
+                .onChange(of: selectedDate) {
+                    onDateSelected(selectedDate)
                 }
         }
     }

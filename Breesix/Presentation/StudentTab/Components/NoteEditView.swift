@@ -9,9 +9,10 @@ import SwiftUI
 
 struct NoteEditView: View {
     @ObservedObject var viewModel: StudentTabViewModel
-    let note: Note
-    let onDismiss: () -> Void
     @State private var noteText: String
+    let note: Note
+    
+    let onDismiss: () -> Void
 
     init(viewModel: StudentTabViewModel, note: Note, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel

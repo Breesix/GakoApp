@@ -9,10 +9,11 @@ import SwiftUI
 
 struct NewNoteView: View {
     @ObservedObject var viewModel: StudentTabViewModel
+    @State private var note: String = ""
     let student: Student
     let selectedDate: Date
+    
     let onDismiss: () -> Void
-    @State private var note: String = ""
 
     var body: some View {
         NavigationView {

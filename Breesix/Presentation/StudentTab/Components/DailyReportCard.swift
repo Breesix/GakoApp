@@ -11,13 +11,14 @@ struct DailyReportCard: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let activities: [Activity]
     let notes: [Note]
+    let student: Student
+    let date: Date
+    
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onDeleteActivity: (Activity) -> Void
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
-    let student: Student
-    let date: Date
     
     func indonesianFormattedDate(date: Date) -> String {
         let formatter = DateFormatter()
@@ -37,27 +38,20 @@ struct DailyReportCard: View {
                     .foregroundStyle(.labelPrimaryBlack)
             }
             .padding(.bottom, 19)
-                    ActivitySection(
-                        activities: activities,
-                        onDeleteActivity: onDeleteActivity,
-                        onStatusChanged: { activity, newStatus in
-                            Task {
-                                await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
-                            }
-                        }
-                    )
-           
+            ActivitySection(
+                activities: activities,
+                onDeleteActivity: onDeleteActivity,
+                onStatusChanged: { activity, newStatus in
+                    Task {
+                        await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                    }
+                }
+            )
             
-            Button(action: onAddActivity) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
+            AddButton(
+                action: onAddActivity,
+                backgroundColor: .buttonOncard
+            )
             
             Divider()
                 .frame(height: 1)
@@ -71,16 +65,10 @@ struct DailyReportCard: View {
                 onDeleteNote: onDeleteNote,
                 onAddNote: onAddNote
             )
-            Button(action: onAddNote) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
+            AddButton(
+                action: onAddNote,
+                backgroundColor: .buttonOncard
+            )
         }
         
         .padding(.horizontal, 16)

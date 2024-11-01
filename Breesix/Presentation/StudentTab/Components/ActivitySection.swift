@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ActivitySection: View {
     let activities: [Activity]
+    
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Bool?) -> Void
     

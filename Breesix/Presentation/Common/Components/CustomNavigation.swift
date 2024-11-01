@@ -25,7 +25,10 @@ struct CustomNavigationBar: View {
                         .fontWeight(.bold)
                     Spacer()
                     
-                    AddButton(action: action)
+                    AddButton(
+                        action: action,
+                        backgroundColor: .white
+                    )
                 }
                 .padding(.horizontal, 16)
             }

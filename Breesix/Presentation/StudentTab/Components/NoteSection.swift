@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NoteSection: View {
     let notes: [Note]
+    
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onAddNote: () -> Void

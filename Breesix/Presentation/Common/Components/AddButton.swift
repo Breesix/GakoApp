@@ -1,14 +1,12 @@
-//
 //  AddButton.swift
 //  Breesix
-//
 //  Created by Rangga Biner on 23/10/24.
-//
 
 import SwiftUI
 
 struct AddButton: View {
     var action: () -> Void
+    var backgroundColor: Color
 
     var body: some View {
         Button(action: action) {
@@ -23,12 +21,17 @@ struct AddButton: View {
             .font(.footnote)
             .fontWeight(.regular)
             .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonPrimaryOnGreen)
+            .background(backgroundColor)
             .cornerRadius(8)
         }
     }
 }
 
 #Preview {
-    AddButton(action: {print("clicked")})
+    VStack(spacing: 20) {
+        AddButton(
+            action: { print("clicked") },
+            backgroundColor: .blue
+        )
+    }
 }

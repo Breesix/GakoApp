@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct NoteRow: View {
+    @State private var showDeleteAlert = false
     let note: Note
+    
     let onEdit: (Note) -> Void
     let onDelete: (Note) -> Void
-    
-    @State private var showDeleteAlert = false
     
     var body: some View {
         HStack (spacing: 8) {

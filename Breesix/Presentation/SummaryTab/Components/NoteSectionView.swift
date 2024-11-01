@@ -45,11 +45,14 @@ struct NoteSectionPreview: View {
             Text("Tidak ada aktivitas untuk tanggal ini")
                 .foregroundColor(.labelSecondary)
         }
-        
-        AddButton {
-            selectedStudent = student
-            isAddingNewNote = true
-        }
+
+        AddButton(
+            action: { selectedStudent = student
+                isAddingNewNote = true
+            },
+            backgroundColor: .buttonOncard
+        )
+
     }
 }
 
