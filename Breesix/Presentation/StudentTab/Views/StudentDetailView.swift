@@ -178,10 +178,12 @@ struct StudentDetailView: View {
                                 LazyVStack(spacing: 0) {
                                     ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
                                         if let dayItems = activitiesForSelectedMonth[day] {
-                                            ActivityCardView(
+                                            DailyReportCard(
                                                 viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
+                                                student: student,
+                                                date: day,
                                                 onAddNote: {
                                                     selectedDate = day
                                                     isAddingNewNote = true
@@ -190,11 +192,9 @@ struct StudentDetailView: View {
                                                     selectedDate = day
                                                     isAddingNewActivity = true
                                                 },
-                                                onEditActivity: { self.activity = $0 },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
-                                                student: student, date: day,
                                                 onShareTapped: { date in
                                                     selectedActivityDate = date
                                                     generateSnapshot(for: date)
