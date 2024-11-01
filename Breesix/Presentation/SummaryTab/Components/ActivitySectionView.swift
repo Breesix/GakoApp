@@ -20,7 +20,7 @@ struct ActivitySectionPreview: View {
             
             if !studentActivities.isEmpty {
                 ForEach(studentActivities) { activity in
-                    ActivityDetailRow(
+                    ActivityPreviewRow(
                         viewModel: viewModel,
                         activity: binding(for: activity, in: viewModel),
                         student: student,

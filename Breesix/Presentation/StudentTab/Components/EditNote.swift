@@ -1,5 +1,5 @@
 //
-//  NoteEditView.swift
+//  EditNote.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 03/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NoteEditView: View {
+struct EditNote: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @State private var noteText: String
     let note: Note

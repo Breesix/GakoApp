@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct ActivityDetailRow: View {
+struct ActivityPreviewRow: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student
@@ -25,39 +25,8 @@ struct ActivityDetailRow: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                Menu {
-                    Button("Mandiri") {
-                        activity.isIndependent = true
-                        selectedStatus = true
-                    }
-                    Button("Dibimbing") {
-                        activity.isIndependent = false
-                        selectedStatus = false
-                    }
-                    Button("Tidak Melakukan") {
-                        activity.isIndependent = nil
-                        selectedStatus = nil
-                    }
-                } label: {
-                    HStack {
-                        Text(getStatusText())
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.up.chevron.down")
-                    }
-                    .font(.body)
-                    .fontWeight(.regular)
-                    .foregroundColor(.labelPrimaryBlack)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.cardFieldBG)
-                    .cornerRadius(8)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.statusStroke, lineWidth: 2)
-                    }
+                StatusPickerView(isIndependent: $activity.isIndependent) { newStatus in
+                    selectedStatus = newStatus
                 }
                 
                 Button(action: {
@@ -88,19 +57,8 @@ struct ActivityDetailRow: View {
             selectedStatus = activity.isIndependent
         }
     }
-    
-    private func getStatusText() -> String {
-        switch activity.isIndependent {
-        case true:
-            return "Mandiri"
-        case false:
-            return "Dibimbing"
-        case nil:
-            return "Tidak Melakukan"
-        default:
-            return "status"
-        }
-    }
 }
+
+
 
 

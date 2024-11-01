@@ -32,39 +32,8 @@ struct ActivityRow: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                Menu {
-                    Button("Mandiri") {
-                        isIndependent = true
-                        onStatusChanged(activity, true)
-                    }
-                    Button("Dibimbing") {
-                        isIndependent = false
-                        onStatusChanged(activity, false)
-                    }
-                    Button("Tidak Melakukan") {
-                        isIndependent = nil
-                        onStatusChanged(activity, nil)
-                    }
-                } label: {
-                    HStack {
-                        Text(getStatusText())
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.up.chevron.down")
-                    }
-                    .font(.body)
-                    .fontWeight(.regular)
-                    .foregroundColor(.labelPrimaryBlack)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.cardFieldBG)
-                    .cornerRadius(8)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.statusStroke, lineWidth: 2)
-                    }
+                StatusPickerView(isIndependent: $isIndependent) { newStatus in
+                    onStatusChanged(activity, newStatus)
                 }
                 
                 Button(action: { showDeleteAlert = true }) {
@@ -88,21 +57,15 @@ struct ActivityRow: View {
             isIndependent = activity.isIndependent
         }
     }
-    
-    private func getStatusText() -> String {
-        switch isIndependent {
-        case true:
-            return "Mandiri"
-        case false:
-            return "Dibimbing"
-        case nil:
-            return "Tidak Melakukan"
-        default:
-            return "status"
-        }
-    }
 }
 
 #Preview {
-    ActivityRow(activity: .init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onDelete: {_ in print("deleted")}, onStatusChanged: { _, _ in print("changed")})
+    ActivityRow(
+        activity: .init(
+            activity: "Menjahit",
+            student: .init(fullname: "Rangga Biner", nickname: "Rangga")
+        ),
+        onDelete: {_ in print("deleted")},
+        onStatusChanged: { _, _ in print("changed")}
+    )
 }

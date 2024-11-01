@@ -45,3 +45,7 @@ struct ProfileHeader: View {
             }
         }
 }
+
+#Preview {
+    ProfileHeader(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+}

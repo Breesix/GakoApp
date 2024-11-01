@@ -188,13 +188,13 @@ struct StudentDetailView: View {
         }
         .toolbar(.hidden, for: .bottomBar , .tabBar )
         .sheet(isPresented: $isEditing) {
-            StudentEditView(viewModel: viewModel, mode: .edit(student))
+            EditStudent(viewModel: viewModel, mode: .edit(student))
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
-            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
+            EditNote(viewModel: viewModel, note: note, onDismiss: {
                 selectedNote = nil
             })
             .presentationDetents([.large])
@@ -202,7 +202,7 @@ struct StudentDetailView: View {
             .presentationBackground(.white)
         }
         .sheet(isPresented: $isAddingNewNote) {
-            NewNoteView(viewModel: viewModel,
+            AddNote(viewModel: viewModel,
                         student: student,
                         selectedDate: selectedDate,
                         onDismiss: {
@@ -217,7 +217,7 @@ struct StudentDetailView: View {
         }
         
         .sheet(isPresented: $isAddingNewActivity) {
-            NewActivityView(viewModel: viewModel,
+            AddActivity(viewModel: viewModel,
                             student: student,
                             selectedDate: selectedDate,
                             onDismiss: {
@@ -339,73 +339,4 @@ struct StudentDetailView: View {
 struct DayItems {
     var activities: [Activity]
     var notes: [Note]
-}
-
-struct CalendarButton: View {
-    @Binding var selectedDate: Date
-    @Binding var isShowingCalendar: Bool
-    var onDateSelected: (Date) -> Void
-    
-    var body: some View {
-        
-        Button(action: { isShowingCalendar = true }) {
-            ZStack {
-                Circle()
-                    .frame(width: 36)
-                    .foregroundStyle(.buttonLinkOnSheet)
-                Image(systemName: "calendar")
-                    .font(.system(size: 21))
-                    .foregroundStyle(.white)
-            }
-        }
-        
-        .sheet(isPresented: $isShowingCalendar) {
-            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "id_ID"))
-                .presentationDetents([.fraction(0.55)])
-                .onChange(of: selectedDate) {
-                    onDateSelected(selectedDate)
-                }
-        }
-    }
-}
-
-struct FutureMessageView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Text("Sampai jumpa besok!")
-                .foregroundColor(.secondary)
-                .fontWeight(.semibold)
-        }
-    }
-}
-
-
-struct EditButton: View {
-    @Binding var isEditing: Bool
-    
-    var body: some View {
-        Button("Edit") {
-            isEditing = true
-        }
-    }
-}
-
-struct BackButton: View {
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        Button(action: {
-            presentationMode.wrappedValue.dismiss()
-        }) {
-            HStack(spacing: 4) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.white)
-                Text("Murid")
-                    .foregroundStyle(.white)
-            }
-        }
-    }
 }
