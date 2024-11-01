@@ -1,12 +1,12 @@
 //
-//  ActivityDetailRow.swift
+//  ActivityRowPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
 import SwiftUI
 
-struct ActivityPreviewRow: View {
+struct ActivityRowPreview: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student

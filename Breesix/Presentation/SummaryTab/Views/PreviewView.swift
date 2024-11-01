@@ -51,7 +51,7 @@ struct PreviewView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(sortedStudents) { student in
-                            StudentSectionView(
+                            DailyReportCardPreview(
                                 student: student,
                                 viewModel: viewModel,
                                 selectedDate: selectedDate,
@@ -119,7 +119,7 @@ struct PreviewView: View {
         .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                NewUnsavedActivityView(viewModel: viewModel,
+                AddUnsavedActivity(viewModel: viewModel,
                                        student: student,
                                        selectedDate: selectedDate,
                                        onDismiss: {
@@ -131,7 +131,7 @@ struct PreviewView: View {
             }
         }
         .sheet(item: $editingNote) { note in
-            UnsavedNoteEditView(note: note, onSave: { updatedNote in
+            EditUnsavedNote(note: note, onSave: { updatedNote in
                 updateNote(updatedNote)
             })
             .presentationDetents([.large])
@@ -173,9 +173,9 @@ struct PreviewView: View {
             let hasDefaultActivity2 = hasAnyDefaultActivity(for: student2)
             
             if hasDefaultActivity1 != hasDefaultActivity2 {
-                return hasDefaultActivity1 // Yang memiliki aktivitas default akan berada di atas
+                return hasDefaultActivity1
             }
-            return student1.fullname < student2.fullname // Urutkan berdasarkan nama jika status sama
+            return student1.fullname < student2.fullname
         }
     }
     
@@ -222,23 +222,21 @@ struct PreviewView: View {
         progressTimer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { timer in
             withAnimation {
                 if progress < 1.0 {
-                    progress = min(progress + Double(stepValue), 1.0)  // Pastikan menggunakan Double
+                    progress = min(progress + Double(stepValue), 1.0)
                 }
             }
         }
         
         Task {
             do {
-                // Make sure the isIndependent status is properly saved
                 for activity in viewModel.unsavedActivities {
                     if activity.isIndependent == nil {
-                        // Explicitly set to nil for "Tidak Melakukan"
                         activity.isIndependent = nil
                     }
                 }
                 
-                try await viewModel.saveUnsavedActivities()
-                try await viewModel.saveUnsavedNotes()
+                await viewModel.saveUnsavedActivities()
+                await viewModel.saveUnsavedNotes()
                 try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
                 
                 try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
@@ -299,108 +297,3 @@ struct PreviewView: View {
         }
     }
 }
-
-
-
-
-
-struct UnsavedNoteCreateView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @State private var textNote: String = ""
-    let student: Student
-    let onSave: (UnsavedNote) -> Void
-    let selectedDate: Date
-    
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Tambah Catatan")
-                    .foregroundStyle(.labelPrimaryBlack)
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                
-                ZStack(alignment: .topLeading) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.cardFieldBG)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                    
-                    if textNote.isEmpty {
-                        Text("Tuliskan catatan untuk murid...")
-                            .font(.callout)
-                            .fontWeight(.regular)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
-                            .frame(maxWidth: .infinity, maxHeight: 170, alignment: .topLeading)
-                            .foregroundColor(.labelDisabled)
-                            .cornerRadius(8)
-                    }
-                    
-                    TextEditor(text: $textNote)
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .font(.callout)
-                        .fontWeight(.regular)
-                        .padding(.horizontal, 8)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
-                        .cornerRadius(8)
-                        .scrollContentBackground(.hidden)
-                }
-                .onAppear() {
-                    UITextView.appearance().backgroundColor = .clear
-                }
-                .onDisappear() {
-                    UITextView.appearance().backgroundColor = nil
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.monochrome50, lineWidth: 1)
-                )
-                
-                Spacer()
-            }
-            .padding(.top, 34.5)
-            .padding(.horizontal, 16)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Tambah Catatan")
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .padding(.top, 27)
-                }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        HStack(spacing: 3) {
-                            Image(systemName: "chevron.left")
-                                .fontWeight(.semibold)
-                            Text("Kembali")
-                        }
-                        .font(.body)
-                        .fontWeight(.medium)
-                    }
-                    .padding(.top, 27)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        let newNote = UnsavedNote(note: textNote, createdAt: selectedDate, studentId: student.id)
-                        onSave(newNote)
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Text("Simpan")
-                            .font(.body)
-                            .fontWeight(.medium)
-                    }
-                    .padding(.top, 27)
-                }
-            }
-        }
-        .onAppear {
-            print("NoteCreateView appeared for student: \(student.fullname)")
-        }
-    }
-}
-

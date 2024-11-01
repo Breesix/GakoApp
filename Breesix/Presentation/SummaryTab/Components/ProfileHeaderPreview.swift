@@ -53,6 +53,6 @@ struct ProfileHeaderPreview: View {
     }
 }
 
-//#Preview {
-//    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
-//}
+#Preview {
+    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), hasDefaultActivities: true)
+}

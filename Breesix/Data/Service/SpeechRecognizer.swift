@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Speech
+import AVFAudio
 
 class SpeechRecognizer: ObservableObject {
     private let speechRecognizer: SFSpeechRecognizer
@@ -327,9 +328,17 @@ extension SFSpeechRecognizer {
 
 extension AVAudioSession {
     func hasPermissionToRecord() async -> Bool {
-        await withCheckedContinuation { continuation in
-            requestRecordPermission { authorized in
-                continuation.resume(returning: authorized)
+        if #available(iOS 17.0, *) {
+            return await withCheckedContinuation { continuation in
+                AVAudioApplication.requestRecordPermission { authorized in
+                    continuation.resume(returning: authorized)
+                }
+            }
+        } else {
+            return await withCheckedContinuation { continuation in
+                requestRecordPermission { authorized in
+                    continuation.resume(returning: authorized)
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 
 //
-//  ActivitySectionView.swift
+//  ActivitySectionPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
@@ -20,7 +20,7 @@ struct ActivitySectionPreview: View {
             
             if !studentActivities.isEmpty {
                 ForEach(studentActivities) { activity in
-                    ActivityPreviewRow(
+                    ActivityRowPreview(
                         viewModel: viewModel,
                         activity: binding(for: activity, in: viewModel),
                         student: student,
