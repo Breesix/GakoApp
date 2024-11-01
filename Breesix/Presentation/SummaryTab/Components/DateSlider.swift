@@ -1,5 +1,5 @@
 //
-//  DailyDateSlider.swift
+//  DateSlider.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 23/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DailyDateSlider: View {
+struct DateSlider: View {
     @Binding var selectedDate: Date
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
@@ -65,8 +65,8 @@ struct DailyDateSlider: View {
                                 .padding(.horizontal, 12)
                             }
                         }
-                        .onChange(of: tempDate) { newDate in
-                            selectedDate = newDate
+                        .onChange(of: tempDate) {
+                            selectedDate = tempDate
                             isShowingDatePicker = false
                         }
                 }
@@ -92,5 +92,5 @@ struct DailyDateSlider: View {
 }
 
 #Preview {
-    DailyDateSlider(selectedDate: .constant(Date.now))
+    DateSlider(selectedDate: .constant(Date.now))
 }

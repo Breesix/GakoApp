@@ -1,5 +1,5 @@
 //
-//  NewNoteView.swift
+//  NewNote.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 04/10/24.
@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct NewNoteView: View {
+struct AddNote: View {
     @ObservedObject var viewModel: StudentTabViewModel
+    @State private var note: String = ""
     let student: Student
     let selectedDate: Date
+    
     let onDismiss: () -> Void
-    @State private var note: String = ""
 
     var body: some View {
         NavigationView {

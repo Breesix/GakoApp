@@ -5,7 +5,6 @@
 //  Created by Rangga Biner on 15/10/24.
 //
 
-
 import SwiftUI
 import Speech
 import DotLottie
@@ -92,10 +91,9 @@ struct VoiceInputView: View {
                             .disabled(isLoading)
                             .opacity(isLoading ? 0.5 : 1)
                     }
-                    .onChange(of: editedText) { newValue in
-                                        // Update reflection ketika user mengedit teks
-                                        reflection = newValue
-                        speechRecognizer.previousTranscript = newValue
+                    .onChange(of: editedText) {
+                                        reflection = editedText
+                        speechRecognizer.previousTranscript = editedText
                                     }
 
                     Spacer()
@@ -238,8 +236,8 @@ struct VoiceInputView: View {
                 .datePickerStyle(.graphical)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .onChange(of: tempDate) { newDate in
-                    selectedDate = newDate
+                .onChange(of: tempDate) {
+                    selectedDate = tempDate
                     isShowingDatePicker = false
                 }
         }
@@ -258,9 +256,9 @@ struct VoiceInputView: View {
             requestSpeechAuthorization()
             
         }
-        .onChange(of: isTextEditorFocused) { focused in
+        .onChange(of: isTextEditorFocused) { 
             withAnimation {
-                showProTips = !focused
+                showProTips = !isTextEditorFocused
             }
         }
     }

@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct NoteRow: View {
+struct NoteRowPreview: View {
     let note: UnsavedNote
     let student: Student
     let onEdit: () -> Void

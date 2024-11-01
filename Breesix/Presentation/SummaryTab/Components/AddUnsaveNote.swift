@@ -1,28 +1,23 @@
 //
-//  UnsavedNoteEditView.swift
+//  AddUnsaveNote.swift
 //  Breesix
 //
-//  Created by Kevin Fairuz on 28/10/24.
+//  Created by Rangga Biner on 01/11/24.
 //
+
 import SwiftUI
 
-struct UnsavedNoteEditView: View {
+struct UnsavedNoteCreateView: View {
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.dismiss) var dismiss
-    @State private var textNote: String
-    let note: UnsavedNote
+    @State private var textNote: String = ""
+    let student: Student
     let onSave: (UnsavedNote) -> Void
-    
-    init(note: UnsavedNote, onSave: @escaping (UnsavedNote) -> Void) {
-        self.note = note
-        self.onSave = onSave
-        _textNote = State(initialValue: note.note)
-    }
+    let selectedDate: Date
     
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Edit Catatan")
+                Text("Tambah Catatan")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -70,7 +65,7 @@ struct UnsavedNoteEditView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Edit Catatan")
+                    Text("Tambah Catatan")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -94,22 +89,20 @@ struct UnsavedNoteEditView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        let updatedNote = UnsavedNote(
-                            id: note.id,
-                            note: textNote,
-                            createdAt: note.createdAt,
-                            studentId: note.studentId
-                        )
-                        onSave(updatedNote)
+                        let newNote = UnsavedNote(note: textNote, createdAt: selectedDate, studentId: student.id)
+                        onSave(newNote)
                         presentationMode.wrappedValue.dismiss()
-                    }, label: {
+                    }) {
                         Text("Simpan")
                             .font(.body)
                             .fontWeight(.medium)
-                    })
+                    }
                     .padding(.top, 27)
                 }
             }
+        }
+        .onAppear {
+            print("NoteCreateView appeared for student: \(student.fullname)")
         }
     }
 }

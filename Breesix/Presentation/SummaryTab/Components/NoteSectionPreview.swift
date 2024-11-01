@@ -1,5 +1,5 @@
 //
-//  NoteSectionView.swift
+//  NoteSectionPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
@@ -20,7 +20,7 @@ struct NoteSectionPreview: View {
         if !studentNotes.isEmpty {
             Section(header: Text("Catatan").font(.callout).padding(.bottom, 8).fontWeight(.semibold).foregroundStyle(.labelPrimaryBlack)) {
                 ForEach(studentNotes) { note in
-                    NoteRow(
+                    NoteRowPreview(
                         note: note,
                         student: student,
                         onEdit: {
@@ -36,7 +36,7 @@ struct NoteSectionPreview: View {
                 
             }
             .sheet(item: $editingNote) { note in
-                UnsavedNoteEditView(note: note) { updatedNote in
+                EditUnsavedNote(note: note) { updatedNote in
                     viewModel.updateUnsavedNote(updatedNote)
                     editingNote = nil
                 }
@@ -45,11 +45,14 @@ struct NoteSectionPreview: View {
             Text("Tidak ada aktivitas untuk tanggal ini")
                 .foregroundColor(.labelSecondary)
         }
-        
-        AddButton {
-            selectedStudent = student
-            isAddingNewNote = true
-        }
+
+        AddButton(
+            action: { selectedStudent = student
+                isAddingNewNote = true
+            },
+            backgroundColor: .buttonOncard
+        )
+
     }
 }
 

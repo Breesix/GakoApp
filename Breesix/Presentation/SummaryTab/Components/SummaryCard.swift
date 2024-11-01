@@ -1,5 +1,5 @@
 //
-//  StudentSummaryCard.swift
+//  SummaryCard.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 24/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StudentSummaryCard: View {
+struct SummaryCard: View {
     let student: Student
     let selectedDate: Date
     
@@ -79,5 +79,5 @@ struct StudentSummaryCard: View {
 }
 
 #Preview {
-    StudentSummaryCard(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: Date.now)
+    SummaryCard(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: Date.now)
 }

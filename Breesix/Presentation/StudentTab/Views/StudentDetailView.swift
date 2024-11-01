@@ -4,6 +4,7 @@
 //
 //  Created by Rangga Biner on 03/10/24.
 //
+
 import SwiftUI
 
 struct StudentDetailView: View {
@@ -111,7 +112,7 @@ struct StudentDetailView: View {
                             selectedDate: $selectedDate,
                             isShowingCalendar: $isShowingCalendar,
                             onDateSelected: { newDate in
-                                if let activitiesOnSelectedDate = activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] {
+                                if activitiesForSelectedMonth[calendar.startOfDay(for: newDate)] != nil {
                                 } else {
                                     if selectedDate > Date() {
                                         noActivityAlertPresented = true
@@ -137,10 +138,12 @@ struct StudentDetailView: View {
                                 LazyVStack(spacing: 0) {
                                     ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
                                         if let dayItems = activitiesForSelectedMonth[day] {
-                                            ActivityCardView(
+                                            DailyReportCard(
                                                 viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
+                                                student: student,
+                                                date: day,
                                                 onAddNote: {
                                                     selectedDate = day
                                                     isAddingNewNote = true
@@ -149,11 +152,9 @@ struct StudentDetailView: View {
                                                     selectedDate = day
                                                     isAddingNewActivity = true
                                                 },
-                                                onEditActivity: { self.activity = $0 },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
-                                                onDeleteNote: deleteNote,
-                                                student: student, date: day
+                                                onDeleteNote: deleteNote
                                             )
                                             .padding(.horizontal, 16)
                                             .padding(.bottom, 12)
@@ -162,8 +163,8 @@ struct StudentDetailView: View {
                                     }
                                 }
                             }
-                            .onChange(of: selectedDate) { newDate in
-                                let startOfDay = calendar.startOfDay(for: newDate)
+                            .onChange(of: selectedDate) {
+                                let startOfDay = calendar.startOfDay(for: selectedDate)
                                 if let dayItems = activitiesForSelectedMonth[startOfDay] {
                                     if dayItems.activities.isEmpty && dayItems.notes.isEmpty && selectedDate > Date() {
                                         noActivityAlertPresented = true
@@ -187,29 +188,21 @@ struct StudentDetailView: View {
         }
         .toolbar(.hidden, for: .bottomBar , .tabBar )
         .sheet(isPresented: $isEditing) {
-            StudentEditView(viewModel: viewModel, mode: .edit(student))
+            EditStudent(viewModel: viewModel, mode: .edit(student))
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
-            NoteEditView(viewModel: viewModel, note: note, onDismiss: {
+            EditNote(viewModel: viewModel, note: note, onDismiss: {
                 selectedNote = nil
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        .sheet(item: $activity) { currentActivity in
-            ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
-                activity = nil
-            })
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
         .sheet(isPresented: $isAddingNewNote) {
-            NewNoteView(viewModel: viewModel,
+            AddNote(viewModel: viewModel,
                         student: student,
                         selectedDate: selectedDate,
                         onDismiss: {
@@ -224,7 +217,7 @@ struct StudentDetailView: View {
         }
         
         .sheet(isPresented: $isAddingNewActivity) {
-            NewActivityView(viewModel: viewModel,
+            AddActivity(viewModel: viewModel,
                             student: student,
                             selectedDate: selectedDate,
                             onDismiss: {
@@ -274,9 +267,7 @@ struct StudentDetailView: View {
     private func deleteActivity(_ activity: Activity) {
         Task {
             await viewModel.deleteActivities(activity, from: student)
-            // Hapus dari array activities lokal
             activities.removeAll(where: { $0.id == activity.id })
-            // Refresh data setelah menghapus
             await fetchActivities()
         }
     }
@@ -307,19 +298,16 @@ struct StudentDetailView: View {
         
         var result: [Date: DayItems] = [:]
         
-        // Create a date for each day in the month
         var currentDate = startOfMonth
         while currentDate <= endOfMonth {
             if !(currentDate > Date()) {
                 let startOfDay = calendar.startOfDay(for: currentDate)
-                
-                // Create DayItems for each date, even if empty
+
                 result[startOfDay] = DayItems(
                     activities: groupedActivities[startOfDay] ?? [],
                     notes: groupedNotes[startOfDay] ?? []
                 )
                 
-                // Move to next day
                 currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
             } else {
                 break
@@ -330,15 +318,11 @@ struct StudentDetailView: View {
     }
     
     func updateActivityStatus(_ activityId: UUID, isIndependent: Bool?) async {
-        do {
-            if let index = activities.firstIndex(where: { $0.id == activityId }) {
-                
-                activities[index].isIndependent = isIndependent
-                
-                try await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
-            }
-        } catch {
-            print("Error updating activity status: \(error)")
+        if let index = activities.firstIndex(where: { $0.id == activityId }) {
+            
+            activities[index].isIndependent = isIndependent
+            
+            await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
         }
     }
 
@@ -355,73 +339,4 @@ struct StudentDetailView: View {
 struct DayItems {
     var activities: [Activity]
     var notes: [Note]
-}
-
-struct CalendarButton: View {
-    @Binding var selectedDate: Date
-    @Binding var isShowingCalendar: Bool
-    var onDateSelected: (Date) -> Void
-    
-    var body: some View {
-        
-        Button(action: { isShowingCalendar = true }) {
-            ZStack {
-                Circle()
-                    .frame(width: 36)
-                    .foregroundStyle(.buttonLinkOnSheet)
-                Image(systemName: "calendar")
-                    .font(.system(size: 21))
-                    .foregroundStyle(.white)
-            }
-        }
-        
-        .sheet(isPresented: $isShowingCalendar) {
-            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "id_ID"))
-                .presentationDetents([.fraction(0.55)])
-                .onChange(of: selectedDate) { newDate in
-                    onDateSelected(newDate)
-                }
-        }
-    }
-}
-
-struct FutureMessageView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Text("Sampai jumpa besok!")
-                .foregroundColor(.secondary)
-                .fontWeight(.semibold)
-        }
-    }
-}
-
-
-struct EditButton: View {
-    @Binding var isEditing: Bool
-    
-    var body: some View {
-        Button("Edit") {
-            isEditing = true
-        }
-    }
-}
-
-struct BackButton: View {
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        Button(action: {
-            presentationMode.wrappedValue.dismiss()
-        }) {
-            HStack(spacing: 4) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.white)
-                Text("Murid")
-                    .foregroundStyle(.white)
-            }
-        }
-    }
 }

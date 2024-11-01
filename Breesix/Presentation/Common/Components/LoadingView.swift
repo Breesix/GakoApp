@@ -44,9 +44,9 @@ struct LoadingView: View {
             )
             .padding(.horizontal, 40)
         }
-        .onChange(of: progress) { newValue in
+        .onChange(of: progress) {
             withAnimation(.easeInOut(duration: 0.3)) {
-                animatedProgress = newValue
+                animatedProgress = progress
             }
         }
         .onAppear {
@@ -57,21 +57,11 @@ struct LoadingView: View {
     }
 }
 
-// Preview dengan simulasi progress
-struct LoadingView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            // Preview dengan progress 0%
-            LoadingView(progress: 0.0)
-                .previewDisplayName("Progress 0%")
-            
-            // Preview dengan progress 50%
-            LoadingView(progress: 0.5)
-                .previewDisplayName("Progress 50%")
-            
-            // Preview dengan progress 100%
-            LoadingView(progress: 1.0)
-                .previewDisplayName("Progress 100%")
-        }
+#Preview {
+    ScrollView {
+        LoadingView(progress: 0.0)
+        LoadingView(progress: 0.5)
+        LoadingView(progress: 1.0)
     }
 }
+

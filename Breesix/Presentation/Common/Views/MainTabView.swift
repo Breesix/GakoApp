@@ -9,17 +9,13 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var studentTabViewModel: StudentTabViewModel
+    @StateObject private var tabBarController = TabBarController.shared
     @State private var selectedTab = 0
     @State private var hideTabBar = false
-    @StateObject private var tabBarController = TabBarController.shared
-
 
     init(studentTabViewModel: StudentTabViewModel) {
         _studentTabViewModel = StateObject(wrappedValue: studentTabViewModel)
-        
         UITabBar.appearance().isHidden = true
-
-        
     }
 
     
@@ -32,7 +28,6 @@ struct MainTabView: View {
                     StudentTabView(viewModel: studentTabViewModel)
                         .tag(1)
                 }
-                
                 if !tabBarController.isHidden {
                     customTabBar
                         .background(Color.white)
