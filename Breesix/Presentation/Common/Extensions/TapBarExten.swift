@@ -7,24 +7,6 @@
 
 import SwiftUI
 
-
-//extension View {
-//    func hideTabBar(_ isHidden: Bool = true) -> some View {
-//        modifier(TabBarModifier(isHidden: isHidden))
-//    }
-//}
-
-struct HideTabBarOnPush: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .navigationBarBackButtonHidden(true)
-            .toolbar(.hidden, for: .tabBar)
-    }
-}
-
-
-
-
 struct HideTabBarModifier: ViewModifier {
     @ObservedObject private var tabBarController = TabBarController.shared
     
@@ -45,7 +27,6 @@ extension View {
     }
 }
 
-
 private extension UIView {
     func allSubviews() -> [UIView] {
         var subviews = [UIView]()
@@ -56,7 +37,6 @@ private extension UIView {
         return subviews
     }
 }
-
 
 extension MainTabView {
     func CustomTabItem(imageName: String, title: String, isActive: Bool, imageBackground: String, negativeImage: String) -> some View {
@@ -79,23 +59,18 @@ extension MainTabView {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 210)
-                .allowsHitTesting(false) // Mencegah interaksi dengan background
+                .allowsHitTesting(false) 
                 .padding(.bottom, 22)
         )
         .frame(width: UIScreen.main.bounds.width / 2, height: 99)
-        .contentShape(Rectangle()) // Memastikan area tap mencakup seluruh item
-        .animation(.none, value: isActive) // Menghilangkan animasi default
+        .contentShape(Rectangle())
+        .animation(.none, value: isActive)
     }
 }
 
-// Tambahkan extension untuk optimasi performa
 extension View {
     func optimizedTabBarItem() -> some View {
         self
-            //.drawingGroup() // Menggunakan Metal untuk rendering
-            .compositingGroup() // Menggabungkan layers
+            .compositingGroup()
     }
 }
-
-
-

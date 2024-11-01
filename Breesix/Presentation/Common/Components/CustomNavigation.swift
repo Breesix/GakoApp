@@ -25,7 +25,10 @@ struct CustomNavigationBar: View {
                         .fontWeight(.bold)
                     Spacer()
                     
-                    AddButton(action: action)
+                    AddButton(
+                        action: action,
+                        backgroundColor: .white
+                    )
                 }
                 .padding(.horizontal, 16)
             }
@@ -36,11 +39,11 @@ struct CustomNavigationBar: View {
 
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCornerr(radius: radius, corners: corners))
+        clipShape(RoundedCorner(radius: radius, corners: corners))
     }
 }
 
-struct RoundedCornerr: Shape {
+struct RoundedCorner: Shape {
     var radius: CGFloat = .infinity
     var corners: UIRectCorner = .allCorners
 
@@ -54,7 +57,7 @@ struct RoundedCornerr: Shape {
 
 #Preview {
     VStack {
-        CustomNavigationBar(title: "Ringkasan", action: {print("lol")})
+        CustomNavigationBar(title: "Ringkasan", action: {print("clicked")})
         Spacer()
     }
 }

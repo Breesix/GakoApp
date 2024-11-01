@@ -1,5 +1,5 @@
 //
-//  NewActivityView.swift
+//  AddUnsavedActivity.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 13/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NewUnsavedActivityView: View {
+struct AddUnsavedActivity: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
     let selectedDate: Date

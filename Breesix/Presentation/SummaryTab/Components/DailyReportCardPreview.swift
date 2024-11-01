@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct StudentSectionView: View {
+struct DailyReportCardPreview: View {
     let student: Student
     let viewModel: StudentTabViewModel
     let selectedDate: Date
@@ -56,5 +56,4 @@ struct StudentSectionView: View {
         }
 
     }
-        
 }

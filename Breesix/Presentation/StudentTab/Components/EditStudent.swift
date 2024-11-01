@@ -1,7 +1,14 @@
+//
+//  EditStudent.swift
+//  Breesix
+//
+//  Created by Rangga Biner on 03/10/24.
+//
+
 import SwiftUI
 import PhotosUI
 
-struct StudentEditView: View {
+struct EditStudent: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var fullname = ""
@@ -146,8 +153,8 @@ struct StudentEditView: View {
                                 .fontWeight(.regular)
                                 .padding(.horizontal, 11)
                                 .padding(.vertical, 9)
-                                .onChange(of: nickname) { newValue in
-                                    isDuplicateNickname = checkDuplicateNickname(newValue)
+                                .onChange(of: nickname) {
+                                    isDuplicateNickname = checkDuplicateNickname(nickname)
                                 }
                         }
                         .background(.cardFieldBG)

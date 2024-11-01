@@ -5,7 +5,6 @@
 //  Created by Rangga Biner on 15/10/24.
 //
 
-
 import SwiftUI
 import Speech
 import DotLottie
@@ -50,9 +49,9 @@ struct VoiceInputView: View {
         self.onDismiss = onDismiss
     }
     
-    //    private let ttProcessor = OpenAIService(apiToken: "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")
+        private let ttProcessor = OpenAIService(apiToken: "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")
         
-        private let ttProcessor = LlamaService(apiKey: "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")
+//        private let ttProcessor = LlamaService(apiKey: "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")
 
     var body: some View {
         ZStack{
@@ -92,10 +91,9 @@ struct VoiceInputView: View {
                             .disabled(isLoading)
                             .opacity(isLoading ? 0.5 : 1)
                     }
-                    .onChange(of: editedText) { newValue in
-                                        // Update reflection ketika user mengedit teks
-                                        reflection = newValue
-                        speechRecognizer.previousTranscript = newValue
+                    .onChange(of: editedText) {
+                                        reflection = editedText
+                        speechRecognizer.previousTranscript = editedText
                                     }
 
                     Spacer()
@@ -131,11 +129,13 @@ struct VoiceInputView: View {
                                 speechRecognizer.startTranscribing()
                             } else {
                                 
-                                isPaused.toggle()
-                                if isPaused {
-                                    self.speechRecognizer.pauseTranscribing()
-                                } else {
-                                    self.speechRecognizer.resumeTranscribing()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isPaused.toggle()
+                                    if isPaused {
+                                        speechRecognizer.pauseTranscribing()
+                                    } else {
+                                        speechRecognizer.resumeTranscribing()
+                                    }
                                 }
                             }
                         }) {
@@ -236,8 +236,8 @@ struct VoiceInputView: View {
                 .datePickerStyle(.graphical)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .onChange(of: tempDate) { newDate in
-                    selectedDate = newDate
+                .onChange(of: tempDate) {
+                    selectedDate = tempDate
                     isShowingDatePicker = false
                 }
         }
@@ -256,9 +256,9 @@ struct VoiceInputView: View {
             requestSpeechAuthorization()
             
         }
-        .onChange(of: isTextEditorFocused) { focused in
+        .onChange(of: isTextEditorFocused) { 
             withAnimation {
-                showProTips = !focused
+                showProTips = !isTextEditorFocused
             }
         }
     }

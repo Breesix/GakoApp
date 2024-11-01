@@ -1,6 +1,6 @@
 
 //
-//  ActivitySectionView.swift
+//  ActivitySectionPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
@@ -20,7 +20,7 @@ struct ActivitySectionPreview: View {
             
             if !studentActivities.isEmpty {
                 ForEach(studentActivities) { activity in
-                    ActivityDetailRow(
+                    ActivityRowPreview(
                         viewModel: viewModel,
                         activity: binding(for: activity, in: viewModel),
                         student: student,
@@ -38,11 +38,13 @@ struct ActivitySectionPreview: View {
                     .foregroundColor(.labelSecondary)
             }
             
-            // Button tambah selalu muncul
-            AddButton {
-                selectedStudent = student
-                isAddingNewActivity = true
-            }
+            AddButton(
+                action: {
+                    selectedStudent = student
+                    isAddingNewActivity = true
+                },
+                backgroundColor: .buttonOncard
+            )
         }
     }
     

@@ -1,5 +1,5 @@
 //
-//  NewActivityView.swift
+//  AddActivity.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 04/10/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NewActivityView: View {
+struct AddActivity: View {
     @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
     let selectedDate: Date

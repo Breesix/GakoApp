@@ -28,31 +28,31 @@ struct ProfileHeaderPreview: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                HStack{
-                    Text(student.fullname)
-                        .fontWeight(.semibold)
-                        .font(.body)
-                        .foregroundColor(.labelPrimaryBlack)
-                    HStack(alignment: .lastTextBaseline) {
-                        if hasDefaultActivities {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.yellow)
-                                
-                        }
-                    }
-                    
-                    
-                }
+                
+                Text(student.fullname)
+                    .fontWeight(.semibold)
+                    .font(.body)
+                    .foregroundColor(.labelPrimaryBlack)
+                
+                
                 Text(student.nickname)
                     .fontWeight(.regular)
                     .font(.subheadline)
                     .foregroundColor(.labelPrimaryBlack)
                 
             }
+            Spacer()
+            if hasDefaultActivities {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundColor(.orangeClickAble)
+                    .frame(alignment: .trailing)
+            }
+            
         }
+        
     }
 }
 
-//#Preview {
-//    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
-//}
+#Preview {
+    ProfileHeaderPreview(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), hasDefaultActivities: true)
+}

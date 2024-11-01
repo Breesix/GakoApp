@@ -32,11 +32,10 @@ struct TextInputView: View {
         self.onDismiss = onDismiss
     }
     
-//    private let ttProcessor = OpenAIService(apiToken: "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")
+    private let ttProcessor = OpenAIService(apiToken: "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")
     
-    private let ttProcessor = LlamaService(apiKey: "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")
-
-
+//    private let ttProcessor = LlamaService(apiKey: "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"
+    
     var body: some View {
         ZStack {
             Color.clear
@@ -140,6 +139,7 @@ struct TextInputView: View {
         }
         .background(.white)
         .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
                 Button("Batalkan Dokumentasi", role: .destructive, action: {
@@ -159,14 +159,14 @@ struct TextInputView: View {
                 .datePickerStyle(.graphical)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
-                .onChange(of: tempDate) { newDate in
-                    selectedDate = newDate
+                .onChange(of: tempDate) {
+                    selectedDate = tempDate
                     isShowingDatePicker = false
                 }
         }
-        .onChange(of: isTextEditorFocused) { focused in
+        .onChange(of: isTextEditorFocused) {
             withAnimation {
-                showProTips = !focused
+                showProTips = !isTextEditorFocused
             }
         }
     }

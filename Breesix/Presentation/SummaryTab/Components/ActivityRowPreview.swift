@@ -1,12 +1,12 @@
 //
-//  ActivityDetailRow.swift
+//  ActivityRowPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
 import SwiftUI
 
-struct ActivityDetailRow: View {
+struct ActivityRowPreview: View {
     @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student
@@ -14,7 +14,6 @@ struct ActivityDetailRow: View {
     let onDelete: () -> Void
     
     @State private var showDeleteAlert = false
-
     @State private var selectedStatus: Bool?
     
     var body: some View {
@@ -25,36 +24,9 @@ struct ActivityDetailRow: View {
                 .foregroundStyle(.labelPrimaryBlack)
                 .padding(.bottom, 12)
             
-            HStack (spacing: 8) {
-                Menu {
-                    Button("Mandiri") {
-                        activity.isIndependent = true
-                        selectedStatus = true
-                    }
-                    Button("Dibimbing") {
-                        activity.isIndependent = false
-                        selectedStatus = false 
-                    }
-                } label: {
-                    HStack {
-                        Text(getStatusText())
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.up.chevron.down")
-                    }
-                    .font(.body)
-                    .fontWeight(.regular)
-                    .foregroundColor(.labelPrimaryBlack)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.cardFieldBG)
-                    .cornerRadius(8)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.statusStroke, lineWidth: 2)
-                    }
+            HStack(spacing: 8) {
+                StatusPickerView(isIndependent: $activity.isIndependent) { newStatus in
+                    selectedStatus = newStatus
                 }
                 
                 Button(action: {
@@ -74,7 +46,6 @@ struct ActivityDetailRow: View {
                     Button("Hapus", role: .destructive) {
                         viewModel.deleteUnsavedActivity(activity)
                         onDelete()
-                        
                     }
                     Button("Batal", role: .cancel) { }
                 } message: {
@@ -86,13 +57,8 @@ struct ActivityDetailRow: View {
             selectedStatus = activity.isIndependent
         }
     }
-    
-    private func getStatusText() -> String {
-        if let isIndependent = activity.isIndependent {
-            return isIndependent ? "Mandiri" : "Dibimbing"
-        }
-        return "Status"
-    }
 }
+
+
 
 
