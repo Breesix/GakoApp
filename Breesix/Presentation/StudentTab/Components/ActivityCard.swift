@@ -13,7 +13,6 @@ struct ActivityCardView: View {
     let notes: [Note]
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
-    let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
@@ -42,7 +41,6 @@ struct ActivityCardView: View {
                 
                     ActivitySection(
                         activities: activities,
-                        onEditActivity: onEditActivity,
                         onDeleteActivity: onDeleteActivity,
                         onStatusChanged: { activity, newStatus in
                             Task {
@@ -50,8 +48,6 @@ struct ActivityCardView: View {
                             }
                         }
                     )
-//                    .padding(.bottom, 16)
-                
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
@@ -102,16 +98,12 @@ struct ActivityCardView: View {
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
-        
-        
     }
-
 }
 
 
 struct ActivitySection: View {
     let activities: [Activity]
-    let onEditActivity: (Activity) -> Void
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Bool?) -> Void
     
@@ -124,7 +116,6 @@ struct ActivitySection: View {
                 ForEach(activities, id: \.id) { activity in
                     ActivityRow(
                         activity: activity,
-                        onEdit: { _ in onEditActivity(activity) },
                         onDelete: { _ in onDeleteActivity(activity) },
                         onStatusChanged: onStatusChanged
                         )
@@ -137,18 +128,15 @@ struct ActivitySection: View {
 
 struct ActivityRow: View {
     let activity: Activity
-    let onEdit: (Activity) -> Void
     let onDelete: (Activity) -> Void
     let onStatusChanged: (Activity, Bool?) -> Void
     @State private var showDeleteAlert = false
     @State private var isIndependent: Bool?
     
     init(activity: Activity,
-         onEdit: @escaping (Activity) -> Void,
          onDelete: @escaping (Activity) -> Void,
          onStatusChanged: @escaping (Activity, Bool?) -> Void) {
         self.activity = activity
-        self.onEdit = onEdit
         self.onDelete = onDelete
         self.onStatusChanged = onStatusChanged
         _isIndependent = State(initialValue: activity.isIndependent)
@@ -228,15 +216,11 @@ struct ActivityRow: View {
             return "Dibimbing"
         case nil:
             return "Tidak Melakukan"
-        @unknown default:
+        default:
             return "status"
         }
     }
 }
-
-
-
-
 
 struct NoteDetailRow: View {
     let note: Note
@@ -288,5 +272,3 @@ struct NoteDetailRow: View {
         }
     }
 }
-
-

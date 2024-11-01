@@ -149,7 +149,6 @@ struct StudentDetailView: View {
                                                     selectedDate = day
                                                     isAddingNewActivity = true
                                                 },
-                                                onEditActivity: { self.activity = $0 },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
@@ -195,14 +194,6 @@ struct StudentDetailView: View {
         .sheet(item: $selectedNote) { note in
             NoteEditView(viewModel: viewModel, note: note, onDismiss: {
                 selectedNote = nil
-            })
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
-        .sheet(item: $activity) { currentActivity in
-            ActivityEdit(viewModel: viewModel, activity: currentActivity, onDismiss: {
-                activity = nil
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
