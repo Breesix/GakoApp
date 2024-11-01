@@ -144,7 +144,7 @@ struct SummaryTabView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 72)
         .navigationDestination(for: Student.self) { student in
-            StudentDetailView(student: student, viewModel: studentTabViewModel)
+            StudentDetailView(student: student, viewModel: studentTabViewModel, initialScrollDate: viewModel.selectedDate)
         }
     }
 }

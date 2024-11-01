@@ -37,10 +37,12 @@ struct DailyReportTemplate: View {
                     Text("Laporan Harian Murid")
                         .font(.title2)
                         .bold()
+                        .foregroundStyle(.labelPrimary)
                     Text(indonesianFormattedDate(date: date))
                         .font(.body)
                         .italic()
                         .foregroundStyle(.secondary)
+                        .foregroundStyle(.labelPrimaryBlack)
                 }
             }
             .padding()
@@ -73,8 +75,10 @@ struct DailyReportTemplate: View {
                         Text(student.fullname)
                             .font(.title3)
                             .bold()
+                            .foregroundStyle(.labelPrimaryBlack)
                         Text(student.nickname)
                             .font(.body)
+                            .foregroundStyle(.labelPrimaryBlack)
                     }
                     
                     Spacer()
@@ -100,7 +104,7 @@ struct DailyReportTemplate: View {
                     .inset(by: 0.5)
                     .stroke(.green300, lineWidth: 1)
             )
-            .padding(.leading)
+            .padding(.horizontal)
             
             // Activities Table
             VStack(alignment: .leading, spacing: 8) {
@@ -132,6 +136,11 @@ struct DailyReportTemplate: View {
                 }
                 .background(.white)
                 .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .inset(by: 0.5)
+                        .stroke(.green300, lineWidth: 1)
+                )
             }
             .padding()
             
@@ -140,11 +149,13 @@ struct DailyReportTemplate: View {
                 HStack {
                     Text("Catatan:")
                         .font(.headline)
+                        .foregroundStyle(.labelPrimaryBlack)
                     Spacer()
                 }
                 ForEach(notes) { note in
                     Text("• \(note.note)")
                         .font(.body)
+                        .foregroundStyle(.labelPrimaryBlack)
                 }
             }
             .padding()
@@ -157,7 +168,7 @@ struct DailyReportTemplate: View {
                 .padding()
         }
         .frame(width: a4Width, height: a4Height)
-        .background(.gray.opacity(0.1))
+        .background(.white)
     }
 }
 

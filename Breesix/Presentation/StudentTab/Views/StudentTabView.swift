@@ -51,7 +51,7 @@ struct StudentTabView: View {
                                     GridItem(.flexible())
                                 ], spacing: 16) {
                                     ForEach(filteredStudents) { student in
-                                        NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
+                                        NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel, initialScrollDate: Date()) ) {
                                             ProfileCard(student: student) {
                                                 Task {
                                                     await viewModel.deleteStudent(student)

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct StudentDetailView: View {
     let student: Student
@@ -29,6 +30,9 @@ struct StudentDetailView: View {
     @State private var snapshotImage: UIImage?
     @State private var documentInteractionController: UIDocumentInteractionController?
     @State private var selectedActivityDate: Date?
+    
+    @State private var toast: Toast?
+    let initialScrollDate: Date
     
     // Add this function to handle WhatsApp sharing
     private func shareToWhatsApp(image: UIImage) {
@@ -65,10 +69,12 @@ struct StudentDetailView: View {
         }
     }
     
-    init(student: Student, viewModel: StudentTabViewModel) {
-        self.student = student
-        self.viewModel = viewModel
-    }
+    init(student: Student, viewModel: StudentTabViewModel, initialScrollDate: Date) {
+            self.student = student
+            self.viewModel = viewModel
+            self.initialScrollDate = initialScrollDate
+            _selectedDate = State(initialValue: initialScrollDate)
+        }
     
     private var formattedMonth: String {
         let formatter = DateFormatter()
@@ -208,6 +214,12 @@ struct StudentDetailView: View {
                                             .id(day)
                                         }
                                     }
+                                    .task {
+                                        let startOfDay = calendar.startOfDay(for: initialScrollDate)
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                        }
+                                    }
                                 }
                             }
                             .onChange(of: selectedDate) {
@@ -233,74 +245,80 @@ struct StudentDetailView: View {
             .navigationBarHidden(true)
             .hideTabBar()
             
+            // MARK: THIS IS VIEW FOR SNAPSHOTS PREVIEW
             if showSnapshotPreview, let image = snapshotImage {
-                Color.black.opacity(0.3)
+                Color.black.opacity(0.5)
                     .ignoresSafeArea()
                     .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation {
+                            showSnapshotPreview = false
+                        }
+                    }
                 
-                VStack(spacing: 16) {
-                    // Header
-                    HStack {
-                        Text("Preview")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                VStack(spacing: 0) {
+                    // Preview Image
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
+                        .padding(.horizontal)
+                        .padding(.top, 72)
+                    
+                    Spacer()
+                    
+                    // Bottom Sheet
+                    VStack(spacing: 16) {
+                        // Drag Indicator
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 36, height: 5)
+                            .padding(.top, 8)
                         
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                showSnapshotPreview = false
+                        HStack(spacing: 20) {
+                            ShareButton(
+                                title: "WhatsApp",
+                                icon: "square.and.arrow.up",
+                                color: Color.green
+                            ) {
+                                shareToWhatsApp(image: image)
                             }
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.gray)
+                            
+                            ShareButton(
+                                title: "Save",
+                                icon: "square.and.arrow.down",
+                                color: Color.blue
+                            ) {
+                                let imageSaver = ImageSaver()
+                                imageSaver.writeToPhotoAlbum(image: image)
+                                toast = Toast(
+                                    style: .success,
+                                    message: "Image saved to photo library",
+                                    duration: 2,
+                                    width: 280
+                                )
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    showSnapshotPreview = false
+                                }
+                            }
+                            
+                            ShareButton(
+                                title: "Share",
+                                icon: "square.and.arrow.up",
+                                color: Color.orange
+                            ) {
+                                showShareSheet(image: image)
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 32)
                     }
-                    
-                    // Image Preview
-                    ScrollView {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(12)
-                    }
-                    .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                    
-                    // Action Buttons
-                    HStack(spacing: 20) {
-                        ShareButton(
-                            title: "WhatsApp",
-                            icon: "square.and.arrow.up",
-                            color: Color.green
-                        ) {
-                            shareToWhatsApp(image: image)
-                        }
-                        
-                        ShareButton(
-                            title: "Save",
-                            icon: "square.and.arrow.down",
-                            color: Color.blue
-                        ) {
-                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                        }
-                        
-                        ShareButton(
-                            title: "Share",
-                            icon: "square.and.arrow.up",
-                            color: Color.orange
-                        ) {
-                            showShareSheet(image: image)
-                        }
-                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(16, corners: [.topLeft, .topRight])
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(radius: 10)
-                .padding(.horizontal, 20)
                 .transition(.move(edge: .bottom))
+                .ignoresSafeArea(.all, edges: .bottom)
             }
         }
         .toolbar(.hidden, for: .bottomBar , .tabBar )
@@ -347,6 +365,7 @@ struct StudentDetailView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+        .toastView(toast: $toast)
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -497,36 +516,6 @@ struct DayItems {
     var notes: [Note]
 }
 
-//struct CalendarButton: View {
-//    @Binding var selectedDate: Date
-//    @Binding var isShowingCalendar: Bool
-//    var onDateSelected: (Date) -> Void
-//    
-//    var body: some View {
-//        
-//        Button(action: { isShowingCalendar = true }) {
-//            ZStack {
-//                Circle()
-//                    .frame(width: 36)
-//                    .foregroundStyle(.buttonLinkOnSheet)
-//                Image(systemName: "calendar")
-//                    .font(.system(size: 21))
-//                    .foregroundStyle(.white)
-//            }
-//        }
-//        
-//        .sheet(isPresented: $isShowingCalendar) {
-//            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-//                .datePickerStyle(.graphical)
-//                .environment(\.locale, Locale(identifier: "id_ID"))
-//                .presentationDetents([.fraction(0.55)])
-//                .onChange(of: selectedDate) { newDate in
-//                    onDateSelected(newDate)
-//                }
-//        }
-//    }
-//}
-
 struct FutureMessageView: View {
     var body: some View {
         VStack {
@@ -566,94 +555,37 @@ struct BackButton: View {
     }
 }
 
-// Create a preview sheet view
-struct SnapshotPreviewSheet: View {
-    let image: UIImage
-    let onWhatsAppShare: () -> Void
-    let onSystemShare: () -> Void
-    let onDismiss: () -> Void
+// Add these supporting views and functions:
+
+struct ShareButtonView: View {
+    let iconName: String
+    let title: String
+    let color: Color
     
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-                .onTapGesture(perform: onDismiss)
-            
-            VStack(spacing: 16) {
-                // Header
-                HStack {
-                    Text("Preview")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.gray)
-                    }
-                }
-                
-                // Image Preview
-                Image(uiImage: image)
+        VStack(spacing: 8) {
+            if iconName == "whatsapp" {
+                Image("whatsapp") // Add WhatsApp icon to assets
                     .resizable()
                     .scaledToFit()
-                    .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                    .cornerRadius(12)
-                
-                // Action Buttons
-                HStack(spacing: 20) {
-                    Button(action: onWhatsAppShare) {
-                        VStack {
-                            Image(systemName: "message.fill")
-                                .font(.title2)
-                            Text("WhatsApp")
-                                .font(.caption)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.green)
-                        .cornerRadius(10)
-                    }
-                    
-                    Button(action: {
-                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                    }) {
-                        VStack {
-                            Image(systemName: "square.and.arrow.down")
-                                .font(.title2)
-                            Text("Save")
-                                .font(.caption)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                    }
-                    
-                    Button(action: onSystemShare) {
-                        VStack {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.title2)
-                            Text("Share")
-                                .font(.caption)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.orange)
-                        .cornerRadius(10)
-                    }
-                }
+                    .frame(width: 24, height: 24)
+            } else {
+                Image(systemName: iconName)
+                    .font(.system(size: 24))
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(radius: 10)
-            .padding(.horizontal, 20)
+            Text(title)
+                .font(.caption)
         }
+        .foregroundColor(color)
+    }
+}
+
+class ImageSaver: NSObject {
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+    }
+
+    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        print("Save finished!")
     }
 }
