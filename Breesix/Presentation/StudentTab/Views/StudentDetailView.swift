@@ -137,7 +137,7 @@ struct StudentDetailView: View {
                                 LazyVStack(spacing: 0) {
                                     ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
                                         if let dayItems = activitiesForSelectedMonth[day] {
-                                            ActivityCardView(
+                                            DailyReportCard(
                                                 viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,

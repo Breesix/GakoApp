@@ -2,19 +2,20 @@
 //  NoteRow.swift
 //  Breesix
 //
-//  Created by Kevin Fairuz on 28/10/24.
+//  Created by Rangga Biner on 01/11/24.
 //
+
 import SwiftUI
 
 struct NoteRow: View {
-    let note: UnsavedNote
-    let student: Student
-    let onEdit: () -> Void
-    let onDelete: () -> Void
+    let note: Note
+    let onEdit: (Note) -> Void
+    let onDelete: (Note) -> Void
+    
     @State private var showDeleteAlert = false
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack (spacing: 8) {
             Text(note.note)
                 .font(.subheadline)
                 .fontWeight(.regular)
@@ -28,8 +29,10 @@ struct NoteRow: View {
                         .stroke(.noteStroke, lineWidth: 0.5)
                 }
                 .contextMenu {
-                    Button("Edit") { onEdit() }
+                    Button("Edit") { onEdit(note) }
                 }
+            
+            
             Button(action: {
                 showDeleteAlert = true
             }) {
@@ -45,7 +48,7 @@ struct NoteRow: View {
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {
-                    onDelete()
+                    onDelete(note)
                 }
                 Button("Batal", role: .cancel) { }
             } message: {
@@ -53,4 +56,8 @@ struct NoteRow: View {
             }
         }
     }
+}
+
+#Preview {
+    NoteRow(note: .init(note: "rangga sangat hebat sekali dalam mengerjakan tugasnya dia keren banget", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onEdit: { _ in print("edited")}, onDelete: { _ in print("deleted")})
 }

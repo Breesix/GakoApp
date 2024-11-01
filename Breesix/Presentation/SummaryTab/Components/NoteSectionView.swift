@@ -20,7 +20,7 @@ struct NoteSectionPreview: View {
         if !studentNotes.isEmpty {
             Section(header: Text("Catatan").font(.callout).padding(.bottom, 8).fontWeight(.semibold).foregroundStyle(.labelPrimaryBlack)) {
                 ForEach(studentNotes) { note in
-                    NoteRow(
+                    NotePreviewRow(
                         note: note,
                         student: student,
                         onEdit: {

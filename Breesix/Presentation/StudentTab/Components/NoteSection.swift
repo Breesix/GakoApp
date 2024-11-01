@@ -26,12 +26,21 @@ struct NoteSection: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(notes, id: \.id) { note in
-                        NoteDetailRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
+                        NoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
                     }
                 }
             }
-//            .padding(.bottom, 12)
-            
         }
     }
+}
+
+#Preview {
+    NoteSection(notes: [
+        .init(note: "Hari ini rangga sangat baik sekali dalam mengerjakan tugas nya", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+    ], onEditNote: { _ in print("edited")}, onDeleteNote: { _ in print("deleted")}, onAddNote: { print("added") })
+    .padding(.bottom, 200)
+    
+    // empty state:
+    NoteSection(notes: [
+    ], onEditNote: { _ in print("edited")}, onDeleteNote: { _ in print("deleted")}, onAddNote: { print("added") })
 }
