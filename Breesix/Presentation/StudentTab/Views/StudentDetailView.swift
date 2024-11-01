@@ -415,6 +415,8 @@ struct StudentDetailView: View {
         }
     }
     
+    // MARK: This is a getter for selected month that have filled
+    
     //        private var activitiesForSelectedMonth: [Date: DayItems] {
     //            let calendar = Calendar.current
     //

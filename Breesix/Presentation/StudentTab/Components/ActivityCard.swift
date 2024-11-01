@@ -154,18 +154,7 @@ struct ActivityCardView: View {
         .padding(.vertical, 12)
         .background(.white)
         .cornerRadius(20)
-        .frame(maxWidth: .infinity, alignment: .trailing)
-//        .overlay {
-//                    if let image = snapshotImage {
-//                        SnapshotPreviewSheet(
-//                            isPresented: $showPreviewSheet,
-//                            snapshotImage: image
-//                        )
-//                        .opacity(showPreviewSheet ? 1 : 0)
-//                        .animation(.easeInOut, value: showPreviewSheet)
-//                    }
-//                }
-        
+        .frame(maxWidth: .infinity, alignment: .trailing)        
     }
 }
 
