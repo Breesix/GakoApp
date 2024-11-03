@@ -332,3 +332,14 @@ struct VoiceInputView: View {
         }
     }
 }
+
+#Preview {
+    VoiceInputView(
+        selectedDate: .constant(.now),
+        onAddUnsavedActivities: { _ in },
+        onAddUnsavedNotes: { _ in },
+        onDateSelected: { _ in },
+        onDismiss: {},
+        fetchStudents: { return [] }
+    )
+}

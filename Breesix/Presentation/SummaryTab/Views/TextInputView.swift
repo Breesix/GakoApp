@@ -260,3 +260,14 @@ private extension TextInputView {
             }
     }
 }
+
+#Preview {
+    TextInputView(
+        selectedDate: .constant(.now),
+        onAddUnsavedActivities: { _ in },
+        onAddUnsavedNotes: { _ in },
+        onDateSelected: { _ in },
+        onDismiss: {},
+        fetchStudents: { return [] }
+    )
+}
