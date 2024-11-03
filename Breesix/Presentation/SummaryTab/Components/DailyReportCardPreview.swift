@@ -81,4 +81,6 @@ struct DailyReportCardPreview: View {
             .init(note: "Anak ini baiikkkkk sekali", createdAt: .now, studentId: UUID())
         ]
     )
+    .padding(20)
+    .background(.gray)
 }

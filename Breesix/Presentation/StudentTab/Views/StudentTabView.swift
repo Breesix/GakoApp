@@ -9,7 +9,7 @@ import SwiftUI
 import Speech
 
 struct StudentTabView: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+    @ObservedObject var studentTabViewModel: StudentTabViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
     @State private var searchQuery = ""
@@ -31,7 +31,7 @@ struct StudentTabView: View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
                     VStack {
-                        if viewModel.students.isEmpty {
+                        if studentTabViewModel.students.isEmpty {
                             VStack {
                                 Spacer()
                                 EmptyState(message: "Belum ada murid yang terdaftar.")
@@ -55,49 +55,49 @@ struct StudentTabView: View {
                                             StudentDetailView(
                                                 student: student,
                                                 onAddStudent: { student in
-                                                    await viewModel.addStudent(student)
+                                                    await studentTabViewModel.addStudent(student)
                                                 },
                                                 onUpdateStudent: { student in
-                                                    await viewModel.updateStudent(student)
+                                                    await studentTabViewModel.updateStudent(student)
                                                 },
                                                 onAddNote: { note, student in
-                                                    await viewModel.addNote(note, for: student)
+                                                    await studentTabViewModel.addNote(note, for: student)
                                                 },
                                                 onUpdateNote: { note in
-                                                    await viewModel.updateNote(note)
+                                                    await studentTabViewModel.updateNote(note)
                                                 },
                                                 onDeleteNote: { note, student in
-                                                    await viewModel.deleteNote(note, from: student)
+                                                    await studentTabViewModel.deleteNote(note, from: student)
                                                 },
                                                 onAddActivity: { activity, student in
-                                                    await viewModel.addActivity(activity, for: student)
+                                                    await studentTabViewModel.addActivity(activity, for: student)
                                                 },
                                                 onDeleteActivity: { activity, student in
-                                                    await viewModel.deleteActivities(activity, from: student)
+                                                    await studentTabViewModel.deleteActivities(activity, from: student)
                                                 },
                                                 onUpdateActivityStatus: { activity, isIndependent in
-                                                    await viewModel.updateActivityStatus(activity, isIndependent: isIndependent)
+                                                    await studentTabViewModel.updateActivityStatus(activity, isIndependent: isIndependent)
                                                 },
                                                 onFetchNotes: { student in
-                                                    await viewModel.fetchAllNotes(student)
+                                                    await studentTabViewModel.fetchAllNotes(student)
                                                 },
                                                 onFetchActivities: { student in
-                                                    await viewModel.fetchActivities(student)
+                                                    await studentTabViewModel.fetchActivities(student)
                                                 },
                                                 onCheckNickname: { nickname, currentStudentId in
-                                                    viewModel.students.contains { student in
+                                                    studentTabViewModel.students.contains { student in
                                                         if let currentId = currentStudentId {
                                                             return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
                                                         }
                                                         return student.nickname.lowercased() == nickname.lowercased()
                                                     }
                                                 },
-                                                compressedImageData: viewModel.compressedImageData
+                                                compressedImageData: studentTabViewModel.compressedImageData
                                             )
                                         } label: {
                                             ProfileCard(student: student) {
                                                 Task {
-                                                    await viewModel.deleteStudent(student)
+                                                    await studentTabViewModel.deleteStudent(student)
                                                 }
                                             }
                                         }
@@ -116,24 +116,24 @@ struct StudentTabView: View {
             .navigationBarHidden(true)
         }
         .refreshable {
-            await viewModel.fetchAllStudents()
+            await studentTabViewModel.fetchAllStudents()
         }
         .sheet(isPresented: $isAddingStudent) {
             ManageStudentView(
                 mode: .add,
-                compressedImageData: viewModel.compressedImageData,
-                newStudentImage: viewModel.newStudentImage,
+                compressedImageData: studentTabViewModel.compressedImageData,
+                newStudentImage: studentTabViewModel.newStudentImage,
                 onSave: { student in
-                    await viewModel.addStudent(student)
+                    await studentTabViewModel.addStudent(student)
                 },
                 onUpdate: { student in
-                    await viewModel.updateStudent(student)
+                    await studentTabViewModel.updateStudent(student)
                 },
                 onImageChange: { image in
-                    viewModel.newStudentImage = image
+                    studentTabViewModel.newStudentImage = image
                 },
                 checkNickname: { nickname, currentStudentId in
-                    viewModel.students.contains { student in
+                    studentTabViewModel.students.contains { student in
                         if let currentId = currentStudentId {
                             return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
                         }
@@ -145,15 +145,15 @@ struct StudentTabView: View {
             .presentationDragIndicator(.visible)
         }
         .task {
-            await viewModel.fetchAllStudents()
+            await studentTabViewModel.fetchAllStudents()
         }
     }
     
     private var filteredStudents: [Student] {
         if searchQuery.isEmpty {
-            return viewModel.students
+            return studentTabViewModel.students
         } else {
-            return viewModel.students.filter { student in
+            return studentTabViewModel.students.filter { student in
                 student.nickname.localizedCaseInsensitiveContains(searchQuery) ||
                 student.fullname.localizedCaseInsensitiveContains(searchQuery)
             }

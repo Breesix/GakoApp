@@ -25,7 +25,7 @@ struct MainTabView: View {
                 TabView(selection: $selectedTab) {
                     SummaryTabView(studentTabViewModel: studentTabViewModel)
                         .tag(0)
-                    StudentTabView(viewModel: studentTabViewModel)
+                    StudentTabView(studentTabViewModel: studentTabViewModel)
                         .tag(1)
                 }
                 if !tabBarController.isHidden {

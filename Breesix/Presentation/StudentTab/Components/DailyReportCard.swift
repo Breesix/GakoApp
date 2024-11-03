@@ -118,7 +118,7 @@ struct DailyReportCard: View {
                     onAddNote: onAddNote
                 )
             } else {
-                Text("Tidak ada notes untuk tanggal ini")
+                Text("Tidak ada catatan untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
             }
             

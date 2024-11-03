@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PreviewView: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool
     @State private var isSaving = false
@@ -29,25 +28,66 @@ struct PreviewView: View {
     @State private var progress: Double = 0.0
     @State private var progressTimer: Timer?
     
+    // Data properties
+    private let students: [Student]
+    private var unsavedActivities: [UnsavedActivity]
+    private var unsavedNotes: [UnsavedNote]
+    
+    // Callback functions
+    let onAddUnsavedActivities: ([UnsavedActivity]) -> Void
+    let onUpdateUnsavedActivity: (UnsavedActivity) -> Void
+    let onDeleteUnsavedActivity: (UnsavedActivity) -> Void
+    let onAddUnsavedNote: (UnsavedNote) -> Void
+    let onUpdateUnsavedNote: (UnsavedNote) -> Void
+    let onDeleteUnsavedNote: (UnsavedNote) -> Void
+    let onClearUnsavedNotes: () -> Void
+    let onClearUnsavedActivities: () -> Void
+    let onSaveUnsavedActivities: () async -> Void
+    let onSaveUnsavedNotes: () async -> Void
+    let onGenerateAndSaveSummaries: (Date) async throws -> Void
     
     init(
         selectedDate: Binding<Date>,
-        viewModel: StudentTabViewModel,
         isShowingPreview: Binding<Bool>,
-        isShowingActivity: Binding<Bool>
+        isShowingActivity: Binding<Bool>,
+        students: [Student],
+        unsavedActivities: [UnsavedActivity],
+        unsavedNotes: [UnsavedNote],
+        onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
+        onUpdateUnsavedActivity: @escaping (UnsavedActivity) -> Void,
+        onDeleteUnsavedActivity: @escaping (UnsavedActivity) -> Void,
+        onAddUnsavedNote: @escaping (UnsavedNote) -> Void,
+        onUpdateUnsavedNote: @escaping (UnsavedNote) -> Void,
+        onDeleteUnsavedNote: @escaping (UnsavedNote) -> Void,
+        onClearUnsavedNotes: @escaping () -> Void,
+        onClearUnsavedActivities: @escaping () -> Void,
+        onSaveUnsavedActivities: @escaping () async -> Void,
+        onSaveUnsavedNotes: @escaping () async -> Void,
+        onGenerateAndSaveSummaries: @escaping (Date) async throws -> Void
     ) {
-        self.viewModel = viewModel
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
         self._isShowingPreview = isShowingPreview
         self._isShowingActivity = isShowingActivity
+        self.students = students
+        self.unsavedActivities = unsavedActivities
+        self.unsavedNotes = unsavedNotes
+        self.onAddUnsavedActivities = onAddUnsavedActivities
+        self.onUpdateUnsavedActivity = onUpdateUnsavedActivity
+        self.onDeleteUnsavedActivity = onDeleteUnsavedActivity
+        self.onAddUnsavedNote = onAddUnsavedNote
+        self.onUpdateUnsavedNote = onUpdateUnsavedNote
+        self.onDeleteUnsavedNote = onDeleteUnsavedNote
+        self.onClearUnsavedNotes = onClearUnsavedNotes
+        self.onClearUnsavedActivities = onClearUnsavedActivities
+        self.onSaveUnsavedActivities = onSaveUnsavedActivities
+        self.onSaveUnsavedNotes = onSaveUnsavedNotes
+        self.onGenerateAndSaveSummaries = onGenerateAndSaveSummaries
     }
-    
     
     var body: some View {
         ZStack {
             if !isSaving {
-               
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(sortedStudents) { student in
@@ -59,21 +99,19 @@ struct PreviewView: View {
                                 isAddingNewNote: $isAddingNewNote,
                                 hasDefaultActivities: hasAnyDefaultActivity(for: student),
                                 onUpdateActivity: { updatedActivity in
-                                    if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == updatedActivity.id }) {
-                                        viewModel.unsavedActivities[index] = updatedActivity
-                                    }
+                                    onUpdateUnsavedActivity(updatedActivity)
                                 },
                                 onDeleteActivity: { activity in
-                                    viewModel.deleteUnsavedActivity(activity)
+                                    onDeleteUnsavedActivity(activity)
                                 },
                                 onUpdateNote: { updatedNote in
-                                    viewModel.updateUnsavedNote(updatedNote)
+                                    onUpdateUnsavedNote(updatedNote)
                                 },
                                 onDeleteNote: { note in
-                                    viewModel.deleteUnsavedNote(note)
+                                    onDeleteUnsavedNote(note)
                                 },
-                                activities: viewModel.unsavedActivities.filter { $0.studentId == student.id },
-                                notes: viewModel.unsavedNotes.filter { $0.studentId == student.id }
+                                activities: unsavedActivities.filter { $0.studentId == student.id },
+                                notes: unsavedNotes.filter { $0.studentId == student.id }
                             )
                             .padding(.bottom, 12)
                         }
@@ -95,18 +133,17 @@ struct PreviewView: View {
                                 .cornerRadius(12)
                         }
                     }
-                    
                     .padding(.top, 12)
                     .padding(.horizontal, 16)
                     .background(.bgMain)
                 }
                 .navigationBarItems(
                     leading: Button {
-                        viewModel.clearUnsavedNotes()
-                        viewModel.clearUnsavedActivities()
+                        onClearUnsavedNotes()
+                        onClearUnsavedActivities()
                         isShowingPreview = false
                     } label: {
-                        HStack{
+                        HStack {
                             Image(systemName: "chevron.backward")
                                 .foregroundStyle(.buttonLinkOnSheet)
                             Text("Pratinjau")
@@ -119,14 +156,11 @@ struct PreviewView: View {
                 )
             }
             
-            
-           
             if isSaving {
                 LoadingView(progress: progress)
             }
         }
-        
-        .toolbar(.hidden, for: .bottomBar , .tabBar )
+        .toolbar(.hidden, for: .bottomBar, .tabBar)
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
         .background(.bgMain)
@@ -135,12 +169,10 @@ struct PreviewView: View {
                 AddUnsavedActivityView(
                     student: student,
                     selectedDate: selectedDate,
-                    onDismiss: {
-                        isAddingNewActivity = false
-                    },
+                    onDismiss: { isAddingNewActivity = false },
                     onSaveActivity: { newActivity in
                         Task {
-                            viewModel.addUnsavedActivities([newActivity])
+                            onAddUnsavedActivities([newActivity])
                         }
                     }
                 )
@@ -179,10 +211,9 @@ struct PreviewView: View {
     }
     
     private var sortedStudents: [Student] {
-        viewModel.students.sorted { student1, student2 in
+        students.sorted { student1, student2 in
             let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
             let hasDefaultActivity2 = hasAnyDefaultActivity(for: student2)
-            
             if hasDefaultActivity1 != hasDefaultActivity2 {
                 return hasDefaultActivity1
             }
@@ -191,35 +222,20 @@ struct PreviewView: View {
     }
     
     private func hasStudentsWithNilActivities() -> Bool {
-        for student in viewModel.students {
-            let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+        for student in students {
+            let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
             if studentActivities.contains(where: { $0.isIndependent == nil }) {
                 return true
             }
         }
         return false
     }
-
+    
     private func hasAnyDefaultActivity(for student: Student) -> Bool {
-        let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+        let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
         return studentActivities.contains { activity in
             activity.isIndependent == nil
         }
-    }
-    private let itemFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    private func binding(for student: Student) -> [Binding<UnsavedActivity>] {
-        viewModel.unsavedActivities
-            .filter { $0.studentId == student.id }
-            .map { activity in
-                let index = viewModel.unsavedActivities.firstIndex { $0.id == activity.id }!
-                return $viewModel.unsavedActivities[index]
-            }
     }
     
     private func saveActivities() {
@@ -240,15 +256,9 @@ struct PreviewView: View {
         
         Task {
             do {
-                for activity in viewModel.unsavedActivities {
-                    if activity.isIndependent == nil {
-                        activity.isIndependent = nil
-                    }
-                }
-                
-                await viewModel.saveUnsavedActivities()
-                await viewModel.saveUnsavedNotes()
-                try await viewModel.generateAndSaveSummaries(for: viewModel.selectedDate)
+                await onSaveUnsavedActivities()
+                await onSaveUnsavedNotes()
+                try await onGenerateAndSaveSummaries(selectedDate)
                 
                 try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
                 
@@ -274,20 +284,8 @@ struct PreviewView: View {
         }
     }
     
-    private func deleteUnsavedActivity(_ activity: UnsavedActivity) {
-        viewModel.deleteUnsavedActivity(activity)
-    }
-    
-    private func deleteNote(_ note: UnsavedNote) {
-        viewModel.deleteUnsavedNote(note)
-    }
-    
-    private func updateNote(_ updatedNote: UnsavedNote) {
-        viewModel.updateUnsavedNote(updatedNote)
-    }
-    
     private func addNewNote(_ newNote: UnsavedNote) {
-        viewModel.addUnsavedNote(newNote)
+        onAddUnsavedNote(newNote)
     }
     
     private func datePickerView() -> some View {
@@ -307,4 +305,8 @@ struct PreviewView: View {
             .cornerRadius(8)
         }
     }
+}
+
+#Preview {
+    PreviewView(selectedDate: .constant(.now), isShowingPreview: .constant(false), isShowingActivity: .constant(false), students: [ .init(fullname: "Rangga Biner", nickname: "Rangga")], unsavedActivities: [ .init(activity: "Menjahit", createdAt: .now, studentId: UUID())], unsavedNotes: [ .init(note: "baik banget", createdAt: .now, studentId: UUID())], onAddUnsavedActivities: { _ in print("added")}, onUpdateUnsavedActivity: { _ in print("updated")}, onDeleteUnsavedActivity: { _ in print("deleted")}, onAddUnsavedNote: { _ in print("added")}, onUpdateUnsavedNote: { _ in print("updated")}, onDeleteUnsavedNote: { _ in print("deleted")}, onClearUnsavedNotes: { print("cleared")}, onClearUnsavedActivities: { print("cleared")}, onSaveUnsavedActivities: { print("saved")}, onSaveUnsavedNotes: { print("saved")}, onGenerateAndSaveSummaries: { _ in print("generated and saved")})
 }

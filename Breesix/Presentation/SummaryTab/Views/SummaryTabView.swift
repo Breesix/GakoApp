@@ -9,8 +9,8 @@ import SwiftUI
 
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
-    @State private var isAddingNewActivity = false
     @ObservedObject var studentTabViewModel: StudentTabViewModel
+    @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
     @State private var isAllStudentsFilled = true
@@ -71,9 +71,46 @@ struct SummaryTabView: View {
             .navigationDestination(isPresented: $navigateToPreview) {
                 PreviewView(
                     selectedDate: $viewModel.selectedDate,
-                    viewModel: studentTabViewModel,
                     isShowingPreview: $navigateToPreview,
-                    isShowingActivity: .constant(false)
+                    isShowingActivity: .constant(false),
+                    students: studentTabViewModel.students,
+                    unsavedActivities: studentTabViewModel.unsavedActivities,
+                    unsavedNotes: studentTabViewModel.unsavedNotes,
+                    onAddUnsavedActivities: { activities in
+                        studentTabViewModel.addUnsavedActivities(activities)
+                    },
+                    onUpdateUnsavedActivity: { activity in
+                        if let index = studentTabViewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+                            studentTabViewModel.unsavedActivities[index] = activity
+                        }
+                    },
+                    onDeleteUnsavedActivity: { activity in
+                        studentTabViewModel.deleteUnsavedActivity(activity)
+                    },
+                    onAddUnsavedNote: { note in
+                        studentTabViewModel.addUnsavedNote(note)
+                    },
+                    onUpdateUnsavedNote: { note in
+                        studentTabViewModel.updateUnsavedNote(note)
+                    },
+                    onDeleteUnsavedNote: { note in
+                        studentTabViewModel.deleteUnsavedNote(note)
+                    },
+                    onClearUnsavedNotes: {
+                        studentTabViewModel.clearUnsavedNotes()
+                    },
+                    onClearUnsavedActivities: {
+                        studentTabViewModel.clearUnsavedActivities()
+                    },
+                    onSaveUnsavedActivities: {
+                        await studentTabViewModel.saveUnsavedActivities()
+                    },
+                    onSaveUnsavedNotes: {
+                        await studentTabViewModel.saveUnsavedNotes()
+                    },
+                    onGenerateAndSaveSummaries: { date in
+                        try await studentTabViewModel.generateAndSaveSummaries(for: date)
+                    }
                 )
             }
             .navigationDestination(isPresented: $isNavigatingToVoiceInput) {
@@ -90,10 +127,22 @@ struct SummaryTabView: View {
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
                     selectedDate: $viewModel.selectedDate,
-                    studentListViewModel: studentTabViewModel,
+                    onAddUnsavedActivities: { activities in
+                        studentTabViewModel.addUnsavedActivities(activities)
+                    },
+                    onAddUnsavedNotes: { notes in
+                        studentTabViewModel.addUnsavedNotes(notes)
+                    },
+                    onDateSelected: { date in
+                        studentTabViewModel.selectedDate = date
+                    },
                     onDismiss: {
                         isNavigatingToTextInput = false
                         navigateToPreview = true
+                    },
+                    fetchStudents: {
+                        await studentTabViewModel.fetchAllStudents()
+                        return studentTabViewModel.students
                     }
                 )
             }

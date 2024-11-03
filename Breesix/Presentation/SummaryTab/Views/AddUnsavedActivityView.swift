@@ -15,6 +15,7 @@ struct AddUnsavedActivityView: View {
     
     @State private var activityText: String = ""
     @State private var selectedStatus: Bool?
+    @State private var showAlert: Bool = false
 
     var body: some View {
         NavigationView {
@@ -103,7 +104,11 @@ struct AddUnsavedActivityView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewActivity()
+                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNewActivity()
+                        }
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -111,6 +116,11 @@ struct AddUnsavedActivityView: View {
                     })
                     .padding(.top, 27)
                 }
+            }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("aktivitas tidak boleh kosong")
             }
         }
     }

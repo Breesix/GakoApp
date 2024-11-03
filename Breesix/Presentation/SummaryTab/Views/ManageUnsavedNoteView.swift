@@ -10,6 +10,7 @@ import SwiftUI
 struct ManageUnsavedNoteView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var textNote: String
+    @State private var showAlert: Bool = false
     
     enum Mode: Equatable {
         case add(Student, Date)
@@ -116,13 +117,24 @@ struct ManageUnsavedNoteView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: saveNote) {
+                    Button(action: {
+                        if textNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNote()
+                        }
+                    }) {
                         Text("Simpan")
                             .font(.body)
                             .fontWeight(.medium)
                     }
                     .padding(.top, 27)
                 }
+            }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Catatan tidak boleh kosong")
             }
         }
     }
@@ -156,4 +168,9 @@ struct ManageUnsavedNoteView: View {
         
         presentationMode.wrappedValue.dismiss()
     }
+}
+
+
+#Preview {
+    ManageUnsavedNoteView(mode: .add(.init(fullname: "Rangga Biner", nickname: "Rangga"), .now), onSave: { _ in print("saved")})
 }

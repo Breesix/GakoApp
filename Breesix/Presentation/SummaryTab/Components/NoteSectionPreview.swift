@@ -48,7 +48,7 @@ struct NoteSectionPreview: View {
                 .presentationBackground(.white)
             }
         } else {
-            Text("Tidak ada aktivitas untuk tanggal ini")
+            Text("Tidak ada catatan untuk tanggal ini")
                 .foregroundColor(.labelSecondary)
         }
 
@@ -59,6 +59,7 @@ struct NoteSectionPreview: View {
             },
             backgroundColor: .buttonOncard
         )
+        .padding(.top, 7)
     }
 }
 
