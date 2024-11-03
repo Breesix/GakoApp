@@ -82,7 +82,7 @@ struct DailyReportTemplate: View {
                         HStack {
                             Text(activity.activity)
                             Spacer()
-                            Text(activity.isIndependent ?? true ? "Mandiri" : "Dibimbing")
+                            Text(activity.status ?? true ? "Mandiri" : "Dibimbing")
                         }
                         .padding()
                         Divider()

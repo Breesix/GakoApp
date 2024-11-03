@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct StatusPicker: View {
-    @Binding var isIndependent: Bool?
+    @Binding var status: Bool?
     var onStatusChange: (Bool?) -> Void
     
     var body: some View {
         Menu {
             Button("Mandiri") {
-                isIndependent = true
+                status = true
                 onStatusChange(true)
             }
             Button("Dibimbing") {
-                isIndependent = false
+                status = false
                 onStatusChange(false)
             }
             Button("Tidak Melakukan") {
-                isIndependent = nil
+                status = nil
                 onStatusChange(nil)
             }
         } label: {
@@ -49,7 +49,7 @@ struct StatusPicker: View {
     }
     
     private func getStatusText() -> String {
-        switch isIndependent {
+        switch status {
         case true:
             return "Mandiri"
         case false:
@@ -64,7 +64,7 @@ struct StatusPicker: View {
 
 #Preview {
     StatusPicker(
-        isIndependent: .constant(nil),
+        status: .constant(nil),
         onStatusChange: { _ in print("changed") }
     )
 }

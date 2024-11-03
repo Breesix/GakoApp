@@ -12,7 +12,7 @@ struct ActivityRow: View {
     let onDelete: (Activity) -> Void
     let onStatusChanged: (Activity, Bool?) -> Void
     @State private var showDeleteAlert = false
-    @State private var isIndependent: Bool?
+    @State private var status: Bool?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -23,7 +23,7 @@ struct ActivityRow: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                StatusPicker(isIndependent: $isIndependent) { newStatus in
+                StatusPicker(status: $status) { newStatus in
                     onStatusChanged(activity, newStatus)
                 }
                 
@@ -45,7 +45,7 @@ struct ActivityRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {
-            isIndependent = activity.isIndependent
+            status = activity.status
         }
     }
 }

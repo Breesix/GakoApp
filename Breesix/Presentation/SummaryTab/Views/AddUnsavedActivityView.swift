@@ -126,8 +126,8 @@ struct AddUnsavedActivityView: View {
     }
     
     private func getStatusText() -> String {
-        if let isIndependent = selectedStatus {
-            return isIndependent ? "Mandiri" : "Dibimbing"
+        if let status = selectedStatus {
+            return status ? "Mandiri" : "Dibimbing"
         }
         return "Status"
     }
@@ -136,7 +136,7 @@ struct AddUnsavedActivityView: View {
         let newActivity = UnsavedActivity(
             activity: activityText,
             createdAt: selectedDate,
-            isIndependent: selectedStatus ?? false,
+            status: selectedStatus ?? false,
             studentId: student.id
         )
         onSaveActivity(newActivity)

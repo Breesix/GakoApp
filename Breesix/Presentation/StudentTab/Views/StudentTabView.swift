@@ -77,8 +77,8 @@ struct StudentTabView: View {
                                                 onDeleteActivity: { activity, student in
                                                     await activityViewModel.deleteActivities(activity, from: student)
                                                 },
-                                                onUpdateActivityStatus: { activity, isIndependent in
-                                                    await activityViewModel.updateActivityStatus(activity, isIndependent: isIndependent)
+                                                onUpdateActivityStatus: { activity, status in
+                                                    await activityViewModel.updateActivityStatus(activity, status: status)
                                                 },
                                                 onFetchNotes: { student in
                                                     await noteViewModel.fetchAllNotes(student)

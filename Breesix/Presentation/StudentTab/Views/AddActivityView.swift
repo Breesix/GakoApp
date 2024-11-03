@@ -124,8 +124,8 @@ struct AddActivityView: View {
     }
     
     private func getStatusText() -> String {
-        if let isIndependent = selectedStatus {
-            return isIndependent ? "Mandiri" : "Dibimbing"
+        if let status = selectedStatus {
+            return status ? "Mandiri" : "Dibimbing"
         }
         return "Status"
     }
@@ -134,7 +134,7 @@ struct AddActivityView: View {
         let newActivity = Activity(
             activity: activityText,
             createdAt: selectedDate,
-            isIndependent: selectedStatus ?? false,
+            status: selectedStatus ?? false,
             student: student
         )
         Task {
