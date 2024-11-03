@@ -71,6 +71,12 @@ struct StudentDetailView: View {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,
            let rootVC = window.rootViewController {
+            // For iPad
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = window
+                popover.sourceRect = CGRect(x: window.frame.width / 2, y: window.frame.height / 2, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
             rootVC.present(activityVC, animated: true)
         }
     }
@@ -189,23 +195,22 @@ struct StudentDetailView: View {
                                                 notes: dayItems.notes,
                                                 student: student,
                                                 date: day,
-                                                onAddNote: {
-                                                    selectedDate = day
-                                                    isAddingNewNote = true
-                                                },
-                                                onAddActivity: {
-                                                    selectedDate = day
-                                                    isAddingNewActivity = true
-                                                },
+                                                onAddNote: { selectedDate = day
+                                                    isAddingNewNote = true },
+                                                onAddActivity: { selectedDate = day
+                                                    isAddingNewActivity = true },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
                                                 onShareTapped: { date in
-                                                    selectedActivityDate = date
-                                                    generateSnapshot(for: date)
-                                                    withAnimation {
-                                                        showSnapshotPreview = true
-                                                    }
+                                                    let reportView = DailyReportTemplate(
+                                                        student: student,
+                                                        activities: dayItems.activities,
+                                                        notes: dayItems.notes,
+                                                        date: date
+                                                    )
+                                                    let image = reportView.snapshot()
+                                                    showShareSheet(image: image)
                                                 },
                                                 onUpdateActivityStatus: { activity, newStatus in
                                                     await onUpdateActivityStatus(activity, newStatus)

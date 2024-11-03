@@ -64,8 +64,10 @@ struct DailyReportCard: View {
                     .foregroundStyle(.labelPrimaryBlack)
                 
                 Spacer()
-                
-                Button(action: { onShareTapped(date) }) {
+            
+                Button(action: {
+                    onShareTapped(date)
+                }) {
                     ZStack {
                         Circle()
                             .frame(width: 34)
