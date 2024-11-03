@@ -200,29 +200,26 @@ class ReflectionCSVParser {
                                 .lowercased()
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
                             
-                            // Perbaikan penanganan status
-                            var isIndependent: Bool?
+                            var status: Status
                             switch statusString {
                             case "true":
-                                isIndependent = true
+                                status = .mandiri
                             case "false":
-                                isIndependent = false
+                                status = .dibimbing
                             case "null", "nil", "":
-                                isIndependent = nil
+                                status = .tidakMelakukan
                             default:
-                                // Jika tidak ada informasi atau tidak melakukan, set nil
-                                isIndependent = nil
+                                status = .tidakMelakukan
                             }
                             
-                            // Tambahkan pengecekan untuk "Tidak ada informasi aktivitas"
                             if curhatan.contains("Tidak ada informasi aktivitas") {
-                                isIndependent = nil
+                                status = .tidakMelakukan
                             }
                             
                             let unsavedActivity = UnsavedActivity(
                                 activity: activityName,
                                 createdAt: createdAt,
-                                isIndependent: isIndependent,
+                                status: status,
                                 studentId: student.id
                             )
                             unsavedActivities.append(unsavedActivity)

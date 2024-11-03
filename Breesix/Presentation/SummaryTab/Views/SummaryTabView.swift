@@ -246,7 +246,7 @@ struct SummaryTabView: View {
                 },
                 onUpdateActivityStatus: { activity, newStatus in
                     Task {
-                        await activityViewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                        await activityViewModel.updateActivityStatus(activity, status: newStatus)
                     }
                 },
                 onFetchNotes: { student in

@@ -12,9 +12,9 @@ struct AddActivityView: View {
     let onSave: (Activity) async -> Void
     
     @State private var activityText: String = ""
-    @State private var selectedStatus: Bool?
+    @State private var selectedStatus: Status = .mandiri 
     @State private var showAlert = false
-    
+
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
@@ -51,10 +51,10 @@ struct AddActivityView: View {
                 
                 Menu {
                     Button("Mandiri") {
-                        selectedStatus = true
+                        selectedStatus = .mandiri
                     }
                     Button("Dibimbing") {
-                        selectedStatus = false
+                        selectedStatus = .dibimbing
                     }
                 } label: {
                     HStack(spacing: 9) {
@@ -124,17 +124,22 @@ struct AddActivityView: View {
     }
     
     private func getStatusText() -> String {
-        if let isIndependent = selectedStatus {
-            return isIndependent ? "Mandiri" : "Dibimbing"
+        switch selectedStatus {
+        case .mandiri:
+            return "Mandiri"
+        case .dibimbing:
+            return "Dibimbing"
+        case .tidakMelakukan:
+            return "Tidak Melakukan"
         }
-        return "Status"
     }
+    
 
     private func saveNewActivity() {
         let newActivity = Activity(
             activity: activityText,
             createdAt: selectedDate,
-            isIndependent: selectedStatus ?? false,
+            status: selectedStatus,
             student: student
         )
         Task {
@@ -144,10 +149,3 @@ struct AddActivityView: View {
     }
 }
 
-#Preview {
-    AddActivityView(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: {
-        print("dismissed")
-    }, onSave: { _ in
-        print("saved")
-    })
-}

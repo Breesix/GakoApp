@@ -59,7 +59,7 @@ class ActivityViewModel: ObservableObject {
     func saveUnsavedActivities() async {
         for unsavedActivity in unsavedActivities {
             if let student = studentViewModel.students.first(where: { $0.id == unsavedActivity.studentId }) {
-                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? nil, student: student)
+                let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, status: unsavedActivity.status, student: student)
                 await addActivity(activity, for: student)
             }
         }
@@ -100,14 +100,14 @@ class ActivityViewModel: ObservableObject {
         }
     }
     
-    func updateActivityStatus(_ activity: Activity, isIndependent: Bool?) async {
+    func updateActivityStatus(_ activity: Activity, status: Status) async {
         do {
            
             let updatedActivity = Activity(
                 id: activity.id,
                 activity: activity.activity,
                 createdAt: activity.createdAt,
-                isIndependent: isIndependent,
+                status: status,
                 student: activity.student!
             )
     

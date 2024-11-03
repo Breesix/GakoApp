@@ -224,7 +224,7 @@ struct PreviewView: View {
     private func hasStudentsWithNilActivities() -> Bool {
         for student in students {
             let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
-            if studentActivities.contains(where: { $0.isIndependent == nil }) {
+            if studentActivities.contains(where: { $0.status == nil }) {
                 return true
             }
         }
@@ -234,7 +234,7 @@ struct PreviewView: View {
     private func hasAnyDefaultActivity(for student: Student) -> Bool {
         let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
         return studentActivities.contains { activity in
-            activity.isIndependent == nil
+            activity.status == nil
         }
     }
     

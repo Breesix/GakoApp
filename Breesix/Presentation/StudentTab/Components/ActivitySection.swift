@@ -11,7 +11,7 @@ struct ActivitySection: View {
     let activities: [Activity]
     
     let onDeleteActivity: (Activity) -> Void
-    let onStatusChanged: (Activity, Bool?) -> Void
+    let onStatusChanged: (Activity, Status) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
