@@ -54,7 +54,7 @@ struct SummaryTabView: View {
             }
             .background(.bgMain)
             .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeSheet(studentListViewModel: studentTabViewModel, onSelect: { selectedInput in
+                InputTypeView(onSelect: { selectedInput in
                     switch selectedInput {
                     case .voice:
                         isShowingInputTypeSheet = false
@@ -133,7 +133,6 @@ struct SummaryTabView: View {
             .labelsHidden()
     }
 
-    // In SummaryTabView
     @ViewBuilder private func studentsListView() -> some View {
         VStack(spacing: 12) {
             ForEach(studentsWithSummariesOnSelectedDate) { student in
@@ -205,114 +204,4 @@ struct SummaryTabView: View {
             )
         }
     }
-}
-
-struct InputTypeButton: View {
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(title)
-                .font(.headline)
-                .padding()
-            Button(action: action) {
-                Text("CURHAT DONG MAH")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-        }
-        .padding()
-        .background(.gray.opacity(0.5))
-        .cornerRadius(8)
-    }
-}
-
-struct StudentRowView: View {
-    let student: Student
-    let selectedDate: Date
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(student.fullname)
-                .font(.title)
-            
-            let dailySummaries = student.summaries.filter {
-                Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
-            }
-            
-            if dailySummaries.isEmpty {
-                Text("Tidak ada rangkuman pada hari ini")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            } else {
-                DailySummariesView(summaries: dailySummaries)
-            }
-        }
-    }
-}
-
-struct ActivityView: View {
-    let activity: Activity
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            if let status = activity.isIndependent {
-                HStack {
-                    Image(systemName: "figure.walk.motion")
-                        .scaledToFit()
-                        .foregroundColor(.white)
-                    Text(status ? "Mandiri" : "Dibimbing")
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                }
-                .padding()
-            } else {
-                Text("Tidak ada aktivitas terbaru")
-                    .font(.subheadline)
-                    .foregroundColor(.labelPrimaryBlack)
-            }
-        }
-        .background(Color.blue)
-        .cornerRadius(24)
-        .frame(width: 140, height: 5)
-        .padding()
-    }
-}
-
-struct DailySummariesView: View {
-    let summaries: [Summary]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(summaries, id: \.id) { summary in
-                Text(summary.summary)
-                    .font(.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 4)
-                    .multilineTextAlignment(.leading)
-                    .foregroundColor(.black)
-                    .background(.white)
-                    .cornerRadius(8)
-            }
-        }
-        .padding()
-    }
-}
-
-enum ActiveSheet: Identifiable {
-    case reflection
-    case preview
-    case mandatory
-    case activity
-    
-    var id: Int { hashValue }
-}
-
-enum InputType {
-    case speech
-    case manual
 }

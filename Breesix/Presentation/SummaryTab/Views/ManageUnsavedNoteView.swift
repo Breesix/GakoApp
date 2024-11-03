@@ -1,23 +1,51 @@
 //
-//  AddUnsaveNote.swift
+//  ManageUnsavedNoteView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 01/11/24.
+//  Created by Rangga Biner on 03/11/24.
 //
 
 import SwiftUI
 
-struct UnsavedNoteCreateView: View {
+struct ManageUnsavedNoteView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var textNote: String = ""
-    let student: Student
+    @State private var textNote: String
+    
+    enum Mode: Equatable {
+        case add(Student, Date)
+        case edit(UnsavedNote)
+        
+        static func == (lhs: Mode, rhs: Mode) -> Bool {
+            switch (lhs, rhs) {
+            case (.add, .add):
+                return true
+            case let (.edit(note1), .edit(note2)):
+                return note1.id == note2.id
+            default:
+                return false
+            }
+        }
+    }
+    
+    let mode: Mode
     let onSave: (UnsavedNote) -> Void
-    let selectedDate: Date
+    
+    init(mode: Mode, onSave: @escaping (UnsavedNote) -> Void) {
+        self.mode = mode
+        self.onSave = onSave
+        
+        switch mode {
+        case .add:
+            _textNote = State(initialValue: "")
+        case .edit(let note):
+            _textNote = State(initialValue: note.note)
+        }
+    }
     
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Tambah Catatan")
+                Text(isAddMode ? "Tambah Catatan" : "Edit Catatan")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -65,7 +93,7 @@ struct UnsavedNoteCreateView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tambah Catatan")
+                    Text(isAddMode ? "Tambah Catatan" : "Edit Catatan")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -88,11 +116,7 @@ struct UnsavedNoteCreateView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        let newNote = UnsavedNote(note: textNote, createdAt: selectedDate, studentId: student.id)
-                        onSave(newNote)
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
+                    Button(action: saveNote) {
                         Text("Simpan")
                             .font(.body)
                             .fontWeight(.medium)
@@ -101,8 +125,35 @@ struct UnsavedNoteCreateView: View {
                 }
             }
         }
-        .onAppear {
-            print("NoteCreateView appeared for student: \(student.fullname)")
+    }
+    
+    private var isAddMode: Bool {
+        switch mode {
+        case .add: return true
+        case .edit: return false
         }
+    }
+    
+    private func saveNote() {
+        switch mode {
+        case .add(let student, let selectedDate):
+            let newNote = UnsavedNote(
+                note: textNote,
+                createdAt: selectedDate,
+                studentId: student.id
+            )
+            onSave(newNote)
+            
+        case .edit(let note):
+            let updatedNote = UnsavedNote(
+                id: note.id,
+                note: textNote,
+                createdAt: note.createdAt,
+                studentId: note.studentId
+            )
+            onSave(updatedNote)
+        }
+        
+        presentationMode.wrappedValue.dismiss()
     }
 }

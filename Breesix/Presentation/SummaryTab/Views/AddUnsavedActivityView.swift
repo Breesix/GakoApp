@@ -1,4 +1,3 @@
-//
 //  AddUnsavedActivity.swift
 //  Breesix
 //
@@ -7,11 +6,12 @@
 
 import SwiftUI
 
-struct AddUnsavedActivity: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+struct AddUnsavedActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
+    
+    let onSaveActivity: (UnsavedActivity) -> Void
     
     @State private var activityText: String = ""
     @State private var selectedStatus: Bool?
@@ -58,7 +58,7 @@ struct AddUnsavedActivity: View {
                         selectedStatus = false
                     }
                 } label: {
-                    HStack (spacing: 9){
+                    HStack(spacing: 9) {
                         Text(getStatusText())
                         Image(systemName: "chevron.up.chevron.down")
                     }
@@ -67,7 +67,6 @@ struct AddUnsavedActivity: View {
                     .foregroundColor(.labelPrimaryBlack)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 11)
-                    
                     .background(.statusSheet)
                     .cornerRadius(8)
                 }
@@ -130,9 +129,21 @@ struct AddUnsavedActivity: View {
             isIndependent: selectedStatus ?? false,
             studentId: student.id
         )
-        Task {
-            viewModel.addUnsavedActivities([newActivity])
-            onDismiss()
-        }
+        onSaveActivity(newActivity)
+        onDismiss()
     }
+}
+
+
+#Preview {
+    AddUnsavedActivityView(
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        selectedDate: .now,
+        onDismiss: {
+            print("Dismissed")
+        },
+        onSaveActivity: { _ in
+            print("saved activity")
+        }
+    )
 }

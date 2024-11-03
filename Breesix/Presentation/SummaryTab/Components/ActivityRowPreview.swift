@@ -1,17 +1,17 @@
-//
 //  ActivityRowPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
+
 import SwiftUI
 
 struct ActivityRowPreview: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student
     let onAddActivity: () -> Void
     let onDelete: () -> Void
+    let onDeleteActivity: (UnsavedActivity) -> Void 
     
     @State private var showDeleteAlert = false
     @State private var selectedStatus: Bool?
@@ -44,7 +44,7 @@ struct ActivityRowPreview: View {
                 }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
-                        viewModel.deleteUnsavedActivity(activity)
+                        onDeleteActivity(activity)
                         onDelete()
                     }
                     Button("Batal", role: .cancel) { }
@@ -59,6 +59,6 @@ struct ActivityRowPreview: View {
     }
 }
 
-
-
-
+#Preview {
+    ActivityRowPreview(activity: .constant(.init(activity: "Menjahit", createdAt: .now, studentId: Student.ID())), student: .init(fullname: "Rangga Biner", nickname: "Rangga"), onAddActivity: { print("added activity")}, onDelete: {print("deleted")}, onDeleteActivity: { _ in print("deleted activity")})
+}

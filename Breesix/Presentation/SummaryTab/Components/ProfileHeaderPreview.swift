@@ -1,5 +1,5 @@
 //
-//  ProfileHeader 2.swift
+//  ProfileHeaderPreview 2.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 22/10/24.

@@ -53,14 +53,27 @@ struct PreviewView: View {
                         ForEach(sortedStudents) { student in
                             DailyReportCardPreview(
                                 student: student,
-                                viewModel: viewModel,
                                 selectedDate: selectedDate,
                                 selectedStudent: $selectedStudent,
                                 isAddingNewActivity: $isAddingNewActivity,
                                 isAddingNewNote: $isAddingNewNote,
+                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
+                                onUpdateActivity: { updatedActivity in
+                                    if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == updatedActivity.id }) {
+                                        viewModel.unsavedActivities[index] = updatedActivity
+                                    }
+                                },
                                 onDeleteActivity: { activity in
                                     viewModel.deleteUnsavedActivity(activity)
-                                }, hasDefaultActivities: hasAnyDefaultActivity(for: student)
+                                },
+                                onUpdateNote: { updatedNote in
+                                    viewModel.updateUnsavedNote(updatedNote)
+                                },
+                                onDeleteNote: { note in
+                                    viewModel.deleteUnsavedNote(note)
+                                },
+                                activities: viewModel.unsavedActivities.filter { $0.studentId == student.id },
+                                notes: viewModel.unsavedNotes.filter { $0.studentId == student.id }
                             )
                             .padding(.bottom, 12)
                         }
@@ -119,36 +132,34 @@ struct PreviewView: View {
         .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                AddUnsavedActivity(viewModel: viewModel,
-                                       student: student,
-                                       selectedDate: selectedDate,
-                                       onDismiss: {
-                    isAddingNewActivity = false
-                })
+                AddUnsavedActivityView(
+                    student: student,
+                    selectedDate: selectedDate,
+                    onDismiss: {
+                        isAddingNewActivity = false
+                    },
+                    onSaveActivity: { newActivity in
+                        Task {
+                            viewModel.addUnsavedActivities([newActivity])
+                        }
+                    }
+                )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(.white)
             }
         }
-        .sheet(item: $editingNote) { note in
-            EditUnsavedNote(note: note, onSave: { updatedNote in
-                updateNote(updatedNote)
-            })
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
-        
         .sheet(isPresented: $isAddingNewNote) {
             if let student = selectedStudent {
-                UnsavedNoteCreateView(student: student, onSave: { newNote in
-                    addNewNote(newNote)
-                }, selectedDate: selectedDate)
+                ManageUnsavedNoteView(
+                    mode: .add(student, selectedDate),
+                    onSave: { newNote in
+                        addNewNote(newNote)
+                    }
+                )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(.white)
-            } else {
-                Text("No student selected. Please try again.")
             }
         }
         .alert(isPresented: $showingSaveAlert) {
