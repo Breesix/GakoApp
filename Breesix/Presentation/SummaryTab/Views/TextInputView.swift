@@ -46,7 +46,6 @@ struct TextInputView: View {
         self.fetchStudents = fetchStudents
     }
     
-    // MARK: - Body
     var body: some View {
         ZStack {
             Color.clear

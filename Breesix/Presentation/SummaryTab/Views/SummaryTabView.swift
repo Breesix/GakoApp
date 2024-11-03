@@ -116,10 +116,22 @@ struct SummaryTabView: View {
             .navigationDestination(isPresented: $isNavigatingToVoiceInput) {
                 VoiceInputView(
                     selectedDate: $viewModel.selectedDate,
-                    viewModel: studentTabViewModel,
+                    onAddUnsavedActivities: { activities in
+                        studentTabViewModel.addUnsavedActivities(activities)
+                    },
+                    onAddUnsavedNotes: { notes in
+                        studentTabViewModel.addUnsavedNotes(notes)
+                    },
+                    onDateSelected: { date in
+                        studentTabViewModel.selectedDate = date
+                    },
                     onDismiss: {
                         isNavigatingToVoiceInput = false
                         navigateToPreview = true
+                    },
+                    fetchStudents: {
+                        await studentTabViewModel.fetchAllStudents()
+                        return studentTabViewModel.students
                     }
                 )
                 .background(.white)

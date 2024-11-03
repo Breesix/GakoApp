@@ -5,56 +5,62 @@
 //  Created by Rangga Biner on 15/10/24.
 //
 
+// VoiceInputView.swift
+
 import SwiftUI
 import Speech
 import DotLottie
 
 struct VoiceInputView: View {
     @Environment(\.presentationMode) var presentationMode
-    @ObservedObject var viewModel: StudentTabViewModel
     @ObservedObject var speechRecognizer = SpeechRecognizer()
-    
-    @StateObject private var sumaryTabViewModel = SummaryTabViewModel()
-    
-    @State private var isShowingPreview = false
     
     @State private var reflection: String = ""
     @State private var previousText: String = ""
     @State private var editedText: String = ""
     @State private var isFirstTranscript: Bool = true
-    
-    
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
-    
-    @State var isFilledToday: Bool = false
+    @State private var isFilledToday: Bool = false
     @State private var isRecording = false
     @State private var isPaused = false
     @State private var isSaving = false
     @State private var isShowingDatePicker = false
     @State private var showAlert: Bool = false
-    @FocusState private var isTextEditorFocused: Bool
     @State private var showProTips: Bool = true
-    @Binding var selectedDate: Date
     @State private var tempDate: Date
     @State private var showTabBar = false
     
+    @FocusState private var isTextEditorFocused: Bool
+    @Binding var selectedDate: Date
     
+    var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
+    var onAddUnsavedNotes: ([UnsavedNote]) -> Void
+    var onDateSelected: (Date) -> Void
     var onDismiss: () -> Void
-    init(selectedDate: Binding<Date>, viewModel: StudentTabViewModel, onDismiss: @escaping () -> Void) {
-        self.viewModel = viewModel
+    var fetchStudents: () async -> [Student]
+    
+    private let ttProcessor = OpenAIService(apiToken: "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")
+    
+    init(
+        selectedDate: Binding<Date>,
+        onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
+        onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
+        onDateSelected: @escaping (Date) -> Void,
+        onDismiss: @escaping () -> Void,
+        fetchStudents: @escaping () async -> [Student]
+    ) {
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
-        
+        self.onAddUnsavedActivities = onAddUnsavedActivities
+        self.onAddUnsavedNotes = onAddUnsavedNotes
+        self.onDateSelected = onDateSelected
         self.onDismiss = onDismiss
+        self.fetchStudents = fetchStudents
     }
     
-        private let ttProcessor = OpenAIService(apiToken: "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")
-        
-//        private let ttProcessor = LlamaService(apiKey: "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")
-
     var body: some View {
-        ZStack{
+        ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -65,15 +71,13 @@ struct VoiceInputView: View {
             VStack(alignment: .center) {
                 VStack {
                     datePickerView()
+                    
                     if reflection.isEmpty && !isRecording {
-                        VStack(alignment: .leading,spacing: 16) {
+                        VStack(alignment: .leading, spacing: 16) {
                             Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
                                 .foregroundColor(.gray)
-                            
-                            
                             Text("Bagaimana murid Anda mengikuti kegiatan pada hari ini?")
                                 .foregroundColor(.gray)
-                            
                         }
                         .padding()
                     }
@@ -92,12 +96,13 @@ struct VoiceInputView: View {
                             .opacity(isLoading ? 0.5 : 1)
                     }
                     .onChange(of: editedText) {
-                                        reflection = editedText
+                        reflection = editedText
                         speechRecognizer.previousTranscript = editedText
-                                    }
-
+                    }
+                    
                     Spacer()
-                    if !isRecording  {
+                    
+                    if !isRecording {
                         TipsCard()
                             .padding()
                     }
@@ -106,10 +111,8 @@ struct VoiceInputView: View {
                 
                 Spacer()
                 
-                
                 ZStack(alignment: .bottom) {
                     HStack(alignment: .center, spacing: 35) {
-                        
                         Button(action: {
                             self.speechRecognizer.stopTranscribing()
                             showAlert = true
@@ -120,7 +123,6 @@ struct VoiceInputView: View {
                                 .frame(width: 56, height: 56)
                         }
                         
-                        
                         Button(action: {
                             if !isRecording {
                                 speechRecognizer.previousTranscript = editedText
@@ -128,7 +130,6 @@ struct VoiceInputView: View {
                                 isPaused = false
                                 speechRecognizer.startTranscribing()
                             } else {
-                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     isPaused.toggle()
                                     if isPaused {
@@ -142,17 +143,11 @@ struct VoiceInputView: View {
                             if showProTips {
                                 if isLoading {
                                     ZStack {
-                                        ZStack {
-                                            DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true))
-                                                .view()
-                                                .scaleEffect(1.5)
-                                                .frame(width: 100, height: 100)
-                                            
-                                            
-                                        }
+                                        DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                            .view()
+                                            .scaleEffect(1.5)
+                                            .frame(width: 100, height: 100)
                                     }
-                                    
-                                    
                                 } else {
                                     if isRecording {
                                         if isPaused {
@@ -160,7 +155,6 @@ struct VoiceInputView: View {
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(width: 84, height: 84)
-                                            
                                         } else {
                                             DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true))
                                                 .view()
@@ -172,13 +166,11 @@ struct VoiceInputView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 84, height: 84)
-                                        
                                     }
                                 }
                             }
                         }
                         .disabled(isLoading)
-                        
                         
                         Button(action: {
                             if isRecording {
@@ -187,8 +179,6 @@ struct VoiceInputView: View {
                                     isRecording = false
                                     self.speechRecognizer.stopTranscribing()
                                     self.reflection = self.speechRecognizer.transcript
-                                    
-                                    
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                         self.processReflectionActivity()
                                     }
@@ -199,18 +189,14 @@ struct VoiceInputView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 60)
-                            
                         }
                         .disabled(!isRecording || isLoading)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
                 }
-                
             }
-            
         }
-        
         .padding(.horizontal, 25)
         .padding(.vertical, 40)
         .padding(.top, 35)
@@ -220,7 +206,6 @@ struct VoiceInputView: View {
         .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)
         .edgesIgnoringSafeArea(.all)
-        .navigationBarBackButtonHidden(true)
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Batalkan Dokumentasi?"),
@@ -243,7 +228,7 @@ struct VoiceInputView: View {
         }
         .onReceive(speechRecognizer.$transcript) { newTranscript in
             if isRecording {
-                DispatchQueue.main.async{
+                DispatchQueue.main.async {
                     if let lastWord = newTranscript.components(separatedBy: " ").last {
                         editedText = editedText + " " + lastWord
                     }
@@ -251,12 +236,10 @@ struct VoiceInputView: View {
                 }
             }
         }
-        
         .onAppear {
             requestSpeechAuthorization()
-            
         }
-        .onChange(of: isTextEditorFocused) { 
+        .onChange(of: isTextEditorFocused) {
             withAnimation {
                 showProTips = !isTextEditorFocused
             }
@@ -268,34 +251,32 @@ struct VoiceInputView: View {
             do {
                 isLoading = true
                 errorMessage = nil
-
-                await viewModel.fetchAllStudents()
-                if viewModel.students.isEmpty {
-                                await MainActor.run {
-                                    isLoading = false
-                                    
-                                }
-                                return
-                }
-
+                
+                let students = await fetchStudents()
+                
                 if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     await MainActor.run {
                         isLoading = false
-                        
                     }
                     return
                 }
                 
-                let csvString = try await ttProcessor.processReflection(reflection: reflection, students: viewModel.students)
-
-                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: viewModel.students, createdAt: selectedDate)
-
+                let csvString = try await ttProcessor.processReflection(
+                    reflection: reflection,
+                    students: students
+                )
+                
+                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
+                    csvString: csvString,
+                    students: students,
+                    createdAt: selectedDate
+                )
+                
                 await MainActor.run {
                     isLoading = false
-
-                    viewModel.addUnsavedActivities(activityList)
-                    viewModel.addUnsavedNotes(noteList)
-                    viewModel.selectedDate = selectedDate
+                    onAddUnsavedActivities(activityList)
+                    onAddUnsavedNotes(noteList)
+                    onDateSelected(selectedDate)
                     onDismiss()
                 }
             } catch {
@@ -306,8 +287,6 @@ struct VoiceInputView: View {
                 }
             }
         }
-        
-        
     }
     
     private func clearText() {
@@ -317,7 +296,6 @@ struct VoiceInputView: View {
         isRecording = false
         isPaused = false
     }
-
     
     public func requestSpeechAuthorization() {
         SFSpeechRecognizer.requestAuthorization { authStatus in
@@ -354,7 +332,3 @@ struct VoiceInputView: View {
         }
     }
 }
-
-
-
-
