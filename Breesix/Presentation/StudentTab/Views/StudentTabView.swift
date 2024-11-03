@@ -23,14 +23,14 @@ struct StudentTabView: View {
                         dismissKeyboard()
                     }
                 
-                VStack (spacing: 0) {
+                VStack(spacing: 0) {
                     CustomNavigation(title: "Murid") {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
-                    Group {
+                    VStack {
                         if viewModel.students.isEmpty {
                             VStack {
                                 Spacer()
@@ -51,7 +51,50 @@ struct StudentTabView: View {
                                     GridItem(.flexible())
                                 ], spacing: 16) {
                                     ForEach(filteredStudents) { student in
-                                        NavigationLink(destination: StudentDetailView(student: student, viewModel: viewModel)) {
+                                        NavigationLink {
+                                            StudentDetailView(
+                                                student: student,
+                                                onAddStudent: { student in
+                                                    await viewModel.addStudent(student)
+                                                },
+                                                onUpdateStudent: { student in
+                                                    await viewModel.updateStudent(student)
+                                                },
+                                                onAddNote: { note, student in
+                                                    await viewModel.addNote(note, for: student)
+                                                },
+                                                onUpdateNote: { note in
+                                                    await viewModel.updateNote(note)
+                                                },
+                                                onDeleteNote: { note, student in
+                                                    await viewModel.deleteNote(note, from: student)
+                                                },
+                                                onAddActivity: { activity, student in
+                                                    await viewModel.addActivity(activity, for: student)
+                                                },
+                                                onDeleteActivity: { activity, student in
+                                                    await viewModel.deleteActivities(activity, from: student)
+                                                },
+                                                onUpdateActivityStatus: { activity, isIndependent in
+                                                    await viewModel.updateActivityStatus(activity, isIndependent: isIndependent)
+                                                },
+                                                onFetchNotes: { student in
+                                                    await viewModel.fetchAllNotes(student)
+                                                },
+                                                onFetchActivities: { student in
+                                                    await viewModel.fetchActivities(student)
+                                                },
+                                                onCheckNickname: { nickname, currentStudentId in
+                                                    viewModel.students.contains { student in
+                                                        if let currentId = currentStudentId {
+                                                            return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
+                                                        }
+                                                        return student.nickname.lowercased() == nickname.lowercased()
+                                                    }
+                                                },
+                                                compressedImageData: viewModel.compressedImageData
+                                            )
+                                        } label: {
                                             ProfileCard(student: student) {
                                                 Task {
                                                     await viewModel.deleteStudent(student)
@@ -76,7 +119,7 @@ struct StudentTabView: View {
             await viewModel.fetchAllStudents()
         }
         .sheet(isPresented: $isAddingStudent) {
-            EditStudent(
+            ManageStudentView(
                 mode: .add,
                 compressedImageData: viewModel.compressedImageData,
                 newStudentImage: viewModel.newStudentImage,

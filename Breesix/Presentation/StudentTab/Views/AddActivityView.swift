@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-struct AddActivity: View {
+struct AddActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
@@ -145,7 +145,7 @@ struct AddActivity: View {
 }
 
 #Preview {
-    AddActivity(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: {
+    AddActivityView(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: {
         print("dismissed")
     }, onSave: { _ in
         print("saved")

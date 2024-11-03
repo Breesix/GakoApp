@@ -14,15 +14,6 @@ struct ActivityRow: View {
     @State private var showDeleteAlert = false
     @State private var isIndependent: Bool?
     
-//    init(activity: Activity,
-//         onDelete: @escaping (Activity) -> Void,
-//         onStatusChanged: @escaping (Activity, Bool?) -> Void) {
-//        self.activity = activity
-//        self.onDelete = onDelete
-//        self.onStatusChanged = onStatusChanged
-//        _isIndependent = State(initialValue: activity.isIndependent)
-//    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(activity.activity)

@@ -93,7 +93,6 @@ struct DailyReportTemplate: View {
             }
             .padding()
             
-            // Notes
             VStack(alignment: .leading, spacing: 8) {
                 Text("Catatan:")
                     .font(.headline)
@@ -132,4 +131,9 @@ extension View {
             view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
+}
+
+
+#Preview {
+    DailyReportTemplate(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), activities: [.init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], notes: [.init(note: "Anak ini baik banget", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], date: .now)
 }

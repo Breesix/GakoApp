@@ -133,6 +133,7 @@ struct SummaryTabView: View {
             .labelsHidden()
     }
 
+    // In SummaryTabView
     @ViewBuilder private func studentsListView() -> some View {
         VStack(spacing: 12) {
             ForEach(studentsWithSummariesOnSelectedDate) { student in
@@ -144,7 +145,64 @@ struct SummaryTabView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 72)
         .navigationDestination(for: Student.self) { student in
-            StudentDetailView(student: student, viewModel: studentTabViewModel)
+            StudentDetailView(
+                student: student,
+                onAddStudent: { student in
+                    Task {
+                        await studentTabViewModel.addStudent(student)
+                    }
+                },
+                onUpdateStudent: { student in
+                    Task {
+                        await studentTabViewModel.updateStudent(student)
+                    }
+                },
+                onAddNote: { note, student in
+                    Task {
+                        await studentTabViewModel.addNote(note, for: student)
+                    }
+                },
+                onUpdateNote: { note in
+                    Task {
+                        await studentTabViewModel.updateNote(note)
+                    }
+                },
+                onDeleteNote: { note, student in
+                    Task {
+                        await studentTabViewModel.deleteNote(note, from: student)
+                    }
+                },
+                onAddActivity: { activity, student in
+                    Task {
+                        await studentTabViewModel.addActivity(activity, for: student)
+                    }
+                },
+                onDeleteActivity: { activity, student in
+                    Task {
+                        await studentTabViewModel.deleteActivities(activity, from: student)
+                    }
+                },
+                onUpdateActivityStatus: { activity, newStatus in
+                    Task {
+                        await studentTabViewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                    }
+                },
+                onFetchNotes: { student in
+                    await studentTabViewModel.fetchAllNotes(student)
+                },
+                onFetchActivities: { student in
+                    await studentTabViewModel.fetchActivities(student)
+                },
+                onCheckNickname: { nickname, currentStudentId in
+                    studentTabViewModel.students.contains { student in
+                        if let currentId = currentStudentId {
+                            return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
+                        }
+                        return student.nickname.lowercased() == nickname.lowercased()
+                    }
+                },
+                compressedImageData: studentTabViewModel.compressedImageData
+            )
         }
     }
 }

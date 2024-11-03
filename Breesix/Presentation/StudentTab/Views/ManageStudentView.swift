@@ -1,5 +1,5 @@
 //
-//  EditStudent.swift
+//  ManageStudentView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 03/10/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct EditStudent: View {
+struct ManageStudentView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var fullname = ""
     @State private var nickname = ""
@@ -294,7 +294,7 @@ struct EditStudent: View {
 
 
 #Preview {
-    EditStudent(
+    ManageStudentView(
         mode: .add,
         compressedImageData: nil,
         newStudentImage: nil,
