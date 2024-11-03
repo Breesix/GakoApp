@@ -1,21 +1,20 @@
-//
-//  AddUnsavedActivity.swift
+//  AddActivity.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 13/10/24.
-//
+//  Created by Rangga Biner on 04/10/24.
 
 import SwiftUI
 
-struct AddUnsavedActivity: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+struct AddActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
+    let onSave: (Activity) async -> Void
     
     @State private var activityText: String = ""
     @State private var selectedStatus: Bool?
-
+    @State private var showAlert = false
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
@@ -58,7 +57,7 @@ struct AddUnsavedActivity: View {
                         selectedStatus = false
                     }
                 } label: {
-                    HStack (spacing: 9){
+                    HStack(spacing: 9) {
                         Text(getStatusText())
                         Image(systemName: "chevron.up.chevron.down")
                     }
@@ -67,7 +66,6 @@ struct AddUnsavedActivity: View {
                     .foregroundColor(.labelPrimaryBlack)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 11)
-                    
                     .background(.statusSheet)
                     .cornerRadius(8)
                 }
@@ -104,7 +102,11 @@ struct AddUnsavedActivity: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewActivity()
+                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNewActivity()
+                        }
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -112,6 +114,11 @@ struct AddUnsavedActivity: View {
                     })
                     .padding(.top, 27)
                 }
+            }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Aktivitas tidak boleh kosong")
             }
         }
     }
@@ -124,15 +131,23 @@ struct AddUnsavedActivity: View {
     }
 
     private func saveNewActivity() {
-        let newActivity = UnsavedActivity(
+        let newActivity = Activity(
             activity: activityText,
             createdAt: selectedDate,
             isIndependent: selectedStatus ?? false,
-            studentId: student.id
+            student: student
         )
         Task {
-            viewModel.addUnsavedActivities([newActivity])
+            await onSave(newActivity)
             onDismiss()
         }
     }
+}
+
+#Preview {
+    AddActivityView(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: {
+        print("dismissed")
+    }, onSave: { _ in
+        print("saved")
+    })
 }

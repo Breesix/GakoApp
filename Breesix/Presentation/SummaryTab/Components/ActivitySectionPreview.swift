@@ -1,4 +1,3 @@
-
 //
 //  ActivitySectionPreview.swift
 //  Breesix
@@ -9,25 +8,29 @@ import SwiftUI
 
 struct ActivitySectionPreview: View {
     let student: Student
-    let viewModel: StudentTabViewModel
     @Binding var selectedStudent: Student?
     @Binding var isAddingNewActivity: Bool
+    
+    let activities: [UnsavedActivity]
+    let onActivityUpdate: (UnsavedActivity) -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            let studentActivities = viewModel.unsavedActivities.filter { $0.studentId == student.id }
+            let studentActivities = activities.filter { $0.studentId == student.id }
             
             if !studentActivities.isEmpty {
                 ForEach(studentActivities) { activity in
                     ActivityRowPreview(
-                        viewModel: viewModel,
-                        activity: binding(for: activity, in: viewModel),
+                        activity: binding(for: activity),
                         student: student,
                         onAddActivity: {
                             isAddingNewActivity = true
                         },
                         onDelete: {
+                            onDeleteActivity(activity)
+                        },
+                        onDeleteActivity: { activity in
                             onDeleteActivity(activity)
                         }
                     )
@@ -48,19 +51,36 @@ struct ActivitySectionPreview: View {
         }
     }
     
-    private func binding(for activity: UnsavedActivity, in viewModel: StudentTabViewModel) -> Binding<UnsavedActivity> {
+    private func binding(for activity: UnsavedActivity) -> Binding<UnsavedActivity> {
         Binding<UnsavedActivity>(
-            get: {
-                if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
-                    return viewModel.unsavedActivities[index]
-                }
-                return activity
-            },
+            get: { activity },
             set: { newValue in
-                if let index = viewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
-                    viewModel.unsavedActivities[index] = newValue
-                }
+                onActivityUpdate(newValue)
             }
         )
     }
+}
+
+#Preview {
+    ActivitySectionPreview(
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        selectedStudent: .constant(nil),
+        isAddingNewActivity: .constant(false),
+        activities: [
+            UnsavedActivity(
+                activity: "Reading a book",
+                createdAt: Date(),
+                isIndependent: true,
+                studentId: Student.ID()
+            ),
+            UnsavedActivity(
+                activity: "Playing with blocks",
+                createdAt: Date(),
+                isIndependent: false,
+                studentId: Student.ID()
+            )
+        ],
+        onActivityUpdate: { _ in },
+        onDeleteActivity: { _ in }
+    )
 }

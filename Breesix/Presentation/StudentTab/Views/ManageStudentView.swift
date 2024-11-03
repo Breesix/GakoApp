@@ -1,5 +1,5 @@
 //
-//  EditStudent.swift
+//  ManageStudentView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 03/10/24.
@@ -8,8 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct EditStudent: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+struct ManageStudentView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var fullname = ""
     @State private var nickname = ""
@@ -17,25 +16,18 @@ struct EditStudent: View {
     @State private var selectedImageData: Data?
     @State private var isShowingCamera = false
     @State private var capturedImage: UIImage?
-    
     @State private var showingImagePicker = false
     @State private var showingSourceTypeMenu = false
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
-    
     @State private var showAlert = false
-    
     @State private var isDuplicateNickname = false
     
-    private func checkDuplicateNickname(_ nickname: String) -> Bool {
-        switch mode {
-        case .add:
-            return viewModel.students.contains { $0.nickname.lowercased() == nickname.lowercased() }
-        case .edit(let currentStudent):
-            return viewModel.students.contains { student in
-                student.nickname.lowercased() == nickname.lowercased() && student.id != currentStudent.id
-            }
-        }
-    }
+    let onSave: (Student) async -> Void
+    let onUpdate: (Student) async -> Void
+    let onImageChange: (UIImage?) -> Void
+    let checkNickname: (String, UUID?) -> Bool
+    let compressedImageData: Data?
+    let newStudentImage: UIImage?
     
     enum Mode: Equatable {
         case add
@@ -55,9 +47,20 @@ struct EditStudent: View {
     
     let mode: Mode
     
-    init(viewModel: StudentTabViewModel, mode: Mode) {
-        self.viewModel = viewModel
+    init(mode: Mode,
+         compressedImageData: Data?,
+         newStudentImage: UIImage?,
+         onSave: @escaping (Student) async -> Void,
+         onUpdate: @escaping (Student) async -> Void,
+         onImageChange: @escaping (UIImage?) -> Void,
+         checkNickname: @escaping (String, UUID?) -> Bool) {
         self.mode = mode
+        self.onSave = onSave
+        self.onUpdate = onUpdate
+        self.onImageChange = onImageChange
+        self.checkNickname = checkNickname
+        self.compressedImageData = compressedImageData
+        self.newStudentImage = newStudentImage
         
         switch mode {
         case .add:
@@ -70,18 +73,58 @@ struct EditStudent: View {
         }
     }
     
+    private func checkDuplicateNickname(_ nickname: String) -> Bool {
+        switch mode {
+        case .add:
+            return checkNickname(nickname, nil)
+        case .edit(let currentStudent):
+            return checkNickname(nickname, currentStudent.id)
+        }
+    }
+    
+    private func saveStudent() {
+        Task {
+            if (fullname.isEmpty || nickname.isEmpty) {
+                showAlert = true
+                return
+            }
+            
+            if isDuplicateNickname {
+                showAlert = true
+                return
+            }
+            
+            switch mode {
+            case .add:
+                let newStudent = Student(
+                    fullname: fullname,
+                    nickname: nickname,
+                    imageData: compressedImageData
+                )
+                await onSave(newStudent)
+            case .edit(let student):
+                student.fullname = fullname
+                student.nickname = nickname
+                student.imageData = compressedImageData ?? student.imageData
+                await onUpdate(student)
+            }
+            
+            selectedImageData = nil
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .center, spacing: 8) {
-                    if let imageData = viewModel.compressedImageData, let image = UIImage(data: imageData) {
+                    if let imageData = compressedImageData, let image = UIImage(data: imageData) {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
-                    } else if case .edit(let student) = mode, let imageData = student.imageData,
-                              let image = UIImage(data: imageData) {
+                    } else if case .edit(let student) = mode, let imageData = student.imageData, let image = UIImage(data: imageData) {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
@@ -94,6 +137,7 @@ struct EditStudent: View {
                             .frame(width: 100, height: 100)
                             .foregroundColor(.gray)
                     }
+                    
                     Button(action: {
                         showingSourceTypeMenu = true
                     }) {
@@ -108,6 +152,7 @@ struct EditStudent: View {
                             .foregroundStyle(.labelPrimaryBlack)
                             .font(.callout)
                             .fontWeight(.semibold)
+                        
                         ZStack(alignment: .leading) {
                             if fullname.isEmpty {
                                 Text("Nama Lengkap Murid")
@@ -117,6 +162,7 @@ struct EditStudent: View {
                                     .padding(.horizontal, 11)
                                     .padding(.vertical, 9)
                             }
+                            
                             TextField("", text: $fullname)
                                 .foregroundStyle(.labelPrimaryBlack)
                                 .font(.body)
@@ -137,6 +183,7 @@ struct EditStudent: View {
                             .foregroundStyle(.labelPrimaryBlack)
                             .font(.callout)
                             .fontWeight(.semibold)
+                        
                         ZStack(alignment: .leading) {
                             if nickname.isEmpty {
                                 Text("Nama Panggilan Murid")
@@ -213,69 +260,47 @@ struct EditStudent: View {
                 }
             }
         }
-        
         .actionSheet(isPresented: $showingSourceTypeMenu) {
-            ActionSheet(title: Text("Choose Image Source"), buttons: [
-                .default(Text("Camera")) {
-                    sourceType = .camera
-                    showingImagePicker = true
-                },
-                .default(Text("Photo Library")) {
-                    sourceType = .photoLibrary
-                    showingImagePicker = true
-                },
-                .cancel()
-            ])
-        }
-        .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $viewModel.newStudentImage, sourceType: sourceType)
-        }
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Peringatan"),
-                message: Text("Pastikan nama lengkap dan nama panggilan sudah terisi"),
-                dismissButton: .default(Text("OK"))
+            ActionSheet(
+                title: Text("Choose Image Source"),
+                buttons: [
+                    .default(Text("Camera")) {
+                        sourceType = .camera
+                        showingImagePicker = true
+                    },
+                    .default(Text("Photo Library")) {
+                        sourceType = .photoLibrary
+                        showingImagePicker = true
+                    },
+                    .cancel()
+                ]
             )
         }
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(image: Binding(
+                get: { newStudentImage },
+                set: { onImageChange($0) }
+            ), sourceType: sourceType)
+        }
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Peringatan"),
-                message: Text(isDuplicateNickname ?
-                    "Nama panggilan sudah digunakan. Mohon gunakan nama panggilan lain." :
-                    "Pastikan nama lengkap dan nama panggilan sudah terisi"),
+                message: Text(isDuplicateNickname ? "Nama panggilan sudah digunakan. Mohon gunakan nama panggilan lain." : "Pastikan nama lengkap dan nama panggilan sudah terisi"),
                 dismissButton: .default(Text("OK"))
             )
         }
     }
-    
-    private func saveStudent() {
-        Task {
-            if (fullname == "" || nickname == "") {
-                showAlert = true
-                return
-            }
-            
-            if isDuplicateNickname {
-                showAlert = true
-                return
-            }
-            
-            switch mode {
-            case .add:
-                let newStudent = Student(
-                    fullname: fullname,
-                    nickname: nickname,
-                    imageData: viewModel.compressedImageData
-                )
-                await viewModel.addStudent(newStudent)
-                
-            case .edit(let student):
-                student.fullname = fullname
-                student.nickname = nickname
-                student.imageData = viewModel.compressedImageData ?? student.imageData
-                await viewModel.updateStudent(student)
-            }
-            selectedImageData = nil
-            presentationMode.wrappedValue.dismiss()
-        }
-    }}
+}
+
+
+#Preview {
+    ManageStudentView(
+        mode: .add,
+        compressedImageData: nil,
+        newStudentImage: nil,
+        onSave: { _ in print("saved")},
+        onUpdate: { _ in print("updated") },
+        onImageChange: { _ in print("image changed") },
+        checkNickname: { _, _ in false}
+    )
+}

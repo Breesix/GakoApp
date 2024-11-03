@@ -1,20 +1,21 @@
-//
-//  AddActivity.swift
+//  AddUnsavedActivity.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 04/10/24.
+//  Created by Rangga Biner on 13/10/24.
 //
 
 import SwiftUI
 
-struct AddActivity: View {
-    @ObservedObject var viewModel: StudentTabViewModel
+struct AddUnsavedActivityView: View {
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
     
+    let onSaveActivity: (UnsavedActivity) -> Void
+    
     @State private var activityText: String = ""
     @State private var selectedStatus: Bool?
+    @State private var showAlert: Bool = false
 
     var body: some View {
         NavigationView {
@@ -103,7 +104,11 @@ struct AddActivity: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewActivity()
+                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNewActivity()
+                        }
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -111,6 +116,11 @@ struct AddActivity: View {
                     })
                     .padding(.top, 27)
                 }
+            }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("aktivitas tidak boleh kosong")
             }
         }
     }
@@ -123,15 +133,27 @@ struct AddActivity: View {
     }
 
     private func saveNewActivity() {
-        let newActivity = Activity(
+        let newActivity = UnsavedActivity(
             activity: activityText,
             createdAt: selectedDate,
             isIndependent: selectedStatus ?? false,
-            student: student
+            studentId: student.id
         )
-        Task {
-            await viewModel.addActivity(newActivity, for: student)
-            onDismiss()
-        }
+        onSaveActivity(newActivity)
+        onDismiss()
     }
+}
+
+
+#Preview {
+    AddUnsavedActivityView(
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        selectedDate: .now,
+        onDismiss: {
+            print("Dismissed")
+        },
+        onSaveActivity: { _ in
+            print("saved activity")
+        }
+    )
 }

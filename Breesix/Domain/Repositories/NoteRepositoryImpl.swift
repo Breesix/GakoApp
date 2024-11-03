@@ -9,28 +9,26 @@ import Foundation
 import SwiftData
 
 class NoteRepositoryImpl: NoteRepository {
-    private let context: ModelContext
-
-    init(context: ModelContext) {
-        self.context = context
+    private let dataSource: NoteDataSource
+    
+    init(dataSource: NoteDataSource) {
+        self.dataSource = dataSource
     }
-
+    
     func fetchAllNotes(_ student: Student) async throws -> [Note] {
-        return student.notes
+        return try await dataSource.fetchAllNotes(student)
     }
-
+    
     func addNote(_ note: Note, for student: Student) async throws {
-        student.notes.append(note)
-        try context.save()
+        try await dataSource.insert(note, for: student)
     }
-
+    
     func updateNote(_ note: Note) async throws {
-        try context.save()
+        try await dataSource.update(note)
     }
-
+    
     func deleteNote(_ note: Note, from student: Student) async throws {
-        student.notes.removeAll { $0.id == note.id }
-        context.delete(note)
-        try context.save()
+        try await dataSource.delete(note, from: student)
     }
 }
+
