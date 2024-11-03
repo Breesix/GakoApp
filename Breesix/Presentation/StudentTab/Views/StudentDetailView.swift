@@ -94,7 +94,6 @@ struct StudentDetailView: View {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])

@@ -77,7 +77,6 @@ class StudentTabViewModel: ObservableObject {
             try await studentUseCases.updateStudent(student)
             await fetchAllStudents()
             
-            // Tambahkan reset state
             await MainActor.run {
                 self.newStudentImage = nil
                 self.compressedImageData = nil
