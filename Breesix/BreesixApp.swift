@@ -30,13 +30,16 @@ struct BreesixApp: App {
             let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
             let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
             
-            let noteRepository = NoteRepositoryImpl(context: context)
+            let noteDataSource = NoteDataSourceImpl(context: context)
+            let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
             let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
             
-            let activityRepository = ActivityRepositoryImpl(context: context)
+            let activityDataSource = ActivityDataSourceImpl(context: context)
+            let activityRepository = ActivityRepositoryImpl(dataSource: activityDataSource)
             let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             
-            let summaryRepository = SummaryRepositoryImpl(context: context)
+            let summaryDataSource = SummaryDataSourceImpl(context: context)
+            let summaryRepository = SummaryRepositoryImpl(dataSource: summaryDataSource)
             let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
             
             let summaryService = SummaryService(

@@ -6,32 +6,27 @@
 //
 
 import Foundation
-import SwiftData
 
 class SummaryRepositoryImpl: SummaryRepository {
-    private let context: ModelContext
-
-    init(context: ModelContext) {
-        self.context = context
+    private let dataSource: SummaryDataSource
+    
+    init(dataSource: SummaryDataSource) {
+        self.dataSource = dataSource
     }
     
     func fetchAllSummaries(_ student: Student) async throws -> [Summary] {
-        return student.summaries
+        return try await dataSource.fetchAllSummaries(student)
     }
     
     func addSummary(_ summary: Summary, for student: Student) async throws {
-        student.summaries.append(summary)
-        try context.save()
+        try await dataSource.insert(summary, for: student)
     }
     
     func updateSummary(_ summary: Summary) async throws {
-        try context.save()
+        try await dataSource.update(summary)
     }
     
     func deleteSummary(_ summary: Summary, from student: Student) async throws {
-        student.summaries.removeAll { $0.id == summary.id }
-        context.delete(summary)
-        try context.save()
-
+        try await dataSource.delete(summary, from: student)
     }
 }
