@@ -14,7 +14,7 @@ struct AddUnsavedActivityView: View {
     let onSaveActivity: (UnsavedActivity) -> Void
     
     @State private var activityText: String = ""
-    @State private var selectedStatus: Bool?
+    @State private var selectedStatus: Status = .tidakMelakukan
     @State private var showAlert: Bool = false
 
     var body: some View {
@@ -53,10 +53,13 @@ struct AddUnsavedActivityView: View {
                 
                 Menu {
                     Button("Mandiri") {
-                        selectedStatus = true
+                        selectedStatus = .mandiri
                     }
                     Button("Dibimbing") {
-                        selectedStatus = false
+                        selectedStatus = .dibimbing
+                    }
+                    Button("Tidak Melakukan") {
+                        selectedStatus = .tidakMelakukan
                     }
                 } label: {
                     HStack(spacing: 9) {
@@ -126,17 +129,21 @@ struct AddUnsavedActivityView: View {
     }
     
     private func getStatusText() -> String {
-        if let status = selectedStatus {
-            return status ? "Mandiri" : "Dibimbing"
+        switch selectedStatus {
+        case .mandiri:
+            return "Mandiri"
+        case .dibimbing:
+            return "Dibimbing"
+        case .tidakMelakukan:
+            return "Tidak Melakukan"
         }
-        return "Status"
     }
 
     private func saveNewActivity() {
         let newActivity = UnsavedActivity(
             activity: activityText,
             createdAt: selectedDate,
-            status: selectedStatus ?? false,
+            status: selectedStatus,
             studentId: student.id
         )
         onSaveActivity(newActivity)

@@ -11,10 +11,9 @@ struct ActivityRowPreview: View {
     let student: Student
     let onAddActivity: () -> Void
     let onDelete: () -> Void
-    let onDeleteActivity: (UnsavedActivity) -> Void 
+    let onDeleteActivity: (UnsavedActivity) -> Void
     
     @State private var showDeleteAlert = false
-    @State private var selectedStatus: Bool?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -26,7 +25,7 @@ struct ActivityRowPreview: View {
             
             HStack(spacing: 8) {
                 StatusPicker(status: $activity.status) { newStatus in
-                    selectedStatus = newStatus
+                    activity.status = newStatus  
                 }
                 
                 Button(action: {
@@ -53,12 +52,19 @@ struct ActivityRowPreview: View {
                 }
             }
         }
-        .onAppear {
-            selectedStatus = activity.status
-        }
     }
 }
 
 #Preview {
-    ActivityRowPreview(activity: .constant(.init(activity: "Menjahit", createdAt: .now, studentId: Student.ID())), student: .init(fullname: "Rangga Biner", nickname: "Rangga"), onAddActivity: { print("added activity")}, onDelete: {print("deleted")}, onDeleteActivity: { _ in print("deleted activity")})
+    ActivityRowPreview(
+        activity: .constant(.init(
+            activity: "Menjahit",
+            createdAt: .now,
+            studentId: Student.ID()
+        )),
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        onAddActivity: { print("added activity") },
+        onDelete: { print("deleted") },
+        onDeleteActivity: { _ in print("deleted activity") }
+    )
 }

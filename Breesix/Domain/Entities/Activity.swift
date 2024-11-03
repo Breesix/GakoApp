@@ -18,10 +18,10 @@ class Activity {
     @Attribute(.unique) var id: UUID
     var activity: String
     var createdAt: Date
-    var status: Bool?
+    var status: Status
     weak var student: Student?
     
-    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Bool? = nil, student: Student) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date = Date(), status: Status = .tidakMelakukan, student: Student) {
         self.id = id
         self.activity = activity
         self.createdAt = createdAt
@@ -34,10 +34,10 @@ class UnsavedActivity: Identifiable {
     var id: UUID
     var activity: String
     var createdAt: Date
-    var status: Bool? 
+    var status: Status
     var studentId: Student.ID
     
-    init(id: UUID = UUID(), activity: String, createdAt: Date, status: Bool? = nil, studentId: Student.ID) {
+    init(id: UUID = UUID(), activity: String, createdAt: Date, status: Status = .tidakMelakukan, studentId: Student.ID) {
         self.id = id
         self.activity = activity
         self.createdAt = createdAt

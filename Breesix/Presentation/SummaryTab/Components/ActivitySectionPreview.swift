@@ -70,13 +70,13 @@ struct ActivitySectionPreview: View {
             UnsavedActivity(
                 activity: "Reading a book",
                 createdAt: Date(),
-                status: true,
+                status: .mandiri,
                 studentId: Student.ID()
             ),
             UnsavedActivity(
                 activity: "Playing with blocks",
                 createdAt: Date(),
-                status: false,
+                status: .mandiri,
                 studentId: Student.ID()
             )
         ],

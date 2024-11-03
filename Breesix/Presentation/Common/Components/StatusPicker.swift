@@ -8,22 +8,22 @@
 import SwiftUI
 
 struct StatusPicker: View {
-    @Binding var status: Bool?
-    var onStatusChange: (Bool?) -> Void
+    @Binding var status: Status
+    var onStatusChange: (Status) -> Void
     
     var body: some View {
         Menu {
             Button("Mandiri") {
-                status = true
-                onStatusChange(true)
+                status = .mandiri
+                onStatusChange(.mandiri)
             }
             Button("Dibimbing") {
-                status = false
-                onStatusChange(false)
+                status = .dibimbing
+                onStatusChange(.dibimbing)
             }
             Button("Tidak Melakukan") {
-                status = nil
-                onStatusChange(nil)
+                status = .tidakMelakukan
+                onStatusChange(.tidakMelakukan)
             }
         } label: {
             HStack {
@@ -50,21 +50,19 @@ struct StatusPicker: View {
     
     private func getStatusText() -> String {
         switch status {
-        case true:
+        case .mandiri:
             return "Mandiri"
-        case false:
+        case .dibimbing:
             return "Dibimbing"
-        case nil:
+        case .tidakMelakukan:
             return "Tidak Melakukan"
-        default:
-            return "Status"
         }
     }
 }
 
 #Preview {
     StatusPicker(
-        status: .constant(nil),
+        status: .constant(.tidakMelakukan),
         onStatusChange: { _ in print("changed") }
     )
 }

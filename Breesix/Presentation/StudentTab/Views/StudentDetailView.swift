@@ -16,7 +16,7 @@ struct StudentDetailView: View {
     let onDeleteNote: (Note, Student) async -> Void
     let onAddActivity: (Activity, Student) async -> Void
     let onDeleteActivity: (Activity, Student) async -> Void
-    let onUpdateActivityStatus: (Activity, Bool?) async -> Void
+    let onUpdateActivityStatus: (Activity, Status) async -> Void
     let onFetchNotes: (Student) async -> [Note]
     let onFetchActivities: (Student) async -> [Activity]
     let onCheckNickname: (String, UUID?) -> Bool

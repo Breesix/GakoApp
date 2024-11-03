@@ -200,20 +200,20 @@ class ReflectionCSVParser {
                                 .lowercased()
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
                             
-                            var status: Bool?
+                            var status: Status
                             switch statusString {
                             case "true":
-                                status = true
+                                status = .mandiri
                             case "false":
-                                status = false
+                                status = .dibimbing
                             case "null", "nil", "":
-                                status = nil
+                                status = .tidakMelakukan
                             default:
-                                status = nil
+                                status = .tidakMelakukan
                             }
                             
                             if curhatan.contains("Tidak ada informasi aktivitas") {
-                                status = nil
+                                status = .tidakMelakukan
                             }
                             
                             let unsavedActivity = UnsavedActivity(

@@ -19,7 +19,7 @@ struct DailyReportCard: View {
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onShareTapped: (Date) -> Void
-    let onUpdateActivityStatus: (Activity, Bool) async -> Void
+    let onUpdateActivityStatus: (Activity, Status) async -> Void
     
     @State private var showSnapshotPreview = false
     @State private var snapshotImage: UIImage?
@@ -86,7 +86,7 @@ struct DailyReportCard: View {
                     onDeleteActivity: onDeleteActivity,
                     onStatusChanged: { activity, newStatus in
                         Task {
-                            await onUpdateActivityStatus(activity, newStatus!)
+                            await onUpdateActivityStatus(activity, newStatus)
                         }
                     }
                 )
