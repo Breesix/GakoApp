@@ -77,7 +77,6 @@ struct DailyReportCard: View {
                     }
                 }
             }
-            .padding(.bottom, 19)
             
             if !activities.isEmpty {
                 ActivitySection(
@@ -108,7 +107,7 @@ struct DailyReportCard: View {
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
-                .padding(.bottom, 20)
+                .padding(.bottom, 8)
             
             if !notes.isEmpty {
                 NoteSection(
