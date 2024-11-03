@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct EditNote: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     @State private var noteText: String
     let note: Note
     
     let onDismiss: () -> Void
+    let onSave: (Note) -> Void
 
-    init(viewModel: StudentTabViewModel, note: Note, onDismiss: @escaping () -> Void) {
-        self.viewModel = viewModel
+    init(note: Note,
+         onDismiss: @escaping () -> Void,
+         onSave: @escaping (Note) -> Void) {
         self.note = note
         self.onDismiss = onDismiss
+        self.onSave = onSave
         _noteText = State(initialValue: note.note)
     }
 
@@ -109,12 +111,15 @@ struct EditNote: View {
     }
 
     private func saveNote() {
-        note.note = noteText
-        Task {
-            await viewModel.updateNote(note)
-            onDismiss()
-        }
+        let updatedNote = note
+        updatedNote.note = noteText
+        onSave(updatedNote)
+        onDismiss()
     }
+}
+
+#Preview {
+    EditNote(note: .init(note: "Anak ini pintar sekali", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onDismiss: { print("dismissed")}, onSave: { _ in print("saved")})
 }
 
 

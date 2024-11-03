@@ -25,7 +25,7 @@ struct ActivityRowPreview: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                StatusPickerView(isIndependent: $activity.isIndependent) { newStatus in
+                StatusPicker(isIndependent: $activity.isIndependent) { newStatus in
                     selectedStatus = newStatus
                 }
                 

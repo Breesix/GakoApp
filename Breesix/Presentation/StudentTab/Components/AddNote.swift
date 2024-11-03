@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct AddNote: View {
-    @ObservedObject var viewModel: StudentTabViewModel
-    @State private var note: String = ""
+    @State private var noteText: String = ""
+    @State private var showAlert: Bool = false
     let student: Student
     let selectedDate: Date
     
     let onDismiss: () -> Void
+    let onSave: (Note) async -> Void
 
     var body: some View {
         NavigationView {
@@ -27,7 +28,7 @@ struct AddNote: View {
                         .fill(.cardFieldBG)
                         .frame(maxWidth: .infinity, maxHeight: 170)
                     
-                    if note.isEmpty {
+                    if noteText.isEmpty {
                         Text("Tuliskan catatan untuk murid...")
                             .font(.callout)
                             .fontWeight(.regular)
@@ -37,7 +38,7 @@ struct AddNote: View {
                             .foregroundColor(.labelDisabled)
                             .cornerRadius(8)
                     }
-                    TextEditor(text: $note)
+                    TextEditor(text: $noteText)
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
@@ -87,7 +88,11 @@ struct AddNote: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewNote()
+                        if noteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true 
+                        } else {
+                            saveNewNote()
+                        }
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -96,14 +101,26 @@ struct AddNote: View {
                     .padding(.top, 27)
                 }
             }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Catatan tidak boleh kosong")
+            }
         }
     }
 
     private func saveNewNote() {
-        let newNote = Note(note: note, createdAt: selectedDate, student: student)
+        let newNote = Note(note: noteText, createdAt: selectedDate, student: student)
         Task {
-            await viewModel.addNote(newNote, for: student)
+            await onSave(newNote)
             onDismiss()
         }
     }
+}
+
+#Preview {
+    AddNote(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: { print("dismissed")}, onSave: { _ in
+        print("saved")
+    }
+    )
 }

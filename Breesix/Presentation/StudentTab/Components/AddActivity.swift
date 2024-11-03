@@ -1,21 +1,20 @@
-//
 //  AddActivity.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 04/10/24.
-//
 
 import SwiftUI
 
 struct AddActivity: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     let student: Student
     let selectedDate: Date
     let onDismiss: () -> Void
+    let onSave: (Activity) async -> Void
     
     @State private var activityText: String = ""
     @State private var selectedStatus: Bool?
-
+    @State private var showAlert = false
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 8) {
@@ -103,7 +102,11 @@ struct AddActivity: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewActivity()
+                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNewActivity()
+                        }
                     }, label: {
                         Text("Simpan")
                             .font(.body)
@@ -111,6 +114,11 @@ struct AddActivity: View {
                     })
                     .padding(.top, 27)
                 }
+            }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Aktivitas tidak boleh kosong")
             }
         }
     }
@@ -130,8 +138,16 @@ struct AddActivity: View {
             student: student
         )
         Task {
-            await viewModel.addActivity(newActivity, for: student)
+            await onSave(newActivity)
             onDismiss()
         }
     }
+}
+
+#Preview {
+    AddActivity(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), selectedDate: .now, onDismiss: {
+        print("dismissed")
+    }, onSave: { _ in
+        print("saved")
+    })
 }

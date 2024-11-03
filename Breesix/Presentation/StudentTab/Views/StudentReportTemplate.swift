@@ -13,7 +13,6 @@ struct DailyReportTemplate: View {
     let notes: [Note]
     let date: Date
     
-    // A4 dimensions in points (72 points per inch)
     private let a4Width: CGFloat = 595.276
     private let a4Height: CGFloat = 841.89
     
@@ -26,7 +25,6 @@ struct DailyReportTemplate: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 Image("GAKO")
                     .resizable()
@@ -43,7 +41,6 @@ struct DailyReportTemplate: View {
             }
             .padding()
             
-            // Student Info
             HStack(spacing: 16) {
                 if let imageData = student.imageData,
                    let uiImage = UIImage(data: imageData) {
@@ -67,7 +64,6 @@ struct DailyReportTemplate: View {
             .cornerRadius(12)
             .padding(.horizontal)
             
-            // Activities Table
             VStack(alignment: .leading, spacing: 8) {
                 Text("Aktivitas")
                     .font(.headline)
@@ -121,7 +117,6 @@ struct DailyReportTemplate: View {
     }
 }
 
-// Extension to handle sharing
 extension View {
     func snapshot() -> UIImage {
         let controller = UIHostingController(rootView: self)

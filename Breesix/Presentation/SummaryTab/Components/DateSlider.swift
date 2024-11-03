@@ -46,6 +46,7 @@ struct DateSlider: View {
                 NavigationView {
                     DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
                         .datePickerStyle(.graphical)
+                        .environment(\.locale, Locale(identifier: "id_ID"))
                         .padding(.horizontal, 16)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {

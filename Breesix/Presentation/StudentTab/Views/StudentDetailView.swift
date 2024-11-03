@@ -30,7 +30,6 @@ struct StudentDetailView: View {
     @State private var documentInteractionController: UIDocumentInteractionController?
     @State private var selectedActivityDate: Date?
     
-    // Add this function to handle WhatsApp sharing
     private func shareToWhatsApp(image: UIImage) {
         guard let imageData = image.pngData() else { return }
         
@@ -51,7 +50,6 @@ struct StudentDetailView: View {
         }
     }
     
-    // Add this function to handle system share sheet
     private func showShareSheet(image: UIImage) {
         let activityVC = UIActivityViewController(
             activityItems: [image],
@@ -179,7 +177,6 @@ struct StudentDetailView: View {
                                     ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
                                         if let dayItems = activitiesForSelectedMonth[day] {
                                             DailyReportCard(
-                                                viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
                                                 student: student,
@@ -201,6 +198,9 @@ struct StudentDetailView: View {
                                                     withAnimation {
                                                         showSnapshotPreview = true
                                                     }
+                                                },
+                                                onUpdateActivityStatus: { activity, newStatus in
+                                                    await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
                                                 }
                                             )
                                             .padding(.horizontal, 16)
@@ -239,7 +239,6 @@ struct StudentDetailView: View {
                     .transition(.opacity)
                 
                 VStack(spacing: 16) {
-                    // Header
                     HStack {
                         Text("Preview")
                             .font(.title3)
@@ -259,7 +258,6 @@ struct StudentDetailView: View {
                         }
                     }
                     
-                    // Image Preview
                     ScrollView {
                         Image(uiImage: image)
                             .resizable()
@@ -268,7 +266,6 @@ struct StudentDetailView: View {
                     }
                     .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
                     
-                    // Action Buttons
                     HStack(spacing: 20) {
                         ShareButton(
                             title: "WhatsApp",
@@ -305,28 +302,58 @@ struct StudentDetailView: View {
         }
         .toolbar(.hidden, for: .bottomBar , .tabBar )
         .sheet(isPresented: $isEditing) {
-            EditStudent(viewModel: viewModel, mode: .edit(student))
-                .presentationDetents([.large])
+            EditStudent(
+                mode: .edit(student),
+                compressedImageData: viewModel.compressedImageData,
+                newStudentImage: viewModel.newStudentImage,
+                onSave: { student in
+                    await viewModel.addStudent(student)
+                },
+                onUpdate: { student in
+                    await viewModel.updateStudent(student)
+                },
+                onImageChange: { image in
+                    viewModel.newStudentImage = image
+                },
+                checkNickname: { nickname, currentStudentId in
+                    viewModel.students.contains { student in
+                        if let currentId = currentStudentId {
+                            return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
+                        }
+                        return student.nickname.lowercased() == nickname.lowercased()
+                    }
+                }
+            )
+            .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
-            EditNote(viewModel: viewModel, note: note, onDismiss: {
-                selectedNote = nil
-            })
+            EditNote(
+                note: note,
+                onDismiss: {
+                    selectedNote = nil
+                },
+                onSave: { updatedNote in
+                    Task {
+                        await viewModel.updateNote(updatedNote)
+                    }
+                }
+            )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
         .sheet(isPresented: $isAddingNewNote) {
-            AddNote(viewModel: viewModel,
-                        student: student,
-                        selectedDate: selectedDate,
-                        onDismiss: {
-                isAddingNewNote = false
-                Task {
+            AddNote(  student: student,
+                     selectedDate: selectedDate,
+                      onDismiss: {
+                        isAddingNewNote = false
+                    Task {
                     await fetchAllNotes()
                 }
+            }, onSave: { note in
+                await viewModel.addNote(note, for: student)
             })
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
@@ -334,15 +361,19 @@ struct StudentDetailView: View {
         }
         
         .sheet(isPresented: $isAddingNewActivity) {
-            AddActivity(viewModel: viewModel,
-                            student: student,
-                            selectedDate: selectedDate,
-                            onDismiss: {
-                isAddingNewActivity = false
-                Task {
-                    await fetchActivities()
+            AddActivity(
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: {
+                    isAddingNewActivity = false
+                    Task {
+                        await fetchActivities()
+                    }
+                },
+                onSave: { activity in
+                    await viewModel.addActivity(activity, for: student)
                 }
-            })
+            )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
@@ -497,36 +528,6 @@ struct DayItems {
     var notes: [Note]
 }
 
-//struct CalendarButton: View {
-//    @Binding var selectedDate: Date
-//    @Binding var isShowingCalendar: Bool
-//    var onDateSelected: (Date) -> Void
-//    
-//    var body: some View {
-//        
-//        Button(action: { isShowingCalendar = true }) {
-//            ZStack {
-//                Circle()
-//                    .frame(width: 36)
-//                    .foregroundStyle(.buttonLinkOnSheet)
-//                Image(systemName: "calendar")
-//                    .font(.system(size: 21))
-//                    .foregroundStyle(.white)
-//            }
-//        }
-//        
-//        .sheet(isPresented: $isShowingCalendar) {
-//            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-//                .datePickerStyle(.graphical)
-//                .environment(\.locale, Locale(identifier: "id_ID"))
-//                .presentationDetents([.fraction(0.55)])
-//                .onChange(of: selectedDate) { newDate in
-//                    onDateSelected(newDate)
-//                }
-//        }
-//    }
-//}
-
 struct FutureMessageView: View {
     var body: some View {
         VStack {
@@ -537,7 +538,6 @@ struct FutureMessageView: View {
         }
     }
 }
-
 
 struct EditButton: View {
     @Binding var isEditing: Bool
@@ -566,7 +566,6 @@ struct BackButton: View {
     }
 }
 
-// Create a preview sheet view
 struct SnapshotPreviewSheet: View {
     let image: UIImage
     let onWhatsAppShare: () -> Void
@@ -580,7 +579,6 @@ struct SnapshotPreviewSheet: View {
                 .onTapGesture(perform: onDismiss)
             
             VStack(spacing: 16) {
-                // Header
                 HStack {
                     Text("Preview")
                         .font(.title3)
@@ -595,14 +593,12 @@ struct SnapshotPreviewSheet: View {
                     }
                 }
                 
-                // Image Preview
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
                     .cornerRadius(12)
                 
-                // Action Buttons
                 HStack(spacing: 20) {
                     Button(action: onWhatsAppShare) {
                         VStack {

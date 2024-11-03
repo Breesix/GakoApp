@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StatusPickerView: View {
+struct StatusPicker: View {
     @Binding var isIndependent: Bool?
     var onStatusChange: (Bool?) -> Void
     
@@ -62,3 +62,9 @@ struct StatusPickerView: View {
     }
 }
 
+#Preview {
+    StatusPicker(
+        isIndependent: .constant(nil),
+        onStatusChange: { _ in print("changed") }
+    )
+}

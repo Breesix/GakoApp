@@ -24,7 +24,7 @@ struct StudentTabView: View {
                     }
                 
                 VStack (spacing: 0) {
-                    CustomNavigationBar(title: "Murid") {
+                    CustomNavigation(title: "Murid") {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)
@@ -76,9 +76,30 @@ struct StudentTabView: View {
             await viewModel.fetchAllStudents()
         }
         .sheet(isPresented: $isAddingStudent) {
-            EditStudent(viewModel: viewModel, mode: .add)
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
+            EditStudent(
+                mode: .add,
+                compressedImageData: viewModel.compressedImageData,
+                newStudentImage: viewModel.newStudentImage,
+                onSave: { student in
+                    await viewModel.addStudent(student)
+                },
+                onUpdate: { student in
+                    await viewModel.updateStudent(student)
+                },
+                onImageChange: { image in
+                    viewModel.newStudentImage = image
+                },
+                checkNickname: { nickname, currentStudentId in
+                    viewModel.students.contains { student in
+                        if let currentId = currentStudentId {
+                            return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
+                        }
+                        return student.nickname.lowercased() == nickname.lowercased()
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .task {
             await viewModel.fetchAllStudents()

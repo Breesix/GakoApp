@@ -27,7 +27,7 @@ struct SummaryTabView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                CustomNavigationBar(title: "Ringkasan") {
+                CustomNavigation(title: "Ringkasan") {
                     if studentTabViewModel.students.isEmpty {
                         showEmptyStudentsAlert = true
                     } else {
