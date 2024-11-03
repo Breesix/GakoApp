@@ -10,126 +10,20 @@ import SwiftUI
 
 @MainActor
 class StudentTabViewModel: ObservableObject {
-    @Published var students: [Student] = []
-    @Published var unsavedNotes: [UnsavedNote] = []
+    @ObservedObject var studentViewModel: StudentViewModel
     @Published var unsavedActivities: [UnsavedActivity] = []
     @Published var selectedDate: Date = Date()
-    private let studentUseCases: StudentUseCase
-    private let noteUseCases: NoteUseCase
     private let activityUseCases: ActivityUseCase
     private let summaryService: SummaryService
     private let summaryLlamaService: SummaryLlamaService
     private let summaryUseCase: SummaryUseCase
-
-    @Published var newStudentImage: UIImage? {
-        didSet {
-            if let image = newStudentImage {
-                self.compressedImageData = image.jpegData(compressionQuality: 0.8)
-            } else {
-                self.compressedImageData = nil
-            }
-        }
-    }
     
-    @Published private(set) var compressedImageData: Data?
-    
-    init(studentUseCases: StudentUseCase, noteUseCases: NoteUseCase, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService, summaryLlamaService: SummaryLlamaService) {
-        self.studentUseCases = studentUseCases
-        self.noteUseCases = noteUseCases
+    init(studentViewModel: StudentViewModel, activityUseCases: ActivityUseCase, summaryUseCase: SummaryUseCase, summaryService: SummaryService, summaryLlamaService: SummaryLlamaService) {
+        self.studentViewModel = studentViewModel
         self.activityUseCases = activityUseCases
         self.summaryUseCase = summaryUseCase
         self.summaryService = summaryService
         self.summaryLlamaService = summaryLlamaService
-    }
-    
-    @MainActor
-    func fetchAllStudents() async {
-        do {
-            students = try await studentUseCases.fetchAllStudents()
-        } catch {
-            print("Error loading students: \(error)")
-        }
-    }
-    
-    @MainActor
-    func addStudent(_ student: Student) async {
-        do {
-            let studentWithCompressedImage = Student(
-                fullname: student.fullname,
-                nickname: student.nickname,
-                imageData: compressedImageData
-            )
-            
-            try await studentUseCases.addStudent(studentWithCompressedImage)
-            await fetchAllStudents()
-            
-            await MainActor.run {
-                self.newStudentImage = nil
-                self.compressedImageData = nil
-            }
-        } catch {
-            print("Error adding student: \(error)")
-        }
-    }
-    
-    func updateStudent(_ student: Student) async {
-        do {
-            try await studentUseCases.updateStudent(student)
-            await fetchAllStudents()
-            
-            await MainActor.run {
-                self.newStudentImage = nil
-                self.compressedImageData = nil
-            }
-        } catch {
-            print("Error updating student: \(error)")
-        }
-    }
-    func deleteStudent(_ student: Student) async {
-        do {
-            try await studentUseCases.deleteStudent(student)
-            await fetchAllStudents()
-        } catch {
-            print("Error deleting student: \(error)")
-        }
-    }
-    
-    func addNote(_ note: Note, for student: Student) async {
-        do {
-            try await noteUseCases.addNote(note, for: student)
-            await fetchAllStudents()
-        } catch {
-            print("Error adding note: \(error)")
-        }
-    }
-    
-    func fetchAllNotes(_ student: Student) async -> [Note] {
-        do {
-            return try await noteUseCases.fetchAllNotes(student)
-        } catch {
-            print("Error getting activities: \(error)")
-            return []
-        }
-    }
-    
-    func updateNote(_ note: Note) async {
-        do {
-            try await noteUseCases.updateNote(note)
-            await fetchAllStudents()
-        } catch {
-            print("Error updating note: \(error)")
-        }
-    }
-    
-    func deleteNote(_ note: Note, from student: Student) async {
-        do {
-            try await noteUseCases.deleteNote(note, from: student)
-            if let index = students.firstIndex(where: { $0.id == student.id }) {
-                students[index].notes.removeAll(where: { $0.id == note.id })
-            }
-        } catch {
-            print("Error deleting note: \(error)")
-        }
     }
     
     func fetchActivities(_ student: Student) async -> [Activity] {
@@ -146,8 +40,8 @@ class StudentTabViewModel: ObservableObject {
         do {
             try await activityUseCases.deleteActivity(activity, from: student)
             await MainActor.run {
-                if let index = students.firstIndex(where: { $0.id == student.id }) {
-                    students[index].activities.removeAll(where: { $0.id == activity.id })
+                if let index = studentViewModel.students.firstIndex(where: { $0.id == student.id }) {
+                    studentViewModel.students[index].activities.removeAll(where: { $0.id == activity.id })
                 }
                 objectWillChange.send()
             }
@@ -156,43 +50,6 @@ class StudentTabViewModel: ObservableObject {
         }
     }
     
-    func addUnsavedNotes(_ notes: [UnsavedNote]) {
-        unsavedNotes.append(contentsOf: notes)
-    }
-    
-    func clearUnsavedNotes() {
-        unsavedNotes.removeAll()
-    }
-    
-    func saveUnsavedNotes() async {
-        for unsavedNote in unsavedNotes {
-            if let student = students.first(where: { $0.id == unsavedNote.studentId }) {
-                let note = Note(note: unsavedNote.note, createdAt: unsavedNote.createdAt, student: student)
-                await addNote(note, for: student)
-            }
-        }
-        await MainActor.run {
-            self.clearUnsavedNotes()
-        }
-    }
-    
-    
-    func updateUnsavedNote(_ note: UnsavedNote) {
-        if let index = unsavedNotes.firstIndex(where: { $0.id == note.id }) {
-            unsavedNotes[index] = note
-            objectWillChange.send()
-        }
-    }
-    
-    func deleteUnsavedNote(_ note: UnsavedNote) {
-        unsavedNotes.removeAll { $0.id == note.id }
-        objectWillChange.send()
-    }
-
-    
-    func addUnsavedNote(_ note: UnsavedNote) {
-        unsavedNotes.append(note)
-    }
     func addUnsavedActivity(_ activity: UnsavedActivity) {
         unsavedActivities.append(activity)
     }
@@ -208,7 +65,7 @@ class StudentTabViewModel: ObservableObject {
     
     func saveUnsavedActivities() async {
         for unsavedActivity in unsavedActivities {
-            if let student = students.first(where: { $0.id == unsavedActivity.studentId }) {
+            if let student = studentViewModel.students.first(where: { $0.id == unsavedActivity.studentId }) {
                 let activity = Activity(activity: unsavedActivity.activity, createdAt: unsavedActivity.createdAt, isIndependent: unsavedActivity.isIndependent ?? nil, student: student)
                 await addActivity(activity, for: student)
             }
@@ -239,7 +96,7 @@ class StudentTabViewModel: ObservableObject {
     func addActivity(_ activity: Activity, for student: Student) async {
         do {
             try await activityUseCases.addActivity(activity, for: student)
-            await fetchAllStudents()
+            await studentViewModel.fetchAllStudents()
         } catch {
             print("Error adding activity: \(error)")
         }
@@ -250,18 +107,18 @@ class StudentTabViewModel: ObservableObject {
     func updateActivity(_ activity: Activity) async {
         do {
             try await activityUseCases.updateActivity(activity)
-            await fetchAllStudents()
+            await studentViewModel.fetchAllStudents()
         } catch {
             print("Error updating activity: \(error)")
         }
     }
     
     func generateAndSaveSummaries(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: students, on: date)
+        try await summaryService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
     }
     
     func generateAndSaveSummariesLlama(for date: Date) async throws {
-        try await summaryLlamaService.generateAndSaveSummaries(for: students, on: date)
+        try await summaryLlamaService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
     }
     
     func updateActivityStatus(_ activity: Activity, isIndependent: Bool?) async {

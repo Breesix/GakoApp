@@ -9,12 +9,16 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var studentTabViewModel: StudentTabViewModel
+    @StateObject private var studentViewModel: StudentViewModel
+    @StateObject private var noteViewModel: NoteViewModel
     @StateObject private var tabBarController = TabBarController.shared
     @State private var selectedTab = 0
     @State private var hideTabBar = false
 
-    init(studentTabViewModel: StudentTabViewModel) {
+    init(studentTabViewModel: StudentTabViewModel, studentViewModel: StudentViewModel, noteViewModel: NoteViewModel) {
         _studentTabViewModel = StateObject(wrappedValue: studentTabViewModel)
+        _studentViewModel = StateObject(wrappedValue: studentViewModel)
+        _noteViewModel = StateObject(wrappedValue: noteViewModel)
         UITabBar.appearance().isHidden = true
     }
 
@@ -23,9 +27,9 @@ struct MainTabView: View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
                 TabView(selection: $selectedTab) {
-                    SummaryTabView(studentTabViewModel: studentTabViewModel)
+                    SummaryTabView(studentTabViewModel: studentTabViewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel)
                         .tag(0)
-                    StudentTabView(studentTabViewModel: studentTabViewModel)
+                    StudentTabView(studentTabViewModel: studentTabViewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel)
                         .tag(1)
                 }
                 if !tabBarController.isHidden {

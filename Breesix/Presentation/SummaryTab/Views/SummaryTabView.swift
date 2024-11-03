@@ -10,6 +10,8 @@ import SwiftUI
 struct SummaryTabView: View {
     @StateObject private var viewModel = SummaryTabViewModel()
     @ObservedObject var studentTabViewModel: StudentTabViewModel
+    @ObservedObject var studentViewModel: StudentViewModel
+    @ObservedObject var noteViewModel: NoteViewModel
     @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
@@ -28,7 +30,7 @@ struct SummaryTabView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 CustomNavigation(title: "Ringkasan") {
-                    if studentTabViewModel.students.isEmpty {
+                    if studentViewModel.students.isEmpty {
                         showEmptyStudentsAlert = true
                     } else {
                         isShowingInputTypeSheet = true
@@ -73,9 +75,9 @@ struct SummaryTabView: View {
                     selectedDate: $viewModel.selectedDate,
                     isShowingPreview: $navigateToPreview,
                     isShowingActivity: .constant(false),
-                    students: studentTabViewModel.students,
+                    students: studentViewModel.students,
                     unsavedActivities: studentTabViewModel.unsavedActivities,
-                    unsavedNotes: studentTabViewModel.unsavedNotes,
+                    unsavedNotes: noteViewModel.unsavedNotes,
                     onAddUnsavedActivities: { activities in
                         studentTabViewModel.addUnsavedActivities(activities)
                     },
@@ -88,16 +90,16 @@ struct SummaryTabView: View {
                         studentTabViewModel.deleteUnsavedActivity(activity)
                     },
                     onAddUnsavedNote: { note in
-                        studentTabViewModel.addUnsavedNote(note)
+                        noteViewModel.addUnsavedNote(note)
                     },
                     onUpdateUnsavedNote: { note in
-                        studentTabViewModel.updateUnsavedNote(note)
+                        noteViewModel.updateUnsavedNote(note)
                     },
                     onDeleteUnsavedNote: { note in
-                        studentTabViewModel.deleteUnsavedNote(note)
+                        noteViewModel.deleteUnsavedNote(note)
                     },
                     onClearUnsavedNotes: {
-                        studentTabViewModel.clearUnsavedNotes()
+                        noteViewModel.clearUnsavedNotes()
                     },
                     onClearUnsavedActivities: {
                         studentTabViewModel.clearUnsavedActivities()
@@ -106,7 +108,7 @@ struct SummaryTabView: View {
                         await studentTabViewModel.saveUnsavedActivities()
                     },
                     onSaveUnsavedNotes: {
-                        await studentTabViewModel.saveUnsavedNotes()
+                        await noteViewModel.saveUnsavedNotes()
                     },
                     onGenerateAndSaveSummaries: { date in
                         try await studentTabViewModel.generateAndSaveSummaries(for: date)
@@ -120,7 +122,7 @@ struct SummaryTabView: View {
                         studentTabViewModel.addUnsavedActivities(activities)
                     },
                     onAddUnsavedNotes: { notes in
-                        studentTabViewModel.addUnsavedNotes(notes)
+                        noteViewModel.addUnsavedNotes(notes)
                     },
                     onDateSelected: { date in
                         studentTabViewModel.selectedDate = date
@@ -130,8 +132,8 @@ struct SummaryTabView: View {
                         navigateToPreview = true
                     },
                     fetchStudents: {
-                        await studentTabViewModel.fetchAllStudents()
-                        return studentTabViewModel.students
+                        await studentViewModel.fetchAllStudents()
+                        return studentViewModel.students
                     }
                 )
                 .background(.white)
@@ -143,7 +145,7 @@ struct SummaryTabView: View {
                         studentTabViewModel.addUnsavedActivities(activities)
                     },
                     onAddUnsavedNotes: { notes in
-                        studentTabViewModel.addUnsavedNotes(notes)
+                        noteViewModel.addUnsavedNotes(notes)
                     },
                     onDateSelected: { date in
                         studentTabViewModel.selectedDate = date
@@ -153,8 +155,8 @@ struct SummaryTabView: View {
                         navigateToPreview = true
                     },
                     fetchStudents: {
-                        await studentTabViewModel.fetchAllStudents()
-                        return studentTabViewModel.students
+                        await studentViewModel.fetchAllStudents()
+                        return studentViewModel.students
                     }
                 )
             }
@@ -166,19 +168,19 @@ struct SummaryTabView: View {
         }
         .navigationBarHidden(true)
         .task {
-            await studentTabViewModel.fetchAllStudents()
+            await studentViewModel.fetchAllStudents()
         }
     }
 
     private var studentsWithSummariesOnSelectedDate: [Student] {
         if searchText.isEmpty {
-            return studentTabViewModel.students.filter { student in
+            return studentViewModel.students.filter { student in
                 student.summaries.contains { summary in
                     Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
                 }
             }
         } else {
-            return studentTabViewModel.students.filter { student in
+            return studentViewModel.students.filter { student in
                 (student.fullname.lowercased().contains(searchText.lowercased()) ||
                  student.nickname.lowercased().contains(searchText.lowercased())) &&
                 student.summaries.contains { summary in
@@ -209,27 +211,27 @@ struct SummaryTabView: View {
                 student: student,
                 onAddStudent: { student in
                     Task {
-                        await studentTabViewModel.addStudent(student)
+                        await studentViewModel.addStudent(student)
                     }
                 },
                 onUpdateStudent: { student in
                     Task {
-                        await studentTabViewModel.updateStudent(student)
+                        await studentViewModel.updateStudent(student)
                     }
                 },
                 onAddNote: { note, student in
                     Task {
-                        await studentTabViewModel.addNote(note, for: student)
+                        await noteViewModel.addNote(note, for: student)
                     }
                 },
                 onUpdateNote: { note in
                     Task {
-                        await studentTabViewModel.updateNote(note)
+                        await noteViewModel.updateNote(note)
                     }
                 },
                 onDeleteNote: { note, student in
                     Task {
-                        await studentTabViewModel.deleteNote(note, from: student)
+                        await noteViewModel.deleteNote(note, from: student)
                     }
                 },
                 onAddActivity: { activity, student in
@@ -248,20 +250,20 @@ struct SummaryTabView: View {
                     }
                 },
                 onFetchNotes: { student in
-                    await studentTabViewModel.fetchAllNotes(student)
+                    await noteViewModel.fetchAllNotes(student)
                 },
                 onFetchActivities: { student in
                     await studentTabViewModel.fetchActivities(student)
                 },
                 onCheckNickname: { nickname, currentStudentId in
-                    studentTabViewModel.students.contains { student in
+                    studentViewModel.students.contains { student in
                         if let currentId = currentStudentId {
                             return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
                         }
                         return student.nickname.lowercased() == nickname.lowercased()
                     }
                 },
-                compressedImageData: studentTabViewModel.compressedImageData
+                compressedImageData: studentViewModel.compressedImageData
             )
         }
     }
