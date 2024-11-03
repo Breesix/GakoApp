@@ -12,6 +12,7 @@ struct SummaryTabView: View {
     @ObservedObject var studentTabViewModel: StudentTabViewModel
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
+    @ObservedObject var activityViewModel: ActivityViewModel
     @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
@@ -76,18 +77,18 @@ struct SummaryTabView: View {
                     isShowingPreview: $navigateToPreview,
                     isShowingActivity: .constant(false),
                     students: studentViewModel.students,
-                    unsavedActivities: studentTabViewModel.unsavedActivities,
+                    unsavedActivities: activityViewModel.unsavedActivities,
                     unsavedNotes: noteViewModel.unsavedNotes,
                     onAddUnsavedActivities: { activities in
-                        studentTabViewModel.addUnsavedActivities(activities)
+                        activityViewModel.addUnsavedActivities(activities)
                     },
                     onUpdateUnsavedActivity: { activity in
-                        if let index = studentTabViewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
-                            studentTabViewModel.unsavedActivities[index] = activity
+                        if let index = activityViewModel.unsavedActivities.firstIndex(where: { $0.id == activity.id }) {
+                            activityViewModel.unsavedActivities[index] = activity
                         }
                     },
                     onDeleteUnsavedActivity: { activity in
-                        studentTabViewModel.deleteUnsavedActivity(activity)
+                        activityViewModel.deleteUnsavedActivity(activity)
                     },
                     onAddUnsavedNote: { note in
                         noteViewModel.addUnsavedNote(note)
@@ -102,10 +103,10 @@ struct SummaryTabView: View {
                         noteViewModel.clearUnsavedNotes()
                     },
                     onClearUnsavedActivities: {
-                        studentTabViewModel.clearUnsavedActivities()
+                        activityViewModel.clearUnsavedActivities()
                     },
                     onSaveUnsavedActivities: {
-                        await studentTabViewModel.saveUnsavedActivities()
+                        await activityViewModel.saveUnsavedActivities()
                     },
                     onSaveUnsavedNotes: {
                         await noteViewModel.saveUnsavedNotes()
@@ -119,7 +120,7 @@ struct SummaryTabView: View {
                 VoiceInputView(
                     selectedDate: $viewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
-                        studentTabViewModel.addUnsavedActivities(activities)
+                        activityViewModel.addUnsavedActivities(activities)
                     },
                     onAddUnsavedNotes: { notes in
                         noteViewModel.addUnsavedNotes(notes)
@@ -142,7 +143,7 @@ struct SummaryTabView: View {
                 TextInputView(
                     selectedDate: $viewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
-                        studentTabViewModel.addUnsavedActivities(activities)
+                        activityViewModel.addUnsavedActivities(activities)
                     },
                     onAddUnsavedNotes: { notes in
                         noteViewModel.addUnsavedNotes(notes)
@@ -236,24 +237,24 @@ struct SummaryTabView: View {
                 },
                 onAddActivity: { activity, student in
                     Task {
-                        await studentTabViewModel.addActivity(activity, for: student)
+                        await activityViewModel.addActivity(activity, for: student)
                     }
                 },
                 onDeleteActivity: { activity, student in
                     Task {
-                        await studentTabViewModel.deleteActivities(activity, from: student)
+                        await activityViewModel.deleteActivities(activity, from: student)
                     }
                 },
                 onUpdateActivityStatus: { activity, newStatus in
                     Task {
-                        await studentTabViewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                        await activityViewModel.updateActivityStatus(activity, isIndependent: newStatus)
                     }
                 },
                 onFetchNotes: { student in
                     await noteViewModel.fetchAllNotes(student)
                 },
                 onFetchActivities: { student in
-                    await studentTabViewModel.fetchActivities(student)
+                    await activityViewModel.fetchActivities(student)
                 },
                 onCheckNickname: { nickname, currentStudentId in
                     studentViewModel.students.contains { student in

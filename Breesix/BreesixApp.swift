@@ -51,11 +51,13 @@ struct BreesixApp: App {
             let studentViewModel = StudentViewModel(studentUseCases: studentUseCase)
             
             let noteViewModel = NoteViewModel(studentViewModel: studentViewModel, noteUseCases: noteUseCases)
+            
+            let activityViewModel = ActivityViewModel(studentViewModel: studentViewModel, activityUseCases: activityUseCase)
 
 
-            let viewModel = StudentTabViewModel(studentViewModel: studentViewModel, activityUseCases: activityUseCase, summaryUseCase: summaryUseCase, summaryService: summaryService, summaryLlamaService: summaryLlamaService)
+            let viewModel = StudentTabViewModel(studentViewModel: studentViewModel, summaryUseCase: summaryUseCase, summaryService: summaryService, summaryLlamaService: summaryLlamaService)
                                     
-            MainTabView(studentTabViewModel: viewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel)
+            MainTabView(studentTabViewModel: viewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
 
         }
         .modelContainer(container)

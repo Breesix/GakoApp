@@ -12,6 +12,7 @@ struct StudentTabView: View {
     @ObservedObject var studentTabViewModel: StudentTabViewModel
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
+    @ObservedObject var activityViewModel: ActivityViewModel
     @State private var isAddingStudent = false
     @State private var isAddingNote = false
     @State private var searchQuery = ""
@@ -72,19 +73,19 @@ struct StudentTabView: View {
                                                     await noteViewModel.deleteNote(note, from: student)
                                                 },
                                                 onAddActivity: { activity, student in
-                                                    await studentTabViewModel.addActivity(activity, for: student)
+                                                    await activityViewModel.addActivity(activity, for: student)
                                                 },
                                                 onDeleteActivity: { activity, student in
-                                                    await studentTabViewModel.deleteActivities(activity, from: student)
+                                                    await activityViewModel.deleteActivities(activity, from: student)
                                                 },
                                                 onUpdateActivityStatus: { activity, isIndependent in
-                                                    await studentTabViewModel.updateActivityStatus(activity, isIndependent: isIndependent)
+                                                    await activityViewModel.updateActivityStatus(activity, isIndependent: isIndependent)
                                                 },
                                                 onFetchNotes: { student in
                                                     await noteViewModel.fetchAllNotes(student)
                                                 },
                                                 onFetchActivities: { student in
-                                                    await studentTabViewModel.fetchActivities(student)
+                                                    await activityViewModel.fetchActivities(student)
                                                 },
                                                 onCheckNickname: { nickname, currentStudentId in
                                                     studentViewModel.students.contains { student in
