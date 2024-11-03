@@ -1,20 +1,20 @@
 //
-//  StudentTabViewModel.swift
+//  SummaryViewModel.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 29/09/24.
+//  Created by Rangga Biner on 03/11/24.
 //
 
 import Foundation
 import SwiftUI
 
 @MainActor
-class StudentTabViewModel: ObservableObject {
+class SummaryViewModel: ObservableObject {
     @ObservedObject var studentViewModel: StudentViewModel
-    @Published var selectedDate: Date = Date()
+    private let summaryUseCase: SummaryUseCase
     private let summaryService: SummaryService
     private let summaryLlamaService: SummaryLlamaService
-    private let summaryUseCase: SummaryUseCase
+    @Published var selectedDate: Date = Date()
     
     init(studentViewModel: StudentViewModel, summaryUseCase: SummaryUseCase, summaryService: SummaryService, summaryLlamaService: SummaryLlamaService) {
         self.studentViewModel = studentViewModel
@@ -22,8 +22,7 @@ class StudentTabViewModel: ObservableObject {
         self.summaryService = summaryService
         self.summaryLlamaService = summaryLlamaService
     }
-    
-  
+
     func generateAndSaveSummaries(for date: Date) async throws {
         try await summaryService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
     }
@@ -31,4 +30,5 @@ class StudentTabViewModel: ObservableObject {
     func generateAndSaveSummariesLlama(for date: Date) async throws {
         try await summaryLlamaService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
     }
+
 }

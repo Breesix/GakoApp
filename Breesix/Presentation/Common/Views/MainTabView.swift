@@ -8,19 +8,19 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @StateObject private var studentTabViewModel: StudentTabViewModel
     @StateObject private var studentViewModel: StudentViewModel
     @StateObject private var noteViewModel: NoteViewModel
     @StateObject private var activityViewModel: ActivityViewModel
+    @StateObject private var summaryViewModel: SummaryViewModel
     @StateObject private var tabBarController = TabBarController.shared
     @State private var selectedTab = 0
     @State private var hideTabBar = false
 
-    init(studentTabViewModel: StudentTabViewModel, studentViewModel: StudentViewModel, noteViewModel: NoteViewModel, activityViewModel: ActivityViewModel) {
-        _studentTabViewModel = StateObject(wrappedValue: studentTabViewModel)
+    init(studentViewModel: StudentViewModel, noteViewModel: NoteViewModel, activityViewModel: ActivityViewModel, summaryViewModel: SummaryViewModel) {
         _studentViewModel = StateObject(wrappedValue: studentViewModel)
         _noteViewModel = StateObject(wrappedValue: noteViewModel)
         _activityViewModel = StateObject(wrappedValue: activityViewModel)
+        _summaryViewModel = StateObject(wrappedValue: summaryViewModel)
         UITabBar.appearance().isHidden = true
     }
 
@@ -29,9 +29,9 @@ struct MainTabView: View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
                 TabView(selection: $selectedTab) {
-                    SummaryTabView(studentTabViewModel: studentTabViewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
+                    SummaryTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel, summaryViewModel: summaryViewModel)
                         .tag(0)
-                    StudentTabView(studentTabViewModel: studentTabViewModel, studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
+                    StudentTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
                         .tag(1)
                 }
                 if !tabBarController.isHidden {

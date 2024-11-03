@@ -9,7 +9,6 @@ import SwiftUI
 import Speech
 
 struct StudentTabView: View {
-    @ObservedObject var studentTabViewModel: StudentTabViewModel
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
     @ObservedObject var activityViewModel: ActivityViewModel

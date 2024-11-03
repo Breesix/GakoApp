@@ -44,101 +44,100 @@ class OpenAIService {
            - Curhatan
         9. Output adalah berupa CSV saja
 
-        Contoh Versi 1:
+            Contoh Versi 1:
 
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “Semua anak upacara dengan disiplin, lalu mereka memotong kuku sendiri kecuali JokSa yang harus digunting kukunya oleh gurunya."
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "Semua anak upacara dengan disiplin, lalu mereka memotong kuku sendiri kecuali NicknameB yang harus digunting kukunya oleh gurunya."
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)|Memotong kuku (true)", "Rangga menunjukkan kedisiplinan dalam upacara."
-        Joko Sambodo,JokSa,"Upacara (true)|Memotong kuku (false)", "JokSa perlu banyak latih diri agar bisa mandiri."
-        Samuel Suharto,Samuel,”Upacara (true)|Memotong kuku (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
-        ```
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)|Memotong kuku (true)", "NicknameA menunjukkan kedisiplinan dalam upacara."
+            FullnameB,NicknameB,"Upacara (true)|Memotong kuku (false)", "NicknameB perlu banyak latih diri agar bisa mandiri."
+            FullnameC,NicknameC,"Upacara (true)|Memotong kuku (true)", "NicknameC disiplin saat upacara dan bisa melakukannya sendiri."
+            ```
 
-        Contoh versi 2:
+            Contoh versi 2:
 
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “Semua anak kecuali JokSa upacara dengan disiplin."
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "Semua anak kecuali NicknameB upacara dengan disiplin."
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara."
-        Joko Sambodo,JokSa,"Upacara (false)”, "JokSa perlu banyak latih diri agar bisa disiplin.”
-        Samuel Suharto,Samuel,”Upacara (true)", “Samuel disiplin saat upacara dan bisa melakukannya sendiri.”
-        ```
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)", "NicknameA menunjukkan kedisiplinan dalam upacara."
+            FullnameB,NicknameB,"Upacara (false)", "NicknameB perlu banyak latih diri agar bisa disiplin."
+            FullnameC,NicknameC,"Upacara (true)", "NicknameC disiplin saat upacara dan bisa melakukannya sendiri."
+            ```
 
+            Contoh versi 3:
 
-        Contoh versi 3:
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "NicknameA Upacara dengan baik. Semua anak bernyanyi dengan sangat baik dan merdu"
 
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “Rangga Upacara dengan baik. Semua anak bernyanyi dengan sangat baik dan merdu”
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)|Menyanyi (true)", "NicknameA menunjukkan kedisiplinan dalam upacara dan menyanyi sangat merdu."
+            FullnameB,NicknameB,"Upacara (null)|Menyanyi (true)", "NicknameB menyanyi sangat merdu."
+            FullnameC,NicknameC,"Upacara (null)|Menyanyi (true)", "NicknameC Menyanyi Sangat Merdu."
+            ```
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (true)”, "Rangga menunjukkan kedisiplinan dalam upacara dan menyanyi sangat merdu.”
-        Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (true)”, "Joko menyanyi sangat merdu."
-        Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (true)”, “Samuel Menyanyi Sangat Merdu.”
-        ```
+            Contoh Versi 4:
 
-        Contoh Versi 4:
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "NicknameA Upacara dengan baik dan NicknameC bernyanyi dengan butuh bimbingan"
 
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “Rangga Upacara dengan baik dan Samuel bernyanyi dengan butuh bimbingan”
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)|Menyanyi (null)", "NicknameA menunjukkan kedisiplinan dalam upacara."
+            FullnameB,NicknameB,"Upacara (null)|Menyanyi (null)", "Tidak ada informasi satupun."
+            FullnameC,NicknameC,"Upacara (null)|Menyanyi (false)", "Tidak ada informasi satupun."
+            ```
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)|Menyanyi (null)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
-        Joko Sambodo,JokSa,"Upacara (null)|Menyanyi (null)”, "Tidak ada informasi satupun."
-        Samuel Suharto,Samuel,”Upacara (null)|Menyanyi (false)”, “Tidak ada informasi satupun.”
-        ```
+            Contoh Versi 5:
 
-        Contoh Versi 5:
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "NicknameA Upacara dengan baik"
 
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “Rangga Upacara dengan baik”
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)", "NicknameA menunjukkan kedisiplinan dalam upacara."
+            FullnameB,NicknameB,"Upacara (null)", "Tidak ada informasi satupun."
+            FullnameC,NicknameC,"Upacara (null)", "Tidak ada informasi satupun."
+            ```
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)”, "Rangga menunjukkan kedisiplinan dalam upacara.”
-        Joko Sambodo,JokSa,"Upacara (null)”, "Tidak ada informasi satupun."
-        Samuel Suharto,Samuel,”Upacara (null)”, “Tidak ada informasi satupun.”
-        ```
+            Contoh Versi 6:
+            **Contoh Input:**
+            Nama Murid: FullnameA (NicknameA), FullnameB (NicknameB), FullnameC (NicknameC)
+            curhatan Guru: "woy gw mau curhat huhuhu semua anak kecuali NicknameB upacara dengan sangat hebatttt. Adapun NicknameC tadi senamnya memerlukan bantuan untuk gerakan khusus seperti tepuk tangan dalam senam"
 
-        Contoh Versi 6:
-        **Contoh Input:**
-        Nama Murid: Rangga Hadi (Rangga), Joko Sambodo (JokSa), Samuel Suharto (Samuel)
-        curhatan Guru: “woy gw mau curhat huhuhu semua anak kecuali Joko upacara dengan sangat hebatttt. Adapun Samuel tadi senamnya memerlukan bantuan untuk gerakan khusus seperti tepuk tangan dalam senam”
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
+            FullnameA,NicknameA,"Upacara (true)|Senam (null)", "NicknameA menunjukkan kedisiplinan dalam upacara, tapi tidak melakukan senam."
+            FullnameB,NicknameB,"Upacara (false)|Senam (null)", "NicknameB membutuhkan bimbingan dalam upacara."
+            FullnameC,NicknameC,"Upacara (true)|Senam (false)", "NicknameC Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam."
+            ```
 
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian), Curhatan
-        Rangga Hadi,Rangga,"Upacara (true)|Senam (null)”, "Rangga menunjukkan kedisiplinan dalam upacara, tapi tidak melakukan senam.”
-        Joko Sambodo,JokSa,"Upacara (false)|Senam (null)”, “Joko membutuhkan bimbingan dalam upacara.”
-        Samuel Suharto,Samuel,”Upacara (true)|Senam (false)”, “Samuel Menunjukkan kedisplinan pada saat upacara dan membutuhkan bimbingan dalam senam seperti pada gerakan tepuk tangan dalam senam.”
-        ```
-
-        **Contoh Input:**
-        ```csv
-        "Rangga bermain balok dengan mandiri"
-        
-        
-        **Contoh Output:**
-        ```csv
-        Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian),Curhatan
-        Rangga Hadi,Rangga,"Bermain balok (true)","Rangga bermain balok dengan mandiri"
-        Joko Sambodo,JokSa,"Bermain balok (null)","Tidak ada informasi aktivitas"
-        Samuel Suharto,Samuel,"Bermain balok (null)","Tidak ada informasi aktivitas"
+            **Contoh Input:**
+            ```csv
+            "NicknameA bermain balok dengan mandiri"
+            
+            
+            **Contoh Output:**
+            ```csv
+            Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian),Curhatan
+            FullnameA,NicknameA,"Bermain balok (true)","NicknameA bermain balok dengan mandiri"
+            FullnameB,NicknameB,"Bermain balok (null)","Tidak ada informasi aktivitas"
+            FullnameC,NicknameC,"Bermain balok (null)","Tidak ada informasi aktivitas"
         
         ————
 

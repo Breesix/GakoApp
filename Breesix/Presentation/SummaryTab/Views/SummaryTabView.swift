@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct SummaryTabView: View {
-    @StateObject private var viewModel = SummaryTabViewModel()
-    @ObservedObject var studentTabViewModel: StudentTabViewModel
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
     @ObservedObject var activityViewModel: ActivityViewModel
+    @ObservedObject var summaryViewModel: SummaryViewModel
     @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
@@ -38,7 +37,7 @@ struct SummaryTabView: View {
                     }
                 }
                 
-                DateSlider(selectedDate: $viewModel.selectedDate)
+                DateSlider(selectedDate: $summaryViewModel.selectedDate)
                     .padding(.vertical, 12)
                 
                 Group {
@@ -73,7 +72,7 @@ struct SummaryTabView: View {
             }
             .navigationDestination(isPresented: $navigateToPreview) {
                 PreviewView(
-                    selectedDate: $viewModel.selectedDate,
+                    selectedDate: $summaryViewModel.selectedDate,
                     isShowingPreview: $navigateToPreview,
                     isShowingActivity: .constant(false),
                     students: studentViewModel.students,
@@ -112,13 +111,13 @@ struct SummaryTabView: View {
                         await noteViewModel.saveUnsavedNotes()
                     },
                     onGenerateAndSaveSummaries: { date in
-                        try await studentTabViewModel.generateAndSaveSummaries(for: date)
+                        try await summaryViewModel.generateAndSaveSummaries(for: date)
                     }
                 )
             }
             .navigationDestination(isPresented: $isNavigatingToVoiceInput) {
                 VoiceInputView(
-                    selectedDate: $viewModel.selectedDate,
+                    selectedDate: $summaryViewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
                         activityViewModel.addUnsavedActivities(activities)
                     },
@@ -126,7 +125,7 @@ struct SummaryTabView: View {
                         noteViewModel.addUnsavedNotes(notes)
                     },
                     onDateSelected: { date in
-                        studentTabViewModel.selectedDate = date
+                        summaryViewModel.selectedDate = date
                     },
                     onDismiss: {
                         isNavigatingToVoiceInput = false
@@ -141,7 +140,7 @@ struct SummaryTabView: View {
             }
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
-                    selectedDate: $viewModel.selectedDate,
+                    selectedDate: $summaryViewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
                         activityViewModel.addUnsavedActivities(activities)
                     },
@@ -149,7 +148,7 @@ struct SummaryTabView: View {
                         noteViewModel.addUnsavedNotes(notes)
                     },
                     onDateSelected: { date in
-                        studentTabViewModel.selectedDate = date
+                        summaryViewModel.selectedDate = date
                     },
                     onDismiss: {
                         isNavigatingToTextInput = false
@@ -177,7 +176,7 @@ struct SummaryTabView: View {
         if searchText.isEmpty {
             return studentViewModel.students.filter { student in
                 student.summaries.contains { summary in
-                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: summaryViewModel.selectedDate)
                 }
             }
         } else {
@@ -185,14 +184,14 @@ struct SummaryTabView: View {
                 (student.fullname.lowercased().contains(searchText.lowercased()) ||
                  student.nickname.lowercased().contains(searchText.lowercased())) &&
                 student.summaries.contains { summary in
-                    Calendar.current.isDate(summary.createdAt, inSameDayAs: viewModel.selectedDate)
+                    Calendar.current.isDate(summary.createdAt, inSameDayAs: summaryViewModel.selectedDate)
                 }
             }
         }
     }
 
     @ViewBuilder private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $viewModel.selectedDate, displayedComponents: .date)
+        DatePicker("Select Date", selection: $summaryViewModel.selectedDate, displayedComponents: .date)
             .datePickerStyle(CompactDatePickerStyle())
             .labelsHidden()
     }
@@ -201,7 +200,7 @@ struct SummaryTabView: View {
         VStack(spacing: 12) {
             ForEach(studentsWithSummariesOnSelectedDate) { student in
                 NavigationLink(value: student) {
-                    SummaryCard(student: student, selectedDate: viewModel.selectedDate)
+                    SummaryCard(student: student, selectedDate: summaryViewModel.selectedDate)
                 }
             }
         }
