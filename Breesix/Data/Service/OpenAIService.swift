@@ -141,6 +141,10 @@ class OpenAIService {
         
         ————
 
+        ...
+        PENTING: Gunakan nama lengkap dan nama panggilan siswa yang sebenarnya, JANGAN gunakan placeholder seperti FullnameA atau FullnameB.
+        ...
+
         """
         
         let userInput = """
@@ -164,6 +168,8 @@ class OpenAIService {
         if csvString.contains("Tidak ada informasi") && !csvString.contains(",") {
             throw ProcessingError.insufficientInformation
         }
+        
+        print(fullPrompt)
         
         return csvString
     }

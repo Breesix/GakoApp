@@ -205,8 +205,13 @@ struct PreviewView: View {
             )
         }
         .onDisappear {
-            progressTimer?.invalidate()
+//            progressTimer?.invalidate()
+//            progressTimer = nil
+            if let timer = progressTimer {
+                timer.invalidate()
+            }
             progressTimer = nil
+
         }
     }
     
@@ -224,7 +229,7 @@ struct PreviewView: View {
     private func hasStudentsWithNilActivities() -> Bool {
         for student in students {
             let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
-            if studentActivities.contains(where: { $0.status == nil }) {
+            if studentActivities.contains(where: { $0.status == .tidakMelakukan }) {
                 return true
             }
         }
@@ -234,51 +239,44 @@ struct PreviewView: View {
     private func hasAnyDefaultActivity(for student: Student) -> Bool {
         let studentActivities = unsavedActivities.filter { $0.studentId == student.id }
         return studentActivities.contains { activity in
-            activity.status == nil
+            activity.status == .tidakMelakukan
         }
     }
     
     private func saveActivities() {
-        isSaving = true
-        progress = 0.0
-        
-        let duration = Double.random(in: 2...4)
-        let stepTime = 0.1
-        let stepValue = stepTime / duration
-        
-        progressTimer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { timer in
-            withAnimation {
-                if progress < 1.0 {
-                    progress = min(progress + Double(stepValue), 1.0)
-                }
-            }
-        }
-        
         Task {
+            await MainActor.run {
+                isSaving = true
+                progress = 0.0
+            }
+            
             do {
                 await onSaveUnsavedActivities()
                 await onSaveUnsavedNotes()
                 try await onGenerateAndSaveSummaries(selectedDate)
                 
-                try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+                let duration = Double.random(in: 2...4)
+                let steps = Int(duration / 0.1)
+                
+                for _ in 0..<steps {
+                    try await Task.sleep(nanoseconds: UInt64(0.1 * 1_000_000_000))
+                    await MainActor.run {
+                        withAnimation {
+                            progress = min(progress + (1.0 / Double(steps)), 1.0)
+                        }
+                    }
+                }
                 
                 await MainActor.run {
                     progress = 1.0
-                    progressTimer?.invalidate()
-                    progressTimer = nil
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        isSaving = false
-                        isShowingPreview = false
-                    }
+                    isSaving = false
+                    isShowingPreview = false
                 }
             } catch {
                 await MainActor.run {
-                    progressTimer?.invalidate()
-                    progressTimer = nil
                     isSaving = false
                     showingSummaryError = true
-                    summaryErrorMessage = "Failed to save data or generate summaries: \(error.localizedDescription)"
+                    summaryErrorMessage = error.localizedDescription
                 }
             }
         }
@@ -308,5 +306,29 @@ struct PreviewView: View {
 }
 
 #Preview {
-    PreviewView(selectedDate: .constant(.now), isShowingPreview: .constant(false), isShowingActivity: .constant(false), students: [ .init(fullname: "Rangga Biner", nickname: "Rangga")], unsavedActivities: [ .init(activity: "Menjahit", createdAt: .now, studentId: UUID())], unsavedNotes: [ .init(note: "baik banget", createdAt: .now, studentId: UUID())], onAddUnsavedActivities: { _ in print("added")}, onUpdateUnsavedActivity: { _ in print("updated")}, onDeleteUnsavedActivity: { _ in print("deleted")}, onAddUnsavedNote: { _ in print("added")}, onUpdateUnsavedNote: { _ in print("updated")}, onDeleteUnsavedNote: { _ in print("deleted")}, onClearUnsavedNotes: { print("cleared")}, onClearUnsavedActivities: { print("cleared")}, onSaveUnsavedActivities: { print("saved")}, onSaveUnsavedNotes: { print("saved")}, onGenerateAndSaveSummaries: { _ in print("generated and saved")})
+    PreviewView(
+        selectedDate: .constant(.now),
+        isShowingPreview: .constant(false),
+        isShowingActivity: .constant(false),
+        students: [
+            .init(fullname: "Rangga Biner", nickname: "Rangga")
+        ],
+        unsavedActivities: [
+            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
+        ],
+        unsavedNotes: [
+            .init(note: "baik banget", createdAt: .now, studentId: UUID())
+        ],
+        onAddUnsavedActivities: { _ in print("added") },
+        onUpdateUnsavedActivity: { _ in print("updated") },
+        onDeleteUnsavedActivity: { _ in print("deleted") },
+        onAddUnsavedNote: { _ in print("added") },
+        onUpdateUnsavedNote: { _ in print("updated") },
+        onDeleteUnsavedNote: { _ in print("deleted") },
+        onClearUnsavedNotes: { print("cleared") },
+        onClearUnsavedActivities: { print("cleared") },
+        onSaveUnsavedActivities: { print("saved") },
+        onSaveUnsavedNotes: { print("saved") },
+        onGenerateAndSaveSummaries: { _ in print("generated and saved") }
+    )
 }

@@ -16,7 +16,7 @@ struct AddActivityView: View {
     @State private var showAlert = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Tambah Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)

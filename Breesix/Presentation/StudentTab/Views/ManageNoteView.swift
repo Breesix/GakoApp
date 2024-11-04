@@ -57,7 +57,7 @@ struct ManageNoteView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text(mode == .add ? "Tambah Catatan" : "Edit Catatan")
                     .foregroundStyle(.labelPrimaryBlack)
