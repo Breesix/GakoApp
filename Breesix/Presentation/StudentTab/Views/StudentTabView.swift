@@ -17,7 +17,7 @@ struct StudentTabView: View {
     @State private var searchQuery = ""
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.bgMain
                     .ignoresSafeArea()

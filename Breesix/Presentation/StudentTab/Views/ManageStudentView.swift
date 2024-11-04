@@ -115,7 +115,7 @@ struct ManageStudentView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .center, spacing: 8) {
                     if let imageData = compressedImageData, let image = UIImage(data: imageData) {
