@@ -13,8 +13,8 @@ class SummaryService {
     private let openAI: OpenAI
     private let summaryUseCase: SummaryUseCase
     
-    init(apiToken: String, summaryUseCase: SummaryUseCase) {
-        self.openAI = OpenAI(apiToken: apiToken)
+    init(summaryUseCase: SummaryUseCase) {
+        self.openAI = OpenAI(apiToken: APIConfig.openAIToken)
         self.summaryUseCase = summaryUseCase
     }
     

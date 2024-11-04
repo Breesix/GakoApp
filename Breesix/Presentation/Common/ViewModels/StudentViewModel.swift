@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Mixpanel
 import SwiftUI
 
 @MainActor
@@ -21,6 +22,9 @@ class StudentViewModel: ObservableObject {
                 self.compressedImageData = nil
             }
         }
+    }
+    private func trackEvent(_ eventName: String, properties: [String: MixpanelType]? = nil) {
+        Mixpanel.mainInstance().track(event: eventName, properties: properties)
     }
     
     init(students: [Student] = [], studentUseCases: StudentUseCase, compressedImageData: Data? = nil, newStudentImage: UIImage? = nil) {
@@ -49,6 +53,12 @@ class StudentViewModel: ObservableObject {
             )
             
             try await studentUseCases.addStudent(studentWithCompressedImage)
+            trackEvent("Student Created", properties: [
+                "student_name": student.fullname as MixpanelType,
+                "has_image": (compressedImageData != nil) as MixpanelType,
+                "timestamp": Date() as MixpanelType
+            ])
+
             await fetchAllStudents()
             
             await MainActor.run {
@@ -57,6 +67,9 @@ class StudentViewModel: ObservableObject {
             }
         } catch {
             print("Error adding student: \(error)")
+            trackEvent("Student Creation Failed", properties: [
+                "error": error.localizedDescription as MixpanelType
+            ])
         }
     }
     
