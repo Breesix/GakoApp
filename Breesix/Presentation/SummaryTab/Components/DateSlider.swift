@@ -43,7 +43,7 @@ struct DateSlider: View {
                 .cornerRadius(8)
             }
             .sheet(isPresented: $isShowingDatePicker) {
-                NavigationView {
+                NavigationStack {
                     DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
                         .datePickerStyle(.graphical)
                         .environment(\.locale, Locale(identifier: "id_ID"))

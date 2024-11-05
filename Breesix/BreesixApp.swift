@@ -88,6 +88,7 @@ struct BreesixApp: App {
                 .onDisappear {
                     Mixpanel.mainInstance().flush()
                 }
+                .accentColor(.accent)
         }
         .modelContainer(container)
     }

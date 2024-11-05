@@ -243,6 +243,7 @@ struct StudentDetailView: View {
                 }
             }
         }
+        .toolbar(.hidden, for: .bottomBar,.tabBar)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()

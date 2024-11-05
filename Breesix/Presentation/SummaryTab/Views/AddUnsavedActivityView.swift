@@ -18,7 +18,7 @@ struct AddUnsavedActivityView: View {
     @State private var showAlert: Bool = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Tambah Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)

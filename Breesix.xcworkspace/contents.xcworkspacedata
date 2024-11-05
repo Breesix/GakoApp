@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Breesix.xcodeproj">
+      location = "absolute:/Users/kevinfz/Development/AppleDev/MAKRO/GAKO/mix-panel/BreesixApp/Breesix.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
