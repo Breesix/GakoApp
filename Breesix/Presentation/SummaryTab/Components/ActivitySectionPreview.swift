@@ -16,13 +16,20 @@ struct ActivitySectionPreview: View {
     let onDeleteActivity: (UnsavedActivity) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("AKTIVITAS")
+                .foregroundStyle(.labelPrimaryBlack)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .padding(.bottom, 16)
+
             let studentActivities = activities.filter { $0.studentId == student.id }
             
             if !studentActivities.isEmpty {
-                ForEach(studentActivities) { activity in
+                ForEach(Array(studentActivities.enumerated()), id: \.element.id) { index, activity in
                     ActivityRowPreview(
                         activity: binding(for: activity),
+                        activityIndex: index,  
                         student: student,
                         onAddActivity: {
                             isAddingNewActivity = true
@@ -34,11 +41,12 @@ struct ActivitySectionPreview: View {
                             onDeleteActivity(activity)
                         }
                     )
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 16)
                 }
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
+                    .padding(.bottom, 12)
             }
             
             AddButton(

@@ -30,6 +30,8 @@ struct DailyReportCardPreview: View {
                 
                 Divider()
                     .frame(maxWidth: .infinity)
+                    .frame(height: 1)
+                    .overlay(.graysGray3)
                 
                 VStack(alignment: .leading, spacing: 0) {
                     ActivitySectionPreview(
@@ -43,6 +45,10 @@ struct DailyReportCardPreview: View {
                     
                     Divider()
                         .padding(.vertical, 16)
+                        .frame(height: 1)
+                        .overlay(.tabbarInactiveLabel)
+                        .padding(.top, 16)
+                        .padding(.bottom, 20)
                     
                     NoteSectionPreview(
                         student: student,

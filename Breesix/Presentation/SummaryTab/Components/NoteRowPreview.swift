@@ -54,4 +54,3 @@ struct NoteRowPreview: View {
         }
     }
 }
-
