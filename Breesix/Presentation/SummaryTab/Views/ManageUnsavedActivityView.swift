@@ -6,21 +6,49 @@
 
 import SwiftUI
 
-struct AddUnsavedActivityView: View {
-    let student: Student
-    let selectedDate: Date
-    let onDismiss: () -> Void
-    
-    let onSaveActivity: (UnsavedActivity) -> Void
-    
-    @State private var activityText: String = ""
-    @State private var selectedStatus: Status = .tidakMelakukan
+struct ManageUnsavedActivityView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var activityText: String
+    @State private var selectedStatus: Status
     @State private var showAlert: Bool = false
+    
+    enum Mode: Equatable {
+        case add(Student, Date)
+        case edit(UnsavedActivity)
+        
+        static func == (lhs: Mode, rhs: Mode) -> Bool {
+            switch (lhs, rhs) {
+            case (.add, .add):
+                return true
+            case let (.edit(activity1), .edit(activity2)):
+                return activity1.id == activity2.id
+            default:
+                return false
+            }
+        }
+    }
+    
+    let mode: Mode
+    let onSave: (UnsavedActivity) -> Void
+    
+    init(mode: Mode, onSave: @escaping (UnsavedActivity) -> Void) {
+        self.mode = mode
+        self.onSave = onSave
+        
+        switch mode {
+        case .add:
+            _activityText = State(initialValue: "")
+            _selectedStatus = State(initialValue: .tidakMelakukan)
+        case .edit(let activity):
+            _activityText = State(initialValue: activity.activity)
+            _selectedStatus = State(initialValue: activity.status)
+        }
+    }
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Tambah Aktivitas")
+                Text(isAddMode ? "Tambah Aktivitas" : "Edit Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -83,7 +111,7 @@ struct AddUnsavedActivityView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tambah Aktivitas")
+                    Text(isAddMode ? "Tambah Aktivitas" : "Edit Aktivitas")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -92,7 +120,7 @@ struct AddUnsavedActivityView: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        onDismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         HStack(spacing: 3) {
                             Image(systemName: "chevron.left")
@@ -110,21 +138,28 @@ struct AddUnsavedActivityView: View {
                         if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             showAlert = true
                         } else {
-                            saveNewActivity()
+                            saveActivity()
                         }
-                    }, label: {
+                    }) {
                         Text("Simpan")
                             .font(.body)
                             .fontWeight(.medium)
-                    })
+                    }
                     .padding(.top, 27)
                 }
             }
             .alert("Peringatan", isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
-                Text("aktivitas tidak boleh kosong")
+                Text("Aktivitas tidak boleh kosong")
             }
+        }
+    }
+    
+    private var isAddMode: Bool {
+        switch mode {
+        case .add: return true
+        case .edit: return false
         }
     }
     
@@ -139,28 +174,35 @@ struct AddUnsavedActivityView: View {
         }
     }
 
-    private func saveNewActivity() {
-        let newActivity = UnsavedActivity(
-            activity: activityText,
-            createdAt: selectedDate,
-            status: selectedStatus,
-            studentId: student.id
-        )
-        onSaveActivity(newActivity)
-        onDismiss()
+    private func saveActivity() {
+        switch mode {
+        case .add(let student, let selectedDate):
+            let newActivity = UnsavedActivity(
+                activity: activityText,
+                createdAt: selectedDate,
+                status: selectedStatus,
+                studentId: student.id
+            )
+            onSave(newActivity)
+            
+        case .edit(let activity):
+            let updatedActivity = UnsavedActivity(
+                id: activity.id,
+                activity: activityText,
+                createdAt: activity.createdAt,
+                status: selectedStatus,
+                studentId: activity.studentId
+            )
+            onSave(updatedActivity)
+        }
+        
+        presentationMode.wrappedValue.dismiss()
     }
 }
 
-
 #Preview {
-    AddUnsavedActivityView(
-        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-        selectedDate: .now,
-        onDismiss: {
-            print("Dismissed")
-        },
-        onSaveActivity: { _ in
-            print("saved activity")
-        }
+    ManageUnsavedActivityView(
+        mode: .add(.init(fullname: "Rangga Biner", nickname: "Rangga"), .now),
+        onSave: { _ in print("saved activity") }
     )
 }
