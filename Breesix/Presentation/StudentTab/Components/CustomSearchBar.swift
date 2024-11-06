@@ -109,3 +109,7 @@ struct CustomSearchBar: View {
         }
     }
 }
+
+#Preview {
+    CustomSearchBar(text: .constant(""))
+}

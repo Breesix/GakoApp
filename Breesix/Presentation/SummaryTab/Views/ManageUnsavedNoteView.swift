@@ -1,33 +1,62 @@
 //
-//  NewNote.swift
+//  ManageUnsavedNoteView.swift
 //  Breesix
 //
-//  Created by Rangga Biner on 04/10/24.
+//  Created by Rangga Biner on 03/11/24.
 //
 
 import SwiftUI
 
-struct AddNote: View {
-    @ObservedObject var viewModel: StudentTabViewModel
-    @State private var note: String = ""
-    let student: Student
-    let selectedDate: Date
+struct ManageUnsavedNoteView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var textNote: String
+    @State private var showAlert: Bool = false
     
-    let onDismiss: () -> Void
-
+    enum Mode: Equatable {
+        case add(Student, Date)
+        case edit(UnsavedNote)
+        
+        static func == (lhs: Mode, rhs: Mode) -> Bool {
+            switch (lhs, rhs) {
+            case (.add, .add):
+                return true
+            case let (.edit(note1), .edit(note2)):
+                return note1.id == note2.id
+            default:
+                return false
+            }
+        }
+    }
+    
+    let mode: Mode
+    let onSave: (UnsavedNote) -> Void
+    
+    init(mode: Mode, onSave: @escaping (UnsavedNote) -> Void) {
+        self.mode = mode
+        self.onSave = onSave
+        
+        switch mode {
+        case .add:
+            _textNote = State(initialValue: "")
+        case .edit(let note):
+            _textNote = State(initialValue: note.note)
+        }
+    }
+    
     var body: some View {
-        NavigationView {
-            VStack (alignment: .leading, spacing: 8){
-                Text("Tambah Catatan")
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(isAddMode ? "Tambah Catatan" : "Edit Catatan")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
+                
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(.cardFieldBG)
                         .frame(maxWidth: .infinity, maxHeight: 170)
                     
-                    if note.isEmpty {
+                    if textNote.isEmpty {
                         Text("Tuliskan catatan untuk murid...")
                             .font(.callout)
                             .fontWeight(.regular)
@@ -37,7 +66,8 @@ struct AddNote: View {
                             .foregroundColor(.labelDisabled)
                             .cornerRadius(8)
                     }
-                    TextEditor(text: $note)
+                    
+                    TextEditor(text: $textNote)
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.callout)
                         .fontWeight(.regular)
@@ -56,6 +86,7 @@ struct AddNote: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.monochrome50, lineWidth: 1)
                 )
+                
                 Spacer()
             }
             .padding(.top, 34.5)
@@ -63,7 +94,7 @@ struct AddNote: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tambah Catatan")
+                    Text(isAddMode ? "Tambah Catatan" : "Edit Catatan")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -72,7 +103,7 @@ struct AddNote: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        onDismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         HStack(spacing: 3) {
                             Image(systemName: "chevron.left")
@@ -87,23 +118,59 @@ struct AddNote: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveNewNote()
-                    }, label: {
+                        if textNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showAlert = true
+                        } else {
+                            saveNote()
+                        }
+                    }) {
                         Text("Simpan")
                             .font(.body)
                             .fontWeight(.medium)
-                    })
+                    }
                     .padding(.top, 27)
                 }
             }
+            .alert("Peringatan", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Catatan tidak boleh kosong")
+            }
         }
     }
+    
+    private var isAddMode: Bool {
+        switch mode {
+        case .add: return true
+        case .edit: return false
+        }
+    }
+    
+    private func saveNote() {
+        switch mode {
+        case .add(let student, let selectedDate):
+            let newNote = UnsavedNote(
+                note: textNote,
+                createdAt: selectedDate,
+                studentId: student.id
+            )
+            onSave(newNote)
+            
+        case .edit(let note):
+            let updatedNote = UnsavedNote(
+                id: note.id,
+                note: textNote,
+                createdAt: note.createdAt,
+                studentId: note.studentId
+            )
+            onSave(updatedNote)
+        }
+        
+        presentationMode.wrappedValue.dismiss()
+    }
+}
 
-    private func saveNewNote() {
-        let newNote = Note(note: note, createdAt: selectedDate, student: student)
-        Task {
-            await viewModel.addNote(newNote, for: student)
-            onDismiss()
-        }
-    }
+
+#Preview {
+    ManageUnsavedNoteView(mode: .add(.init(fullname: "Rangga Biner", nickname: "Rangga"), .now), onSave: { _ in print("saved")})
 }

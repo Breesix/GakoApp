@@ -46,7 +46,7 @@ class SummaryService {
         let activities = student.activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
         let notes = student.notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
         
-        let activityDescriptions = activities.map { "\($0.activity) (Mandiri: \($0.isIndependent ?? false))" }
+        let activityDescriptions = activities.map { "\($0.activity) (Mandiri: \($0.status))" }
         let noteDescriptions = notes.map { $0.note }
         
         let prompt = """

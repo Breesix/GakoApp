@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CustomNavigationBar: View {
+struct CustomNavigation: View {
     var title: String
     var action: () -> Void
 
@@ -57,7 +57,7 @@ struct RoundedCorner: Shape {
 
 #Preview {
     VStack {
-        CustomNavigationBar(title: "Ringkasan", action: {print("clicked")})
+        CustomNavigation(title: "Ringkasan", action: {print("clicked")})
         Spacer()
     }
 }

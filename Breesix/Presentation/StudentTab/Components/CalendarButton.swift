@@ -13,7 +13,6 @@ struct CalendarButton: View {
     var onDateSelected: (Date) -> Void
     
     var body: some View {
-        
         Button(action: { isShowingCalendar = true }) {
             ZStack {
                 Circle()
@@ -26,13 +25,44 @@ struct CalendarButton: View {
         }
         
         .sheet(isPresented: $isShowingCalendar) {
-            DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "id_ID"))
-                .presentationDetents([.fraction(0.55)])
-                .onChange(of: selectedDate) {
-                    onDateSelected(selectedDate)
-                }
+            NavigationStack {
+                DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .environment(\.locale, Locale(identifier: "id_ID"))
+                    .padding(.horizontal, 16)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Text("Pilih Tanggal")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .padding(.top, 14)
+                                .padding(.horizontal, 12)
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                isShowingCalendar = false
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            .padding(.top, 14)
+                            .padding(.horizontal, 12)
+                        }
+                    }
+                    .onChange(of: selectedDate) {
+                        onDateSelected(selectedDate)
+                    }
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+
         }
     }
+}
+
+#Preview {
+    CalendarButton(
+        selectedDate: .constant(Date()),
+        isShowingCalendar: .constant(true),
+        onDateSelected: { _ in print("Date selected")}
+    )
 }

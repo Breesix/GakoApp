@@ -13,7 +13,6 @@ struct DailyReportTemplate: View {
     let notes: [Note]
     let date: Date
     
-    // A4 dimensions in points (72 points per inch)
     private let a4Width: CGFloat = 595.276
     private let a4Height: CGFloat = 841.89
     
@@ -26,7 +25,6 @@ struct DailyReportTemplate: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 Image("gako_logotype")
                     .resizable()
@@ -106,7 +104,6 @@ struct DailyReportTemplate: View {
             )
             .padding(.horizontal)
             
-            // Activities Table
             VStack(alignment: .leading, spacing: 8) {
                 
                 VStack(spacing: 0) {
@@ -127,8 +124,7 @@ struct DailyReportTemplate: View {
                             Text(activity.activity)
                                 .foregroundStyle(.labelPrimaryBlack)
                             Spacer()
-                            Text(activity.isIndependent ?? true ? "Mandiri" : "Dibimbing")
-                                .foregroundStyle(.labelPrimaryBlack)
+                            Text(activity.status == .mandiri ? "Mandiri" : "Dibimbing")
                         }
                         .padding()
                         Divider()
@@ -144,7 +140,6 @@ struct DailyReportTemplate: View {
             }
             .padding()
             
-            // Notes
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("Catatan:")
@@ -172,7 +167,6 @@ struct DailyReportTemplate: View {
     }
 }
 
-// Extension to handle sharing
 extension View {
     func snapshot() -> UIImage {
         let controller = UIHostingController(rootView: self)
@@ -190,28 +184,7 @@ extension View {
     }
 }
 
+
 #Preview {
-    let previewStudent = Student(
-        fullname: "John Doe",
-        nickname: "Johnny",
-        imageData: UIImage(systemName: "akmal")?.pngData()
-    )
-    
-    let previewActivities = [
-        Activity(activity: "Menulis", isIndependent: true, student: previewStudent),
-        Activity(activity: "Membaca", isIndependent: false, student: previewStudent),
-        Activity(activity: "Menggambar", isIndependent: true, student: previewStudent)
-    ]
-    
-    let previewNotes = [
-        Note(note: "Anak sangat aktif hari ini", student: previewStudent),
-        Note(note: "Berhasil menyelesaikan tugas dengan baik", student: previewStudent)
-    ]
-    
-    return DailyReportTemplate(
-        student: previewStudent,
-        activities: previewActivities,
-        notes: previewNotes,
-        date: Date()
-    )
+    DailyReportTemplate(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), activities: [.init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], notes: [.init(note: "Anak ini baik banget", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], date: .now)
 }

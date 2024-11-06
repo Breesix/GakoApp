@@ -1,5 +1,5 @@
 //
-//  InputTypeSheet.swift
+//  InputTypeView.swift
 //  Breesix
 //
 //  Created by Rangga Biner on 15/10/24.
@@ -10,11 +10,9 @@ import SwiftUI
 enum InputTypeUser {
     case voice
     case text
-
 }
 
-struct InputTypeSheet: View {
-    @ObservedObject var studentListViewModel: StudentTabViewModel
+struct InputTypeView: View {
     @Environment(\.presentationMode) var presentationMode
     var onSelect: (InputTypeUser) -> Void
     
@@ -68,5 +66,11 @@ struct InputTypeSheet: View {
         }
         .background(.white)
         .padding(.horizontal, 16)
+    }
+}
+
+#Preview {
+    InputTypeView { inputType in
+        print("Selected input type: \(inputType)")
     }
 }

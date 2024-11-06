@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct DailyReportCard: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     let activities: [Activity]
     let notes: [Note]
     let student: Student
@@ -20,6 +19,7 @@ struct DailyReportCard: View {
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onShareTapped: (Date) -> Void
+    let onUpdateActivityStatus: (Activity, Status) async -> Void
     
     @State private var showSnapshotPreview = false
     @State private var snapshotImage: UIImage?
@@ -64,8 +64,10 @@ struct DailyReportCard: View {
                     .foregroundStyle(.labelPrimaryBlack)
                 
                 Spacer()
-                
-                Button(action: { onShareTapped(date) }) {
+            
+                Button(action: {
+                    onShareTapped(date)
+                }) {
                     ZStack {
                         Circle()
                             .frame(width: 34)
@@ -77,7 +79,6 @@ struct DailyReportCard: View {
                     }
                 }
             }
-            .padding(.bottom, 19)
             
             if !activities.isEmpty {
                 ActivitySection(
@@ -85,7 +86,7 @@ struct DailyReportCard: View {
                     onDeleteActivity: onDeleteActivity,
                     onStatusChanged: { activity, newStatus in
                         Task {
-                            await viewModel.updateActivityStatus(activity, isIndependent: newStatus)
+                            await onUpdateActivityStatus(activity, newStatus)
                         }
                     }
                 )
@@ -108,7 +109,7 @@ struct DailyReportCard: View {
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
-                .padding(.bottom, 20)
+                .padding(.bottom, 8)
             
             if !notes.isEmpty {
                 NoteSection(
@@ -118,7 +119,7 @@ struct DailyReportCard: View {
                     onAddNote: onAddNote
                 )
             } else {
-                Text("Tidak ada notes untuk tanggal ini")
+                Text("Tidak ada catatan untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
             }
             
@@ -141,26 +142,26 @@ struct DailyReportCard: View {
     }
 }
 
-// Custom Share Button Component
-struct ShareButton: View {
-    let title: String
-    let icon: String
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                Text(title)
-                    .font(.caption)
-            }
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(color)
-            .cornerRadius(10)
-        }
-    }
+#Preview {
+    DailyReportCard(
+        activities: [
+            .init(activity: "Senam", student: .init(fullname: "Rangga Biner", nickname: "Rangga")),
+            .init(activity: "Makan ikan", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+        ],
+        notes: [
+            .init(note: "Anak sangat aktif hari ini", student: .init(fullname: "Rangga Biner", nickname: "Rangga")),
+            .init(note: "Keren banget dah wadidaw", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+        ],
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        date: .now,
+        onAddNote: { print("added note") },
+        onAddActivity: { print("added activity")},
+        onDeleteActivity: { _ in print("deleted activity")},
+        onEditNote: { _ in print("edited note")},
+        onDeleteNote: { _ in print("deleted note") },
+        onShareTapped: { _ in print("shared")},
+        onUpdateActivityStatus: { _, _ in print("updated activity")}
+    )
+    .padding()
+    .background(Color.gray.opacity(0.1))
 }

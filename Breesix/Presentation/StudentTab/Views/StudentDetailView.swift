@@ -10,7 +10,19 @@ import PhotosUI
 
 struct StudentDetailView: View {
     let student: Student
-    @ObservedObject var viewModel: StudentTabViewModel
+    let onAddStudent: (Student) async -> Void
+    let onUpdateStudent: (Student) async -> Void
+    let onAddNote: (Note, Student) async -> Void
+    let onUpdateNote: (Note) async -> Void
+    let onDeleteNote: (Note, Student) async -> Void
+    let onAddActivity: (Activity, Student) async -> Void
+    let onDeleteActivity: (Activity, Student) async -> Void
+    let onUpdateActivityStatus: (Activity, Status) async -> Void
+    let onFetchNotes: (Student) async -> [Note]
+    let onFetchActivities: (Student) async -> [Activity]
+    let onCheckNickname: (String, UUID?) -> Bool
+    let compressedImageData: Data?
+    
     @State private var isEditing = false
     @State private var notes: [Note] = []
     @State private var selectedDate = Date()
@@ -23,13 +35,14 @@ struct StudentDetailView: View {
     @State private var showTabBar = false
     @State private var noActivityAlertPresented = false
     @State private var isTabBarHidden = true
-    private let calendar = Calendar.current
-    @Environment(\.presentationMode) var presentationMode
-    
     @State private var showSnapshotPreview = false
     @State private var snapshotImage: UIImage?
     @State private var documentInteractionController: UIDocumentInteractionController?
     @State private var selectedActivityDate: Date?
+    @State private var newStudentImage: UIImage?
+    
+    private let calendar = Calendar.current
+    @Environment(\.presentationMode) var presentationMode
     
     @State private var toast: Toast?
     let initialScrollDate: Date
@@ -37,7 +50,6 @@ struct StudentDetailView: View {
     // Add this function to handle WhatsApp sharing
     private func shareToWhatsApp(image: UIImage) {
         guard let imageData = image.pngData() else { return }
-        
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("report.jpg")
         try? imageData.write(to: tempFile)
         
@@ -55,7 +67,6 @@ struct StudentDetailView: View {
         }
     }
     
-    // Add this function to handle system share sheet
     private func showShareSheet(image: UIImage) {
         let activityVC = UIActivityViewController(
             activityItems: [image],
@@ -65,6 +76,12 @@ struct StudentDetailView: View {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,
            let rootVC = window.rootViewController {
+            // For iPad
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = window
+                popover.sourceRect = CGRect(x: window.frame.width / 2, y: window.frame.height / 2, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
             rootVC.present(activityVC, animated: true)
         }
     }
@@ -115,6 +132,7 @@ struct StudentDetailView: View {
                             }
                             .font(.body)
                         }
+                        
                         Spacer()
                         
                         Button(action: {
@@ -146,7 +164,6 @@ struct StudentDetailView: View {
                                 Image(systemName: "chevron.left")
                                     .foregroundStyle(.buttonLinkOnSheet)
                             }
-                            
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
                                     .foregroundStyle(.buttonLinkOnSheet)
@@ -154,6 +171,7 @@ struct StudentDetailView: View {
                         }
                         
                         Spacer()
+                        
                         CalendarButton(
                             selectedDate: $selectedDate,
                             isShowingCalendar: $isShowingCalendar,
@@ -185,28 +203,29 @@ struct StudentDetailView: View {
                                     ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
                                         if let dayItems = activitiesForSelectedMonth[day] {
                                             DailyReportCard(
-                                                viewModel: viewModel,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
                                                 student: student,
                                                 date: day,
-                                                onAddNote: {
-                                                    selectedDate = day
-                                                    isAddingNewNote = true
-                                                },
-                                                onAddActivity: {
-                                                    selectedDate = day
-                                                    isAddingNewActivity = true
-                                                },
+                                                onAddNote: { selectedDate = day
+                                                    isAddingNewNote = true },
+                                                onAddActivity: { selectedDate = day
+                                                    isAddingNewActivity = true },
                                                 onDeleteActivity: deleteActivity,
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
                                                 onShareTapped: { date in
-                                                    selectedActivityDate = date
-                                                    generateSnapshot(for: date)
-                                                    withAnimation {
-                                                        showSnapshotPreview = true
-                                                    }
+                                                    let reportView = DailyReportTemplate(
+                                                        student: student,
+                                                        activities: dayItems.activities,
+                                                        notes: dayItems.notes,
+                                                        date: date
+                                                    )
+                                                    let image = reportView.snapshot()
+                                                    showShareSheet(image: image)
+                                                },
+                                                onUpdateActivityStatus: { activity, newStatus in
+                                                    await onUpdateActivityStatus(activity, newStatus)
                                                 }
                                             )
                                             .padding(.horizontal, 16)
@@ -321,46 +340,78 @@ struct StudentDetailView: View {
                 .ignoresSafeArea(.all, edges: .bottom)
             }
         }
-        .toolbar(.hidden, for: .bottomBar , .tabBar )
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
+        .hideTabBar()
         .sheet(isPresented: $isEditing) {
-            EditStudent(viewModel: viewModel, mode: .edit(student))
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(.white)
+            ManageStudentView(
+                mode: .edit(student),
+                compressedImageData: compressedImageData,
+                newStudentImage: newStudentImage,
+                onSave: onAddStudent,
+                onUpdate: onUpdateStudent,
+                onImageChange: { image in
+                    newStudentImage = image
+                },
+                checkNickname: onCheckNickname
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
         .sheet(item: $selectedNote) { note in
-            EditNote(viewModel: viewModel, note: note, onDismiss: {
-                selectedNote = nil
-            })
+            ManageNoteView(
+                mode: .edit(note),
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: { selectedNote = nil },
+                onSave: { note in
+                    await onAddNote(note, student)
+                },
+                onUpdate: { updatedNote in
+                    Task {
+                        await onUpdateNote(updatedNote)
+                    }
+                }
+            )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
         .sheet(isPresented: $isAddingNewNote) {
-            AddNote(viewModel: viewModel,
-                        student: student,
-                        selectedDate: selectedDate,
-                        onDismiss: {
-                isAddingNewNote = false
-                Task {
-                    await fetchAllNotes()
-                }
-            })
+            ManageNoteView(
+                mode: .add,
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: {
+                    isAddingNewNote = false
+                    Task {
+                        await fetchAllNotes()
+                    }
+                },
+                onSave: { note in
+                    await onAddNote(note, student)
+                },
+                onUpdate: { _ in }
+            )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        
         .sheet(isPresented: $isAddingNewActivity) {
-            AddActivity(viewModel: viewModel,
-                            student: student,
-                            selectedDate: selectedDate,
-                            onDismiss: {
-                isAddingNewActivity = false
-                Task {
-                    await fetchActivities()
+            AddActivityView(
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: {
+                    isAddingNewActivity = false
+                    Task {
+                        await fetchActivities()
+                    }
+                },
+                onSave: { activity in
+                    await onAddActivity(activity, student)
                 }
-            })
+            )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
@@ -384,7 +435,6 @@ struct StudentDetailView: View {
             notes: activitiesForSelectedMonth[date]?.notes ?? [],
             date: date
         )
-        
         snapshotImage = reportView.snapshot()
     }
     
@@ -397,23 +447,23 @@ struct StudentDetailView: View {
     }
     
     private func fetchAllNotes() async {
-        notes = await viewModel.fetchAllNotes(student)
+        notes = await onFetchNotes(student)
     }
     
     private func fetchActivities() async {
-        activities = await viewModel.fetchActivities(student)
+        activities = await onFetchActivities(student)
     }
     
     private func deleteNote(_ note: Note) {
         Task {
-            await viewModel.deleteNote(note, from: student)
+            await onDeleteNote(note, student)
             notes.removeAll(where: { $0.id == note.id })
         }
     }
     
     private func deleteActivity(_ activity: Activity) {
         Task {
-            await viewModel.deleteActivities(activity, from: student)
+            await onDeleteActivity(activity, student)
             activities.removeAll(where: { $0.id == activity.id })
             await fetchActivities()
         }
@@ -425,41 +475,12 @@ struct StudentDetailView: View {
         }
     }
     
-    // MARK: This is a getter for selected month that have filled
-    
-    //        private var activitiesForSelectedMonth: [Date: DayItems] {
-    //            let calendar = Calendar.current
-    //
-    //            let groupedActivities = Dictionary(grouping: activities) { activity in
-    //                calendar.startOfDay(for: activity.createdAt)
-    //            }
-    //
-    //            let groupedNotes = Dictionary(grouping: notes) { note in
-    //                calendar.startOfDay(for: note.createdAt)
-    //            }
-    //
-    //            let allDates = Set(groupedActivities.keys).union(groupedNotes.keys)
-    //
-    //            var result: [Date: DayItems] = [:]
-    //
-    //            for date in allDates {
-    //                if calendar.isDate(date, equalTo: selectedDate, toGranularity: .month) {
-    //                    result[date] = DayItems(
-    //                        activities: groupedActivities[date] ?? [],
-    //                        notes: groupedNotes[date] ?? []
-    //                    )
-    //                }
-    //            }
-    //
-    //            return result
-    //        }
-    
     private var activitiesForSelectedMonth: [Date: DayItems] {
         let calendar = Calendar.current
-        
         let components = calendar.dateComponents([.year, .month], from: selectedDate)
         guard let startOfMonth = calendar.date(from: components),
-              let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth) else {
+              let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)
+        else {
             return [:]
         }
         
@@ -472,17 +493,15 @@ struct StudentDetailView: View {
         }
         
         var result: [Date: DayItems] = [:]
-        
         var currentDate = startOfMonth
+        
         while currentDate <= endOfMonth {
             if !(currentDate > Date()) {
                 let startOfDay = calendar.startOfDay(for: currentDate)
-
                 result[startOfDay] = DayItems(
                     activities: groupedActivities[startOfDay] ?? [],
                     notes: groupedNotes[startOfDay] ?? []
                 )
-                
                 currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
             } else {
                 break
@@ -491,16 +510,6 @@ struct StudentDetailView: View {
         
         return result
     }
-    
-    func updateActivityStatus(_ activityId: UUID, isIndependent: Bool?) async {
-        if let index = activities.firstIndex(where: { $0.id == activityId }) {
-            
-            activities[index].isIndependent = isIndependent
-            
-            await viewModel.updateActivityStatus(activities[index], isIndependent: isIndependent)
-        }
-    }
-
     
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in

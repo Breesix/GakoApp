@@ -8,9 +8,9 @@ import SwiftUI
 
 struct NoteRowPreview: View {
     let note: UnsavedNote
-    let student: Student
-    let onEdit: () -> Void
-    let onDelete: () -> Void
+    
+    let onEdit: (UnsavedNote) -> Void
+    let onDelete: (UnsavedNote) -> Void
     @State private var showDeleteAlert = false
     
     var body: some View {
@@ -28,7 +28,7 @@ struct NoteRowPreview: View {
                         .stroke(.noteStroke, lineWidth: 0.5)
                 }
                 .contextMenu {
-                    Button("Edit") { onEdit() }
+                    Button("Edit") { onEdit(note) }
                 }
             Button(action: {
                 showDeleteAlert = true
@@ -45,7 +45,7 @@ struct NoteRowPreview: View {
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                 Button("Hapus", role: .destructive) {
-                    onDelete()
+                    onDelete(note)
                 }
                 Button("Batal", role: .cancel) { }
             } message: {
@@ -54,3 +54,4 @@ struct NoteRowPreview: View {
         }
     }
 }
+

@@ -1,20 +1,19 @@
-//
 //  ActivityRowPreview.swift
 //  Breesix
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
+
 import SwiftUI
 
 struct ActivityRowPreview: View {
-    @ObservedObject var viewModel: StudentTabViewModel
     @Binding var activity: UnsavedActivity
     let student: Student
     let onAddActivity: () -> Void
     let onDelete: () -> Void
+    let onDeleteActivity: (UnsavedActivity) -> Void
     
     @State private var showDeleteAlert = false
-    @State private var selectedStatus: Bool?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,8 +24,8 @@ struct ActivityRowPreview: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                StatusPickerView(isIndependent: $activity.isIndependent) { newStatus in
-                    selectedStatus = newStatus
+                StatusPicker(status: $activity.status) { newStatus in
+                    activity.status = newStatus  
                 }
                 
                 Button(action: {
@@ -44,7 +43,7 @@ struct ActivityRowPreview: View {
                 }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
-                        viewModel.deleteUnsavedActivity(activity)
+                        onDeleteActivity(activity)
                         onDelete()
                     }
                     Button("Batal", role: .cancel) { }
@@ -53,12 +52,19 @@ struct ActivityRowPreview: View {
                 }
             }
         }
-        .onAppear {
-            selectedStatus = activity.isIndependent
-        }
     }
 }
 
-
-
-
+#Preview {
+    ActivityRowPreview(
+        activity: .constant(.init(
+            activity: "Menjahit",
+            createdAt: .now,
+            studentId: Student.ID()
+        )),
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        onAddActivity: { print("added activity") },
+        onDelete: { print("deleted") },
+        onDeleteActivity: { _ in print("deleted activity") }
+    )
+}
