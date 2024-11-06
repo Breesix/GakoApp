@@ -206,7 +206,7 @@ private extension TextInputView {
             .padding(.top, 9)
             .font(.body)
             .fontWeight(.semibold)
-            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructive)
+            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructiveOnCardLabel)
             .disabled(viewModel.isLoading)
         }
     }

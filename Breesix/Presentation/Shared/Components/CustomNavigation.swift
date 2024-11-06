@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CustomNavigation: View {
     var title: String
+    var isInternetConnected: Bool
     var action: () -> Void
 
     var body: some View {
@@ -29,6 +30,8 @@ struct CustomNavigation: View {
                         action: action,
                         backgroundColor: .white
                     )
+                    .opacity(isInternetConnected ? 1 : 0.5)
+                    .disabled(!isInternetConnected)
                 }
                 .padding(.horizontal, 16)
             }
@@ -55,9 +58,9 @@ struct RoundedCorner: Shape {
     }
 }
 
-#Preview {
-    VStack {
-        CustomNavigation(title: "Ringkasan", action: {print("clicked")})
-        Spacer()
-    }
-}
+//#Preview {
+//    VStack {
+//        CustomNavigation(title: "Ringkasan", action: {print("clicked")})
+//        Spacer()
+//    }
+//}

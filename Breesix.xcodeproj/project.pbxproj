@@ -19,9 +19,22 @@
 		DDE5A7DF1B2B3D18AD33C824 /* Pods-Breesix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Breesix.release.xcconfig"; path = "Target Support Files/Pods-Breesix/Pods-Breesix.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		468609B52CDB634500EA55C3 /* Exceptions for "Breesix" folder in "Breesix" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8FD81E672C9C0F5F00CEE379 /* Breesix */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8FD81E6A2C9C0F5F00CEE379 /* Breesix */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				468609B52CDB634500EA55C3 /* Exceptions for "Breesix" folder in "Breesix" target */,
+			);
 			path = Breesix;
 			sourceTree = "<group>";
 		};
@@ -341,9 +354,11 @@
 				"DEVELOPMENT_TEAM[sdk=*]" = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Breesix/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Gako;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi memerlukan izin akses kamera untuk keperluan pengambilan foto profil murid. Foto ini berfungsi sebagai identitas visual dalam sistem database murid dan memudahkan proses identifikasi. Kami menjamin privasi dan keamanan data foto yang diambil.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "$(PRODUCT_NAME) uses the network to check internet connectivity";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Untuk menggunakan fitur input suara, aplikasi memerlukan izin akses mikrofon. Dengan fitur ini, Anda dapat mendikte teks secara langsung tanpa perlu mengetik. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Untuk memudahkan Anda membuat catatan curhat, aplikasi memerlukan izin akses fitur pengenalan suara. Fitur ini akan mengubah suara Anda menjadi teks secara otomatis. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -383,9 +398,11 @@
 				DEVELOPMENT_TEAM = A23N5QDWR3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Breesix/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Gako;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Aplikasi memerlukan izin akses kamera untuk keperluan pengambilan foto profil murid. Foto ini berfungsi sebagai identitas visual dalam sistem database murid dan memudahkan proses identifikasi. Kami menjamin privasi dan keamanan data foto yang diambil.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "$(PRODUCT_NAME) uses the network to check internet connectivity";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Untuk menggunakan fitur input suara, aplikasi memerlukan izin akses mikrofon. Dengan fitur ini, Anda dapat mendikte teks secara langsung tanpa perlu mengetik. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Untuk memudahkan Anda membuat catatan curhat, aplikasi memerlukan izin akses fitur pengenalan suara. Fitur ini akan mengubah suara Anda menjadi teks secara otomatis. Kami menjamin privasi dan keamanan data suara Anda.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
