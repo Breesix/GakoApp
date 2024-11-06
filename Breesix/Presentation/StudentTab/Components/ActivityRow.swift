@@ -41,9 +41,9 @@ struct ActivityRow: View {
                 }
                 
                 Button(action: {
-                    
-                    trackDeleteAttempt()
                     showDeleteAlert = true
+                    trackDeleteAttempt()
+                   
                 }) {
                     Image("custom.trash.circle.fill")
                         .resizable()
@@ -52,9 +52,9 @@ struct ActivityRow: View {
                 }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
-                        // Track successful deletion
-                        trackDeletion()
                         onDelete(activity)
+                        trackDeletion()
+                       
                     }
                     Button("Batal", role: .cancel) { }
                 } message: {
