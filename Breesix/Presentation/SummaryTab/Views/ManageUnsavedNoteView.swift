@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct ManageUnsavedNoteView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var textNote: String
     @State private var showAlert: Bool = false
+    
+    private let analytics = InputAnalyticsTracker.shared
+    
+
     
     enum Mode: Equatable {
         case add(Student, Date)
@@ -154,6 +159,14 @@ struct ManageUnsavedNoteView: View {
                 createdAt: selectedDate,
                 studentId: student.id
             )
+            let properties: [String: MixpanelType] = [
+                           "student_id": student.id.uuidString,
+                           "note_length": textNote.count,
+                           "created_at": selectedDate.timeIntervalSince1970,
+                           "screen": "add_note",
+                           "timestamp": Date().timeIntervalSince1970
+                       ]
+                       analytics.trackEvent("Note Created", properties: properties)
             onSave(newNote)
             
         case .edit(let note):
@@ -163,11 +176,24 @@ struct ManageUnsavedNoteView: View {
                 createdAt: note.createdAt,
                 studentId: note.studentId
             )
+            
+            let properties: [String: MixpanelType] = [
+                           "student_id": note.studentId.uuidString,
+                           "note_id": note.id.uuidString,
+                           "old_length": note.note.count,
+                           "new_length": textNote.count,
+                           "screen": "edit_note",
+                           "timestamp": Date().timeIntervalSince1970
+                       ]
+                       analytics.trackEvent("Note Updated", properties: properties)
             onSave(updatedNote)
         }
         
         presentationMode.wrappedValue.dismiss()
+        
+        
     }
+    
 }
 
 

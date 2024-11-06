@@ -18,8 +18,16 @@ class InputViewModel: ObservableObject {
     }
 
     func setLoading(_ loading: Bool) {
-        isLoading = loading
+        DispatchQueue.main.async { [weak self] in
+            self?.isLoading = loading
+        }
     }
+    func setError(_ error: String?) {
+        DispatchQueue.main.async { [weak self] in
+            self?.errorMessage = error
+        }
+    }
+
     func startInput(type: InputType, date: Date) {
         inputStartTime = Date()
         analytics.trackInputStarted(type: type, date: date)
@@ -38,48 +46,63 @@ class InputViewModel: ObservableObject {
 
     // Method to process reflection
     func processReflection(
-        reflection: String,
-        fetchStudents: @escaping () async -> [Student],
-        onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
-        onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
-        selectedDate: Date,
-        onDateSelected: @escaping (Date) -> Void,
-        onDismiss: @escaping () -> Void
-    ) async {
-        do {
-            isLoading = true
-            errorMessage = nil
-            analytics.trackProcessingStarted(type: .text) // or .voice depending on context
+            reflection: String,
+            fetchStudents: @escaping () async -> [Student],
+            onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
+            onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
+            selectedDate: Date,
+            onDateSelected: @escaping (Date) -> Void,
+            onDismiss: @escaping () -> Void
+        ) async {
+            do {
+                await MainActor.run {
+                    self.isLoading = true
+                    self.errorMessage = nil
+                }
+                analytics.trackProcessingStarted(type: .text)
 
-            let students = await fetchStudents()
+                let students = await fetchStudents()
 
-            if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                isLoading = false
-                return
-            }
+                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
+                    return
+                }
 
-            // Assuming OpenAIService is defined elsewhere
-            let csvString = try await OpenAIService(apiToken: APIConfig.openAIToken).processReflection(reflection: reflection, students: students)
+                let csvString = try await OpenAIService(apiToken: APIConfig.openAIToken)
+                    .processReflection(reflection: reflection, students: students)
 
-            // Parse CSV data
-            let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(csvString: csvString, students: students, createdAt: selectedDate)
+                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
+                    csvString: csvString,
+                    students: students,
+                    createdAt: selectedDate
+                )
 
-            await MainActor.run {
-                isLoading = false
-                onAddUnsavedActivities(activityList)
-                onAddUnsavedNotes(noteList)
-                onDateSelected(selectedDate)
-                onDismiss()
-                
-                analytics.trackProcessingCompleted(type: .text, success: true, studentsCount: students.count) // or .voice
-            }
-        } catch {
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-                analytics.trackProcessingCompleted(type: .text, success: false, studentsCount: 0) // or .voice
+                await MainActor.run {
+                    self.isLoading = false
+                    onAddUnsavedActivities(activityList)
+                    onAddUnsavedNotes(noteList)
+                    onDateSelected(selectedDate)
+                    onDismiss()
+                    
+                    analytics.trackProcessingCompleted(
+                        type: .text,
+                        success: true,
+                        studentsCount: students.count
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
+                    self.errorMessage = error.localizedDescription
+                    analytics.trackProcessingCompleted(
+                        type: .text,
+                        success: false,
+                        studentsCount: 0
+                    )
+                }
             }
         }
     }
-}
 

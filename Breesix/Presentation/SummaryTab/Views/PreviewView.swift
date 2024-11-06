@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DotLottie
 
 struct PreviewView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -87,79 +88,92 @@ struct PreviewView: View {
     
     var body: some View {
         ZStack {
-            if !isSaving {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(sortedStudents) { student in
-                            DailyReportCardPreview(
-                                student: student,
-                                selectedDate: selectedDate,
-                                selectedStudent: $selectedStudent,
-                                isAddingNewActivity: $isAddingNewActivity,
-                                isAddingNewNote: $isAddingNewNote,
-                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
-                                onUpdateActivity: { updatedActivity in
-                                    onUpdateUnsavedActivity(updatedActivity)
-                                },
-                                onDeleteActivity: { activity in
-                                    onDeleteUnsavedActivity(activity)
-                                },
-                                onUpdateNote: { updatedNote in
-                                    onUpdateUnsavedNote(updatedNote)
-                                },
-                                onDeleteNote: { note in
-                                    onDeleteUnsavedNote(note)
-                                },
-                                activities: unsavedActivities.filter { $0.studentId == student.id },
-                                notes: unsavedNotes.filter { $0.studentId == student.id }
-                            )
-                            .padding(.bottom, 12)
-                        }
-                        
-                        Button {
-                            if hasStudentsWithNilActivities() {
-                                showingSaveAlert = true
-                            } else {
-                                saveActivities()
-                            }
-                        } label: {
-                            Text("Simpan")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.labelPrimaryBlack)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Color(.orangeClickAble))
-                                .cornerRadius(12)
-                        }
+            ScrollView {
+                
+                VStack(spacing: 0) {
+                    ForEach(sortedStudents) { student in
+                        DailyReportCardPreview(
+                            student: student,
+                            selectedDate: selectedDate,
+                            selectedStudent: $selectedStudent,
+                            isAddingNewActivity: $isAddingNewActivity,
+                            isAddingNewNote: $isAddingNewNote,
+                            hasDefaultActivities: hasAnyDefaultActivity(for: student),
+                            onUpdateActivity: { updatedActivity in
+                                onUpdateUnsavedActivity(updatedActivity)
+                            },
+                            onDeleteActivity: { activity in
+                                onDeleteUnsavedActivity(activity)
+                            },
+                            onUpdateNote: { updatedNote in
+                                onUpdateUnsavedNote(updatedNote)
+                            },
+                            onDeleteNote: { note in
+                                onDeleteUnsavedNote(note)
+                            },
+                            activities: unsavedActivities.filter { $0.studentId == student.id },
+                            notes: unsavedNotes.filter { $0.studentId == student.id }
+                        )
+                        .padding(.bottom, 12)
                     }
-                    .padding(.top, 12)
-                    .padding(.horizontal, 16)
-                    .background(.bgMain)
-                }
-                .navigationBarItems(
-                    leading: Button {
-                        onClearUnsavedNotes()
-                        onClearUnsavedActivities()
-                        isShowingPreview = false
-                    } label: {
-                        HStack {
-                            Image(systemName: "chevron.backward")
-                                .foregroundStyle(.buttonLinkOnSheet)
-                            Text("Pratinjau")
-                                .foregroundStyle(.monochromeBlack)
+                    
+                    Button {
+                        if hasStudentsWithNilActivities() {
+                            showingSaveAlert = true
+                        } else {
+                            saveActivities()
                         }
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                    },
-                    trailing: datePickerView().disabled(true)
-                )
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.orangeClickAble))
+                            .cornerRadius(12)
+                    }
+                }
+                .opacity(isSaving ? 0.5 : 1.0)
+                .padding(.top, 12)
+                .padding(.horizontal, 16)
+                .background(.bgMain)
             }
             
+            
             if isSaving {
-                LoadingView(progress: progress)
+                ZStack {
+                    LoadingView(progress: progress)
+                    
+                }
+                .navigationBarHidden(true)
+                .padding()
+                .padding(.horizontal, 40)
+                
             }
+            
         }
+        .navigationBarItems(
+            leading: Button {
+                if !isSaving {
+                    onClearUnsavedNotes()
+                    onClearUnsavedActivities()
+                    isShowingPreview = false
+                }
+
+            } label: {
+                HStack {
+                    Image(systemName: "chevron.backward")
+                        .foregroundStyle(.buttonLinkOnSheet)
+                    Text("Pratinjau")
+                        .foregroundStyle(.monochromeBlack)
+                }
+                .font(.title3)
+                .fontWeight(.semibold)
+            }
+            .disabled(isSaving),
+            trailing: datePickerView().disabled(true)
+        )
         .toolbar(.hidden, for: .bottomBar, .tabBar)
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
@@ -205,13 +219,13 @@ struct PreviewView: View {
             )
         }
         .onDisappear {
-//            progressTimer?.invalidate()
-//            progressTimer = nil
+            //            progressTimer?.invalidate()
+            //            progressTimer = nil
             if let timer = progressTimer {
                 timer.invalidate()
             }
             progressTimer = nil
-
+            
         }
     }
     
@@ -269,6 +283,10 @@ struct PreviewView: View {
                 
                 await MainActor.run {
                     progress = 1.0
+                    
+                    onClearUnsavedNotes()
+                    onClearUnsavedActivities()
+                    
                     isSaving = false
                     isShowingPreview = false
                 }

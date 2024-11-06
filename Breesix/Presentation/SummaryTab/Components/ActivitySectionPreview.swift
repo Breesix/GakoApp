@@ -5,6 +5,7 @@
 //  Created by Kevin Fairuz on 26/10/24.
 //
 import SwiftUI
+import Mixpanel
 
 struct ActivitySectionPreview: View {
     let student: Student
@@ -14,6 +15,9 @@ struct ActivitySectionPreview: View {
     let activities: [UnsavedActivity]
     let onActivityUpdate: (UnsavedActivity) -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
+    
+    let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
+
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -52,13 +56,26 @@ struct ActivitySectionPreview: View {
     }
     
     private func binding(for activity: UnsavedActivity) -> Binding<UnsavedActivity> {
-        Binding<UnsavedActivity>(
-            get: { activity },
-            set: { newValue in
-                onActivityUpdate(newValue)
-            }
-        )
-    }
+            Binding<UnsavedActivity>(
+                get: { activity },
+                set: { newValue in
+                    if newValue.status != activity.status {
+                        // Track status change
+                        let properties: [String: MixpanelType] = [
+                            "student_id": student.id.uuidString,
+                            "activity_id": activity.id.uuidString,
+                            "old_status": activity.status.rawValue,
+                            "new_status": newValue.status.rawValue,
+                            "screen": "preview",
+                            "timestamp": Date().timeIntervalSince1970
+                        ]
+                        analytics.trackEvent("Activity Status Changed", properties: properties)
+                    }
+                    onActivityUpdate(newValue)
+                }
+            )
+        }
+    
 }
 
 #Preview {

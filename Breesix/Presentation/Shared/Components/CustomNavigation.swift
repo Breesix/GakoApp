@@ -30,8 +30,7 @@ struct CustomNavigation: View {
                         action: action,
                         backgroundColor: .white
                     )
-                    .opacity(isInternetConnected ? 1 : 0.5)
-                    .disabled(!isInternetConnected)
+
                 }
                 .padding(.horizontal, 16)
             }

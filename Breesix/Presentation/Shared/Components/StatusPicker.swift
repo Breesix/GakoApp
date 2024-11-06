@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct StatusPicker: View {
     @Binding var status: Status
@@ -28,9 +29,7 @@ struct StatusPicker: View {
         } label: {
             HStack {
                 Text(getStatusText())
-                
                 Spacer()
-                
                 Image(systemName: "chevron.up.chevron.down")
             }
             .font(.body)
@@ -50,19 +49,17 @@ struct StatusPicker: View {
     
     private func getStatusText() -> String {
         switch status {
-        case .mandiri:
-            return "Mandiri"
-        case .dibimbing:
-            return "Dibimbing"
-        case .tidakMelakukan:
-            return "Tidak Melakukan"
+        case .mandiri: return "Mandiri"
+        case .dibimbing: return "Dibimbing"
+        case .tidakMelakukan: return "Tidak Melakukan"
         }
     }
 }
 
-#Preview {
-    StatusPicker(
-        status: .constant(.tidakMelakukan),
-        onStatusChange: { _ in print("changed") }
-    )
-}
+
+//#Preview {
+//    StatusPicker(
+//        status: .constant(.tidakMelakukan),
+//        onStatusChange: { _ in print("changed") }
+//    )
+//}

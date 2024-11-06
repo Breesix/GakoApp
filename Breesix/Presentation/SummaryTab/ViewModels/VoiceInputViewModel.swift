@@ -15,7 +15,7 @@ class VoiceInputViewModel: InputViewModel {
     @Published var isPaused = false
     @Published var reflection: String = ""
     @Published var editedText: String = ""
-
+    
     
     let speechRecognizer = SpeechRecognizer()
     
@@ -51,14 +51,30 @@ class VoiceInputViewModel: InputViewModel {
     @Published private var _isLoading = false
     override var isLoading: Bool {
         get { _isLoading }
-        set { _isLoading = newValue }
+        set {
+            DispatchQueue.main.async { [weak self] in
+                self?._isLoading = newValue
+            }
+        }
     }
+
     
     @Published private var _errorMessage: String?
     override var errorMessage: String? {
         get { _errorMessage }
-        set { _errorMessage = newValue }
+        set {
+            DispatchQueue.main.async { [weak self] in
+                self?._errorMessage = newValue
+            }
+        }
     }
+    
+    private func updateState(_ action: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            action()
+        }
+    }
+
     
     func startRecording() {
         isRecording = true

@@ -63,9 +63,6 @@ class ActivityViewModel: ObservableObject {
                 await addActivity(activity, for: student)
             }
         }
-        await MainActor.run {
-            self.clearUnsavedActivities()
-        }
     }
     
     func updateUnsavedActivity(_ activity: UnsavedActivity) {

@@ -6,15 +6,14 @@
 //
 import Foundation
 
-enum InputType {
-    case voice
-    case text
+enum InputType: String {
+    case voice = "Voice"
+    case text = "Text"
     
     var name: String {
-        switch self {
-        case .voice: return "Voice"
-        case .text: return "Text"
-        }
+        return self.rawValue
     }
 }
+
+
 

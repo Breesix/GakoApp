@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct AddUnsavedActivityView: View {
     let student: Student
@@ -12,11 +13,13 @@ struct AddUnsavedActivityView: View {
     let onDismiss: () -> Void
     
     let onSaveActivity: (UnsavedActivity) -> Void
-    
+    let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
     @State private var activityText: String = ""
     @State private var selectedStatus: Status = .tidakMelakukan
     @State private var showAlert: Bool = false
-
+    
+    
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
@@ -138,7 +141,7 @@ struct AddUnsavedActivityView: View {
             return "Tidak Melakukan"
         }
     }
-
+    
     private func saveNewActivity() {
         let newActivity = UnsavedActivity(
             activity: activityText,
@@ -146,10 +149,27 @@ struct AddUnsavedActivityView: View {
             status: selectedStatus,
             studentId: student.id
         )
+        
+        // Properties untuk tracking
+        let properties: [String: MixpanelType] = [
+            "student_id": student.id.uuidString,
+            "activity_text_length": activityText.count,
+            "status": selectedStatus.rawValue,
+            "created_at": selectedDate.timeIntervalSince1970,
+            "screen": "add_activity",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        // Track event
+        analytics.trackEvent("Activity Created", properties: properties)
+        
         onSaveActivity(newActivity)
         onDismiss()
     }
 }
+
+
+
 
 
 #Preview {

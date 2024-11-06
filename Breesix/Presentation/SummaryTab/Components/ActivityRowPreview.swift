@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct ActivityRowPreview: View {
     @Binding var activity: UnsavedActivity
@@ -12,6 +13,7 @@ struct ActivityRowPreview: View {
     let onAddActivity: () -> Void
     let onDelete: () -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
+    private let analytics = InputAnalyticsTracker.shared
     
     @State private var showDeleteAlert = false
     
@@ -24,11 +26,35 @@ struct ActivityRowPreview: View {
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
-                StatusPicker(status: $activity.status) { newStatus in
-                    activity.status = newStatus  
-                }
+                StatusPicker(
+                    status: $activity.status,
+                    onStatusChange: { newStatus in
+                       
+                        let properties: [String: MixpanelType] = [
+                            "student_id": student.id.uuidString,
+                            "activity_id": activity.id.uuidString,
+                            "old_status": activity.status.rawValue,
+                            "new_status": newStatus.rawValue,
+                            "screen": "preview",
+                            "timestamp": Date().timeIntervalSince1970
+                        ]
+                        analytics.trackEvent("Activity Status Changed", properties: properties)
+                        
+                        activity.status = newStatus
+                    }
+                )
                 
                 Button(action: {
+                    // Track delete attempt
+                    let properties: [String: MixpanelType] = [
+                        "student_id": student.id.uuidString,
+                        "activity_id": activity.id.uuidString,
+                        "status": activity.status.rawValue,
+                        "screen": "preview",
+                        "timestamp": Date().timeIntervalSince1970
+                    ]
+                    analytics.trackEvent("Activity Delete Attempted", properties: properties)
+                    
                     showDeleteAlert = true
                 }) {
                     ZStack {
@@ -43,6 +69,16 @@ struct ActivityRowPreview: View {
                 }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
+                        // Track deletion
+                        let properties: [String: MixpanelType] = [
+                            "student_id": student.id.uuidString,
+                            "activity_id": activity.id.uuidString,
+                            "status": activity.status.rawValue,
+                            "screen": "preview",
+                            "timestamp": Date().timeIntervalSince1970
+                        ]
+                        analytics.trackEvent("Activity Deleted", properties: properties)
+                        
                         onDeleteActivity(activity)
                         onDelete()
                     }

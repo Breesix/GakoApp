@@ -73,9 +73,6 @@ class NoteViewModel: ObservableObject {
                 await addNote(note, for: student)
             }
         }
-        await MainActor.run {
-            self.clearUnsavedNotes()
-        }
     }
     
     

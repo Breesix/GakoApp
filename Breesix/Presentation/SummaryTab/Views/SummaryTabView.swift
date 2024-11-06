@@ -179,11 +179,11 @@ struct SummaryTabView: View {
         } message: {
             Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
         }
-        .onChange(of: networkMonitor.isConnected) { newValue in
-            if !newValue {
-                showNoInternetAlert = true
-            }
-        }
+//        .onChange(of: networkMonitor.isConnected) { newValue in
+//            if !newValue {
+//                showNoInternetAlert = true
+//            }
+//        }
         .navigationBarHidden(true)
         .task {
             await studentViewModel.fetchAllStudents()
