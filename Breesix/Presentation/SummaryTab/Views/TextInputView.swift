@@ -35,7 +35,11 @@ struct TextInputView: View {
         fetchStudents: @escaping () async -> [Student]
     ) {
         self._selectedDate = selectedDate
-        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
+            ? selectedDate.wrappedValue
+            : DateValidator.maximumDate()
+        self._tempDate = State(initialValue: validDate)
+        
         self.onAddUnsavedActivities = onAddUnsavedActivities
         self.onAddUnsavedNotes = onAddUnsavedNotes
         self.onDateSelected = onDateSelected
@@ -108,7 +112,11 @@ struct TextInputView: View {
     }
     
     private func datePickerView() -> some View {
-        Button(action: { isShowingDatePicker = true }) {
+        Button(action: {
+            if !viewModel.isLoading {
+                isShowingDatePicker = true
+            }
+        }) {
             HStack {
                 Image(systemName: "calendar")
                 Text(selectedDate, format: .dateTime.day().month().year())
@@ -121,6 +129,7 @@ struct TextInputView: View {
             .background(.buttonOncard)
             .cornerRadius(8)
         }
+        .disabled(viewModel.isLoading)
     }
 }
 
@@ -211,15 +220,22 @@ private extension TextInputView {
         }
     }
     
-    func datePickerSheet() -> some View {
-        DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
-            .datePickerStyle(.graphical)
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
-            .onChange(of: tempDate) {
+    private func datePickerSheet() -> some View {
+        DatePicker(
+            "Select Date",
+            selection: $tempDate,
+            in: ...DateValidator.maximumDate(),
+            displayedComponents: .date
+        )
+        .datePickerStyle(.graphical)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .onChange(of: tempDate) { newValue in
+            if DateValidator.isValidDate(newValue) {
                 selectedDate = tempDate
                 isShowingDatePicker = false
             }
+        }
     }
 }
 

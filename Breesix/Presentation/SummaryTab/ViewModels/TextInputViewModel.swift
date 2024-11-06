@@ -18,5 +18,9 @@ class TextInputViewModel: InputViewModel {
         super.completeInput(type: .text, text: reflection)
     }
     
+    func validateDate(_ date: Date) -> Bool {
+        DateValidator.isValidDate(date)
+    }
+    
     // Additional methods if needed
 }

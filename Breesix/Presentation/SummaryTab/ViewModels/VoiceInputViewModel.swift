@@ -24,7 +24,9 @@ class VoiceInputViewModel: InputViewModel {
         requestSpeechAuthorization()
     }
     
-  
+    func validateDate(_ date: Date) -> Bool {
+        DateValidator.isValidDate(date)
+    }
     
     func requestSpeechAuthorization() {
             SFSpeechRecognizer.requestAuthorization { [weak self] authStatus in
