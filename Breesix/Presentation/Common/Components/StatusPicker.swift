@@ -28,22 +28,22 @@ struct StatusPicker: View {
         } label: {
             HStack {
                 Text(getStatusText())
-                
+                    .font(.body)
+                    .fontWeight(.regular)
+
                 Spacer()
                 
                 Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 17))
             }
-            .font(.body)
-            .fontWeight(.regular)
             .foregroundColor(.labelPrimaryBlack)
             .padding(.horizontal, 16)
-            .padding(.vertical, 11)
+            .padding(.vertical, 7)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.cardFieldBG)
             .cornerRadius(8)
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(.statusStroke, lineWidth: 2)
+                    .stroke(.monochrome900, lineWidth: 1)
             }
         }
     }

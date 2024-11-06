@@ -17,22 +17,23 @@ struct NoteSectionPreview: View {
     let onDeleteNote: (UnsavedNote) -> Void
     
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+        Text("CATATAN")
+            .foregroundStyle(.labelPrimaryBlack)
+            .font(.callout)
+            .fontWeight(.semibold)
+            .padding(.bottom, 16)
+        
         let studentNotes = notes.filter { $0.studentId == student.id }
         
         if !studentNotes.isEmpty {
-            Section(header: Text("Catatan")
-                .font(.callout)
-                .padding(.bottom, 8)
-                .fontWeight(.semibold)
-                .foregroundStyle(.labelPrimaryBlack)) {
-                    ForEach(studentNotes) { note in
-                            NoteRowPreview(note: note, onEdit: { note in
-                                editingNote = note
-                            }, onDelete: { note in
-                                onDeleteNote(note)
-                            })
-                        .padding(.bottom, 12)
-                    }
+            ForEach(studentNotes) { note in
+                NoteRowPreview(note: note, onEdit: { note in
+                    editingNote = note
+                }, onDelete: { note in
+                    onDeleteNote(note)
+                })
+                .padding(.bottom, 12)
             }
             
             .sheet(item: $editingNote) { note in
@@ -50,8 +51,9 @@ struct NoteSectionPreview: View {
         } else {
             Text("Tidak ada catatan untuk tanggal ini")
                 .foregroundColor(.labelSecondary)
+                .padding(.bottom, 12)
         }
-
+        
         AddButton(
             action: {
                 selectedStudent = student
@@ -59,8 +61,9 @@ struct NoteSectionPreview: View {
             },
             backgroundColor: .buttonOncard
         )
-        .padding(.top, 7)
     }
+}
+
 }
 
 #Preview {
