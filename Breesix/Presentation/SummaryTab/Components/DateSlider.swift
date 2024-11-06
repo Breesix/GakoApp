@@ -11,6 +11,11 @@ struct DateSlider: View {
     @Binding var selectedDate: Date
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
+    @State private var showFutureDateAlert = false
+    
+    private var isToday: Bool {
+        Calendar.current.isDateInToday(selectedDate)
+    }
     
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
@@ -18,7 +23,7 @@ struct DateSlider: View {
     }
     
     var body: some View {
-        HStack (spacing: 17) {
+        HStack(spacing: 17) {
             Button {
                 selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
             } label: {
@@ -26,11 +31,12 @@ struct DateSlider: View {
                     .font(.system(size: 22))
                     .foregroundStyle(.buttonPrimaryOnBg)
             }
+            
             Button {
                 tempDate = selectedDate
                 isShowingDatePicker = true
             } label: {
-                HStack (spacing: 12) {
+                HStack(spacing: 12) {
                     Image(systemName: "calendar")
                     Text(formatDate(selectedDate))
                 }
@@ -67,20 +73,41 @@ struct DateSlider: View {
                             }
                         }
                         .onChange(of: tempDate) {
-                            selectedDate = tempDate
-                            isShowingDatePicker = false
+                            if tempDate > Date() {
+                                showFutureDateAlert = true
+                                tempDate = selectedDate
+                            } else {
+                                selectedDate = tempDate
+                                isShowingDatePicker = false
+                            }
                         }
                 }
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
             }
+            
             Button {
-                selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
+                if isToday {
+                    showFutureDateAlert = true
+                } else {
+                    let nextDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
+                    if nextDate > Date() {
+                        showFutureDateAlert = true
+                    } else {
+                        selectedDate = nextDate
+                    }
+                }
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 22))
-                    .foregroundStyle(.buttonPrimaryOnBg)
+                    .foregroundStyle(isToday ? .gray : .buttonPrimaryOnBg)
             }
+            .disabled(isToday)
+        }
+        .alert("Tidak Bisa Memilih Tanggal", isPresented: $showFutureDateAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Tidak dapat memilih tanggal yang belum terjadi.")
         }
     }
     
