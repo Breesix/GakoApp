@@ -26,7 +26,7 @@ struct DailyReportTemplate: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Image("GAKO")
+                Image("gako_logotype")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100)
@@ -35,52 +35,94 @@ struct DailyReportTemplate: View {
                     Text("Laporan Harian Murid")
                         .font(.title2)
                         .bold()
+                        .foregroundStyle(.labelPrimary)
                     Text(indonesianFormattedDate(date: date))
                         .font(.body)
+                        .italic()
+                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.labelPrimaryBlack)
                 }
             }
             .padding()
             
-            HStack(spacing: 16) {
-                if let imageData = student.imageData,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 64, height: 64)
-                        .clipShape(Circle())
+            // Student Info
+            ZStack {
+                // Main content
+                HStack(spacing: 16) {
+                    if let imageData = student.imageData,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 64, height: 64)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .inset(by: 1.5)
+                                    .stroke(.accent, lineWidth: 3)
+                            )
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .frame(width: 64, height: 64)
+                            .foregroundColor(.bgSecondary)
+                            .clipShape(Circle())
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text(student.fullname)
+                            .font(.title3)
+                            .bold()
+                            .foregroundStyle(.labelPrimaryBlack)
+                        Text(student.nickname)
+                            .font(.body)
+                            .foregroundStyle(.labelPrimaryBlack)
+                    }
+                    
+                    Spacer()
                 }
                 
-                VStack(alignment: .leading) {
-                    Text(student.fullname)
-                        .font(.title3)
-                        .bold()
-                    Text(student.nickname)
-                        .font(.body)
+                // Watermark
+                HStack {
+                    Spacer()
+                    Image("gako_wm") // Replace with your desired image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .foregroundColor(.gray.opacity(0.1)) // Adjust opacity as needed
+                        .padding(.trailing)
                 }
             }
-            .padding()
+            .padding(.leading)
+            .frame(height: 90)
             .background(Color.white)
             .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .inset(by: 0.5)
+                    .stroke(.green300, lineWidth: 1)
+            )
             .padding(.horizontal)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Aktivitas")
-                    .font(.headline)
-                    .padding(.horizontal)
                 
                 VStack(spacing: 0) {
                     HStack {
                         Text("Aktivitas")
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
                         Spacer()
                         Text("Keterangan")
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
                     }
                     .padding()
-                    .background(Color.green.opacity(0.2))
+                    .background(.green300)
                     
                     ForEach(activities) { activity in
                         HStack {
                             Text(activity.activity)
+                                .foregroundStyle(.labelPrimaryBlack)
                             Spacer()
                             Text(activity.status == .mandiri ? "Mandiri" : "Dibimbing")
                         }
@@ -88,18 +130,27 @@ struct DailyReportTemplate: View {
                         Divider()
                     }
                 }
-                .background(Color.white)
+                .background(.white)
                 .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .inset(by: 0.5)
+                        .stroke(.green300, lineWidth: 1)
+                )
             }
             .padding()
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Catatan:")
-                    .font(.headline)
-                
+                HStack {
+                    Text("Catatan:")
+                        .font(.headline)
+                        .foregroundStyle(.labelPrimaryBlack)
+                    Spacer()
+                }
                 ForEach(notes) { note in
                     Text("• \(note.note)")
                         .font(.body)
+                        .foregroundStyle(.labelPrimaryBlack)
                 }
             }
             .padding()
@@ -112,7 +163,7 @@ struct DailyReportTemplate: View {
                 .padding()
         }
         .frame(width: a4Width, height: a4Height)
-        .background(Color.gray.opacity(0.1))
+        .background(.white)
     }
 }
 
