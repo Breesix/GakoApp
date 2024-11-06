@@ -86,12 +86,12 @@ struct StudentDetailView: View {
         }
     }
     
-    init(student: Student, viewModel: StudentTabViewModel, initialScrollDate: Date) {
-            self.student = student
-            self.viewModel = viewModel
-            self.initialScrollDate = initialScrollDate
-            _selectedDate = State(initialValue: initialScrollDate)
-        }
+    //    init(student: Student, viewModel: StudentTabViewModel, initialScrollDate: Date) {
+    //            self.student = student
+    //            self.viewModel = viewModel
+    //            self.initialScrollDate = initialScrollDate
+    //            _selectedDate = State(initialValue: initialScrollDate)
+    //        }
     
     private var formattedMonth: String {
         let formatter = DateFormatter()
@@ -215,14 +215,11 @@ struct StudentDetailView: View {
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
                                                 onShareTapped: { date in
-                                                    let reportView = DailyReportTemplate(
-                                                        student: student,
-                                                        activities: dayItems.activities,
-                                                        notes: dayItems.notes,
-                                                        date: date
-                                                    )
-                                                    let image = reportView.snapshot()
-                                                    showShareSheet(image: image)
+                                                    selectedActivityDate = date
+                                                    generateSnapshot(for: date)
+                                                    withAnimation {
+                                                        showSnapshotPreview = true
+                                                    }
                                                 },
                                                 onUpdateActivityStatus: { activity, newStatus in
                                                     await onUpdateActivityStatus(activity, newStatus)
@@ -593,7 +590,7 @@ class ImageSaver: NSObject {
     func writeToPhotoAlbum(image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
     }
-
+    
     @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         print("Save finished!")
     }

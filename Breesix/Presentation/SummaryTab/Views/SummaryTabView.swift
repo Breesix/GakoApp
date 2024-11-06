@@ -263,7 +263,7 @@ struct SummaryTabView: View {
                         return student.nickname.lowercased() == nickname.lowercased()
                     }
                 },
-                compressedImageData: studentViewModel.compressedImageData
+                compressedImageData: studentViewModel.compressedImageData, initialScrollDate: Date()
             )
         }
     }
