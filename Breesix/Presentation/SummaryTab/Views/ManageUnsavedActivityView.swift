@@ -9,7 +9,6 @@ import SwiftUI
 struct ManageUnsavedActivityView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var activityText: String
-    @State private var selectedStatus: Status
     @State private var showAlert: Bool = false
     
     enum Mode: Equatable {
@@ -38,17 +37,15 @@ struct ManageUnsavedActivityView: View {
         switch mode {
         case .add:
             _activityText = State(initialValue: "")
-            _selectedStatus = State(initialValue: .tidakMelakukan)
         case .edit(let activity):
             _activityText = State(initialValue: activity.activity)
-            _selectedStatus = State(initialValue: activity.status)
         }
     }
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text(isAddMode ? "Tambah Aktivitas" : "Edit Aktivitas")
+                Text(isAddMode ? "Tambah Aktivitas" : "Nama Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -78,31 +75,6 @@ struct ManageUnsavedActivityView: View {
                             .stroke(.monochrome50, lineWidth: 0.5)
                     )
                 }
-                
-                Menu {
-                    Button("Mandiri") {
-                        selectedStatus = .mandiri
-                    }
-                    Button("Dibimbing") {
-                        selectedStatus = .dibimbing
-                    }
-                    Button("Tidak Melakukan") {
-                        selectedStatus = .tidakMelakukan
-                    }
-                } label: {
-                    HStack(spacing: 9) {
-                        Text(getStatusText())
-                        Image(systemName: "chevron.up.chevron.down")
-                    }
-                    .font(.body)
-                    .fontWeight(.regular)
-                    .foregroundColor(.labelPrimaryBlack)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .background(.statusSheet)
-                    .cornerRadius(8)
-                }
-                .padding(.top, 8)
                 
                 Spacer()
             }
@@ -162,17 +134,6 @@ struct ManageUnsavedActivityView: View {
         case .edit: return false
         }
     }
-    
-    private func getStatusText() -> String {
-        switch selectedStatus {
-        case .mandiri:
-            return "Mandiri"
-        case .dibimbing:
-            return "Dibimbing"
-        case .tidakMelakukan:
-            return "Tidak Melakukan"
-        }
-    }
 
     private func saveActivity() {
         switch mode {
@@ -180,7 +141,7 @@ struct ManageUnsavedActivityView: View {
             let newActivity = UnsavedActivity(
                 activity: activityText,
                 createdAt: selectedDate,
-                status: selectedStatus,
+                status: .tidakMelakukan,
                 studentId: student.id
             )
             onSave(newActivity)
@@ -190,7 +151,7 @@ struct ManageUnsavedActivityView: View {
                 id: activity.id,
                 activity: activityText,
                 createdAt: activity.createdAt,
-                status: selectedStatus,
+                status: activity.status,
                 studentId: activity.studentId
             )
             onSave(updatedActivity)
