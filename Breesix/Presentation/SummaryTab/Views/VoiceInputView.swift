@@ -13,34 +13,19 @@ import DotLottie
 
 struct VoiceInputView: View {
     @Environment(\.presentationMode) var presentationMode
-    @ObservedObject var speechRecognizer = SpeechRecognizer()
-    
-    @State private var reflection: String = ""
-    @State private var previousText: String = ""
-    @State private var editedText: String = ""
-    @State private var isFirstTranscript: Bool = true
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String?
-    @State private var isFilledToday: Bool = false
-    @State private var isRecording = false
-    @State private var isPaused = false
-    @State private var isSaving = false
-    @State private var isShowingDatePicker = false
+    @StateObject private var viewModel = VoiceInputViewModel()
     @State private var showAlert: Bool = false
     @State private var showProTips: Bool = true
+    @State private var isShowingDatePicker = false
     @State private var tempDate: Date
-    @State private var showTabBar = false
-    
     @FocusState private var isTextEditorFocused: Bool
-    @Binding var selectedDate: Date
     
+    @Binding var selectedDate: Date
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
     var onAddUnsavedNotes: ([UnsavedNote]) -> Void
     var onDateSelected: (Date) -> Void
     var onDismiss: () -> Void
     var fetchStudents: () async -> [Student]
-    
-    private let ttProcessor = OpenAIService(apiToken: "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")
     
     init(
         selectedDate: Binding<Date>,
@@ -51,7 +36,11 @@ struct VoiceInputView: View {
         fetchStudents: @escaping () async -> [Student]
     ) {
         self._selectedDate = selectedDate
-        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
+            ? selectedDate.wrappedValue
+            : DateValidator.maximumDate()
+        self._tempDate = State(initialValue: validDate)
+        
         self.onAddUnsavedActivities = onAddUnsavedActivities
         self.onAddUnsavedNotes = onAddUnsavedNotes
         self.onDateSelected = onDateSelected
@@ -72,7 +61,7 @@ struct VoiceInputView: View {
                 VStack {
                     datePickerView()
                     
-                    if reflection.isEmpty && !isRecording {
+                    if viewModel.reflection.isEmpty && !viewModel.isRecording {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
                                 .foregroundColor(.gray)
@@ -83,7 +72,7 @@ struct VoiceInputView: View {
                     }
                     
                     ZStack {
-                        TextEditor(text: $editedText)
+                        TextEditor(text: $viewModel.editedText)
                             .foregroundStyle(.labelPrimaryBlack)
                             .padding()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -92,71 +81,69 @@ struct VoiceInputView: View {
                             .multilineTextAlignment(.leading)
                             .cornerRadius(10)
                             .focused($isTextEditorFocused)
-                            .disabled(isLoading)
-                            .opacity(isLoading ? 0.5 : 1)
+                            .disabled(viewModel.isLoading)
+                            .opacity(viewModel.isLoading ? 0.5 : 1)
                     }
-                    .onChange(of: editedText) {
-                        reflection = editedText
-                        speechRecognizer.previousTranscript = editedText
+                    .onChange(of: viewModel.editedText) { newValue in
+                        viewModel.reflection = newValue
+                        viewModel.speechRecognizer.previousTranscript = newValue
                     }
                     
                     Spacer()
                     
-                    if !isRecording {
+                    if !viewModel.isRecording {
                         TipsCard()
                             .padding()
                     }
                 }
-                .opacity(isLoading ? 0.3 : 1)
+                .opacity(viewModel.isLoading ? 0.3 : 1)
                 
                 Spacer()
                 
+                // Recording Controls
                 ZStack(alignment: .bottom) {
                     HStack(alignment: .center, spacing: 35) {
+                        // Cancel Button
                         Button(action: {
-                            self.speechRecognizer.stopTranscribing()
+                            viewModel.stopRecording(text: viewModel.reflection)
                             showAlert = true
                         }) {
                             Image("cancel-mic-button")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 56, height: 56)
+                                .frame(width: 56)
                         }
                         
+                        // Record/Pause Button
                         Button(action: {
-                            if !isRecording {
-                                speechRecognizer.previousTranscript = editedText
-                                isRecording = true
-                                isPaused = false
-                                speechRecognizer.startTranscribing()
+                            if !viewModel.isRecording {
+                                viewModel.startRecording()
                             } else {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    isPaused.toggle()
-                                    if isPaused {
-                                        speechRecognizer.pauseTranscribing()
-                                    } else {
-                                        speechRecognizer.resumeTranscribing()
-                                    }
+                                viewModel.isPaused.toggle()
+                                if viewModel.isPaused {
+                                    viewModel.pauseRecording()
+                                } else {
+                                    viewModel.resumeRecording()
                                 }
                             }
                         }) {
                             if showProTips {
-                                if isLoading {
-                                    ZStack {
-                                        DotLottieAnimation(fileName: "loading-lottie", config: AnimationConfig(autoplay: true, loop: true))
-                                            .view()
-                                            .scaleEffect(1.5)
-                                            .frame(width: 100, height: 100)
-                                    }
+                                if viewModel.isLoading {
+                                    DotLottieAnimation(fileName: "loading-lottie",
+                                                     config: AnimationConfig(autoplay: true, loop: true))
+                                        .view()
+                                        .scaleEffect(1.5)
+                                        .frame(width: 100, height: 100)
                                 } else {
-                                    if isRecording {
-                                        if isPaused {
+                                    if viewModel.isRecording {
+                                        if viewModel.isPaused {
                                             Image("play-mic-button")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 84, height: 84)
+                                                .frame(width: 84)
                                         } else {
-                                            DotLottieAnimation(fileName: "record-lottie", config: AnimationConfig(autoplay: true, loop: true))
+                                            DotLottieAnimation(fileName: "record-lottie",
+                                                             config: AnimationConfig(autoplay: true, loop: true))
                                                 .view()
                                                 .scaleEffect(1.5)
                                                 .frame(width: 100, height: 100)
@@ -165,23 +152,25 @@ struct VoiceInputView: View {
                                         Image("start-mic-button")
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 84, height: 84)
+                                            .frame(width: 84)
                                     }
                                 }
                             }
                         }
-                        .disabled(isLoading)
+                        .disabled(viewModel.isLoading)
                         
+                        // Save Button
                         Button(action: {
-                            if isRecording {
-                                DispatchQueue.main.async {
-                                    isLoading = true
-                                    isRecording = false
-                                    self.speechRecognizer.stopTranscribing()
-                                    self.reflection = self.speechRecognizer.transcript
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        self.processReflectionActivity()
-                                    }
+                            if viewModel.isRecording {
+                                Task {
+                                    await viewModel.processReflection(
+                                        reflection: viewModel.reflection, fetchStudents: fetchStudents,
+                                        onAddUnsavedActivities: onAddUnsavedActivities,
+                                        onAddUnsavedNotes: onAddUnsavedNotes,
+                                        selectedDate: selectedDate,
+                                        onDateSelected: onDateSelected,
+                                        onDismiss: onDismiss
+                                    )
                                 }
                             }
                         }) {
@@ -190,7 +179,7 @@ struct VoiceInputView: View {
                                 .scaledToFit()
                                 .frame(width: 60)
                         }
-                        .disabled(!isRecording || isLoading)
+                        .disabled(!viewModel.isRecording || viewModel.isLoading)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
@@ -217,106 +206,31 @@ struct VoiceInputView: View {
             )
         }
         .sheet(isPresented: $isShowingDatePicker) {
-            DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-                .onChange(of: tempDate) {
-                    selectedDate = tempDate
-                    isShowingDatePicker = false
-                }
+            datePickerSheet()
         }
-        .onReceive(speechRecognizer.$transcript) { newTranscript in
-            if isRecording {
-                DispatchQueue.main.async {
-                    if let lastWord = newTranscript.components(separatedBy: " ").last {
-                        editedText = editedText + " " + lastWord
-                    }
-                    reflection = editedText
+        .onReceive(viewModel.speechRecognizer.$transcript) { newTranscript in
+            if viewModel.isRecording {
+                if let lastWord = newTranscript.components(separatedBy: " ").last {
+                    viewModel.editedText += " " + lastWord
                 }
+                viewModel.reflection = viewModel.editedText
             }
         }
         .onAppear {
-            requestSpeechAuthorization()
+            viewModel.requestSpeechAuthorization()
         }
-        .onChange(of: isTextEditorFocused) {
+        .onChange(of: isTextEditorFocused) { newValue in
             withAnimation {
                 showProTips = !isTextEditorFocused
             }
         }
     }
     
-    private func processReflectionActivity() {
-        Task {
-            do {
-                isLoading = true
-                errorMessage = nil
-                
-                let students = await fetchStudents()
-                
-                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    await MainActor.run {
-                        isLoading = false
-                    }
-                    return
-                }
-                
-                let csvString = try await ttProcessor.processReflection(
-                    reflection: reflection,
-                    students: students
-                )
-                
-                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
-                    csvString: csvString,
-                    students: students,
-                    createdAt: selectedDate
-                )
-                
-                await MainActor.run {
-                    isLoading = false
-                    onAddUnsavedActivities(activityList)
-                    onAddUnsavedNotes(noteList)
-                    onDateSelected(selectedDate)
-                    onDismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    isLoading = false
-                    errorMessage = error.localizedDescription
-                    print("Error in processReflection: \(error)")
-                }
-            }
-        }
-    }
-    
-    private func clearText() {
-        reflection = ""
-        previousText = ""
-        speechRecognizer.transcript = ""
-        isRecording = false
-        isPaused = false
-    }
-    
-    public func requestSpeechAuthorization() {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            switch authStatus {
-            case .authorized:
-                print("Speech recognition authorized")
-            case .denied:
-                print("Speech recognition denied")
-            case .restricted:
-                print("Speech recognition restricted")
-            case .notDetermined:
-                print("Speech recognition not determined")
-            @unknown default:
-                print("Unknown status")
-            }
-        }
-    }
-    
     private func datePickerView() -> some View {
         Button(action: {
-            isShowingDatePicker = true
+            if !viewModel.isLoading {
+                isShowingDatePicker = true
+            }
         }) {
             HStack {
                 Image(systemName: "calendar")
@@ -324,11 +238,30 @@ struct VoiceInputView: View {
             }
             .font(.subheadline)
             .fontWeight(.semibold)
-            .foregroundStyle(.buttonPrimaryLabel)
+            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .buttonPrimaryLabel)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(.bgMain)
+            .background(.buttonOncard)
             .cornerRadius(8)
+        }
+        .disabled(viewModel.isLoading)
+    }
+    
+    private func datePickerSheet() -> some View {
+        DatePicker(
+            "Select Date",
+            selection: $tempDate,
+            in: ...DateValidator.maximumDate(),
+            displayedComponents: .date
+        )
+        .datePickerStyle(.graphical)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .onChange(of: tempDate) { newValue in
+            if DateValidator.isValidDate(newValue) {
+                selectedDate = tempDate
+                isShowingDatePicker = false
+            }
         }
     }
 }

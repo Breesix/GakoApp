@@ -5,11 +5,14 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct ManageUnsavedActivityView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var activityText: String
     @State private var showAlert: Bool = false
+    let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
+    @State private var selectedStatus: Status = .tidakMelakukan
     
     enum Mode: Equatable {
         case add(Student, Date)
@@ -41,7 +44,27 @@ struct ManageUnsavedActivityView: View {
             _activityText = State(initialValue: activity.activity)
         }
     }
-
+    
+    private var student: Student {
+        switch mode {
+        case .add(let student, _):
+            return student
+        case .edit(let activity):
+            // You'll need to have access to the student information here
+            // This might need to be adjusted based on your data structure
+            fatalError("Student information needed for edit mode")
+        }
+    }
+    
+    private var selectedDate: Date {
+        switch mode {
+        case .add(_, let date):
+            return date
+        case .edit(let activity):
+            return activity.createdAt
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
@@ -134,19 +157,39 @@ struct ManageUnsavedActivityView: View {
         case .edit: return false
         }
     }
-
+    
     private func saveActivity() {
-        switch mode {
-        case .add(let student, let selectedDate):
-            let newActivity = UnsavedActivity(
-                activity: activityText,
-                createdAt: selectedDate,
-                status: .tidakMelakukan,
-                studentId: student.id
-            )
-            onSave(newActivity)
-            
-        case .edit(let activity):
+        if isAddMode {
+            saveNewActivity()
+        } else {
+            saveEditedActivity()
+        }
+        presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func saveNewActivity() {
+        let newActivity = UnsavedActivity(
+            activity: activityText,
+            createdAt: selectedDate,
+            status: selectedStatus,
+            studentId: student.id
+        )
+        
+        let properties: [String: MixpanelType] = [
+            "student_id": student.id.uuidString,
+            "activity_text_length": activityText.count,
+            "status": selectedStatus.rawValue,
+            "created_at": selectedDate.timeIntervalSince1970,
+            "screen": "add_activity",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        analytics.trackEvent("Activity Created", properties: properties)
+        onSave(newActivity)
+    }
+    
+    private func saveEditedActivity() {
+        if case .edit(let activity) = mode {
             let updatedActivity = UnsavedActivity(
                 id: activity.id,
                 activity: activityText,
@@ -156,8 +199,6 @@ struct ManageUnsavedActivityView: View {
             )
             onSave(updatedActivity)
         }
-        
-        presentationMode.wrappedValue.dismiss()
     }
 }
 

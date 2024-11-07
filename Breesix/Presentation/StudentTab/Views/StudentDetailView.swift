@@ -337,6 +337,7 @@ struct StudentDetailView: View {
                 .ignoresSafeArea(.all, edges: .bottom)
             }
         }
+        .toolbar(.hidden, for: .bottomBar,.tabBar)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()

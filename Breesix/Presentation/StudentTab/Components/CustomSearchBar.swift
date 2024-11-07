@@ -72,11 +72,9 @@ struct CustomSearchBar: View {
                     withAnimation {
                         self.isEditing = true
                     }
+                    requestSpeechAuthorization()
                 }
 
-            }
-            .onAppear {
-                requestSpeechAuthorization()
             }
             .onReceive(speechRecognizer.$transcript) { newTranscript in
                 self.text = newTranscript

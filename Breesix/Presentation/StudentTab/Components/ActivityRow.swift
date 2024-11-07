@@ -6,13 +6,15 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct ActivityRow: View {
     let activity: Activity
     let onDelete: (Activity) -> Void
-    let onStatusChanged: (Activity, Status) -> Void  // Changed to accept Status instead of Bool?
+    let onStatusChanged: (Activity, Status) -> Void
     @State private var showDeleteAlert = false
     @State private var status: Status
+    private let analytics = InputAnalyticsTracker.shared
     
     init(activity: Activity,
          onDelete: @escaping (Activity) -> Void,
@@ -33,10 +35,16 @@ struct ActivityRow: View {
             
             HStack(spacing: 8) {
                 StatusPicker(status: $status) { newStatus in
+                
+                    trackStatusChange(newStatus)
                     onStatusChanged(activity, newStatus)
                 }
                 
-                Button(action: { showDeleteAlert = true }) {
+                Button(action: {
+                    showDeleteAlert = true
+                    trackDeleteAttempt()
+                   
+                }) {
                     Image("custom.trash.circle.fill")
                         .resizable()
                         .scaledToFit()
@@ -45,6 +53,8 @@ struct ActivityRow: View {
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
                         onDelete(activity)
+                        trackDeletion()
+                       
                     }
                     Button("Batal", role: .cancel) { }
                 } message: {
@@ -56,6 +66,38 @@ struct ActivityRow: View {
         .onAppear {
             status = activity.status
         }
+    }
+    
+    // MARK: - Tracking Methods
+    private func trackStatusChange(_ newStatus: Status) {
+        let properties: [String: MixpanelType] = [
+            "activity_text": activity.activity,
+            "old_status": status.rawValue,
+            "new_status": newStatus.rawValue,
+            "screen": "activity_list",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Status Changed", properties: properties)
+    }
+    
+    private func trackDeleteAttempt() {
+        let properties: [String: MixpanelType] = [
+            "activity_text": activity.activity,
+            "status": status.rawValue,
+            "screen": "activity_list",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Delete Attempted", properties: properties)
+    }
+    
+    private func trackDeletion() {
+        let properties: [String: MixpanelType] = [
+            "activity_text": activity.activity,
+            "status": status.rawValue,
+            "screen": "activity_list",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Deleted", properties: properties)
     }
 }
 

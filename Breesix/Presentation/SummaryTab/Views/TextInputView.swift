@@ -4,30 +4,27 @@
 //
 //  Created by Rangga Biner on 15/10/24.
 //
+import SwiftUI
 
 import SwiftUI
 
 struct TextInputView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @State private var reflection: String = ""
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String?
+    @Environment(\.presentationMode) private var presentationMode
+    @StateObject private var viewModel = TextInputViewModel()
     @State private var showAlert: Bool = false
+    @State private var showEmptyReflectionAlert: Bool = false
     @State private var showProTips: Bool = true
-    @FocusState private var isTextEditorFocused: Bool
-    @Binding var selectedDate: Date
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
-    @State private var showEmptyReflectionAlert: Bool = false
-    @State private var showTabBar = false
+    @FocusState private var isTextEditorFocused: Bool
     
+    @Binding var selectedDate: Date
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
     var onAddUnsavedNotes: ([UnsavedNote]) -> Void
     var onDateSelected: (Date) -> Void
     var onDismiss: () -> Void
     var fetchStudents: () async -> [Student]
     
-    private let ttProcessor = OpenAIService(apiToken: "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")
     
     init(
         selectedDate: Binding<Date>,
@@ -38,7 +35,11 @@ struct TextInputView: View {
         fetchStudents: @escaping () async -> [Student]
     ) {
         self._selectedDate = selectedDate
-        self._tempDate = State(initialValue: selectedDate.wrappedValue)
+        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
+            ? selectedDate.wrappedValue
+            : DateValidator.maximumDate()
+        self._tempDate = State(initialValue: validDate)
+        
         self.onAddUnsavedActivities = onAddUnsavedActivities
         self.onAddUnsavedNotes = onAddUnsavedNotes
         self.onDateSelected = onDateSelected
@@ -51,17 +52,14 @@ struct TextInputView: View {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                 to: nil,
-                                                 from: nil,
-                                                 for: nil)
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     isTextEditorFocused = false
                 }
             
             VStack(spacing: 16) {
                 datePickerView()
                     .padding(.top, 24)
-                    .disabled(isLoading)
+                    .disabled(viewModel.isLoading)
                 
                 VStack(spacing: 0) {
                     textEditorSection()
@@ -77,12 +75,14 @@ struct TextInputView: View {
                     buttonSection()
                         .padding(.bottom, showProTips ? 24 : 0)
                     
+                    
                     if !showProTips {
                         Spacer()
                     }
                 }
                 .padding(.horizontal, 28)
             }
+
         }
         .background(.white)
         .navigationBarHidden(true)
@@ -111,73 +111,28 @@ struct TextInputView: View {
         }
     }
     
-    private func processReflectionActivity() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                     to: nil,
-                                     from: nil,
-                                     for: nil)
-        isTextEditorFocused = false
-        
-        Task {
-            do {
-                isLoading = true
-                errorMessage = nil
-                
-                let students = await fetchStudents()
-                
-                
-                if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    await MainActor.run {
-                        isLoading = false
-                        showEmptyReflectionAlert = true
-                    }
-                    return
-                }
-                
-                let csvString = try await ttProcessor.processReflection(
-                    reflection: reflection,
-                    students: students
-                )
-                
-                let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
-                    csvString: csvString,
-                    students: students,
-                    createdAt: selectedDate
-                )
-                
-                await MainActor.run {
-                    isLoading = false
-                    onAddUnsavedActivities(activityList)
-                    onAddUnsavedNotes(noteList)
-                    onDateSelected(selectedDate)
-                    onDismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    isLoading = false
-                    errorMessage = error.localizedDescription
-                    print("Error in processReflection: \(error)")
-                }
-            }
-        }
-    }
-    
     private func datePickerView() -> some View {
-        Button(action: { isShowingDatePicker = true }) {
+        Button(action: {
+            if !viewModel.isLoading {
+                isShowingDatePicker = true
+            }
+        }) {
             HStack {
                 Image(systemName: "calendar")
                 Text(selectedDate, format: .dateTime.day().month().year())
             }
             .font(.subheadline)
             .fontWeight(.semibold)
-            .foregroundStyle(isLoading ? .labelTertiary : .buttonPrimaryLabel)
+            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .buttonPrimaryLabel)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(.buttonOncard)
             .cornerRadius(8)
         }
+        .disabled(viewModel.isLoading)
     }
 }
+
 
 private extension TextInputView {
     func textEditorSection() -> some View {
@@ -186,7 +141,7 @@ private extension TextInputView {
                 .fill(.white)
                 .frame(maxWidth: .infinity, maxHeight: 170)
             
-            if reflection.isEmpty {
+            if viewModel.reflection.isEmpty {
                 Text("Ceritakan mengenai Murid Anda...")
                     .font(.callout)
                     .fontWeight(.regular)
@@ -197,7 +152,7 @@ private extension TextInputView {
                     .cornerRadius(8)
             }
             
-            TextEditor(text: $reflection)
+            TextEditor(text: $viewModel.reflection)
                 .font(.callout)
                 .fontWeight(.semibold)
                 .padding(.horizontal, 8)
@@ -206,8 +161,8 @@ private extension TextInputView {
                 .cornerRadius(8)
                 .focused($isTextEditorFocused)
                 .scrollContentBackground(.hidden)
-                .disabled(isLoading)
-                .opacity(isLoading ? 0.5 : 1)
+                .disabled(viewModel.isLoading)
+                .opacity(viewModel.isLoading ? 0.5 : 1)
         }
         .onAppear { UITextView.appearance().backgroundColor = .clear }
         .onDisappear { UITextView.appearance().backgroundColor = nil }
@@ -217,10 +172,26 @@ private extension TextInputView {
         )
     }
     
+    
     func buttonSection() -> some View {
         VStack(spacing: 16) {
-            Button(action: processReflectionActivity) {
-                if isLoading {
+            Button(action: {
+                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showEmptyReflectionAlert = true
+                } else {
+                    Task {
+                        await viewModel.processReflection(
+                            reflection: viewModel.reflection, fetchStudents: fetchStudents,
+                            onAddUnsavedActivities: onAddUnsavedActivities,
+                            onAddUnsavedNotes: onAddUnsavedNotes,
+                            selectedDate: selectedDate,
+                            onDateSelected: onDateSelected,
+                            onDismiss: onDismiss
+                        )
+                    }
+                }
+            }) {
+                if viewModel.isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .frame(maxWidth: .infinity, maxHeight: 50)
@@ -236,7 +207,7 @@ private extension TextInputView {
                         .cornerRadius(12)
                 }
             }
-            .disabled(isLoading)
+            .disabled(viewModel.isLoading)
             
             Button("Batal") {
                 showAlert = true
@@ -244,20 +215,27 @@ private extension TextInputView {
             .padding(.top, 9)
             .font(.body)
             .fontWeight(.semibold)
-            .foregroundStyle(isLoading ? .labelTertiary : .destructive)
-            .disabled(isLoading)
+            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructiveOnCardLabel)
+            .disabled(viewModel.isLoading)
         }
     }
     
-    func datePickerSheet() -> some View {
-        DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
-            .datePickerStyle(.graphical)
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
-            .onChange(of: tempDate) {
+    private func datePickerSheet() -> some View {
+        DatePicker(
+            "Select Date",
+            selection: $tempDate,
+            in: ...DateValidator.maximumDate(),
+            displayedComponents: .date
+        )
+        .datePickerStyle(.graphical)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .onChange(of: tempDate) { newValue in
+            if DateValidator.isValidDate(newValue) {
                 selectedDate = tempDate
                 isShowingDatePicker = false
             }
+        }
     }
 }
 

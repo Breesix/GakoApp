@@ -43,7 +43,7 @@ struct NoteRow: View {
                     Image(systemName: "trash.fill")
                         .font(.subheadline)
                         .fontWeight(.regular)
-                        .foregroundStyle(.destructive)
+                        .foregroundStyle(.destructiveOnCardLabel)
                 }
             }
             .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {

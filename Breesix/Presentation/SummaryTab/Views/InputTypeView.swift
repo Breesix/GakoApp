@@ -57,7 +57,7 @@ struct InputTypeView: View {
             Button("Batalkan") {
                 presentationMode.wrappedValue.dismiss()
             }
-            .foregroundStyle(.destructive)
+            .foregroundStyle(.destructiveOnCardLabel)
             .font(.body)
             .fontWeight(.semibold)
             

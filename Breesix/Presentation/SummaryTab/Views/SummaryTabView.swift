@@ -24,13 +24,21 @@ struct SummaryTabView: View {
     @State private var showTabBar = true
     @State private var hideTabBar = false
     @State private var showEmptyStudentsAlert: Bool = false
+    
+    @StateObject private var networkMonitor = NetworkMonitor()
+    @State private var showNoInternetAlert = false
     @EnvironmentObject var tabBarController: TabBarController
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                CustomNavigation(title: "Ringkasan") {
-                    if studentViewModel.students.isEmpty {
+                CustomNavigation(
+                    title: "Ringkasan",
+                    isInternetConnected: networkMonitor.isConnected
+                ) { if !networkMonitor.isConnected {
+                    showNoInternetAlert = true
+                }
+                    else if studentViewModel.students.isEmpty {
                         showEmptyStudentsAlert = true
                     } else {
                         isShowingInputTypeSheet = true
@@ -166,6 +174,16 @@ struct SummaryTabView: View {
         } message: {
             Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
         }
+        .alert("Tidak Ada Koneksi Internet", isPresented: $showNoInternetAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
+        }
+//        .onChange(of: networkMonitor.isConnected) { newValue in
+//            if !newValue {
+//                showNoInternetAlert = true
+//            }
+//        }
         .navigationBarHidden(true)
         .task {
             await studentViewModel.fetchAllStudents()
