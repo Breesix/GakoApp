@@ -100,39 +100,22 @@ struct PreviewView: View {
                     datePickerView()
                         .disabled(true)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(.bgMain)
+                
                 mainContent
                 
                 
                 
-                .opacity(isSaving ? 0.5 : 1.0)
-                .padding(.top, 12)
-                .padding(.horizontal, 16)
-                .background(.bgMain)
+                
             }
-            
+            .opacity(isSaving ? 0.5 : 1.0)
+            .padding(.top, 12)
+            .padding(.horizontal, 16)
+            .background(.bgMain)
         }
-    
-        .navigationBarItems(
-            leading: Button {
-                if !isSaving {
-                    onClearUnsavedNotes()
-                    onClearUnsavedActivities()
-                    isShowingPreview = false
-                }
-
-            } label: {
-                HStack {
-                    Image(systemName: "chevron.backward")
-                        .foregroundStyle(.buttonLinkOnSheet)
-                    Text("Pratinjau")
-                        .foregroundStyle(.monochromeBlack)
-                }
-                .font(.title3)
-                .fontWeight(.semibold)
-            }
-            .disabled(isSaving),
-            trailing: datePickerView().disabled(true)
-        )
+        
         .toolbar(.hidden, for: .bottomBar, .tabBar)
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
@@ -206,7 +189,6 @@ struct PreviewView: View {
     private var mainContent: some View {
         ZStack {
             VStack(spacing: 0) {
-                
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(sortedStudents) { student in
@@ -268,13 +250,14 @@ struct PreviewView: View {
             if isSaving {
                 LoadingView(progress: progress)
                     .navigationBarHidden(true)
-                    .padding()
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(.bgMain)
             }
         }
     }
-
-
+    
+    
     private var sortedStudents: [Student] {
         students.sorted { student1, student2 in
             let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
