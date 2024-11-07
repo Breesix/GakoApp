@@ -11,17 +11,9 @@ struct ManageUnsavedActivityView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var activityText: String
     @State private var showAlert: Bool = false
-    
-<<<<<<< HEAD:Breesix/Presentation/SummaryTab/Views/AddUnsavedActivityView.swift
-    let onSaveActivity: (UnsavedActivity) -> Void
     let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
-    @State private var activityText: String = ""
     @State private var selectedStatus: Status = .tidakMelakukan
-    @State private var showAlert: Bool = false
     
-    
-    
-=======
     enum Mode: Equatable {
         case add(Student, Date)
         case edit(UnsavedActivity)
@@ -52,8 +44,27 @@ struct ManageUnsavedActivityView: View {
             _activityText = State(initialValue: activity.activity)
         }
     }
-
->>>>>>> develop:Breesix/Presentation/SummaryTab/Views/ManageUnsavedActivityView.swift
+    
+    private var student: Student {
+        switch mode {
+        case .add(let student, _):
+            return student
+        case .edit(let activity):
+            // You'll need to have access to the student information here
+            // This might need to be adjusted based on your data structure
+            fatalError("Student information needed for edit mode")
+        }
+    }
+    
+    private var selectedDate: Date {
+        switch mode {
+        case .add(_, let date):
+            return date
+        case .edit(let activity):
+            return activity.createdAt
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
@@ -146,7 +157,15 @@ struct ManageUnsavedActivityView: View {
         case .edit: return false
         }
     }
-<<<<<<< HEAD:Breesix/Presentation/SummaryTab/Views/AddUnsavedActivityView.swift
+    
+    private func saveActivity() {
+        if isAddMode {
+            saveNewActivity()
+        } else {
+            saveEditedActivity()
+        }
+        presentationMode.wrappedValue.dismiss()
+    }
     
     private func saveNewActivity() {
         let newActivity = UnsavedActivity(
@@ -156,7 +175,6 @@ struct ManageUnsavedActivityView: View {
             studentId: student.id
         )
         
-        // Properties untuk tracking
         let properties: [String: MixpanelType] = [
             "student_id": student.id.uuidString,
             "activity_text_length": activityText.count,
@@ -166,32 +184,12 @@ struct ManageUnsavedActivityView: View {
             "timestamp": Date().timeIntervalSince1970
         ]
         
-        // Track event
         analytics.trackEvent("Activity Created", properties: properties)
-        
-        onSaveActivity(newActivity)
-        onDismiss()
+        onSave(newActivity)
     }
-}
-
-
-
-
-
-=======
-
-    private func saveActivity() {
-        switch mode {
-        case .add(let student, let selectedDate):
-            let newActivity = UnsavedActivity(
-                activity: activityText,
-                createdAt: selectedDate,
-                status: .tidakMelakukan,
-                studentId: student.id
-            )
-            onSave(newActivity)
-            
-        case .edit(let activity):
+    
+    private func saveEditedActivity() {
+        if case .edit(let activity) = mode {
             let updatedActivity = UnsavedActivity(
                 id: activity.id,
                 activity: activityText,
@@ -201,12 +199,9 @@ struct ManageUnsavedActivityView: View {
             )
             onSave(updatedActivity)
         }
-        
-        presentationMode.wrappedValue.dismiss()
     }
 }
 
->>>>>>> develop:Breesix/Presentation/SummaryTab/Views/ManageUnsavedActivityView.swift
 #Preview {
     ManageUnsavedActivityView(
         mode: .add(.init(fullname: "Rangga Biner", nickname: "Rangga"), .now),

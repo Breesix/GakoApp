@@ -88,162 +88,30 @@ struct PreviewView: View {
     
     var body: some View {
         ZStack {
-<<<<<<< HEAD
-            ScrollView {
-                
-                VStack(spacing: 0) {
-                    ForEach(sortedStudents) { student in
-                        DailyReportCardPreview(
-                            student: student,
-                            selectedDate: selectedDate,
-                            selectedStudent: $selectedStudent,
-                            isAddingNewActivity: $isAddingNewActivity,
-                            isAddingNewNote: $isAddingNewNote,
-                            hasDefaultActivities: hasAnyDefaultActivity(for: student),
-                            onUpdateActivity: { updatedActivity in
-                                onUpdateUnsavedActivity(updatedActivity)
-                            },
-                            onDeleteActivity: { activity in
-                                onDeleteUnsavedActivity(activity)
-                            },
-                            onUpdateNote: { updatedNote in
-                                onUpdateUnsavedNote(updatedNote)
-                            },
-                            onDeleteNote: { note in
-                                onDeleteUnsavedNote(note)
-                            },
-                            activities: unsavedActivities.filter { $0.studentId == student.id },
-                            notes: unsavedNotes.filter { $0.studentId == student.id }
-                        )
-                        .padding(.bottom, 12)
-                    }
+            VStack(spacing: 0) {
+                HStack {
+                    Text("Pratinjau")
+                        .foregroundStyle(.monochromeBlack)
+                        .font(.title3)
+                        .fontWeight(.semibold)
                     
-                    Button {
-                        if hasStudentsWithNilActivities() {
-                            showingSaveAlert = true
-                        } else {
-                            saveActivities()
-=======
-            if !isSaving {
-                VStack(spacing: 0) {
-                    HStack {
-                        Text("Pratinjau")
-                            .foregroundStyle(.monochromeBlack)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                        
-                        Spacer()
-                        
-                        datePickerView()
-                            .disabled(true)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(.bgMain)
+                    Spacer()
                     
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            ForEach(sortedStudents) { student in
-                                DailyReportCardPreview(
-                                    student: student,
-                                    selectedDate: selectedDate,
-                                    selectedStudent: $selectedStudent,
-                                    isAddingNewActivity: $isAddingNewActivity,
-                                    isAddingNewNote: $isAddingNewNote,
-                                    hasDefaultActivities: hasAnyDefaultActivity(for: student),
-                                    onUpdateActivity: { updatedActivity in
-                                        onUpdateUnsavedActivity(updatedActivity)
-                                    },
-                                    onDeleteActivity: { activity in
-                                        onDeleteUnsavedActivity(activity)
-                                    },
-                                    onUpdateNote: { updatedNote in
-                                        onUpdateUnsavedNote(updatedNote)
-                                    },
-                                    onDeleteNote: { note in
-                                        onDeleteUnsavedNote(note)
-                                    },
-                                    activities: unsavedActivities.filter { $0.studentId == student.id },
-                                    notes: unsavedNotes.filter { $0.studentId == student.id }
-                                )
-                                .padding(.bottom, 12)
-                            }
-                        }
-                        .padding(.top, 12)
-                        .padding(.horizontal, 16)
-                    }
-                    .background(.bgMain)
-
-                    HStack {
-                        Button {
-                            showingCancelAlert = true
-                        } label: {
-                            Text("Batal")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.destructive)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Color(.buttonDestructiveOnCard))
-                                .cornerRadius(12)
-                        }
-                        
-                        Spacer()
-                        
-                        Button {
-                            if hasStudentsWithNilActivities() {
-                                showingNilActivityAlert = true
-                            } else {
-                                showingSaveAlert = true
-                            }
-                        } label: {
-                            Text("Simpan")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.labelPrimaryBlack)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Color(.orangeClickAble))
-                                .cornerRadius(12)
->>>>>>> develop
-                        }
-                    } label: {
-                        Text("Simpan")
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.labelPrimaryBlack)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color(.orangeClickAble))
-                            .cornerRadius(12)
-                    }
-<<<<<<< HEAD
+                    datePickerView()
+                        .disabled(true)
                 }
+                mainContent
+                
+                
+                
                 .opacity(isSaving ? 0.5 : 1.0)
                 .padding(.top, 12)
                 .padding(.horizontal, 16)
                 .background(.bgMain)
-=======
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
->>>>>>> develop
-            }
-            
-            
-            if isSaving {
-                ZStack {
-                    LoadingView(progress: progress)
-                    
-                }
-                .navigationBarHidden(true)
-                .padding()
-                .padding(.horizontal, 40)
-                
             }
             
         }
-<<<<<<< HEAD
+    
         .navigationBarItems(
             leading: Button {
                 if !isSaving {
@@ -265,9 +133,6 @@ struct PreviewView: View {
             .disabled(isSaving),
             trailing: datePickerView().disabled(true)
         )
-=======
-
->>>>>>> develop
         .toolbar(.hidden, for: .bottomBar, .tabBar)
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
@@ -338,6 +203,78 @@ struct PreviewView: View {
         }
     }
     
+    private var mainContent: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(sortedStudents) { student in
+                            DailyReportCardPreview(
+                                student: student,
+                                selectedDate: selectedDate,
+                                selectedStudent: $selectedStudent,
+                                isAddingNewActivity: $isAddingNewActivity,
+                                isAddingNewNote: $isAddingNewNote,
+                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
+                                onUpdateActivity: onUpdateUnsavedActivity,
+                                onDeleteActivity: onDeleteUnsavedActivity,
+                                onUpdateNote: onUpdateUnsavedNote,
+                                onDeleteNote: onDeleteUnsavedNote,
+                                activities: unsavedActivities.filter { $0.studentId == student.id },
+                                notes: unsavedNotes.filter { $0.studentId == student.id }
+                            )
+                            .padding(.bottom, 12)
+                        }
+                    }
+                }
+                HStack {
+                    Button {
+                        showingCancelAlert = true
+                    } label: {
+                        Text("Batal")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.destructiveOnCardLabel)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.buttonDestructiveOnCard))
+                            .cornerRadius(12)
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        if hasStudentsWithNilActivities() {
+                            showingNilActivityAlert = true
+                        } else {
+                            showingSaveAlert = true
+                        }
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.orangeClickAble))
+                            .cornerRadius(12)
+                        
+                    }
+                    
+                }
+            }
+            
+            if isSaving {
+                LoadingView(progress: progress)
+                    .navigationBarHidden(true)
+                    .padding()
+                    .padding(.horizontal, 40)
+            }
+        }
+    }
+
+
     private var sortedStudents: [Student] {
         students.sorted { student1, student2 in
             let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
@@ -432,30 +369,30 @@ struct PreviewView: View {
     }
 }
 
-#Preview {
-    PreviewView(
-        selectedDate: .constant(.now),
-        isShowingPreview: .constant(false),
-        isShowingActivity: .constant(false),
-        students: [
-            .init(fullname: "Rangga Biner", nickname: "Rangga")
-        ],
-        unsavedActivities: [
-            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
-        ],
-        unsavedNotes: [
-            .init(note: "baik banget", createdAt: .now, studentId: UUID())
-        ],
-        onAddUnsavedActivities: { _ in print("added") },
-        onUpdateUnsavedActivity: { _ in print("updated") },
-        onDeleteUnsavedActivity: { _ in print("deleted") },
-        onAddUnsavedNote: { _ in print("added") },
-        onUpdateUnsavedNote: { _ in print("updated") },
-        onDeleteUnsavedNote: { _ in print("deleted") },
-        onClearUnsavedNotes: { print("cleared") },
-        onClearUnsavedActivities: { print("cleared") },
-        onSaveUnsavedActivities: { print("saved") },
-        onSaveUnsavedNotes: { print("saved") },
-        onGenerateAndSaveSummaries: { _ in print("generated and saved") }
-    )
-}
+//#Preview {
+//    PreviewView(
+//        selectedDate: .constant(.now),
+//        isShowingPreview: .constant(false),
+//        isShowingActivity: .constant(false),
+//        students: [
+//            .init(fullname: "Rangga Biner", nickname: "Rangga")
+//        ],
+//        unsavedActivities: [
+//            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
+//        ],
+//        unsavedNotes: [
+//            .init(note: "baik banget", createdAt: .now, studentId: UUID())
+//        ],
+//        onAddUnsavedActivities: { _ in print("added") },
+//        onUpdateUnsavedActivity: { _ in print("updated") },
+//        onDeleteUnsavedActivity: { _ in print("deleted") },
+//        onAddUnsavedNote: { _ in print("added") },
+//        onUpdateUnsavedNote: { _ in print("updated") },
+//        onDeleteUnsavedNote: { _ in print("deleted") },
+//        onClearUnsavedNotes: { print("cleared") },
+//        onClearUnsavedActivities: { print("cleared") },
+//        onSaveUnsavedActivities: { print("saved") },
+//        onSaveUnsavedNotes: { print("saved") },
+//        onGenerateAndSaveSummaries: { _ in print("generated and saved") }
+//    )
+//}

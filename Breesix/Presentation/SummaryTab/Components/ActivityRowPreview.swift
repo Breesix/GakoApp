@@ -26,36 +26,35 @@ struct ActivityRowPreview: View {
                     .font(.callout)
                     .fontWeight(.semibold)
                     .foregroundStyle(.labelPrimaryBlack)
-
+                
                 Spacer()
-
-                    Button(action: {
-                        showDeleteAlert = true
-                    }) {
-                        ZStack {
-                            Circle()
-                                .frame(width: 34)
-                                .foregroundStyle(.buttonDestructiveOnCard)
-                            Image(systemName: "trash.fill")
-                                .font(.subheadline)
-                                .fontWeight(.regular)
-                                .foregroundStyle(.destructive)
-                        }
+                
+                Button(action: {
+                    showDeleteAlert = true
+                }) {
+                    ZStack {
+                        Circle()
+                            .frame(width: 34)
+                            .foregroundStyle(.buttonDestructiveOnCard)
+                        Image(systemName: "trash.fill")
+                            .font(.subheadline)
+                            .fontWeight(.regular)
+                            .foregroundStyle(.destructiveOnCardLabel)
                     }
                 }
+            }
             
             Text(activity.activity)
                 .font(.subheadline)
                 .fontWeight(.regular)
                 .foregroundStyle(.labelPrimaryBlack)
-<<<<<<< HEAD
                 .padding(.bottom, 12)
             
             HStack(spacing: 8) {
                 StatusPicker(
                     status: $activity.status,
                     onStatusChange: { newStatus in
-                       
+                        
                         let properties: [String: MixpanelType] = [
                             "student_id": student.id.uuidString,
                             "activity_id": activity.id.uuidString,
@@ -111,50 +110,37 @@ struct ActivityRowPreview: View {
                     Button("Batal", role: .cancel) { }
                 } message: {
                     Text("Apakah kamu yakin ingin menghapus catatan ini?")
-=======
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
-                .background(.monochrome100)
-                .cornerRadius(8)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.noteStroke, lineWidth: 0.5)
-                }
-                .onTapGesture {
-                    onEdit(activity)
-                }
-
-            HStack(spacing: 8) {
-                StatusPicker(status: $activity.status) { newStatus in
-                    activity.status = newStatus
->>>>>>> develop
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(8)
+                        .background(.monochrome100)
+                        .cornerRadius(8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.noteStroke, lineWidth: 0.5)
+                        }
+                        .onTapGesture {
+                            onEdit(activity)
+                        }
+                    
                 }
             }
-        }
-        .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-            Button("Hapus", role: .destructive) {
-                onDeleteActivity(activity)
-                onDelete()
-            }
-            Button("Batal", role: .cancel) { }
-        } message: {
-            Text("Apakah kamu yakin ingin menghapus catatan ini?")
         }
     }
 }
+    
+    #Preview {
+        ActivityRowPreview(
+            activity: .constant(.init(
+                activity: "Menjahit",
+                createdAt: .now,
+                studentId: Student.ID()
+            )),
+            activityIndex: 0,
+            student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+            onAddActivity: { print("added activity") },
+            onEdit: { _ in print("edit activity") },
+            onDelete: { print("deleted") },
+            onDeleteActivity: { _ in print("deleted activity") }
+        )
+    }
 
-#Preview {
-    ActivityRowPreview(
-        activity: .constant(.init(
-            activity: "Menjahit",
-            createdAt: .now,
-            studentId: Student.ID()
-        )),
-        activityIndex: 0,
-        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-        onAddActivity: { print("added activity") },
-        onEdit: { _ in print("edit activity") },
-        onDelete: { print("deleted") },
-        onDeleteActivity: { _ in print("deleted activity") }
-    )
-}
