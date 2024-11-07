@@ -19,6 +19,8 @@ struct ActivitySectionPreview: View {
     let onDeleteActivity: (UnsavedActivity) -> Void
     
     let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
+    let allActivities: [UnsavedActivity]
+    let allStudents: [Student]
 
     
     var body: some View {
@@ -69,6 +71,8 @@ struct ActivitySectionPreview: View {
         .sheet(item: $editingActivity) { activity in
             ManageUnsavedActivityView(
                 mode: .edit(activity),
+                allActivities: allActivities,
+                allStudents: allStudents,
                 onSave: { updatedActivity in
                     onActivityUpdate(updatedActivity)
                     editingActivity = nil
@@ -78,6 +82,7 @@ struct ActivitySectionPreview: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+
     }
     
     private func binding(for activity: UnsavedActivity) -> Binding<UnsavedActivity> {
@@ -104,26 +109,26 @@ struct ActivitySectionPreview: View {
 }
 
 
-#Preview {
-    ActivitySectionPreview(
-        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-        selectedStudent: .constant(nil),
-        isAddingNewActivity: .constant(false),
-        activities: [
-            UnsavedActivity(
-                activity: "Reading a book",
-                createdAt: Date(),
-                status: .mandiri,
-                studentId: Student.ID()
-            ),
-            UnsavedActivity(
-                activity: "Playing with blocks",
-                createdAt: Date(),
-                status: .mandiri,
-                studentId: Student.ID()
-            )
-        ],
-        onActivityUpdate: { _ in },
-        onDeleteActivity: { _ in }
-    )
-}
+//#Preview {
+//    ActivitySectionPreview(
+//        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+//        selectedStudent: .constant(nil),
+//        isAddingNewActivity: .constant(false),
+//        activities: [
+//            UnsavedActivity(
+//                activity: "Reading a book",
+//                createdAt: Date(),
+//                status: .mandiri,
+//                studentId: Student.ID()
+//            ),
+//            UnsavedActivity(
+//                activity: "Playing with blocks",
+//                createdAt: Date(),
+//                status: .mandiri,
+//                studentId: Student.ID()
+//            )
+//        ],
+//        onActivityUpdate: { _ in },
+//        onDeleteActivity: { _ in }
+//    )
+//}

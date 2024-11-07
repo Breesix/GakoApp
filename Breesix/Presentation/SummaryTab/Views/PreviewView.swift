@@ -121,7 +121,9 @@ struct PreviewView: View {
                                 onUpdateNote: onUpdateUnsavedNote,
                                 onDeleteNote: onDeleteUnsavedNote,
                                 activities: unsavedActivities.filter { $0.studentId == student.id },
-                                notes: unsavedNotes.filter { $0.studentId == student.id }
+                                notes: unsavedNotes.filter { $0.studentId == student.id },
+                                allActivities: unsavedActivities,
+                                allStudents: students
                             )
                             .padding(.bottom, 12)
                         }
@@ -261,7 +263,9 @@ struct PreviewView: View {
                                 onUpdateNote: onUpdateUnsavedNote,
                                 onDeleteNote: onDeleteUnsavedNote,
                                 activities: unsavedActivities.filter { $0.studentId == student.id },
-                                notes: unsavedNotes.filter { $0.studentId == student.id }
+                                notes: unsavedNotes.filter { $0.studentId == student.id },
+                                allActivities: unsavedActivities,
+                                allStudents: students
                             )
                             .padding(.bottom, 12)
                         }

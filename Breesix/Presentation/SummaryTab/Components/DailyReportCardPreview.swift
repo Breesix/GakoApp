@@ -21,7 +21,9 @@ struct DailyReportCardPreview: View {
     let onDeleteNote: (UnsavedNote) -> Void
     let activities: [UnsavedActivity]
     let notes: [UnsavedNote]
-    
+    let allActivities: [UnsavedActivity]
+    let allStudents: [Student]
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -40,9 +42,11 @@ struct DailyReportCardPreview: View {
                         isAddingNewActivity: $isAddingNewActivity,
                         activities: activities,
                         onActivityUpdate: onUpdateActivity,
-                        onDeleteActivity: onDeleteActivity
+                        onDeleteActivity: onDeleteActivity,
+                        allActivities: allActivities,
+                        allStudents: allStudents
                     )
-                    
+
                     Divider()
                         .padding(.vertical, 16)
                         .frame(height: 1)
@@ -67,26 +71,26 @@ struct DailyReportCardPreview: View {
         }
     }
 }
-
-#Preview {
-    DailyReportCardPreview(
-        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-        selectedDate: Date(),
-        selectedStudent: .constant(nil),
-        isAddingNewActivity: .constant(false),
-        isAddingNewNote: .constant(false),
-        hasDefaultActivities: true,
-        onUpdateActivity: { _ in },
-        onDeleteActivity: { _ in },
-        onUpdateNote: { _ in },
-        onDeleteNote: { _ in },
-        activities: [
-            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
-        ],
-        notes: [
-            .init(note: "Anak ini baiikkkkk sekali", createdAt: .now, studentId: UUID())
-        ]
-    )
-    .padding(20)
-    .background(.gray)
-}
+//
+//#Preview {
+//    DailyReportCardPreview(
+//        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+//        selectedDate: Date(),
+//        selectedStudent: .constant(nil),
+//        isAddingNewActivity: .constant(false),
+//        isAddingNewNote: .constant(false),
+//        hasDefaultActivities: true,
+//        onUpdateActivity: { _ in },
+//        onDeleteActivity: { _ in },
+//        onUpdateNote: { _ in },
+//        onDeleteNote: { _ in },
+//        activities: [
+//            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
+//        ],
+//        notes: [
+//            .init(note: "Anak ini baiikkkkk sekali", createdAt: .now, studentId: UUID())
+//        ]
+//    )
+//    .padding(20)
+//    .background(.gray)
+//}
