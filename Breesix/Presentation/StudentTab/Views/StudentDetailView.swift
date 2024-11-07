@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct StudentDetailView: View {
     let student: Student
@@ -43,6 +44,10 @@ struct StudentDetailView: View {
     private let calendar = Calendar.current
     @Environment(\.presentationMode) var presentationMode
     
+    @State private var toast: Toast?
+    let initialScrollDate: Date
+    
+    // Add this function to handle WhatsApp sharing
     private func shareToWhatsApp(image: UIImage) {
         guard let imageData = image.pngData() else { return }
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("report.jpg")
@@ -80,6 +85,13 @@ struct StudentDetailView: View {
             rootVC.present(activityVC, animated: true)
         }
     }
+    
+    //    init(student: Student, viewModel: StudentTabViewModel, initialScrollDate: Date) {
+    //            self.student = student
+    //            self.viewModel = viewModel
+    //            self.initialScrollDate = initialScrollDate
+    //            _selectedDate = State(initialValue: initialScrollDate)
+    //        }
     
     private var formattedMonth: String {
         let formatter = DateFormatter()
@@ -203,14 +215,11 @@ struct StudentDetailView: View {
                                                 onEditNote: { self.selectedNote = $0 },
                                                 onDeleteNote: deleteNote,
                                                 onShareTapped: { date in
-                                                    let reportView = DailyReportTemplate(
-                                                        student: student,
-                                                        activities: dayItems.activities,
-                                                        notes: dayItems.notes,
-                                                        date: date
-                                                    )
-                                                    let image = reportView.snapshot()
-                                                    showShareSheet(image: image)
+                                                    selectedActivityDate = date
+                                                    generateSnapshot(for: date)
+                                                    withAnimation {
+                                                        showSnapshotPreview = true
+                                                    }
                                                 },
                                                 onUpdateActivityStatus: { activity, newStatus in
                                                     await onUpdateActivityStatus(activity, newStatus)
@@ -219,6 +228,12 @@ struct StudentDetailView: View {
                                             .padding(.horizontal, 16)
                                             .padding(.bottom, 12)
                                             .id(day)
+                                        }
+                                    }
+                                    .task {
+                                        let startOfDay = calendar.startOfDay(for: initialScrollDate)
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
                                         }
                                     }
                                 }
@@ -241,6 +256,85 @@ struct StudentDetailView: View {
                         }
                     }
                 }
+            }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
+            .hideTabBar()
+            
+            // MARK: THIS IS VIEW FOR SNAPSHOTS PREVIEW
+            if showSnapshotPreview, let image = snapshotImage {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation {
+                            showSnapshotPreview = false
+                        }
+                    }
+                
+                VStack(spacing: 0) {
+                    // Preview Image
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
+                        .padding(.horizontal)
+                        .padding(.top, 72)
+                    
+                    Spacer()
+                    
+                    // Bottom Sheet
+                    VStack(spacing: 16) {
+                        // Drag Indicator
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 36, height: 5)
+                            .padding(.top, 8)
+                        
+                        HStack(spacing: 20) {
+                            ShareButton(
+                                title: "WhatsApp",
+                                icon: "square.and.arrow.up",
+                                color: Color.green
+                            ) {
+                                shareToWhatsApp(image: image)
+                            }
+                            
+                            ShareButton(
+                                title: "Save",
+                                icon: "square.and.arrow.down",
+                                color: Color.blue
+                            ) {
+                                let imageSaver = ImageSaver()
+                                imageSaver.writeToPhotoAlbum(image: image)
+                                toast = Toast(
+                                    style: .success,
+                                    message: "Image saved to photo library",
+                                    duration: 2,
+                                    width: 280
+                                )
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    showSnapshotPreview = false
+                                }
+                            }
+                            
+                            ShareButton(
+                                title: "Share",
+                                icon: "square.and.arrow.up",
+                                color: Color.orange
+                            ) {
+                                showShareSheet(image: image)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 32)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(16, corners: [.topLeft, .topRight])
+                }
+                .transition(.move(edge: .bottom))
+                .ignoresSafeArea(.all, edges: .bottom)
             }
         }
         .toolbar(.hidden, for: .bottomBar,.tabBar)
@@ -320,6 +414,7 @@ struct StudentDetailView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+        .toastView(toast: $toast)
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -428,20 +523,76 @@ struct DayItems {
     var notes: [Note]
 }
 
-#Preview {
-    StudentDetailView(
-        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-        onAddStudent: { _ in print("added student") },
-        onUpdateStudent: { _ in print("updated student") },
-        onAddNote: { _, _ in print("added note") },
-        onUpdateNote: { _ in print("updated note") },
-        onDeleteNote: { _, _ in print("deleted note") },
-        onAddActivity: { _, _ in print("added activity") },
-        onDeleteActivity: { _, _ in print("deleted activity") },
-        onUpdateActivityStatus: { _, _ in print("updated activity status") },
-        onFetchNotes: { _ in return [] },
-        onFetchActivities: { _ in return [] },
-        onCheckNickname: { _, _ in return false },
-        compressedImageData: nil
-    )
+struct FutureMessageView: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            Text("Sampai jumpa besok!")
+                .foregroundColor(.secondary)
+                .fontWeight(.semibold)
+        }
+    }
+}
+
+
+struct EditButton: View {
+    @Binding var isEditing: Bool
+    
+    var body: some View {
+        Button("Edit") {
+            isEditing = true
+        }
+    }
+}
+
+struct BackButton: View {
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        Button(action: {
+            presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.white)
+                Text("Murid")
+                    .foregroundStyle(.white)
+            }
+        }
+    }
+}
+
+// Add these supporting views and functions:
+
+struct ShareButtonView: View {
+    let iconName: String
+    let title: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            if iconName == "whatsapp" {
+                Image("whatsapp") // Add WhatsApp icon to assets
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+            } else {
+                Image(systemName: iconName)
+                    .font(.system(size: 24))
+            }
+            Text(title)
+                .font(.caption)
+        }
+        .foregroundColor(color)
+    }
+}
+
+class ImageSaver: NSObject {
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+    }
+    
+    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        print("Save finished!")
+    }
 }

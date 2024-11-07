@@ -13,6 +13,8 @@ struct ActivitySectionPreview: View {
     @Binding var isAddingNewActivity: Bool
     
     let activities: [UnsavedActivity]
+    @State private var editingActivity: UnsavedActivity?
+    
     let onActivityUpdate: (UnsavedActivity) -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
     
@@ -20,16 +22,26 @@ struct ActivitySectionPreview: View {
 
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("AKTIVITAS")
+                .foregroundStyle(.labelPrimaryBlack)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .padding(.bottom, 16)
+
             let studentActivities = activities.filter { $0.studentId == student.id }
             
             if !studentActivities.isEmpty {
-                ForEach(studentActivities) { activity in
+                ForEach(Array(studentActivities.enumerated()), id: \.element.id) { index, activity in
                     ActivityRowPreview(
                         activity: binding(for: activity),
+                        activityIndex: index,
                         student: student,
                         onAddActivity: {
                             isAddingNewActivity = true
+                        },
+                        onEdit: { activity in
+                            editingActivity = activity
                         },
                         onDelete: {
                             onDeleteActivity(activity)
@@ -38,11 +50,12 @@ struct ActivitySectionPreview: View {
                             onDeleteActivity(activity)
                         }
                     )
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 16)
                 }
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
+                    .padding(.bottom, 12)
             }
             
             AddButton(
@@ -52,6 +65,18 @@ struct ActivitySectionPreview: View {
                 },
                 backgroundColor: .buttonOncard
             )
+        }
+        .sheet(item: $editingActivity) { activity in
+            ManageUnsavedActivityView(
+                mode: .edit(activity),
+                onSave: { updatedActivity in
+                    onActivityUpdate(updatedActivity)
+                    editingActivity = nil
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
     }
     
@@ -77,6 +102,7 @@ struct ActivitySectionPreview: View {
         }
     
 }
+
 
 #Preview {
     ActivitySectionPreview(

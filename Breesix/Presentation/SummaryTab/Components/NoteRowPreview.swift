@@ -27,8 +27,8 @@ struct NoteRowPreview: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.noteStroke, lineWidth: 0.5)
                 }
-                .contextMenu {
-                    Button("Edit") { onEdit(note) }
+                .onTapGesture {
+                    onEdit(note)
                 }
             Button(action: {
                 showDeleteAlert = true
@@ -54,4 +54,3 @@ struct NoteRowPreview: View {
         }
     }
 }
-
