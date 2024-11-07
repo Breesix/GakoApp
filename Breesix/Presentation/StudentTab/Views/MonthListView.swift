@@ -28,6 +28,8 @@ struct MonthListView: View {
     
     private let calendar = Calendar.current
     
+    // as a middle view
+    
     var body: some View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
