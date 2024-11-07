@@ -11,6 +11,7 @@ struct ActivityRowPreview: View {
     let activityIndex: Int
     let student: Student
     let onAddActivity: () -> Void
+    let onEdit: (UnsavedActivity) -> Void
     let onDelete: () -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
     
@@ -25,21 +26,22 @@ struct ActivityRowPreview: View {
                     .foregroundStyle(.labelPrimaryBlack)
 
                 Spacer()
-                
-                Button(action: {
-                    showDeleteAlert = true
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 34)
-                            .foregroundStyle(.buttonDestructiveOnCard)
-                        Image(systemName: "trash.fill")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundStyle(.destructive)
+
+                    Button(action: {
+                        showDeleteAlert = true
+                    }) {
+                        ZStack {
+                            Circle()
+                                .frame(width: 34)
+                                .foregroundStyle(.buttonDestructiveOnCard)
+                            Image(systemName: "trash.fill")
+                                .font(.subheadline)
+                                .fontWeight(.regular)
+                                .foregroundStyle(.destructive)
+                        }
                     }
                 }
-            }
+            
             Text(activity.activity)
                 .font(.subheadline)
                 .fontWeight(.regular)
@@ -52,10 +54,13 @@ struct ActivityRowPreview: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.noteStroke, lineWidth: 0.5)
                 }
+                .onTapGesture {
+                    onEdit(activity)
+                }
 
             HStack(spacing: 8) {
                 StatusPicker(status: $activity.status) { newStatus in
-                    activity.status = newStatus  
+                    activity.status = newStatus
                 }
             }
         }
@@ -68,7 +73,6 @@ struct ActivityRowPreview: View {
         } message: {
             Text("Apakah kamu yakin ingin menghapus catatan ini?")
         }
-
     }
 }
 
@@ -78,9 +82,11 @@ struct ActivityRowPreview: View {
             activity: "Menjahit",
             createdAt: .now,
             studentId: Student.ID()
-        )), activityIndex: 0,
+        )),
+        activityIndex: 0,
         student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
         onAddActivity: { print("added activity") },
+        onEdit: { _ in print("edit activity") },
         onDelete: { print("deleted") },
         onDeleteActivity: { _ in print("deleted activity") }
     )

@@ -186,16 +186,13 @@ struct PreviewView: View {
         .background(.bgMain)
         .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
-                AddUnsavedActivityView(
-                    student: student,
-                    selectedDate: selectedDate,
-                    onDismiss: {
-                        isAddingNewActivity = false
-                    },
-                    onSaveActivity: { newActivity in
+                ManageUnsavedActivityView(
+                    mode: .add(student, selectedDate),
+                    onSave: { newActivity in
                         Task {
                             onAddUnsavedActivities([newActivity])
                         }
+                        isAddingNewActivity = false
                     }
                 )
                 .presentationDetents([.large])

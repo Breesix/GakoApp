@@ -12,6 +12,8 @@ struct ActivitySectionPreview: View {
     @Binding var isAddingNewActivity: Bool
     
     let activities: [UnsavedActivity]
+    @State private var editingActivity: UnsavedActivity?
+    
     let onActivityUpdate: (UnsavedActivity) -> Void
     let onDeleteActivity: (UnsavedActivity) -> Void
     
@@ -29,10 +31,13 @@ struct ActivitySectionPreview: View {
                 ForEach(Array(studentActivities.enumerated()), id: \.element.id) { index, activity in
                     ActivityRowPreview(
                         activity: binding(for: activity),
-                        activityIndex: index,  
+                        activityIndex: index,
                         student: student,
                         onAddActivity: {
                             isAddingNewActivity = true
+                        },
+                        onEdit: { activity in
+                            editingActivity = activity
                         },
                         onDelete: {
                             onDeleteActivity(activity)
@@ -57,6 +62,18 @@ struct ActivitySectionPreview: View {
                 backgroundColor: .buttonOncard
             )
         }
+        .sheet(item: $editingActivity) { activity in
+            ManageUnsavedActivityView(
+                mode: .edit(activity),
+                onSave: { updatedActivity in
+                    onActivityUpdate(updatedActivity)
+                    editingActivity = nil
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
+        }
     }
     
     private func binding(for activity: UnsavedActivity) -> Binding<UnsavedActivity> {
@@ -68,6 +85,7 @@ struct ActivitySectionPreview: View {
         )
     }
 }
+
 
 #Preview {
     ActivitySectionPreview(
