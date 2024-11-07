@@ -34,7 +34,8 @@ struct MainTabView: View {
                     StudentTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
                         .tag(1)
                 }
-                .accentColor(.accent)
+                .tint(Color.accent)
+                .accentColor(Color.accent)
                 .shadow(color: .black.opacity(1), radius: 0, x: 50, y: 50)
                 if !tabBarController.isHidden {
                     customTabBar
