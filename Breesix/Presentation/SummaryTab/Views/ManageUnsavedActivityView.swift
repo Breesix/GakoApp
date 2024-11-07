@@ -12,7 +12,8 @@ struct ManageUnsavedActivityView: View {
     @State private var activityText: String
     @State private var showAlert: Bool = false
     let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
-    @State private var selectedStatus: Status = .tidakMelakukan
+    @State private var selectedStatus: Status = .dibimbing
+    @State private var isBulkEdit: Bool = false
     
     enum Mode: Equatable {
         case add(Student, Date)
@@ -73,7 +74,7 @@ struct ManageUnsavedActivityView: View {
                     .font(.callout)
                     .fontWeight(.semibold)
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 12) {
                     ZStack(alignment: .leading) {
                         if activityText.isEmpty {
                             Text("Tuliskan aktivitas murid...")
@@ -97,8 +98,44 @@ struct ManageUnsavedActivityView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(.monochrome50, lineWidth: 0.5)
                     )
+                    
+                    if !isAddMode {
+                        Toggle(isOn: $isBulkEdit) {
+                                Text("Edit aktivitas ini untuk semua murid")
+                                    .foregroundStyle(.labelPrimaryBlack)
+                                    .font(.body)
+                                    .fontWeight(.regular)
+                        }
+                        .padding(.top, 24)
+                    }
+                    
+                    if isAddMode {
+                        Menu {
+                            Button("Mandiri") {
+                                selectedStatus = .mandiri
+                            }
+                            Button("Dibimbing") {
+                                selectedStatus = .dibimbing
+                            }
+                            Button("Tidak Melakukan") {
+                                selectedStatus = .tidakMelakukan
+                            }
+                        } label: {
+                            HStack(spacing: 9) {
+                                Text(getStatusText())
+                                Image(systemName: "chevron.up.chevron.down")
+                            }
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundColor(.labelPrimaryBlack)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 11)
+                            .background(.statusSheet)
+                            .cornerRadius(8)
+                        }
+                    }
+
                 }
-                
                 Spacer()
             }
             .padding(.top, 34.5)
@@ -150,6 +187,18 @@ struct ManageUnsavedActivityView: View {
             }
         }
     }
+    
+    private func getStatusText() -> String {
+        switch selectedStatus {
+        case .mandiri:
+            return "Mandiri"
+        case .dibimbing:
+            return "Dibimbing"
+        case .tidakMelakukan:
+            return "Tidak Melakukan"
+        }
+    }
+
     
     private var isAddMode: Bool {
         switch mode {
