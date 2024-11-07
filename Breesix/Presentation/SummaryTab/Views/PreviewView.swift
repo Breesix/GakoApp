@@ -88,6 +88,7 @@ struct PreviewView: View {
     
     var body: some View {
         ZStack {
+            if !isSaving {
             VStack(spacing: 0) {
                 HStack {
                     Text("Pratinjau")
@@ -104,23 +105,78 @@ struct PreviewView: View {
                 .padding(.vertical, 12)
                 .background(.bgMain)
                 
-                mainContent
                 
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(sortedStudents) { student in
+                            DailyReportCardPreview(
+                                student: student,
+                                selectedDate: selectedDate,
+                                selectedStudent: $selectedStudent,
+                                isAddingNewActivity: $isAddingNewActivity,
+                                isAddingNewNote: $isAddingNewNote,
+                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
+                                onUpdateActivity: onUpdateUnsavedActivity,
+                                onDeleteActivity: onDeleteUnsavedActivity,
+                                onUpdateNote: onUpdateUnsavedNote,
+                                onDeleteNote: onDeleteUnsavedNote,
+                                activities: unsavedActivities.filter { $0.studentId == student.id },
+                                notes: unsavedNotes.filter { $0.studentId == student.id }
+                            )
+                            .padding(.bottom, 12)
+                        }
+                    }
+                    .padding(.top, 12)
+                    .padding(.horizontal, 16)
+                }
+                .background(.bgMain)
                 
-                
-                
+                HStack {
+                    Button {
+                        showingCancelAlert = true
+                    } label: {
+                        Text("Batal")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.destructiveOnCardLabel)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.buttonDestructiveOnCard))
+                            .cornerRadius(12)
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        if hasStudentsWithNilActivities() {
+                            showingNilActivityAlert = true
+                        } else {
+                            showingSaveAlert = true
+                        }
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.orangeClickAble))
+                            .cornerRadius(12)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
-            .opacity(isSaving ? 0.5 : 1.0)
-            .padding(.top, 12)
-            .padding(.horizontal, 16)
-            .background(.bgMain)
         }
-        
-        .toolbar(.hidden, for: .bottomBar, .tabBar)
-        .hideTabBar()
-        .navigationBarBackButtonHidden(true)
-        .background(.bgMain)
-        .sheet(isPresented: $isAddingNewActivity) {
+            if isSaving {
+                SaveLoadingView(progress: progress)
+            }
+                  }
+                  .toolbar(.hidden, for: .bottomBar, .tabBar)
+                  .hideTabBar()
+                  .navigationBarBackButtonHidden(true)
+                  .background(.bgMain)
+                  .sheet(isPresented: $isAddingNewActivity) {
             if let student = selectedStudent {
                 ManageUnsavedActivityView(
                     mode: .add(student, selectedDate),
@@ -182,6 +238,7 @@ struct PreviewView: View {
                 timer.invalidate()
             }
             progressTimer = nil
+            isSaving = false
             
         }
     }
@@ -248,11 +305,7 @@ struct PreviewView: View {
             }
             
             if isSaving {
-                LoadingView(progress: progress)
-                    .navigationBarHidden(true)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(.bgMain)
+                SaveLoadingView(progress: progress)
             }
         }
     }
