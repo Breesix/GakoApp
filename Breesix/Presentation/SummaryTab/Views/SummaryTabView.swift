@@ -225,18 +225,8 @@ struct SummaryTabView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 72)
         .navigationDestination(for: Student.self) { student in
-            StudentDetailView(
+            DailyReportView(
                 student: student,
-                onAddStudent: { student in
-                    Task {
-                        await studentViewModel.addStudent(student)
-                    }
-                },
-                onUpdateStudent: { student in
-                    Task {
-                        await studentViewModel.updateStudent(student)
-                    }
-                },
                 onAddNote: { note, student in
                     Task {
                         await noteViewModel.addNote(note, for: student)
@@ -272,16 +262,7 @@ struct SummaryTabView: View {
                 },
                 onFetchActivities: { student in
                     await activityViewModel.fetchActivities(student)
-                },
-                onCheckNickname: { nickname, currentStudentId in
-                    studentViewModel.students.contains { student in
-                        if let currentId = currentStudentId {
-                            return student.nickname.lowercased() == nickname.lowercased() && student.id != currentId
-                        }
-                        return student.nickname.lowercased() == nickname.lowercased()
-                    }
-                },
-                compressedImageData: studentViewModel.compressedImageData, initialScrollDate: Date()
+                }
             )
         }
     }
