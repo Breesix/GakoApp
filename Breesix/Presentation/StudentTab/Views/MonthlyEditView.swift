@@ -20,6 +20,8 @@ struct MonthlyEditView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     
+    @State private var showingCancelAlert = false
+    
     private let calendar = Calendar.current
     
     var body: some View {
@@ -59,29 +61,43 @@ struct MonthlyEditView: View {
             
             // Sticky Save Button
             VStack {
-                Button(action: {
-                    Task {
-                        await saveChanges()
+                HStack(spacing: 16) {
+                    Button {
+                        showingCancelAlert = true
+                    } label: {
+                        Text("Batal")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.destructiveOnCardLabel)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.buttonDestructiveOnCard))
+                            .cornerRadius(12)
                     }
-                }) {
-                    Text("Simpan")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                    
+                    Button {
+                        Task {
+                            await saveChanges()
+                        }
+                    } label: {
+                        Text("Simpan")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(.orangeClickAble))
+                            .cornerRadius(12)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
             .background(Color.white)
-            .shadow(color: .black.opacity(0.1), radius: 4, y: -2)
         }
         .toolbar(.hidden, for: .bottomBar,.tabBar)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(true)
         .hideTabBar()
+        .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Edit Dokumentasi")
         .alert("Peringatan", isPresented: $showingDeleteAlert) {
@@ -107,6 +123,14 @@ struct MonthlyEditView: View {
         }
         .task {
             await fetchData()
+        }
+        .alert("Peringatan", isPresented: $showingCancelAlert) {
+            Button("Ya", role: .destructive) {
+                dismiss()
+            }
+            Button("Tidak", role: .cancel) { }
+        } message: {
+            Text("Apakah Anda yakin ingin membatalkan perubahan?")
         }
     }
     

@@ -117,9 +117,23 @@ enum TabbedItems: Int, CaseIterable {
 
 
 class TabBarController: ObservableObject {
-    @Published var isHidden: Bool = false
     static let shared = TabBarController()
-    private init() {}
+    @Published var isHidden = false
+    private var hideCount = 0
+    
+    func incrementHide() {
+        hideCount += 1
+        updateHiddenState()
+    }
+    
+    func decrementHide() {
+        hideCount -= 1
+        updateHiddenState()
+    }
+    
+    private func updateHiddenState() {
+        isHidden = hideCount > 0
+    }
 }
 
 final class ImageCache {
