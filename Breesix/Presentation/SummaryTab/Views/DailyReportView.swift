@@ -211,7 +211,10 @@ struct DailyReportView: View {
                             }
                         }
                         Button {
-                            print("shared")
+                            generateSnapshot(for: selectedDate)
+                            withAnimation {
+                                showSnapshotPreview = true
+                            }
                         } label: {
                             Text("Bagikan Dokumentasi")
                                 .font(.body)
@@ -315,8 +318,8 @@ struct DailyReportView: View {
     private func generateSnapshot(for date: Date) {
         let reportView = DailyReportTemplate(
             student: student,
-            activities: activitiesForSelectedMonth[date]?.activities ?? [],
-            notes: activitiesForSelectedMonth[date]?.notes ?? [],
+            activities: activitiesForSelectedDay[calendar.startOfDay(for: date)]?.activities ?? [],
+            notes: activitiesForSelectedDay[calendar.startOfDay(for: date)]?.notes ?? [],
             date: date
         )
         snapshotImage = reportView.snapshot()
