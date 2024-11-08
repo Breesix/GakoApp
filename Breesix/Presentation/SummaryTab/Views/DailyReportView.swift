@@ -31,16 +31,11 @@ struct DailyReportView: View {
     @State private var documentInteractionController: UIDocumentInteractionController?
     @State private var selectedActivityDate: Date?
     @State private var toast: Toast?
+    @State private var isEditing = false
+    @Environment(\.presentationMode) private var presentationMode
     
     private let calendar = Calendar.current
-    
-    private var formattedMonth: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: selectedDate)
-    }
-    
+        
     private var formattedDate: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
@@ -59,10 +54,38 @@ struct DailyReportView: View {
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                         .ignoresSafeArea(edges: .top)
                     
-                    Text("Laporan Harian")
-                        .foregroundStyle(.white)
-                        .font(.title3)
-                        .fontWeight(.semibold)
+                    ZStack {
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }) {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "chevron.left")
+                                        .foregroundColor(.white)
+                                        .fontWeight(.semibold)
+                                    Text("Ringkasan")
+                                        .foregroundStyle(.white)
+                                        .fontWeight(.regular)
+                                }
+                                .font(.body)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                isEditing = true
+                            }) {
+                                Text("Edit")
+                                    .foregroundStyle(.white)
+                                    .fontWeight(.regular)
+                            }
+                        }
+                        .padding(.horizontal, 14)
+                        
+                        Text(student.fullname)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                    }
                 }
                 .frame(height: 58)
                 
@@ -166,6 +189,9 @@ struct DailyReportView: View {
                 )
             }
         }
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
+        .hideTabBar()
         .toastView(toast: $toast)
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
@@ -267,12 +293,6 @@ struct DailyReportView: View {
             await onDeleteActivity(activity, student)
             activities.removeAll(where: { $0.id == activity.id })
             await fetchActivities()
-        }
-    }
-    
-    private func moveMonth(by value: Int) {
-        if let newDate = calendar.date(byAdding: .month, value: value, to: selectedDate) {
-            selectedDate = newDate
         }
     }
     
