@@ -10,7 +10,7 @@ import Mixpanel
 import Speech
 
 class VoiceInputViewModel: InputViewModel {
-    // Add new @Published properties
+
     @Published var isRecording = false
     @Published var isPaused = false
     @Published var reflection: String = ""
@@ -27,27 +27,22 @@ class VoiceInputViewModel: InputViewModel {
     func validateDate(_ date: Date) -> Bool {
         DateValidator.isValidDate(date)
     }
-    
+
     func requestSpeechAuthorization() {
-            SFSpeechRecognizer.requestAuthorization { [weak self] authStatus in
-                guard let self = self else { return }
-                
-                DispatchQueue.main.async {
-                    switch authStatus {
-                    case .authorized:
-                        self.analytics.trackEvent("Speech Recognition Authorized", properties: nil)
-                    case .denied:
-                        self.analytics.trackEvent("Speech Recognition Denied", properties: nil)
-                    case .restricted:
-                        self.analytics.trackEvent("Speech Recognition Restricted", properties: nil)
-                    case .notDetermined:
-                        self.analytics.trackEvent("Speech Recognition Not Determined", properties: nil)
-                    @unknown default:
-                        self.analytics.trackEvent("Speech Recognition Unknown Status", properties: nil)
-                    }
+        SFSpeechRecognizer.requestAuthorization { [weak self] authStatus in
+            DispatchQueue.main.async {
+                switch authStatus {
+                case .authorized:
+                    break
+                case .denied, .restricted, .notDetermined:
+                    self?.errorMessage = "Please enable speech recognition permission in Settings"
+                    break
+                @unknown default:
+                    break
                 }
             }
         }
+    }
     
     // Create computed properties that sync with parent
     @Published private var _isLoading = false
