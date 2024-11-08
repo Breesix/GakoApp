@@ -259,21 +259,36 @@ struct DayEditCard: View {
             
             if !activities.isEmpty || !newActivities.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text("AKTIVITAS")
+                        .font(.callout)
+                        .fontWeight(.bold)
                     ForEach(activities) { activity in
                         VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Aktivitas \(activities.firstIndex(of: activity)! + 1)")
+                                    .font(.callout)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.labelPrimaryBlack)
+                                
+                                Spacer()
+                                
+                                Image("custom.trash.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 34)
+                                    .onTapGesture {
+                                        onDeleteActivity(activity)
+                                    }
+                            }
                             HStack {
                                 TextField("Aktivitas", text: makeValueBinding(for: activity))
                                     .font(.body)
                                     .foregroundColor(.labelPrimaryBlack)
                                     .padding(.vertical, 7)
                                     .padding(.horizontal, 14)
-                                    .background(Color.buttonOncard)
+                                    .background(.cardFieldBG)
                                     .cornerRadius(8)
-                                Button(action: { onDeleteActivity(activity) }) {
-                                    Image(systemName: "trash.fill")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.red)
-                                }
+                                
                             }
                             StatusPicker(status: makeStatusBinding(for: activity)) { newStatus in
                                 editedActivities[activity.id] = (activity.activity, newStatus, date)
@@ -282,6 +297,26 @@ struct DayEditCard: View {
                     }
                     ForEach(newActivities, id: \.id) { newActivity in
                         VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Aktivitas \(activities.count + newActivities.firstIndex(where: { $0.id == newActivity.id })! + 1)")
+                                    .font(.callout)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.labelPrimaryBlack)
+                                
+                                Spacer()
+                                
+                                Image("custom.trash.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 34)
+                                    .onTapGesture {
+                                        if let index = newActivities.firstIndex(where: { $0.id == newActivity.id }) {
+                                            newActivities.remove(at: index)
+                                            editedActivities.removeValue(forKey: newActivity.id)
+                                        }
+                                    }
+                                
+                            }
                             HStack {
                                 TextField("Aktivitas", text: Binding(
                                     get: { editedActivities[newActivity.id]?.0 ?? newActivity.activity },
@@ -294,19 +329,8 @@ struct DayEditCard: View {
                                 .foregroundColor(.labelPrimaryBlack)
                                 .padding(.vertical, 7)
                                 .padding(.horizontal, 14)
-                                .background(Color.buttonOncard)
+                                .background(.cardFieldBG)
                                 .cornerRadius(8)
-                                
-                                Button(action: {
-                                    if let index = newActivities.firstIndex(where: { $0.id == newActivity.id }) {
-                                        newActivities.remove(at: index)
-                                        editedActivities.removeValue(forKey: newActivity.id)
-                                    }
-                                }) {
-                                    Image(systemName: "trash.fill")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.red)
-                                }
                             }
                             
                             StatusPicker(status: Binding(
@@ -349,6 +373,9 @@ struct DayEditCard: View {
             
             if !notes.isEmpty || !newNotes.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text("CATATAN")
+                        .font(.callout)
+                        .fontWeight(.bold)
                     ForEach(notes) { note in
                         HStack {
                             TextField("Catatan", text: makeNoteBinding(for: note))
@@ -356,13 +383,14 @@ struct DayEditCard: View {
                                 .foregroundColor(.labelPrimaryBlack)
                                 .padding(.vertical, 7)
                                 .padding(.horizontal, 14)
-                                .background(Color.buttonOncard)
+                                .background(.cardFieldBG)
                                 .cornerRadius(8)
                             
                             Button(action: { onDeleteNote(note) }) {
-                                Image(systemName: "trash.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.red)
+                                Image("custom.trash.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 34)
                             }
                         }
                     }
@@ -376,7 +404,7 @@ struct DayEditCard: View {
                             .foregroundColor(.labelPrimaryBlack)
                             .padding(.vertical, 7)
                             .padding(.horizontal, 14)
-                            .background(Color.buttonOncard)
+                            .background(.cardFieldBG)
                             .cornerRadius(8)
                             
                             Button(action: {
@@ -385,9 +413,10 @@ struct DayEditCard: View {
                                     editedNotes.removeValue(forKey: newNote.id)
                                 }
                             }) {
-                                Image(systemName: "trash.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.red)
+                                Image("custom.trash.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 34)
                             }
                         }
                     }

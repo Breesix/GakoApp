@@ -105,6 +105,34 @@ struct DailyReportTemplate: View {
             .padding(.horizontal)
             
             VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Ringkasan:")
+                        .font(.headline)
+                        .foregroundStyle(.labelPrimaryBlack)
+                    Spacer()
+                }
+                
+                if let summary = student.summaries.first(where: { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }) {
+                    Text(summary.summary)
+                        .font(.body)
+                        .foregroundStyle(.labelPrimaryBlack)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.monochrome100)
+                        .cornerRadius(8)
+                } else {
+                    Text("Tidak ada ringkasan untuk hari ini")
+                        .font(.body)
+                        .foregroundStyle(.labelPrimaryBlack)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.monochrome100)
+                        .cornerRadius(8)
+                }
+            }
+            .padding()
+            
+            VStack(alignment: .leading, spacing: 8) {
                 
                 VStack(spacing: 0) {
                     HStack {
@@ -140,20 +168,20 @@ struct DailyReportTemplate: View {
             }
             .padding()
             
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Catatan:")
-                        .font(.headline)
-                        .foregroundStyle(.labelPrimaryBlack)
-                    Spacer()
-                }
-                ForEach(notes) { note in
-                    Text("• \(note.note)")
-                        .font(.body)
-                        .foregroundStyle(.labelPrimaryBlack)
-                }
-            }
-            .padding()
+            // VStack(alignment: .leading, spacing: 8) {
+            //     HStack {
+            //         Text("Catatan:")
+            //             .font(.headline)
+            //             .foregroundStyle(.labelPrimaryBlack)
+            //         Spacer()
+            //     }
+            //     ForEach(notes) { note in
+            //         Text("• \(note.note)")
+            //             .font(.body)
+            //             .foregroundStyle(.labelPrimaryBlack)
+            //     }
+            // }
+            // .padding()
             
             Spacer()
             

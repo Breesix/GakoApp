@@ -132,22 +132,22 @@ struct StudentDetailView: View {
                         
                         // Replace the Edit Profile button with:
                         NavigationLink {
-    MonthlyEditView(
-        student: student,
-        selectedMonth: selectedDate,
-        onUpdateActivity: onUpdateActivityStatus,
-        onUpdateNote: onUpdateNote,
-        onDeleteActivity: onDeleteActivity,
-        onDeleteNote: onDeleteNote,
-        onFetchNotes: onFetchNotes,
-        onFetchActivities: onFetchActivities
-    )
-} label: {
-    Text("Edit Dokumentasi")
-        .foregroundStyle(.white)
-        .font(.subheadline)
-        .fontWeight(.regular)
-}
+                            MonthlyEditView(
+                                student: student,
+                                selectedMonth: selectedDate,
+                                onUpdateActivity: onUpdateActivityStatus,
+                                onUpdateNote: onUpdateNote,
+                                onDeleteActivity: onDeleteActivity,
+                                onDeleteNote: onDeleteNote,
+                                onFetchNotes: onFetchNotes,
+                                onFetchActivities: onFetchActivities
+                            )
+                        } label: {
+                            Text("Edit Dokumentasi")
+                                .foregroundStyle(.white)
+                                .font(.subheadline)
+                                .fontWeight(.regular)
+                        }
                     }
                     .padding(14)
                 }
@@ -343,19 +343,19 @@ struct StudentDetailView: View {
         .navigationBarHidden(true)
         .hideTabBar()
         .sheet(isPresented: $isEditingMonthly) {
-    MonthlyEditView(
-        student: student,
-        selectedMonth: selectedDate,
-        onUpdateActivity: onUpdateActivityStatus,
-        onUpdateNote: onUpdateNote,
-        onDeleteActivity: onDeleteActivity,
-        onDeleteNote: onDeleteNote,
-        onFetchNotes: onFetchNotes,
-        onFetchActivities: onFetchActivities
-    )
-    .presentationDetents([.large])
-    .presentationDragIndicator(.visible)
-}
+            MonthlyEditView(
+                student: student,
+                selectedMonth: selectedDate,
+                onUpdateActivity: onUpdateActivityStatus,
+                onUpdateNote: onUpdateNote,
+                onDeleteActivity: onDeleteActivity,
+                onDeleteNote: onDeleteNote,
+                onFetchNotes: onFetchNotes,
+                onFetchActivities: onFetchActivities
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
         .sheet(isPresented: $isEditing) {
             ManageStudentView(
                 mode: .edit(student),
