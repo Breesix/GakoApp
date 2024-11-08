@@ -79,7 +79,6 @@ struct MonthListView: View {
                 }
                 .frame(height: 58)
                 
-                // Profile Header
                 ProfileHeader(student: student)
                     .padding(16)
                 
