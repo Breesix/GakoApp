@@ -47,6 +47,8 @@ struct StudentDetailView: View {
     @State private var toast: Toast?
     let initialScrollDate: Date
     
+    @State private var isEditingMonthly = false
+    
     // Add this function to handle WhatsApp sharing
     private func shareToWhatsApp(image: UIImage) {
         guard let imageData = image.pngData() else { return }
@@ -85,13 +87,6 @@ struct StudentDetailView: View {
             rootVC.present(activityVC, animated: true)
         }
     }
-    
-    //    init(student: Student, viewModel: StudentTabViewModel, initialScrollDate: Date) {
-    //            self.student = student
-    //            self.viewModel = viewModel
-    //            self.initialScrollDate = initialScrollDate
-    //            _selectedDate = State(initialValue: initialScrollDate)
-    //        }
     
     private var formattedMonth: String {
         let formatter = DateFormatter()
@@ -135,10 +130,20 @@ struct StudentDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: {
-                            isEditing = true
-                        }) {
-                            Text("Edit Profil")
+                        // Replace the Edit Profile button with:
+                        NavigationLink {
+                            MonthlyEditView(
+                                student: student,
+                                selectedMonth: selectedDate,
+                                onUpdateActivity: onUpdateActivityStatus,
+                                onUpdateNote: onUpdateNote,
+                                onDeleteActivity: onDeleteActivity,
+                                onDeleteNote: onDeleteNote,
+                                onFetchNotes: onFetchNotes,
+                                onFetchActivities: onFetchActivities
+                            )
+                        } label: {
+                            Text("Edit Dokumentasi")
                                 .foregroundStyle(.white)
                                 .font(.subheadline)
                                 .fontWeight(.regular)
@@ -148,12 +153,8 @@ struct StudentDetailView: View {
                 }
                 .frame(height: 58)
                 
-                ProfileHeader(student: student)
-                    .padding(16)
-                
-                Divider()
-                
                 VStack(spacing: 0) {
+                    // MARK: this is a month mover
                     HStack {
                         Text(formattedMonth)
                             .fontWeight(.semibold)
@@ -341,6 +342,20 @@ struct StudentDetailView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
+        .sheet(isPresented: $isEditingMonthly) {
+            MonthlyEditView(
+                student: student,
+                selectedMonth: selectedDate,
+                onUpdateActivity: onUpdateActivityStatus,
+                onUpdateNote: onUpdateNote,
+                onDeleteActivity: onDeleteActivity,
+                onDeleteNote: onDeleteNote,
+                onFetchNotes: onFetchNotes,
+                onFetchActivities: onFetchActivities
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
         .sheet(isPresented: $isEditing) {
             ManageStudentView(
                 mode: .edit(student),

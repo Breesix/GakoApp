@@ -21,6 +21,7 @@ struct ManageStudentView: View {
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
     @State private var showAlert = false
     @State private var isDuplicateNickname = false
+    @State private var currentImage: UIImage? // Add this state variable
     
     let onSave: (Student) async -> Void
     let onUpdate: (Student) async -> Void
@@ -94,37 +95,45 @@ struct ManageStudentView: View {
                 return
             }
             
+            let imageDataToSave = compressedImageData ?? currentImage?.jpegData(compressionQuality: 0.7)
+            
             switch mode {
             case .add:
                 let newStudent = Student(
                     fullname: fullname,
                     nickname: nickname,
-                    imageData: compressedImageData
+                    imageData: imageDataToSave
                 )
                 await onSave(newStudent)
             case .edit(let student):
                 student.fullname = fullname
                 student.nickname = nickname
-                student.imageData = compressedImageData ?? student.imageData
+                student.imageData = imageDataToSave ?? student.imageData
                 await onUpdate(student)
             }
             
             selectedImageData = nil
+            currentImage = nil
             presentationMode.wrappedValue.dismiss()
         }
+    }
+    
+    var displayImage: UIImage? {
+        if let image = currentImage {
+            return image
+        } else if let data = compressedImageData, let image = UIImage(data: data) {
+            return image
+        } else if case .edit(let student) = mode, let imageData = student.imageData, let image = UIImage(data: imageData) {
+            return image
+        }
+        return nil
     }
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .center, spacing: 8) {
-                    if let imageData = compressedImageData, let image = UIImage(data: imageData) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                    } else if case .edit(let student) = mode, let imageData = student.imageData, let image = UIImage(data: imageData) {
+                    if let image = displayImage {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
@@ -278,8 +287,11 @@ struct ManageStudentView: View {
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: Binding(
-                get: { newStudentImage },
-                set: { onImageChange($0) }
+                get: { currentImage },
+                set: { newImage in
+                    currentImage = newImage
+                    onImageChange(newImage)
+                }
             ), sourceType: sourceType)
         }
         .alert(isPresented: $showAlert) {

@@ -13,10 +13,10 @@ struct HideTabBarModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear {
-                tabBarController.isHidden = true
+                tabBarController.incrementHide()
             }
             .onDisappear {
-                tabBarController.isHidden = false
+                tabBarController.decrementHide()
             }
     }
 }

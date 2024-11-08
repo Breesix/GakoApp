@@ -40,26 +40,26 @@ struct ActivityRow: View {
                     onStatusChanged(activity, newStatus)
                 }
                 
-                Button(action: {
-                    showDeleteAlert = true
-                    trackDeleteAttempt()
-                   
-                }) {
-                    Image("custom.trash.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 34)
-                }
-                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-                    Button("Hapus", role: .destructive) {
-                        onDelete(activity)
-                        trackDeletion()
-                       
-                    }
-                    Button("Batal", role: .cancel) { }
-                } message: {
-                    Text("Apakah kamu yakin ingin menghapus aktivitas ini?")
-                }
+//                Button(action: {
+//                    showDeleteAlert = true
+//                    trackDeleteAttempt()
+//                   
+//                }) {
+//                    Image("custom.trash.circle.fill")
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 34)
+//                }
+//                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+//                    Button("Hapus", role: .destructive) {
+//                        onDelete(activity)
+//                        trackDeletion()
+//                       
+//                    }
+//                    Button("Batal", role: .cancel) { }
+//                } message: {
+//                    Text("Apakah kamu yakin ingin menghapus aktivitas ini?")
+//                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
