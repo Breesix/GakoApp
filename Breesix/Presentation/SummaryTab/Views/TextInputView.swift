@@ -221,21 +221,43 @@ private extension TextInputView {
     }
     
     private func datePickerSheet() -> some View {
-        DatePicker(
-            "Select Date",
-            selection: $tempDate,
-            in: ...DateValidator.maximumDate(),
-            displayedComponents: .date
-        )
-        .datePickerStyle(.graphical)
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
-        .onChange(of: tempDate) { newValue in
-            if DateValidator.isValidDate(newValue) {
-                selectedDate = tempDate
-                isShowingDatePicker = false
+        NavigationStack {
+            DatePicker(
+                "Select Date",
+                selection: $tempDate,
+                in: ...DateValidator.maximumDate(),
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .environment(\.locale, Locale(identifier: "id_ID"))
+            .padding(.horizontal, 16)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("Pilih Tanggal")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .padding(.top, 14)
+                        .padding(.horizontal, 12)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        isShowingDatePicker = false
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .padding(.top, 14)
+                    .padding(.horizontal, 12)
+                }
+            }
+            .onChange(of: tempDate) {
+                if DateValidator.isValidDate(tempDate) {
+                    selectedDate = tempDate
+                    isShowingDatePicker = false
+                }
             }
         }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 }
 
