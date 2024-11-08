@@ -54,7 +54,7 @@ struct StudentTabView: View {
                                 ], spacing: 16) {
                                     ForEach(filteredStudents) { student in
                                         NavigationLink {
-                                            StudentDetailView(
+                                            MonthListView(
                                                 student: student,
                                                 onAddStudent: { student in
                                                     await studentViewModel.addStudent(student)
@@ -94,7 +94,7 @@ struct StudentTabView: View {
                                                         return student.nickname.lowercased() == nickname.lowercased()
                                                     }
                                                 },
-                                                compressedImageData: studentViewModel.compressedImageData, initialScrollDate: Date()
+                                                compressedImageData: studentViewModel.compressedImageData
                                             )
                                         } label: {
                                             ProfileCard(student: student) {
