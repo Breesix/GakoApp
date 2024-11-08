@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DailyReportView: View {
     let student: Student
+    let initialDate: Date
     let onAddNote: (Note, Student) async -> Void
     let onUpdateNote: (Note) async -> Void
     let onDeleteNote: (Note, Student) async -> Void
@@ -19,7 +20,7 @@ struct DailyReportView: View {
     let onFetchActivities: (Student) async -> [Activity]
     
     @State private var notes: [Note] = []
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date
     @State private var selectedNote: Note?
     @State private var isAddingNewNote = false
     @State private var isAddingNewActivity = false
@@ -43,12 +44,36 @@ struct DailyReportView: View {
         return formatter.string(from: selectedDate)
     }
     
+    
+    init(student: Student,
+         initialDate: Date,
+         onAddNote: @escaping (Note, Student) async -> Void,
+         onUpdateNote: @escaping (Note) async -> Void,
+         onDeleteNote: @escaping (Note, Student) async -> Void,
+         onAddActivity: @escaping (Activity, Student) async -> Void,
+         onDeleteActivity: @escaping (Activity, Student) async -> Void,
+         onUpdateActivityStatus: @escaping (Activity, Status) async -> Void,
+         onFetchNotes: @escaping (Student) async -> [Note],
+         onFetchActivities: @escaping (Student) async -> [Activity]) {
+        self.student = student
+        self.initialDate = initialDate
+        self.onAddNote = onAddNote
+        self.onUpdateNote = onUpdateNote
+        self.onDeleteNote = onDeleteNote
+        self.onAddActivity = onAddActivity
+        self.onDeleteActivity = onDeleteActivity
+        self.onUpdateActivityStatus = onUpdateActivityStatus
+        self.onFetchNotes = onFetchNotes
+        self.onFetchActivities = onFetchActivities
+        _selectedDate = State(initialValue: initialDate)
+    }
+
+    
     var body: some View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
@@ -82,14 +107,13 @@ struct DailyReportView: View {
                         }
                         .padding(.horizontal, 14)
                         
-                        Text(student.fullname)
+                        Text(student.nickname)
                             .fontWeight(.semibold)
                             .foregroundStyle(.white)
                     }
                 }
                 .frame(height: 58)
                 
-                // Calendar Header
                 VStack(spacing: 0) {
                     HStack {
                         Text(formattedDate)
@@ -97,19 +121,16 @@ struct DailyReportView: View {
                             .foregroundColor(.labelPrimaryBlack)
                         
                         HStack(spacing: 8) {
-                            Button(action: {
-                                moveDay(by: -1)
-                            }) {
+                            Button(action: { moveDay(by: -1) }) {
                                 Image(systemName: "chevron.left")
                                     .foregroundStyle(.buttonLinkOnSheet)
                             }
                             
-                            Button(action: {
-                                moveDay(by: 1)
-                            }) {
+                            Button(action: { moveDay(by: 1) }) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(.buttonLinkOnSheet)
+                                    .foregroundStyle(calendar.isDateInToday(selectedDate) ? .gray : .buttonLinkOnSheet)
                             }
+                            .disabled(calendar.isDateInToday(selectedDate))
                         }
                         
                         Spacer()
@@ -119,7 +140,6 @@ struct DailyReportView: View {
                             isShowingCalendar: $isShowingCalendar,
                             onDateSelected: { newDate in
                                 if activitiesForSelectedDay[calendar.startOfDay(for: newDate)] != nil {
-                                    // Has activities
                                 } else {
                                     if selectedDate > Date() {
                                         noActivityAlertPresented = true
@@ -133,7 +153,6 @@ struct DailyReportView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
                     
-                    // Activities List
                     if activitiesForSelectedDay.isEmpty {
                         VStack {
                             Spacer()
@@ -141,44 +160,74 @@ struct DailyReportView: View {
                             Spacer()
                         }
                     } else {
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
-                                    DailyReportCard(
-                                        activities: dayItems.activities,
-                                        notes: dayItems.notes,
-                                        student: student,
-                                        date: selectedDate,
-                                        onAddNote: {
-                                            isAddingNewNote = true
-                                        },
-                                        onAddActivity: {
-                                            isAddingNewActivity = true
-                                        },
-                                        onDeleteActivity: deleteActivity,
-                                        onEditNote: { self.selectedNote = $0 },
-                                        onDeleteNote: deleteNote,
-                                        onShareTapped: { date in
-                                            selectedActivityDate = date
-                                            generateSnapshot(for: date)
-                                            withAnimation {
-                                                showSnapshotPreview = true
+                        ScrollViewReader { scrollProxy in
+                            ScrollView {
+                                LazyVStack(spacing: 0) {
+                                    if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+                                        StudentDailyReportCard(
+                                            activities: dayItems.activities,
+                                            notes: dayItems.notes,
+                                            student: student,
+                                            date: selectedDate,
+                                            onAddNote: {
+                                                isAddingNewNote = true
+                                            },
+                                            onAddActivity: {
+                                                isAddingNewActivity = true
+                                            },
+                                            onDeleteActivity: deleteActivity,
+                                            onEditNote: { self.selectedNote = $0 },
+                                            onDeleteNote: deleteNote,
+                                            onShareTapped: { date in
+                                                selectedActivityDate = date
+                                                generateSnapshot(for: date)
+                                                withAnimation {
+                                                    showSnapshotPreview = true
+                                                }
+                                            },
+                                            onUpdateActivityStatus: { activity, newStatus in
+                                                await onUpdateActivityStatus(activity, newStatus)
                                             }
-                                        },
-                                        onUpdateActivityStatus: { activity, newStatus in
-                                            await onUpdateActivityStatus(activity, newStatus)
+                                        )
+                                        .padding(.horizontal, 16)
+                                        .padding(.bottom, 12)
+                                    }
+                                }
+                            }
+                            .onChange(of: selectedDate) {
+                                let startOfDay = calendar.startOfDay(for: selectedDate)
+                                if let dayItems = activitiesForSelectedMonth[startOfDay] {
+                                    if dayItems.activities.isEmpty && dayItems.notes.isEmpty && selectedDate > Date() {
+                                        noActivityAlertPresented = true
+                                    } else {
+                                        withAnimation(.smooth) {
+                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
                                         }
-                                    )
-                                    .padding(.horizontal, 16)
-                                    .padding(.bottom, 12)
+                                        isShowingCalendar = false
+                                    }
+                                } else {
+                                    noActivityAlertPresented = true
                                 }
                             }
                         }
+                        Button {
+                            print("shared")
+                        } label: {
+                            Text("Bagikan Dokumentasi")
+                                .font(.body)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color(.orangeClickAble))
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                     }
                 }
             }
             
-            // Snapshot Preview
             if showSnapshotPreview, let image = snapshotImage {
                 SnapshotPreviewOverlay(
                     image: image,
@@ -480,7 +529,7 @@ struct SnapshotPreviewOverlay: View {
         student: Student(
             fullname: "John Doe",
             nickname: "John"
-        ),
+        ), initialDate: Date(),
         onAddNote: { _, _ in },
         onUpdateNote: { _ in },
         onDeleteNote: { _, _ in },

@@ -227,6 +227,7 @@ struct SummaryTabView: View {
         .navigationDestination(for: Student.self) { student in
             DailyReportView(
                 student: student,
+                initialDate: summaryViewModel.selectedDate,  // Tambahkan ini
                 onAddNote: { note, student in
                     Task {
                         await noteViewModel.addNote(note, for: student)
