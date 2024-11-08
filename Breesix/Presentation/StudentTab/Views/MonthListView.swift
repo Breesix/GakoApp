@@ -27,8 +27,21 @@ struct MonthListView: View {
     @State private var notes: [Note] = []
     
     private let calendar = Calendar.current
+
+    @State private var selectedYear: Date = Date() // Add this
+    @State private var isShowingYearPicker = false // Add this
+    
+    @State private var isEditing = false
+    
+    @State private var newStudentImage: UIImage?
     
     // as a middle view
+    private var formattedYear: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "id_ID")
+        formatter.dateFormat = "yyyy"
+        return formatter.string(from: selectedYear)
+    }
     
     var body: some View {
         ZStack {
@@ -53,6 +66,14 @@ struct MonthListView: View {
                             }
                         }
                         Spacer()
+                        Button(action: {
+                            isEditing = true
+                        }) {
+                            Text("Edit Profil")
+                                .foregroundStyle(.white)
+                                .font(.subheadline)
+                                .fontWeight(.regular)
+                        }
                     }
                     .padding(14)
                 }
@@ -63,11 +84,42 @@ struct MonthListView: View {
                     .padding(16)
                 
                 Divider()
+
+                HStack {
+                    Text("Lihat Dokumentasi")
+                        .fontWeight(.semibold)
+                        .foregroundColor(.labelPrimaryBlack)
+                    
+                    HStack(spacing: 8) {
+                        Button(action: { moveYear(by: -1) }) {
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(.buttonLinkOnSheet)
+                        }
+                        Button(action: { moveYear(by: 1) }) {
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.buttonLinkOnSheet)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { isShowingYearPicker.toggle() }) {
+                        Text(formattedYear)
+                            .font(.headline)
+                    }
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 14)
+                    .background(Color.buttonLinkOnSheet)
+                    .foregroundStyle(.buttonPrimaryLabel)
+                    .cornerRadius(8)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
                 
                 // Month List
                 ScrollView {
                     LazyVStack(spacing: 12) {
-                        ForEach(getAvailableMonths(), id: \.self) { date in
+                        ForEach(getAllMonthsForYear(), id: \.self) { date in
                             NavigationLink(destination: StudentDetailView(
                                 student: student,
                                 onAddStudent: onAddStudent,
@@ -84,7 +136,11 @@ struct MonthListView: View {
                                 compressedImageData: compressedImageData,
                                 initialScrollDate: date
                             )) {
-                                MonthCard(date: date, activitiesCount: getActivityCount(for: date))
+                                MonthCard(
+                                    date: date,
+                                    activitiesCount: getActivityCount(for: date),
+                                    hasActivities: hasActivities(for: date)
+                                )
                             }
                         }
                     }
@@ -92,9 +148,32 @@ struct MonthListView: View {
                 }
             }
         }
+        .toolbar(.hidden, for: .bottomBar,.tabBar)
+        .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
+        .hideTabBar()
         .task {
             await fetchData()
+        }
+        .sheet(isPresented: $isShowingYearPicker) {
+            YearPickerView(selectedDate: $selectedYear)
+                .presentationDetents([.fraction(0.3)])
+        }
+        .sheet(isPresented: $isEditing) {
+            ManageStudentView(
+                mode: .edit(student),
+                compressedImageData: compressedImageData,
+                newStudentImage: newStudentImage,
+                onSave: onAddStudent,
+                onUpdate: onUpdateStudent,
+                onImageChange: { image in
+                    newStudentImage = image
+                },
+                checkNickname: onCheckNickname
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
         }
     }
     
@@ -125,11 +204,29 @@ struct MonthListView: View {
         
         return activitiesInMonth + notesInMonth
     }
+
+    private func moveYear(by value: Int) {
+        if let newDate = calendar.date(byAdding: .year, value: value, to: selectedYear) {
+            selectedYear = newDate
+        }
+    }
+    
+    private func getAllMonthsForYear() -> [Date] {
+        let year = calendar.component(.year, from: selectedYear)
+        return (1...12).compactMap { month in
+            calendar.date(from: DateComponents(year: year, month: month))
+        }
+    }
+    
+    private func hasActivities(for date: Date) -> Bool {
+        getActivityCount(for: date) > 0
+    }
 }
 
 struct MonthCard: View {
     let date: Date
     let activitiesCount: Int
+    let hasActivities: Bool
     
     private var monthYearString: String {
         let formatter = DateFormatter()
@@ -144,7 +241,7 @@ struct MonthCard: View {
                 Text(monthYearString)
                     .font(.headline)
                     .foregroundColor(.labelPrimaryBlack)
-                Text("\(activitiesCount) aktivitas")
+                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -159,3 +256,59 @@ struct MonthCard: View {
     }
 }
 
+struct YearPickerView: View {
+    @Binding var selectedDate: Date
+    @Environment(\.presentationMode) var presentationMode
+    @State private var selectedMonth = 0
+    @State private var selectedYear = 0
+    
+    let months = Calendar.current.monthSymbols
+    let years = Array(1900...2100)
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Picker("Year", selection: $selectedYear) {
+                    ForEach(0..<years.count, id: \.self) { index in
+                        Text(String(years[index])).tag(index)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
+                .frame(width: 100)
+            }
+            .padding()
+            
+            Button("Pilih Tahun") {
+                updateSelectedDate()
+                presentationMode.wrappedValue.dismiss()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .background(Color.buttonLinkOnSheet)
+            .foregroundStyle(.buttonPrimaryLabel)
+            .cornerRadius(8)
+        }
+        .padding(.horizontal, 16)
+        .presentationDetents([.fraction(0.4)])
+        .onAppear {
+            initializeSelection()
+        }
+    }
+    
+    private func initializeSelection() {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .year], from: selectedDate)
+        selectedMonth = (components.month ?? 1) - 1
+        selectedYear = years.firstIndex(of: components.year ?? 2000) ?? 0
+    }
+    
+    private func updateSelectedDate() {
+        var components = DateComponents()
+        components.month = selectedMonth + 1
+        components.year = years[selectedYear]
+        if let newDate = Calendar.current.date(from: components) {
+            selectedDate = newDate
+        }
+    }
+}
