@@ -30,47 +30,6 @@ struct ActivityRowPreview: View {
                 Spacer()
                 
                 Button(action: {
-                    showDeleteAlert = true
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 34)
-                            .foregroundStyle(.buttonDestructiveOnCard)
-                        Image(systemName: "trash.fill")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundStyle(.destructiveOnCardLabel)
-                    }
-                }
-            }
-            
-            Text(activity.activity)
-                .font(.subheadline)
-                .fontWeight(.regular)
-                .foregroundStyle(.labelPrimaryBlack)
-                .padding(.bottom, 12)
-            
-            HStack(spacing: 8) {
-                StatusPicker(
-                    status: $activity.status,
-                    onStatusChange: { newStatus in
-                        
-                        let properties: [String: MixpanelType] = [
-                            "student_id": student.id.uuidString,
-                            "activity_id": activity.id.uuidString,
-                            "old_status": activity.status.rawValue,
-                            "new_status": newStatus.rawValue,
-                            "screen": "preview",
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        analytics.trackEvent("Activity Status Changed", properties: properties)
-                        
-                        activity.status = newStatus
-                    }
-                )
-                
-                Button(action: {
-                    // Track delete attempt
                     let properties: [String: MixpanelType] = [
                         "student_id": student.id.uuidString,
                         "activity_id": activity.id.uuidString,
@@ -92,6 +51,42 @@ struct ActivityRowPreview: View {
                             .foregroundStyle(.destructiveOnCardLabel)
                     }
                 }
+            }
+            
+            Text(activity.activity)
+                .font(.subheadline)
+                .fontWeight(.regular)
+                .foregroundStyle(.labelPrimaryBlack)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(.monochrome100)
+                .cornerRadius(8)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(.noteStroke, lineWidth: 0.5)
+                }
+                .onTapGesture {
+                    onEdit(activity)
+                }
+
+            HStack(spacing: 8) {
+                StatusPicker(
+                    status: $activity.status,
+                    onStatusChange: { newStatus in
+                        let properties: [String: MixpanelType] = [
+                            "student_id": student.id.uuidString,
+                            "activity_id": activity.id.uuidString,
+                            "old_status": activity.status.rawValue,
+                            "new_status": newStatus.rawValue,
+                            "screen": "preview",
+                            "timestamp": Date().timeIntervalSince1970
+                        ]
+                        analytics.trackEvent("Activity Status Changed", properties: properties)
+                        
+                        activity.status = newStatus
+                    }
+                )
+            }
                 .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
                     Button("Hapus", role: .destructive) {
                         // Track deletion
@@ -121,9 +116,7 @@ struct ActivityRowPreview: View {
                         .onTapGesture {
                             onEdit(activity)
                         }
-                    
                 }
-            }
         }
     }
 }

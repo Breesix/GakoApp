@@ -50,7 +50,7 @@ struct DateSlider: View {
             }
             .sheet(isPresented: $isShowingDatePicker) {
                 NavigationStack {
-                    DatePicker("Select Date", selection: $tempDate, displayedComponents: .date)
+                    DatePicker("Select Date", selection: $tempDate, in: ...DateValidator.maximumDate(), displayedComponents: .date)
                         .datePickerStyle(.graphical)
                         .environment(\.locale, Locale(identifier: "id_ID"))
                         .padding(.horizontal, 16)
@@ -73,10 +73,7 @@ struct DateSlider: View {
                             }
                         }
                         .onChange(of: tempDate) {
-                            if tempDate > Date() {
-                                showFutureDateAlert = true
-                                tempDate = selectedDate
-                            } else {
+                            if DateValidator.isValidDate(tempDate) {
                                 selectedDate = tempDate
                                 isShowingDatePicker = false
                             }

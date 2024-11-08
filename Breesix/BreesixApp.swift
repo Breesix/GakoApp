@@ -52,6 +52,9 @@ struct BreesixApp: App {
                 }
             }
             .animation(.easeInOut, value: isOnboarding)
+            .environmentObject(AppColor())
+            .tint(AppColor().tint)
+            .accentColor(AppColor().tint)
         }
         .modelContainer(container)
 
