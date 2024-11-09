@@ -97,13 +97,24 @@ struct DailyReportView: View {
                             
                             Spacer()
                             
-                            Button(action: {
-                                isEditing = true
-                            }) {
+                            NavigationLink {
+                                DailyEditView(
+                                    student: student,
+                                    selectedDate: selectedDate,
+                                    onUpdateActivity: onUpdateActivityStatus,
+                                    onUpdateNote: onUpdateNote,
+                                    onDeleteActivity: onDeleteActivity,
+                                    onDeleteNote: onDeleteNote,
+                                    onFetchNotes: onFetchNotes,
+                                    onFetchActivities: onFetchActivities
+                                )
+                            } label: {
                                 Text("Edit")
                                     .foregroundStyle(.white)
                                     .fontWeight(.regular)
+
                             }
+                            
                         }
                         .padding(.horizontal, 14)
                         
@@ -253,6 +264,20 @@ struct DailyReportView: View {
         .task {
             await fetchAllNotes()
             await fetchActivities()
+        }
+        .sheet(isPresented: $isEditing) {
+            DailyEditView(
+                student: student,
+                selectedDate: selectedDate,
+                onUpdateActivity: onUpdateActivityStatus,
+                onUpdateNote: onUpdateNote,
+                onDeleteActivity: onDeleteActivity,
+                onDeleteNote: onDeleteNote,
+                onFetchNotes: onFetchNotes,
+                onFetchActivities: onFetchActivities
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(item: $selectedNote) { note in
             ManageNoteView(
