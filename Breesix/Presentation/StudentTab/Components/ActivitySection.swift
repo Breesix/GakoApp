@@ -14,7 +14,7 @@ struct ActivitySection: View {
     let onStatusChanged: (Activity, Status) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("AKTIVITAS")
                 .font(.callout)
                 .fontWeight(.semibold)
@@ -29,7 +29,6 @@ struct ActivitySection: View {
                         onDelete: { _ in onDeleteActivity(activity) },
                         onStatusChanged: onStatusChanged
                         )
-                    .padding(.bottom, 4)
                 }
             }
             

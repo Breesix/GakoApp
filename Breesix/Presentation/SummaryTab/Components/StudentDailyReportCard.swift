@@ -56,67 +56,75 @@ struct StudentDailyReportCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if !activities.isEmpty {
-                ActivitySection(
-                    activities: activities,
-                    onDeleteActivity: onDeleteActivity,
-                    onStatusChanged: { activity, newStatus in
-                        Task {
-                            await onUpdateActivityStatus(activity, newStatus)
-                        }
-                    }
-                )
-            } else {
-                Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
-            }
-            
-            Button(action: onAddActivity) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
-            
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.bottom, 8)
-            
-            if !notes.isEmpty {
-                NoteSection(
-                    notes: notes,
-                    onEditNote: onEditNote,
-                    onDeleteNote: onDeleteNote,
-                    onAddNote: onAddNote
-                )
-            } else {
-                Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
-            }
-            
-            Button(action: onAddNote) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.white)
-        .cornerRadius(20)
-        .frame(maxWidth: .infinity, alignment: .trailing)
-    }
+         VStack(alignment: .leading, spacing: 12) {
+             if !activities.isEmpty {
+                 ActivitySection(
+                     activities: activities,
+                     onDeleteActivity: onDeleteActivity,
+                     onStatusChanged: { activity, newStatus in
+                         Task {
+                             await onUpdateActivityStatus(activity, newStatus)
+                         }
+                     }
+                 )
+                 .disabled(true)
+                 .padding(.horizontal, 16)
+             } else {
+                 Text("Tidak ada aktivitas untuk tanggal ini")
+                     .foregroundColor(.labelSecondary)
+                     .padding(.horizontal, 16)
+             }
+             
+//             Button(action: onAddActivity) {
+//                 Label("Tambah", systemImage: "plus.app.fill")
+//             }
+//             .padding(.vertical, 7)
+//             .padding(.horizontal, 14)
+//             .font(.footnote)
+//             .fontWeight(.regular)
+//             .foregroundStyle(.buttonPrimaryLabel)
+//             .background(.buttonOncard)
+//             .cornerRadius(8)
+//             .padding(.horizontal, 16)
+             
+             Divider()
+                 .frame(height: 1)
+                 .background(.tabbarInactiveLabel)
+                 .padding(.bottom, 4)
+                 .padding(.top, 4)
+             
+             if !notes.isEmpty {
+                 NoteSection(
+                     notes: notes,
+                     onEditNote: onEditNote,
+                     onDeleteNote: onDeleteNote,
+                     onAddNote: onAddNote
+                 )
+                 .padding(.horizontal, 16)
+             } else {
+                 Text("Tidak ada catatan untuk tanggal ini")
+                     .foregroundColor(.labelSecondary)
+                     .padding(.horizontal, 16)
+             }
+             
+//             // Tombol Tambah Catatan
+//             Button(action: onAddNote) {
+//                 Label("Tambah", systemImage: "plus.app.fill")
+//             }
+//             .padding(.vertical, 7)
+//             .padding(.horizontal, 14)
+//             .font(.footnote)
+//             .fontWeight(.regular)
+//             .foregroundStyle(.buttonPrimaryLabel)
+//             .background(.buttonOncard)
+//             .cornerRadius(8)
+//             .padding(.horizontal, 16)
+         }
+         .padding(.vertical, 16)
+         .background(.white)
+         .cornerRadius(20)
+         .frame(maxWidth: .infinity, alignment: .trailing)
+     }
 }
 
 #Preview {

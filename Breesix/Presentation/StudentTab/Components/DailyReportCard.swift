@@ -108,6 +108,7 @@ struct DailyReportCard: View {
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
                 .padding(.bottom, 4)
+                .padding(.top, 4)
 
             
             if !notes.isEmpty {
