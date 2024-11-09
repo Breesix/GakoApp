@@ -70,17 +70,22 @@ struct DailyReportCard: View {
                 }) {
                     ZStack {
                         Circle()
-                            .frame(width: 34)
+                            .frame(width: 36)
                             .foregroundStyle(.buttonOncard)
-                        Image(systemName: "square.and.arrow.up.fill")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.title3)
+                            .fontWeight(.semibold)
                             .foregroundStyle(.buttonPrimaryLabel)
                     }
                 }
             }
             .padding(.horizontal, 16)
             
+            Divider()
+                .frame(height: 1)
+                .background(.tabbarInactiveLabel)
+                .padding(.bottom, 8)
+
             if !activities.isEmpty {
                 ActivitySection(
                     activities: activities,
@@ -91,6 +96,7 @@ struct DailyReportCard: View {
                         }
                     }
                 )
+                .disabled(true)
                 .padding(.horizontal, 16)
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
@@ -98,21 +104,11 @@ struct DailyReportCard: View {
                     .padding(.horizontal, 16)
             }
             
-//            Button(action: onAddActivity) {
-//                Label("Tambah", systemImage: "plus.app.fill")
-//            }
-//            .padding(.vertical, 7)
-//            .padding(.horizontal, 14)
-//            .font(.footnote)
-//            .fontWeight(.regular)
-//            .foregroundStyle(.buttonPrimaryLabel)
-//            .background(.buttonOncard)
-//            .cornerRadius(8)
-            
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
-                .padding(.bottom, 8)
+                .padding(.bottom, 4)
+
             
             if !notes.isEmpty {
                 NoteSection(
@@ -122,24 +118,15 @@ struct DailyReportCard: View {
                     onAddNote: onAddNote
                 )
                 .padding(.horizontal, 16)
+
             } else {
                 Text("Tidak ada catatan untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
                     .padding(.horizontal, 16)
             }
-            
-//            Button(action: onAddNote) {
-//                Label("Tambah", systemImage: "plus.app.fill")
-//            }
-//            .padding(.vertical, 7)
-//            .padding(.horizontal, 14)
-//            .font(.footnote)
-//            .fontWeight(.regular)
-//            .foregroundStyle(.buttonPrimaryLabel)
-//            .background(.buttonOncard)
-//            .cornerRadius(8)
         }
-        .padding(.vertical, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -154,7 +141,7 @@ struct DailyReportCard: View {
         ],
         notes: [
             .init(note: "Anak sangat aktif hari ini", student: .init(fullname: "Rangga Biner", nickname: "Rangga")),
-            .init(note: "Keren banget dah wadidaw", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
+            .init(note: "Keren banget dah wadidaw dbashjfbhjabfhjabjfhbhjasbfhjsabfhkasdmlfmakldmsaklfmskljsadnjkfnsaf", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
         ],
         student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
         date: .now,

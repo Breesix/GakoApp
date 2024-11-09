@@ -15,6 +15,10 @@ struct ActivitySection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            Text("AKTIVITAS")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
@@ -25,6 +29,7 @@ struct ActivitySection: View {
                         onDelete: { _ in onDeleteActivity(activity) },
                         onStatusChanged: onStatusChanged
                         )
+                    .padding(.bottom, 4)
                 }
             }
             

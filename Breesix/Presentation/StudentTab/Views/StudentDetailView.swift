@@ -121,8 +121,9 @@ struct StudentDetailView: View {
                                 Image(systemName: "chevron.left")
                                     .foregroundColor(.white)
                                     .fontWeight(.semibold)
-                                Text("Kembali")
+                                Text(student.nickname)
                                     .foregroundStyle(.white)
+                                    .font(.body)
                                     .fontWeight(.regular)
                             }
                             .font(.body)
@@ -143,9 +144,9 @@ struct StudentDetailView: View {
                                 onFetchActivities: onFetchActivities
                             )
                         } label: {
-                            Text("Edit Dokumentasi")
+                            Text("Edit Dokumen")
                                 .foregroundStyle(.white)
-                                .font(.subheadline)
+                                .font(.body)
                                 .fontWeight(.regular)
                         }
                     }
@@ -167,8 +168,9 @@ struct StudentDetailView: View {
                             }
                             Button(action: { moveMonth(by: 1) }) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(.buttonLinkOnSheet)
+                                    .foregroundStyle(isNextMonthDisabled ? .gray : .buttonLinkOnSheet)
                             }
+                            .disabled(isNextMonthDisabled)
                         }
                         
                         Spacer()
@@ -440,6 +442,18 @@ struct StudentDetailView: View {
             await fetchActivities()
         }
     }
+    
+    private var isNextMonthDisabled: Bool {
+        let calendar = Calendar.current
+        let currentMonth = calendar.component(.month, from: Date())
+        let currentYear = calendar.component(.year, from: Date())
+        let selectedMonth = calendar.component(.month, from: selectedDate)
+        let selectedYear = calendar.component(.year, from: selectedDate)
+        
+        return (selectedYear > currentYear) ||
+               (selectedYear == currentYear && selectedMonth >= currentMonth)
+    }
+
     
     private func generateSnapshot(for date: Date) {
         let reportView = DailyReportTemplate(

@@ -26,7 +26,7 @@ struct CalendarButton: View {
         
         .sheet(isPresented: $isShowingCalendar) {
             NavigationStack {
-                DatePicker("Tanggal", selection: $selectedDate, displayedComponents: .date)
+                DatePicker("Tanggal", selection: $selectedDate, in: ...DateValidator.maximumDate(), displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .environment(\.locale, Locale(identifier: "id_ID"))
                     .padding(.horizontal, 16)

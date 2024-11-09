@@ -15,21 +15,20 @@ struct NoteSection: View {
     let onAddNote: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack (alignment: .leading, spacing: 8) {
-                Text("Catatan")
+            VStack (alignment: .leading, spacing: 12) {
+                Text("CATATAN")
+                    .font(.callout)
                     .fontWeight(.semibold)
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18, alignment: .leading)
-                
+                    .foregroundStyle(.labelPrimaryBlack)
+                    .padding(.bottom, 4)
+
                 if notes.isEmpty {
                     Text("Tidak ada catatan untuk tanggal ini")
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(notes, id: \.id) { note in
-                        NoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
+                        NoteRow(note: note, onDelete: onDeleteNote)
                     }
-                }
             }
         }
     }

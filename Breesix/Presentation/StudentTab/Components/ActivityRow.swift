@@ -31,7 +31,7 @@ struct ActivityRow: View {
                 .font(.callout)
                 .fontWeight(.semibold)
                 .foregroundStyle(.labelPrimaryBlack)
-                .padding(.bottom, 12)
+                .padding(.bottom, 8)
             
             HStack(spacing: 8) {
                 StatusPicker(status: $status) { newStatus in
@@ -39,27 +39,6 @@ struct ActivityRow: View {
                     trackStatusChange(newStatus)
                     onStatusChanged(activity, newStatus)
                 }
-                
-//                Button(action: {
-//                    showDeleteAlert = true
-//                    trackDeleteAttempt()
-//                   
-//                }) {
-//                    Image("custom.trash.circle.fill")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 34)
-//                }
-//                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-//                    Button("Hapus", role: .destructive) {
-//                        onDelete(activity)
-//                        trackDeletion()
-//                       
-//                    }
-//                    Button("Batal", role: .cancel) { }
-//                } message: {
-//                    Text("Apakah kamu yakin ingin menghapus aktivitas ini?")
-//                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

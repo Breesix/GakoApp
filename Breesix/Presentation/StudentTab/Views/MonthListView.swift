@@ -28,14 +28,13 @@ struct MonthListView: View {
     
     private let calendar = Calendar.current
 
-    @State private var selectedYear: Date = Date() // Add this
-    @State private var isShowingYearPicker = false // Add this
+    @State private var selectedYear: Date = Date()
+    @State private var isShowingYearPicker = false
     
     @State private var isEditing = false
     
     @State private var newStudentImage: UIImage?
     
-    // as a middle view
     private var formattedYear: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
@@ -48,7 +47,6 @@ struct MonthListView: View {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Navigation Bar
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
@@ -61,8 +59,11 @@ struct MonthListView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "chevron.left")
                                     .foregroundColor(.white)
-                                Text("Kembali")
+                                    .fontWeight(.semibold)
+                                Text("Murid")
                                     .foregroundStyle(.white)
+                                    .font(.body)
+                                    .fontWeight(.regular)
                             }
                         }
                         Spacer()
@@ -71,7 +72,7 @@ struct MonthListView: View {
                         }) {
                             Text("Edit Profil")
                                 .foregroundStyle(.white)
-                                .font(.subheadline)
+                                .font(.body)
                                 .fontWeight(.regular)
                         }
                     }
@@ -96,8 +97,10 @@ struct MonthListView: View {
                         }
                         Button(action: { moveYear(by: 1) }) {
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(.buttonLinkOnSheet)
+                                .foregroundStyle(isNextYearDisabled ? .gray : .buttonLinkOnSheet)
                         }
+                        .disabled(isNextYearDisabled)
+
                     }
                     
                     Spacer()
@@ -174,6 +177,14 @@ struct MonthListView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+    }
+    
+    private var isNextYearDisabled: Bool {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        let selectedYear = calendar.component(.year, from: selectedYear)
+        
+        return (selectedYear >= currentYear)
     }
     
     private func fetchData() async {
