@@ -39,7 +39,8 @@ struct MonthlyEditCard: View {
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
-            
+                .padding(.bottom, 8)
+
             EditActivitySection(
                 student: student,
                 selectedStudent: $selectedStudent,

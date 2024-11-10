@@ -80,13 +80,12 @@ struct DailyReportCard: View {
                 }
             }
             .padding(.horizontal, 16)
-            
+
             Divider()
                 .frame(height: 1)
                 .background(.tabbarInactiveLabel)
                 .padding(.bottom, 8)
 
-            if !activities.isEmpty {
                 ActivitySection(
                     activities: activities,
                     onDeleteActivity: onDeleteActivity,
@@ -98,11 +97,6 @@ struct DailyReportCard: View {
                 )
                 .disabled(true)
                 .padding(.horizontal, 16)
-            } else {
-                Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
-                    .padding(.horizontal, 16)
-            }
             
             Divider()
                 .frame(height: 1)
@@ -110,8 +104,6 @@ struct DailyReportCard: View {
                 .padding(.bottom, 4)
                 .padding(.top, 4)
 
-            
-            if !notes.isEmpty {
                 NoteSection(
                     notes: notes,
                     onEditNote: onEditNote,
@@ -120,11 +112,6 @@ struct DailyReportCard: View {
                 )
                 .padding(.horizontal, 16)
 
-            } else {
-                Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
-                    .padding(.horizontal, 16)
-            }
         }
         .padding(.top, 12)
         .padding(.bottom, 16)

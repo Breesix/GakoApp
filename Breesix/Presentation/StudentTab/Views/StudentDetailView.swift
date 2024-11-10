@@ -42,6 +42,7 @@ struct StudentDetailView: View {
     @State private var isShowingCalendar: Bool = false
     @State private var showTabBar = false
     @State private var noActivityAlertPresented = false
+    @State private var showingCancelAlert = false
     @State private var isTabBarHidden = true
     @State private var showSnapshotPreview = false
     @State private var snapshotImage: UIImage?
@@ -124,13 +125,13 @@ struct StudentDetailView: View {
                     HStack(spacing: 16) {
                         Button(action: {
                             isTabBarHidden = false
-                            presentationMode.wrappedValue.dismiss()
+                            !isEditingMode ? presentationMode.wrappedValue.dismiss() : (showingCancelAlert = true)
                         }) {
                             HStack(spacing: 3) {
                                 Image(systemName: "chevron.left")
                                     .foregroundColor(.white)
                                     .fontWeight(.semibold)
-                                Text(student.nickname)
+                                Text(!isEditingMode ? student.nickname : "Batal")
                                     .foregroundStyle(.white)
                                     .font(.body)
                                     .fontWeight(.regular)
@@ -140,16 +141,16 @@ struct StudentDetailView: View {
                         
                         Spacer()
                         
-                        // Replace the Edit Profile button with:
-                        Button {
-                            isEditingMode.toggle()
-                        } label: {
-                            Text(isEditingMode ? "Selesai" : "Edit Dokumen")
-                                .foregroundStyle(.white)
-                                .font(.body)
-                                .fontWeight(.regular)
+                        if !isEditingMode {
+                            Button {
+                                isEditingMode = true
+                            } label: {
+                                Text("Edit Dokumen")
+                                    .foregroundStyle(.white)
+                                    .font(.body)
+                                    .fontWeight(.regular)
+                            }
                         }
-
                     }
                     .padding(14)
                 }
@@ -279,6 +280,13 @@ struct StudentDetailView: View {
                                     }
                                 }
                             }
+                            .onChange(of: selectedDate) {
+                                let startOfDay = calendar.startOfDay(for: selectedDate)
+                                withAnimation(.smooth) {
+                                    scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                }
+                            }
+
                         }
                         
                         if isEditingMode {
@@ -396,7 +404,7 @@ struct StudentDetailView: View {
                 student: student,
                 selectedDate: selectedDate,
                 onDismiss: {
-                    selectedNote = nil
+                    noteToEdit = nil
                 },
                 onSave: { note in
                     await onAddNote(note, student)
@@ -519,6 +527,15 @@ struct StudentDetailView: View {
         } message: {
             Text("There are no activities recorded for the selected date.")
         }
+        .alert("Peringatan", isPresented: $showingCancelAlert) {
+                Button("Ya", role: .destructive) {
+                    isEditingMode = false
+                }
+                Button("Tidak", role: .cancel) { }
+            } message: {
+                Text("Apakah Anda yakin ingin membatalkan perubahan?")
+            }
+
         .task {
             await fetchAllNotes()
             await fetchActivities()

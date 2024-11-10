@@ -50,6 +50,7 @@ struct CalendarButton: View {
                     }
                     .onChange(of: selectedDate) {
                         onDateSelected(selectedDate)
+                        isShowingCalendar = false
                     }
             }
             .presentationDetents([.medium])
