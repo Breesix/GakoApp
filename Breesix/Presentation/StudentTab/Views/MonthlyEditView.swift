@@ -21,8 +21,6 @@ struct MonthlyEditView: View {
     @State private var alertMessage = ""
     @State private var originalActivities: [Activity] = []
     @State private var originalNotes: [Note] = []
-    @State private var tempEditedActivities: [UUID: (String, Status, Date)] = [:]
-    @State private var tempEditedNotes: [UUID: (String, Date)] = [:]
     @State private var showingCancelAlert = false
     @State private var tempDeletedActivities: [Activity] = []
     @State private var tempDeletedNotes: [Note] = []
@@ -137,8 +135,8 @@ struct MonthlyEditView: View {
                 activities = originalActivities
                 notes = originalNotes
                 // Bersihkan semua perubahan temporary
-                tempEditedActivities.removeAll()
-                tempEditedNotes.removeAll()
+                editedActivities.removeAll()
+                editedNotes.removeAll()
                 tempDeletedActivities.removeAll()
                 tempDeletedNotes.removeAll()
                 dismiss()
@@ -189,8 +187,8 @@ struct MonthlyEditView: View {
     }
     
     private func saveChanges() async {
-        // Validasi sebelum menyimpan
-        for (id, (text, status, date)) in tempEditedActivities {
+        // Validasi aktivitas
+        for (id, (text, status, date)) in editedActivities {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 alertMessage = "Aktivitas tidak boleh kosong"
@@ -202,6 +200,21 @@ struct MonthlyEditView: View {
                 updatedActivity.activity = trimmedText
                 updatedActivity.status = status
                 await onUpdateActivity(updatedActivity, status)
+            }
+        }
+        
+        // Validasi dan update notes
+        for (id, (text, date)) in editedNotes {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.isEmpty {
+                alertMessage = "Catatan tidak boleh kosong"
+                showAlert = true
+                return
+            }
+            if let note = notes.first(where: { $0.id == id }) {
+                var updatedNote = note
+                updatedNote.note = trimmedText
+                await onUpdateNote(updatedNote)
             }
         }
         
@@ -219,15 +232,14 @@ struct MonthlyEditView: View {
         notes = await onFetchNotes(student)
         
         // Clear temporary changes
-        tempEditedActivities.removeAll()
-        tempEditedNotes.removeAll()
+        editedActivities.removeAll()
+        editedNotes.removeAll()
         tempDeletedActivities.removeAll()
         tempDeletedNotes.removeAll()
         
         dismiss()
-        
-        
     }
+    
     
     struct DayEditCard: View {
         let date: Date
@@ -286,7 +298,8 @@ struct MonthlyEditView: View {
                                     
                                 }
                                 StatusPicker(status: makeStatusBinding(for: activity)) { newStatus in
-                                    editedActivities[activity.id] = (activity.activity, newStatus, date)
+                                    let currentText = editedActivities[activity.id]?.0 ?? activity.activity
+                                    editedActivities[activity.id] = (currentText, newStatus, date)
                                 }
                             }
                         }
