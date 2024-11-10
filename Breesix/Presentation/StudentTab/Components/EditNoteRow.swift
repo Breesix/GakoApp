@@ -9,14 +9,14 @@ import SwiftUI
 
 struct EditNoteRow: View {
     @State private var showDeleteAlert = false
+    @State private var showingEditSheet = false  // Tambahkan state ini
     let note: Note
     let onEdit: (Note) -> Void
-
     let onDelete: (Note) -> Void
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 0) {
-            HStack (alignment: .top, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 8) {
                 Text(note.note)
                     .font(.subheadline)
                     .fontWeight(.regular)
@@ -31,6 +31,7 @@ struct EditNoteRow: View {
                     }
                     .onTapGesture {
                         onEdit(note)
+                        showingEditSheet = true  // Trigger sheet
                     }
                 
                 Button(action: {
@@ -47,6 +48,14 @@ struct EditNoteRow: View {
                     }
                 }
             }
+        }
+        .alert("Hapus Catatan", isPresented: $showDeleteAlert) {
+            Button("Batal", role: .cancel) { }
+            Button("Hapus", role: .destructive) {
+                onDelete(note)
+            }
+        } message: {
+            Text("Apakah Anda yakin ingin menghapus catatan ini?")
         }
     }
 }

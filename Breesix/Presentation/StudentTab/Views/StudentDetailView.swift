@@ -28,6 +28,7 @@ struct StudentDetailView: View {
     @State private var selectedStudent: Student?
     @State private var showingAddActivity = false
     @State private var activityToEdit: Activity?
+    @State private var noteToEdit: Note?
 
     
     @State private var isEditing = false
@@ -227,14 +228,8 @@ struct StudentDetailView: View {
                                                         isAddingNewActivity = true
                                                     },
                                                     onUpdateActivityStatus: onUpdateActivityStatus,
-                                                    onEditNote: { note, newText in
-                                                        // Create updated note with new text
-                                                        var updatedNote = note
-                                                        updatedNote.note = newText
-                                                        Task {
-                                                            await onUpdateNote(updatedNote)
-                                                            await fetchAllNotes()
-                                                        }
+                                                    onEditNote: { note in
+                                                        noteToEdit = note
                                                     },
                                                     onAddNote: { _ in
                                                         selectedDate = day
@@ -395,7 +390,7 @@ struct StudentDetailView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
-        .sheet(item: $selectedNote) { note in
+        .sheet(item: $noteToEdit) { note in
             ManageNoteView(
                 mode: .edit(note),
                 student: student,

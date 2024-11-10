@@ -27,7 +27,7 @@ struct EditNoteSection: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(notes, id: \.id) { note in
-                        NoteRow(note: note, onDelete: onDeleteNote)
+                        EditNoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
                     }
             }
                 AddButton(

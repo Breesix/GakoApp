@@ -21,7 +21,7 @@ struct MonthlyEditCard: View {
     let onActivityUpdate: (Activity) -> Void
     let onAddActivity: () -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
-    let onEditNote: (Note, String) -> Void // Add this new callback
+    let onEditNote: (Note) -> Void  // Hanya menerima 1 parameter
     let onAddNote: (String) -> Void // Add this new callback
 
     var body: some View {
@@ -33,7 +33,7 @@ struct MonthlyEditCard: View {
                     .foregroundStyle(.labelPrimaryBlack)
                 Spacer()
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.bottom, 7)
             
             Divider()
@@ -66,11 +66,7 @@ struct MonthlyEditCard: View {
             
             EditNoteSection(
                 notes: notes,
-                onEditNote: { note in
-                    if let editedText = editedNotes[note.id]?.0 {
-                        onEditNote(note, editedText)
-                    }
-                },
+                onEditNote: onEditNote,
                 onDeleteNote: onDeleteNote,
                 onAddNote: {
                     // Create a new empty note
