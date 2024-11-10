@@ -413,24 +413,6 @@ struct StudentDetailView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        .sheet(isPresented: $isAddingNewActivity) {
-            AddActivityView(
-                student: student,
-                selectedDate: selectedDate,
-                onDismiss: {
-                    isAddingNewActivity = false
-                    Task {
-                        await fetchActivities()
-                    }
-                },
-                onSave: { activity in
-                    await onAddActivity(activity, student)
-                }
-            )
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
         .toastView(toast: $toast)
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }

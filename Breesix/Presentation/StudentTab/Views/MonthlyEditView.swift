@@ -3,6 +3,7 @@ import SwiftUI
 struct MonthlyEditView: View {
     let student: Student
     let selectedMonth: Date
+    @State private var currentSelectedDate: Date = Date()
     let onUpdateActivity: (Activity, Status) async -> Void
     let onUpdateNote: (Note) async -> Void
     let onDeleteActivity: (Activity, Student) async -> Void
@@ -24,6 +25,10 @@ struct MonthlyEditView: View {
     @State private var showingCancelAlert = false
     @State private var tempDeletedActivities: [Activity] = []
     @State private var tempDeletedNotes: [Note] = []
+    @State private var selectedStudent: Student?
+    @State private var isAddingNewActivity: Bool = false
+    @State private var showingAddActivity = false
+    @State private var activityToEdit: Activity?
     
     private let calendar = Calendar.current
     
@@ -42,15 +47,28 @@ struct MonthlyEditView: View {
                                 date: date,
                                 activities: items.activities,
                                 notes: items.notes,
+                                student: student,
+                                selectedStudent: $selectedStudent,
+                                isAddingNewActivity: $showingAddActivity,
                                 editedActivities: $editedActivities,
                                 editedNotes: $editedNotes,
                                 onDeleteActivity: { activity in
+                                    currentSelectedDate = date  // Update currentSelectedDate
                                     itemToDelete = activity
                                     showingDeleteAlert = true
                                 },
                                 onDeleteNote: { note in
+                                    currentSelectedDate = date  // Update currentSelectedDate
                                     itemToDelete = note
                                     showingDeleteAlert = true
+                                },
+                                onActivityUpdate: { activity in
+                                    currentSelectedDate = date  // Update currentSelectedDate
+                                    activityToEdit = activity
+                                },
+                                onAddActivity: {
+                                    currentSelectedDate = date
+                                    showingAddActivity = true
                                 }
                             )
                             .padding(.horizontal)
@@ -58,7 +76,7 @@ struct MonthlyEditView: View {
                     }
                 }
                 .padding(.vertical)
-                .padding(.bottom, 80) // Add padding for save button
+                .padding(.bottom, 80)
             }
             .background(.bgMain)
             
@@ -98,6 +116,36 @@ struct MonthlyEditView: View {
             }
             .background(Color.white)
         }
+        .sheet(isPresented: $showingAddActivity) {
+            ManageActivityView(
+                mode: .add(student, currentSelectedDate),
+                onSave: { newActivity in
+                    Task {
+                        activities.append(newActivity)
+                        await onUpdateActivity(newActivity, newActivity.status)
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $activityToEdit) { activity in
+            ManageActivityView(
+                mode: .edit(activity),
+                onSave: { updatedActivity in
+                    Task {
+                        if let index = activities.firstIndex(where: { $0.id == updatedActivity.id }) {
+                            activities[index] = updatedActivity
+                            await onUpdateActivity(updatedActivity, updatedActivity.status)
+                        }
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+
+
         .toolbar(.hidden, for: .bottomBar,.tabBar)
         .hideTabBar()
         .navigationBarBackButtonHidden(true)
@@ -245,12 +293,16 @@ struct MonthlyEditView: View {
         let date: Date
         let activities: [Activity]
         let notes: [Note]
+        let student: Student
+        @Binding var selectedStudent: Student?
+        @Binding var isAddingNewActivity: Bool
         @Binding var editedActivities: [UUID: (String, Status, Date)]
         @Binding var editedNotes: [UUID: (String, Date)]
         let onDeleteActivity: (Activity) -> Void
         let onDeleteNote: (Note) -> Void
-        
-        @State private var newActivities: [(id: UUID, activity: String, status: Status)] = []
+        let onActivityUpdate: (Activity) -> Void
+        let onAddActivity: () -> Void
+
         @State private var newNotes: [(id: UUID, note: String)] = []
         
         var body: some View {
@@ -264,116 +316,17 @@ struct MonthlyEditView: View {
                     Spacer()
                 }
                 
-                if !activities.isEmpty || !newActivities.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("AKTIVITAS")
-                            .font(.callout)
-                            .fontWeight(.bold)
-                        ForEach(activities) { activity in
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("Aktivitas \(activities.firstIndex(of: activity)! + 1)")
-                                        .font(.callout)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.labelPrimaryBlack)
-                                    
-                                    Spacer()
-                                    
-                                    Image("custom.trash.circle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 34)
-                                        .onTapGesture {
-                                            onDeleteActivity(activity)
-                                        }
-                                }
-                                HStack {
-                                    TextField("Aktivitas", text: makeValueBinding(for: activity))
-                                        .font(.body)
-                                        .foregroundColor(.labelPrimaryBlack)
-                                        .padding(.vertical, 7)
-                                        .padding(.horizontal, 14)
-                                        .background(.cardFieldBG)
-                                        .cornerRadius(8)
-                                    
-                                }
-                                StatusPicker(status: makeStatusBinding(for: activity)) { newStatus in
-                                    let currentText = editedActivities[activity.id]?.0 ?? activity.activity
-                                    editedActivities[activity.id] = (currentText, newStatus, date)
-                                }
-                            }
-                        }
-                        ForEach(newActivities, id: \.id) { newActivity in
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("Aktivitas \(activities.count + newActivities.firstIndex(where: { $0.id == newActivity.id })! + 1)")
-                                        .font(.callout)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.labelPrimaryBlack)
-                                    
-                                    Spacer()
-                                    
-                                    Image("custom.trash.circle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 34)
-                                        .onTapGesture {
-                                            if let index = newActivities.firstIndex(where: { $0.id == newActivity.id }) {
-                                                newActivities.remove(at: index)
-                                                editedActivities.removeValue(forKey: newActivity.id)
-                                            }
-                                        }
-                                    
-                                }
-                                HStack {
-                                    TextField("Aktivitas", text: Binding(
-                                        get: { editedActivities[newActivity.id]?.0 ?? newActivity.activity },
-                                        set: { newValue in
-                                            let status = editedActivities[newActivity.id]?.1 ?? newActivity.status
-                                            editedActivities[newActivity.id] = (newValue, status, date)
-                                        }
-                                    ))
-                                    .font(.body)
-                                    .foregroundColor(.labelPrimaryBlack)
-                                    .padding(.vertical, 7)
-                                    .padding(.horizontal, 14)
-                                    .background(.cardFieldBG)
-                                    .cornerRadius(8)
-                                }
-                                
-                                StatusPicker(status: Binding(
-                                    get: { editedActivities[newActivity.id]?.1 ?? newActivity.status },
-                                    set: { newValue in
-                                        let currentText = editedActivities[newActivity.id]?.0 ?? newActivity.activity
-                                        editedActivities[newActivity.id] = (currentText, newValue, date)
-                                    }
-                                )) { newStatus in
-                                    let currentText = editedActivities[newActivity.id]?.0 ?? newActivity.activity
-                                    editedActivities[newActivity.id] = (currentText, newStatus, date)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Text("Tidak ada aktivitas untuk tanggal ini")
-                        .foregroundColor(.labelSecondary)
-                }
-                
-                Button(action: {
-                    let newId = UUID()
-                    newActivities.append((id: newId, activity: "", status: .tidakMelakukan))
-                    editedActivities[newId] = ("", .tidakMelakukan, date)
-                }) {
-                    Label("Tambah", systemImage: "plus.app.fill")
-                }
-                .padding(.vertical, 7)
-                .padding(.horizontal, 14)
-                .font(.footnote)
-                .fontWeight(.regular)
-                .foregroundStyle(.buttonPrimaryLabel)
-                .background(.buttonOncard)
-                .cornerRadius(8)
-                
+                EditActivitySection(
+                    student: student,
+                    selectedStudent: $selectedStudent,
+                    isAddingNewActivity: $isAddingNewActivity,
+                    activities: activities,
+                    onActivityUpdate: onActivityUpdate,
+                    onDeleteActivity: onDeleteActivity,
+                    allActivities: activities,
+                    allStudents: [student], onAddActivity: onAddActivity
+                )
+
                 Divider()
                     .frame(height: 1)
                     .background(.tabbarInactiveLabel)

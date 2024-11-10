@@ -318,24 +318,6 @@ struct DailyReportView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        .sheet(isPresented: $isAddingNewActivity) {
-            AddActivityView(
-                student: student,
-                selectedDate: selectedDate,
-                onDismiss: {
-                    isAddingNewActivity = false
-                    Task {
-                        await fetchActivities()
-                    }
-                },
-                onSave: { activity in
-                    await onAddActivity(activity, student)
-                }
-            )
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
     }
     
     // MARK: - Helper Methods
