@@ -27,7 +27,13 @@ struct DailyEditView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showingCancelAlert = false
-    
+    @State private var originalActivities: [Activity] = []
+    @State private var originalNotes: [Note] = []
+    @State private var tempEditedActivities: [UUID: (String, Status, Date)] = [:]
+    @State private var tempEditedNotes: [UUID: (String, Date)] = [:]
+    @State private var tempDeletedActivities: [Activity] = []
+    @State private var tempDeletedNotes: [Note] = []
+
     private let calendar = Calendar.current
     
     var body: some View {
@@ -106,14 +112,14 @@ struct DailyEditView: View {
         .navigationTitle("Edit Dokumentasi")
         .alert("Peringatan", isPresented: $showingDeleteAlert) {
             Button("Hapus", role: .destructive) {
-                Task {
-                    if let activity = itemToDelete as? Activity {
-                        await onDeleteActivity(activity, student)
-                        activities.removeAll(where: { $0.id == activity.id })
-                    } else if let note = itemToDelete as? Note {
-                        await onDeleteNote(note, student)
-                        notes.removeAll(where: { $0.id == note.id })
-                    }
+                if let activity = itemToDelete as? Activity {
+                    // Simpan ke temporary deletion
+                    tempDeletedActivities.append(activity)
+                    activities.removeAll(where: { $0.id == activity.id })
+                } else if let note = itemToDelete as? Note {
+                    // Simpan ke temporary deletion
+                    tempDeletedNotes.append(note)
+                    notes.removeAll(where: { $0.id == note.id })
                 }
             }
             Button("Batal", role: .cancel) {}
@@ -127,12 +133,25 @@ struct DailyEditView: View {
         }
         .task {
             await fetchData()
+            // Simpan data original
+            originalActivities = activities
+            originalNotes = notes
         }
+
         .alert("Peringatan", isPresented: $showingCancelAlert) {
             Button("Ya", role: .destructive) {
+                // Kembalikan ke state awal
+                activities = originalActivities
+                notes = originalNotes
+                
+                // Bersihkan semua perubahan temporary
+                tempEditedActivities.removeAll()
+                tempEditedNotes.removeAll()
+                tempDeletedActivities.removeAll()
+                tempDeletedNotes.removeAll()
                 dismiss()
             }
-            Button("Tidak", role: .cancel) { }
+            Button("Tidak", role: .cancel) {}
         } message: {
             Text("Apakah Anda yakin ingin membatalkan perubahan?")
         }
@@ -157,8 +176,8 @@ struct DailyEditView: View {
     }
     
     private func saveChanges() async {
-        // Handle edited and new activities
-        for (id, (text, status, date)) in editedActivities {
+        // Validasi sebelum menyimpan
+        for (id, (text, status, date)) in tempEditedActivities {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 alertMessage = "Aktivitas tidak boleh kosong"
@@ -166,27 +185,25 @@ struct DailyEditView: View {
                 return
             }
             
-            let activity = activities.first(where: { $0.id == id })
-            let updatedActivity = activity.map { act -> Activity in
-                var updated = act
-                updated.activity = trimmedText
-                updated.status = status
-                return updated
-            } ?? Activity(
-                activity: trimmedText,
-                createdAt: date,
-                status: status,
-                student: student
-            )
-            
-            await onUpdateActivity(updatedActivity, status)
-            if activity == nil {
-                activities.append(updatedActivity)
+            if let activity = activities.first(where: { $0.id == id }) {
+                var updatedActivity = activity
+                updatedActivity.activity = trimmedText
+                updatedActivity.status = status
+                await onUpdateActivity(updatedActivity, status)
+            } else {
+                // Handle new activity
+                let newActivity = Activity(
+                    activity: trimmedText,
+                    createdAt: date,
+                    status: status,
+                    student: student
+                )
+                await onUpdateActivity(newActivity, status)
             }
         }
-        
-        // Handle edited and new notes
-        for (id, (text, date)) in editedNotes {
+
+        // Proses edited notes
+        for (id, (text, date)) in tempEditedNotes {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 alertMessage = "Catatan tidak boleh kosong"
@@ -194,27 +211,43 @@ struct DailyEditView: View {
                 return
             }
             
-            let note = notes.first(where: { $0.id == id })
-            let updatedNote = note.map { n -> Note in
-                var updated = n
-                updated.note = trimmedText
-                return updated
-            } ?? Note(
-                note: trimmedText,
-                createdAt: date,
-                student: student
-            )
-            
-            await onUpdateNote(updatedNote)
-            if note == nil {
-                notes.append(updatedNote)
+            if let note = notes.first(where: { $0.id == id }) {
+                var updatedNote = note
+                updatedNote.note = trimmedText
+                await onUpdateNote(updatedNote)
+            } else {
+                // Handle new note
+                let newNote = Note(
+                    note: trimmedText,
+                    createdAt: date,
+                    student: student
+                )
+                await onUpdateNote(newNote)
             }
         }
+
+        // Proses penghapusan yang sudah dikonfirmasi
+        for activity in tempDeletedActivities {
+            await onDeleteActivity(activity, student)
+        }
         
+        for note in tempDeletedNotes {
+            await onDeleteNote(note, student)
+        }
+
+        // Refresh data
         activities = await onFetchActivities(student)
         notes = await onFetchNotes(student)
+
+        // Clear temporary changes
+        tempEditedActivities.removeAll()
+        tempEditedNotes.removeAll()
+        tempDeletedActivities.removeAll()
+        tempDeletedNotes.removeAll()
+        
         dismiss()
     }
+
 }
 
 #Preview {
