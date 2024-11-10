@@ -87,7 +87,7 @@ struct MonthListView: View {
                 Divider()
                         .padding(.bottom, 12)
                 
-                HStack {
+                    HStack (spacing: 16) {
                     Text("Lihat Dokumentasi")
                         .fontWeight(.semibold)
                         .foregroundColor(.labelPrimaryBlack)
@@ -227,8 +227,28 @@ struct MonthListView: View {
     
     private func getAllMonthsForYear() -> [Date] {
         let year = calendar.component(.year, from: selectedYear)
-        return (1...12).compactMap { month in
-            calendar.date(from: DateComponents(year: year, month: month))
+        let currentDate = Date()
+        let currentYear = calendar.component(.year, from: currentDate)
+        let currentMonth = calendar.component(.month, from: currentDate)
+        
+        // Jika tahun yang dipilih adalah tahun saat ini
+        if year == currentYear {
+            // Hanya tampilkan bulan dari Januari sampai bulan saat ini
+            return (1...currentMonth).compactMap { month in
+                calendar.date(from: DateComponents(year: year, month: month))
+            }
+        }
+        // Jika tahun yang dipilih adalah tahun sebelumnya
+        else if year < currentYear {
+            // Tampilkan semua bulan (1-12)
+            return (1...12).compactMap { month in
+                calendar.date(from: DateComponents(year: year, month: month))
+            }
+        }
+        // Jika tahun yang dipilih adalah tahun yang akan datang
+        else {
+            // Tidak menampilkan bulan apapun
+            return []
         }
     }
     

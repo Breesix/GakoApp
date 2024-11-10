@@ -235,6 +235,7 @@ struct StudentDetailView: View {
                                     }
                                     .task {
                                         let startOfDay = calendar.startOfDay(for: initialScrollDate)
+                                        selectedDate = initialScrollDate // Set selectedDate ke tanggal yang dipilih
                                         withAnimation(.smooth) {
                                             scrollProxy.scrollTo(startOfDay, anchor: .top)
                                         }
