@@ -16,9 +16,30 @@ struct EditActivityRow: View {
     let onEdit: (Activity) -> Void
     let onDelete: () -> Void
     let onDeleteActivity: (Activity) -> Void
+    let onStatusChanged: (Activity, Status) -> Void
     private let analytics = InputAnalyticsTracker.shared
     
     @State private var showDeleteAlert = false
+    @State private var status: Status
+    
+    init(activity: Binding<Activity>,
+         activityIndex: Int,
+         student: Student,
+         onAddActivity: @escaping () -> Void,
+         onEdit: @escaping (Activity) -> Void,
+         onDelete: @escaping () -> Void,
+         onDeleteActivity: @escaping (Activity) -> Void,
+         onStatusChanged: @escaping (Activity, Status) -> Void) {
+        self._activity = activity
+        self.activityIndex = activityIndex
+        self.student = student
+        self.onAddActivity = onAddActivity
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.onDeleteActivity = onDeleteActivity
+        self.onStatusChanged = onStatusChanged
+        _status = State(initialValue: activity.wrappedValue.status)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -31,15 +52,7 @@ struct EditActivityRow: View {
                 Spacer()
                 
                 Button(action: {
-                    let properties: [String: MixpanelType] = [
-                        "student_id": student.id.uuidString,
-                        "activity_id": activity.id.uuidString,
-                        "status": activity.status.rawValue,
-                        "screen": "preview",
-                        "timestamp": Date().timeIntervalSince1970
-                    ]
-                    analytics.trackEvent("Activity Delete Attempted", properties: properties)
-                    
+                    trackDeleteAttempt()
                     showDeleteAlert = true
                 }) {
                     ZStack {
@@ -71,54 +84,61 @@ struct EditActivityRow: View {
                 }
 
             HStack(spacing: 8) {
-                StatusPicker(
-                    status: $activity.status,
-                    onStatusChange: { newStatus in
-                        let properties: [String: MixpanelType] = [
-                            "student_id": student.id.uuidString,
-                            "activity_id": activity.id.uuidString,
-                            "old_status": activity.status.rawValue,
-                            "new_status": newStatus.rawValue,
-                            "screen": "preview",
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        analytics.trackEvent("Activity Status Changed", properties: properties)
-                        
-                        activity.status = newStatus
-                    }
-                )
-            }
-                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-                    Button("Hapus", role: .destructive) {
-                        // Track deletion
-                        let properties: [String: MixpanelType] = [
-                            "student_id": student.id.uuidString,
-                            "activity_id": activity.id.uuidString,
-                            "status": activity.status.rawValue,
-                            "screen": "preview",
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        analytics.trackEvent("Activity Deleted", properties: properties)
-                        
-                        onDeleteActivity(activity)
-                        onDelete()
-                    }
-                    Button("Batal", role: .cancel) { }
-                } message: {
-                    Text("Apakah kamu yakin ingin menghapus catatan ini?")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(.monochrome100)
-                        .cornerRadius(8)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(.noteStroke, lineWidth: 0.5)
-                        }
-                        .onTapGesture {
-                            onEdit(activity)
-                        }
+                StatusPicker(status: $status) { newStatus in
+                    trackStatusChange(newStatus)
+                    activity.status = newStatus
+                    onStatusChanged(activity, newStatus)
                 }
+            }
         }
+        .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+            Button("Hapus", role: .destructive) {
+                trackDeletion()
+                onDeleteActivity(activity)
+                onDelete()
+            }
+            Button("Batal", role: .cancel) { }
+        } message: {
+            Text("Apakah kamu yakin ingin menghapus catatan ini?")
+        }
+        .onAppear {
+            status = activity.status
+        }
+    }
+    
+    // MARK: - Tracking Methods
+    private func trackStatusChange(_ newStatus: Status) {
+        let properties: [String: MixpanelType] = [
+            "student_id": student.id.uuidString,
+            "activity_id": activity.id.uuidString,
+            "old_status": status.rawValue,
+            "new_status": newStatus.rawValue,
+            "screen": "preview",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Status Changed", properties: properties)
+    }
+    
+    private func trackDeleteAttempt() {
+        let properties: [String: MixpanelType] = [
+            "student_id": student.id.uuidString,
+            "activity_id": activity.id.uuidString,
+            "status": status.rawValue,
+            "screen": "preview",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Delete Attempted", properties: properties)
+    }
+    
+    private func trackDeletion() {
+        let properties: [String: MixpanelType] = [
+            "student_id": student.id.uuidString,
+            "activity_id": activity.id.uuidString,
+            "status": status.rawValue,
+            "screen": "preview",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        analytics.trackEvent("Activity Deleted", properties: properties)
     }
 }
     
@@ -126,6 +146,6 @@ struct EditActivityRow: View {
     EditActivityRow(activity: .constant(.init(
         activity: "Menjahit",
         createdAt: .now, student: .init(fullname: "Rangga Biner", nickname: "rangga")
-    )), activityIndex: 0, student: .init(fullname: "Rangga bienr", nickname: "rangga"), onAddActivity: { print("added activity") }, onEdit:  { _ in print("edit activity") }, onDelete: { print("deleted") }, onDeleteActivity: { _ in print("deleted activity") })
+    )), activityIndex: 0, student: .init(fullname: "Rangga bienr", nickname: "rangga"), onAddActivity: { print("added activity") }, onEdit:  { _ in print("edit activity") }, onDelete: { print("deleted") }, onDeleteActivity: { _ in print("deleted activity") }, onStatusChanged: { _,_  in print("status changed")})
 }
 

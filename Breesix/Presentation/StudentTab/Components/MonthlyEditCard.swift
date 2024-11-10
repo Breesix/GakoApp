@@ -20,6 +20,7 @@ struct MonthlyEditCard: View {
     let onDeleteNote: (Note) -> Void
     let onActivityUpdate: (Activity) -> Void
     let onAddActivity: () -> Void
+    let onUpdateActivityStatus: (Activity, Status) async -> Void
 
     @State private var newNotes: [(id: UUID, note: String)] = []
     
@@ -47,7 +48,11 @@ struct MonthlyEditCard: View {
                 onActivityUpdate: onActivityUpdate,
                 onDeleteActivity: onDeleteActivity,
                 allActivities: activities,
-                allStudents: [student], onAddActivity: onAddActivity
+                allStudents: [student], onStatusChanged: { activity, newStatus in
+                    Task {
+                        await onUpdateActivityStatus(activity, newStatus)
+                    }
+                }, onAddActivity: onAddActivity
             )
             .padding(.horizontal, 16)
 

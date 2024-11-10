@@ -23,6 +23,13 @@ struct StudentDetailView: View {
     let onCheckNickname: (String, UUID?) -> Bool
     let compressedImageData: Data?
     
+    @State private var editedActivities: [UUID: (String, Status, Date)] = [:]
+    @State private var editedNotes: [UUID: (String, Date)] = [:]
+    @State private var selectedStudent: Student?
+    @State private var showingAddActivity = false
+    @State private var activityToEdit: Activity?
+
+    
     @State private var isEditing = false
     @State private var notes: [Note] = []
     @State private var selectedDate = Date()
@@ -40,7 +47,8 @@ struct StudentDetailView: View {
     @State private var documentInteractionController: UIDocumentInteractionController?
     @State private var selectedActivityDate: Date?
     @State private var newStudentImage: UIImage?
-    
+    @State private var isEditingMode = false
+
     private let calendar = Calendar.current
     @Environment(\.presentationMode) var presentationMode
     
@@ -132,23 +140,15 @@ struct StudentDetailView: View {
                         Spacer()
                         
                         // Replace the Edit Profile button with:
-                        NavigationLink {
-                            MonthlyEditView(
-                                student: student,
-                                selectedMonth: selectedDate,
-                                onUpdateActivity: onUpdateActivityStatus,
-                                onUpdateNote: onUpdateNote,
-                                onDeleteActivity: onDeleteActivity,
-                                onDeleteNote: onDeleteNote,
-                                onFetchNotes: onFetchNotes,
-                                onFetchActivities: onFetchActivities
-                            )
+                        Button {
+                            isEditingMode.toggle()
                         } label: {
-                            Text("Edit Dokumen")
+                            Text(isEditingMode ? "Selesai" : "Edit Dokumen")
                                 .foregroundStyle(.white)
                                 .font(.body)
                                 .fontWeight(.regular)
                         }
+
                     }
                     .padding(14)
                 }
@@ -200,63 +200,101 @@ struct StudentDetailView: View {
                             Spacer()
                         }
                     } else {
+                        // Replace the ScrollView content with:
                         ScrollViewReader { scrollProxy in
                             ScrollView {
                                 LazyVStack(spacing: 0) {
-                                    ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
-                                        if let dayItems = activitiesForSelectedMonth[day] {
-                                            DailyReportCard(
-                                                activities: dayItems.activities,
-                                                notes: dayItems.notes,
-                                                student: student,
-                                                date: day,
-                                                onAddNote: { selectedDate = day
-                                                    isAddingNewNote = true },
-                                                onAddActivity: { selectedDate = day
-                                                    isAddingNewActivity = true },
-                                                onDeleteActivity: deleteActivity,
-                                                onEditNote: { self.selectedNote = $0 },
-                                                onDeleteNote: deleteNote,
-                                                onShareTapped: { date in
-                                                    selectedActivityDate = date
-                                                    generateSnapshot(for: date)
-                                                    withAnimation {
-                                                        showSnapshotPreview = true
+                                    if isEditingMode {
+                                        // Edit mode content
+                                        ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
+                                            if let dayItems = activitiesForSelectedMonth[day] {
+                                                MonthlyEditCard(
+                                                    date: day,
+                                                    activities: dayItems.activities,
+                                                    notes: dayItems.notes,
+                                                    student: student,
+                                                    selectedStudent: $selectedStudent,
+                                                    isAddingNewActivity: $showingAddActivity,
+                                                    editedActivities: $editedActivities,
+                                                    editedNotes: $editedNotes,
+                                                    onDeleteActivity: deleteActivity,
+                                                    onDeleteNote: deleteNote,
+                                                    onActivityUpdate: { activity in
+                                                        activityToEdit = activity
+                                                    },
+                                                    onAddActivity: {
+                                                        selectedDate = day
+                                                        isAddingNewActivity = true
+                                                    }, onUpdateActivityStatus: { activity, newStatus in
+                                                        await onUpdateActivityStatus(activity, newStatus)
                                                     }
-                                                },
-                                                onUpdateActivityStatus: { activity, newStatus in
-                                                    await onUpdateActivityStatus(activity, newStatus)
-                                                }
-                                            )
-                                            .padding(.horizontal, 16)
-                                            .padding(.bottom, 12)
-                                            .id(day)
+                                                )
+                                                .padding(.horizontal, 16)
+                                                .padding(.bottom, 12)
+                                            }
                                         }
-                                    }
-                                    .task {
-                                        let startOfDay = calendar.startOfDay(for: initialScrollDate)
-                                        selectedDate = initialScrollDate // Set selectedDate ke tanggal yang dipilih
-                                        withAnimation(.smooth) {
-                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
-                                        }
-                                    }
-                                }
-                            }
-                            .onChange(of: selectedDate) {
-                                let startOfDay = calendar.startOfDay(for: selectedDate)
-                                if let dayItems = activitiesForSelectedMonth[startOfDay] {
-                                    if dayItems.activities.isEmpty && dayItems.notes.isEmpty && selectedDate > Date() {
-                                        noActivityAlertPresented = true
                                     } else {
-                                        withAnimation(.smooth) {
-                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                        // Normal view content
+                                        ForEach(Array(activitiesForSelectedMonth.keys.sorted()), id: \.self) { day in
+                                            if let dayItems = activitiesForSelectedMonth[day] {
+                                                DailyReportCard(
+                                                    activities: dayItems.activities,
+                                                    notes: dayItems.notes,
+                                                    student: student,
+                                                    date: day,
+                                                    onAddNote: { selectedDate = day; isAddingNewNote = true },
+                                                    onAddActivity: { selectedDate = day; isAddingNewActivity = true },
+                                                    onDeleteActivity: deleteActivity,
+                                                    onEditNote: { self.selectedNote = $0 },
+                                                    onDeleteNote: deleteNote,
+                                                    onShareTapped: { date in
+                                                        selectedActivityDate = date
+                                                        generateSnapshot(for: date)
+                                                        withAnimation {
+                                                            showSnapshotPreview = true
+                                                        }
+                                                    },
+                                                    onUpdateActivityStatus: { activity, newStatus in
+                                                        await onUpdateActivityStatus(activity, newStatus)
+                                                    }
+                                                )
+                                                .padding(.horizontal, 16)
+                                                .padding(.bottom, 12)
+                                            }
                                         }
-                                        isShowingCalendar = false
                                     }
-                                } else {
-                                    noActivityAlertPresented = true
+                                }
+                                .task {
+                                    let startOfDay = calendar.startOfDay(for: initialScrollDate)
+                                    selectedDate = initialScrollDate
+                                    withAnimation(.smooth) {
+                                        scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                    }
                                 }
                             }
+                        }
+                        
+                        if isEditingMode {
+                            VStack {
+                                Button {
+                                    Task {
+                                        await saveChanges()
+                                        isEditingMode = false
+                                    }
+                                } label: {
+                                    Text("Simpan")
+                                        .font(.body)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.labelPrimaryBlack)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 50)
+                                        .background(Color(.orangeClickAble))
+                                        .cornerRadius(12)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                            }
+                            .background(Color.bgMain)
                         }
                     }
                 }
@@ -345,16 +383,29 @@ struct StudentDetailView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
-        .sheet(isPresented: $isEditingMonthly) {
-            MonthlyEditView(
-                student: student,
-                selectedMonth: selectedDate,
-                onUpdateActivity: onUpdateActivityStatus,
-                onUpdateNote: onUpdateNote,
-                onDeleteActivity: onDeleteActivity,
-                onDeleteNote: onDeleteNote,
-                onFetchNotes: onFetchNotes,
-                onFetchActivities: onFetchActivities
+        // Di StudentDetailView
+        .sheet(isPresented: $isAddingNewActivity) {
+            ManageActivityView(
+                mode: .add(student, selectedDate),
+                onSave: { newActivity in
+                    Task {
+                        await onAddActivity(newActivity, student)
+                        await fetchActivities()
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $activityToEdit) { activity in
+            ManageActivityView(
+                mode: .edit(activity),
+                onSave: { updatedActivity in
+                    Task {
+                        await onUpdateActivityStatus(updatedActivity, updatedActivity.status)
+                        await fetchActivities()
+                    }
+                }
             )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
@@ -520,6 +571,50 @@ struct StudentDetailView: View {
         
         return result
     }
+    
+    private func saveChanges() async {
+        // Validate activities
+        for (id, (text, status, date)) in editedActivities {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.isEmpty {
+                toast = Toast(style: .error, message: "Aktivitas tidak boleh kosong")
+                return
+            }
+            if let activity = activities.first(where: { $0.id == id }) {
+                var updatedActivity = activity
+                updatedActivity.activity = trimmedText
+                updatedActivity.status = status
+                await onUpdateActivityStatus(updatedActivity, status)
+            }
+        }
+
+        // Validate notes
+        for (id, (text, date)) in editedNotes {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.isEmpty {
+                toast = Toast(style: .error, message: "Catatan tidak boleh kosong")
+                return
+            }
+            if let note = notes.first(where: { $0.id == id }) {
+                var updatedNote = note
+                updatedNote.note = trimmedText
+                await onUpdateNote(updatedNote)
+            }
+        }
+
+        // Refresh data
+        await fetchAllNotes()
+        await fetchActivities()
+        
+        // Clear temporary changes
+        editedActivities.removeAll()
+        editedNotes.removeAll()
+        
+        // Show success message
+        toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
+    }
+
+
     
     private var notesForSelectedMonth: [Date: [Note]] {
         Dictionary(grouping: notes) { note in

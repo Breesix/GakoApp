@@ -17,6 +17,7 @@ struct EditActivitySection: View {
     let onDeleteActivity: (Activity) -> Void
     let allActivities: [Activity]
     let allStudents: [Student]
+    let onStatusChanged: (Activity, Status) -> Void
     let onAddActivity: () -> Void
     
     var body: some View {
@@ -42,7 +43,7 @@ struct EditActivitySection: View {
                         onDelete: {
                             onDeleteActivity(activity)
                         },
-                        onDeleteActivity: onDeleteActivity
+                        onDeleteActivity: onDeleteActivity, onStatusChanged: onStatusChanged
                     )
                     .padding(.bottom, 16)
                 }
