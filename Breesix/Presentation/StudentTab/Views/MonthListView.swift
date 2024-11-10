@@ -241,24 +241,27 @@ struct MonthCard: View {
     private var monthYearString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "MMMM yyyy"
+        formatter.dateFormat = "MMMM"
         return formatter.string(from: date)
     }
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: "document.fill")
                 Text(monthYearString)
-                    .font(.headline)
-                    .foregroundColor(.labelPrimaryBlack)
-                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+//                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
+//                    .font(.subheadline)
+//                    .foregroundColor(.gray)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .fontWeight(.medium)
+                .font(.body)
         }
+        .font(.body)
+        .fontWeight(.semibold)
+        .foregroundColor(.labelPrimaryBlack)
         .padding()
         .background(Color.white)
         .cornerRadius(12)
