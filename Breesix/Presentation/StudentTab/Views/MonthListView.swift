@@ -80,15 +80,19 @@ struct MonthListView: View {
                 }
                 .frame(height: 58)
                 
+                VStack (spacing: 12) {
                 ProfileHeader(student: student)
-                    .padding(16)
+                        .padding(.horizontal, 16)
                 
                 Divider()
-
+                        .padding(.bottom, 12)
+                
                 HStack {
                     Text("Lihat Dokumentasi")
                         .fontWeight(.semibold)
                         .foregroundColor(.labelPrimaryBlack)
+                    
+                    Spacer()
                     
                     HStack(spacing: 8) {
                         Button(action: { moveYear(by: -1) }) {
@@ -100,10 +104,8 @@ struct MonthListView: View {
                                 .foregroundStyle(isNextYearDisabled ? .gray : .buttonLinkOnSheet)
                         }
                         .disabled(isNextYearDisabled)
-
+                        
                     }
-                    
-                    Spacer()
                     
                     Button(action: { isShowingYearPicker.toggle() }) {
                         Text(formattedYear)
@@ -116,7 +118,7 @@ struct MonthListView: View {
                     .cornerRadius(8)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.vertical, 0)
                 
                 // Month List
                 ScrollView {
@@ -146,9 +148,11 @@ struct MonthListView: View {
                             }
                         }
                     }
-                    .padding(16)
+                    .padding(.horizontal, 16)
                 }
             }
+                .padding(.top, 12)
+        }
         }
         .toolbar(.hidden, for: .bottomBar,.tabBar)
         .navigationBarBackButtonHidden(true)
@@ -265,7 +269,6 @@ struct MonthCard: View {
         .padding()
         .background(Color.white)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
     }
 }
 
