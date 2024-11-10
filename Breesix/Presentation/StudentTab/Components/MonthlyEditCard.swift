@@ -21,9 +21,9 @@ struct MonthlyEditCard: View {
     let onActivityUpdate: (Activity) -> Void
     let onAddActivity: () -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
+    let onEditNote: (Note, String) -> Void // Add this new callback
+    let onAddNote: (String) -> Void // Add this new callback
 
-    @State private var newNotes: [(id: UUID, note: String)] = []
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -48,11 +48,13 @@ struct MonthlyEditCard: View {
                 onActivityUpdate: onActivityUpdate,
                 onDeleteActivity: onDeleteActivity,
                 allActivities: activities,
-                allStudents: [student], onStatusChanged: { activity, newStatus in
+                allStudents: [student],
+                onStatusChanged: { activity, newStatus in
                     Task {
                         await onUpdateActivityStatus(activity, newStatus)
                     }
-                }, onAddActivity: onAddActivity
+                },
+                onAddActivity: onAddActivity
             )
             .padding(.horizontal, 16)
 
@@ -62,78 +64,19 @@ struct MonthlyEditCard: View {
                 .padding(.vertical, 4)
                 .padding(.horizontal, 16)
             
-            if !notes.isEmpty || !newNotes.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("CATATAN")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                    ForEach(notes) { note in
-                        HStack {
-                            TextField("Catatan", text: makeNoteBinding(for: note))
-                                .font(.body)
-                                .foregroundColor(.labelPrimaryBlack)
-                                .padding(.vertical, 7)
-                                .padding(.horizontal, 14)
-                                .background(.cardFieldBG)
-                                .cornerRadius(8)
-                            
-                            Button(action: { onDeleteNote(note) }) {
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                            }
-                        }
+            EditNoteSection(
+                notes: notes,
+                onEditNote: { note in
+                    if let editedText = editedNotes[note.id]?.0 {
+                        onEditNote(note, editedText)
                     }
-                    ForEach(newNotes, id: \.id) { newNote in
-                        HStack {
-                            TextField("Catatan", text: Binding(
-                                get: { editedNotes[newNote.id]?.0 ?? newNote.note },
-                                set: { editedNotes[newNote.id] = ($0, date) }
-                            ))
-                            .font(.body)
-                            .foregroundColor(.labelPrimaryBlack)
-                            .padding(.vertical, 7)
-                            .padding(.horizontal, 14)
-                            .background(.cardFieldBG)
-                            .cornerRadius(8)
-                            
-                            Button(action: {
-                                if let index = newNotes.firstIndex(where: { $0.id == newNote.id }) {
-                                    newNotes.remove(at: index)
-                                    editedNotes.removeValue(forKey: newNote.id)
-                                }
-                            }) {
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
+                },
+                onDeleteNote: onDeleteNote,
+                onAddNote: {
+                    // Create a new empty note
+                    onAddNote("")
                 }
-                .padding(.horizontal, 16)
-            } else {
-                Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
-                    .padding(.horizontal, 16)
-            }
-            
-            Button(action: {
-                let newId = UUID()
-                newNotes.append((id: newId, note: ""))
-                editedNotes[newId] = ("", date)
-            }) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
+            )
             .padding(.horizontal, 16)
         }
         .padding(.top, 19)
@@ -168,13 +111,6 @@ struct MonthlyEditCard: View {
                 let text = editedActivities[activity.id]?.0 ?? activity.activity
                 editedActivities[activity.id] = (text, newValue, date)
             }
-        )
-    }
-    
-    private func makeNoteBinding(for note: Note) -> Binding<String> {
-        Binding(
-            get: { editedNotes[note.id]?.0 ?? note.note },
-            set: { editedNotes[note.id] = ($0, date) }
         )
     }
 }

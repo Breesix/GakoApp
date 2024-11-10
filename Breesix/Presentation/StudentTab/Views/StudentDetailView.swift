@@ -214,7 +214,7 @@ struct StudentDetailView: View {
                                                     notes: dayItems.notes,
                                                     student: student,
                                                     selectedStudent: $selectedStudent,
-                                                    isAddingNewActivity: $showingAddActivity,
+                                                    isAddingNewActivity: $isAddingNewActivity,
                                                     editedActivities: $editedActivities,
                                                     editedNotes: $editedNotes,
                                                     onDeleteActivity: deleteActivity,
@@ -225,8 +225,20 @@ struct StudentDetailView: View {
                                                     onAddActivity: {
                                                         selectedDate = day
                                                         isAddingNewActivity = true
-                                                    }, onUpdateActivityStatus: { activity, newStatus in
-                                                        await onUpdateActivityStatus(activity, newStatus)
+                                                    },
+                                                    onUpdateActivityStatus: onUpdateActivityStatus,
+                                                    onEditNote: { note, newText in
+                                                        // Create updated note with new text
+                                                        var updatedNote = note
+                                                        updatedNote.note = newText
+                                                        Task {
+                                                            await onUpdateNote(updatedNote)
+                                                            await fetchAllNotes()
+                                                        }
+                                                    },
+                                                    onAddNote: { _ in
+                                                        selectedDate = day
+                                                        isAddingNewNote = true
                                                     }
                                                 )
                                                 .padding(.horizontal, 16)
@@ -383,6 +395,47 @@ struct StudentDetailView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
+        .sheet(item: $selectedNote) { note in
+            ManageNoteView(
+                mode: .edit(note),
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: {
+                    selectedNote = nil
+                },
+                onSave: { note in
+                    await onAddNote(note, student)
+                },
+                onUpdate: { updatedNote in
+                    Task {
+                        await onUpdateNote(updatedNote)
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
+        }
+        .sheet(isPresented: $isAddingNewNote) {
+            ManageNoteView(
+                mode: .add,
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: {
+                    isAddingNewNote = false
+                    Task {
+                        await fetchAllNotes()
+                    }
+                },
+                onSave: { note in
+                    await onAddNote(note, student)
+                },
+                onUpdate: { _ in }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.white)
+        }
         // Di StudentDetailView
         .sheet(isPresented: $isAddingNewActivity) {
             ManageActivityView(
