@@ -31,7 +31,7 @@ struct EditNoteRow: View {
                     }
                     .onTapGesture {
                         onEdit(note)
-                        showingEditSheet = true  // Trigger sheet
+                        showingEditSheet = true
                     }
                 
                 Button(action: {
