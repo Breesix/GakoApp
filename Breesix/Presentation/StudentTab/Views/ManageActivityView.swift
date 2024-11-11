@@ -7,14 +7,19 @@ import SwiftUI
 import Mixpanel
 
 struct ManageActivityView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @State private var activityText: String = ""
+    @State private var activityText: String
     @State private var showAlert: Bool = false
-    let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
     @State private var selectedStatus: Status = .dibimbing
     
+    let student: Student
+    let selectedDate: Date
+    let onDismiss: () -> Void
+    let onSave: (Activity) async -> Void
+    let onUpdate: (Activity) -> Void
+    let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
+    
     enum Mode: Equatable {
-        case add(Student, Date)
+        case add
         case edit(Activity)
         
         static func == (lhs: Mode, rhs: Mode) -> Bool {
@@ -30,47 +35,33 @@ struct ManageActivityView: View {
     }
     
     let mode: Mode
-    let onSave: (Activity) async -> Void
     
-    init(mode: Mode, onSave: @escaping (Activity) async -> Void) {
+    init(mode: Mode,
+         student: Student,
+         selectedDate: Date,
+         onDismiss: @escaping () -> Void,
+         onSave: @escaping (Activity) async -> Void,
+         onUpdate: @escaping (Activity) -> Void) {
         self.mode = mode
+        self.student = student
+        self.selectedDate = selectedDate
+        self.onDismiss = onDismiss
         self.onSave = onSave
+        self.onUpdate = onUpdate
         
         switch mode {
         case .add:
             _activityText = State(initialValue: "")
         case .edit(let activity):
             _activityText = State(initialValue: activity.activity)
-        }
-    }
-    
-    private var student: Student {
-        switch mode {
-        case .add(let student, _):
-            return student
-        case .edit(let activity):
-            // Since student is optional in the Activity class, we need to safely unwrap it
-            guard let student = activity.student else {
-                // Handle the case where student is nil - you might want to show an error or provide a default
-                fatalError("Activity must have an associated student")
-            }
-            return student
-        }
-    }
-    
-    private var selectedDate: Date {
-        switch mode {
-        case .add(_, let date):
-            return date // Menggunakan tanggal yang diteruskan dari DayEditCard
-        case .edit(let activity):
-            return activity.createdAt
+            _selectedStatus = State(initialValue: activity.status)
         }
     }
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text(isAddMode ? "Tambah Aktivitas" : "Nama Aktivitas")
+                Text(mode == .add ? "Tambah Aktivitas" : "Edit Aktivitas")
                     .foregroundStyle(.labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -100,30 +91,8 @@ struct ManageActivityView: View {
                             .stroke(.monochrome50, lineWidth: 0.5)
                     )
                     
-                    if isAddMode {
-                        Menu {
-                            Button("Mandiri") {
-                                selectedStatus = .mandiri
-                            }
-                            Button("Dibimbing") {
-                                selectedStatus = .dibimbing
-                            }
-                            Button("Tidak Melakukan") {
-                                selectedStatus = .tidakMelakukan
-                            }
-                        } label: {
-                            HStack(spacing: 9) {
-                                Text(getStatusText())
-                                Image(systemName: "chevron.up.chevron.down")
-                            }
-                            .font(.body)
-                            .fontWeight(.regular)
-                            .foregroundColor(.labelPrimaryBlack)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 11)
-                            .background(.statusSheet)
-                            .cornerRadius(8)
-                        }
+                    if mode == .add {
+                        StatusMenu(selectedStatus: $selectedStatus)
                     }
                 }
                 
@@ -134,7 +103,7 @@ struct ManageActivityView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(isAddMode ? "Tambah Aktivitas" : "Edit Aktivitas")
+                    Text(mode == .add ? "Tambah Aktivitas" : "Edit Aktivitas")
                         .foregroundStyle(.labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -142,9 +111,7 @@ struct ManageActivityView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
+                    Button(action: { onDismiss() }) {
                         HStack(spacing: 3) {
                             Image(systemName: "chevron.left")
                                 .fontWeight(.semibold)
@@ -179,42 +146,32 @@ struct ManageActivityView: View {
         }
     }
     
-    private func getStatusText() -> String {
-        switch selectedStatus {
-        case .mandiri:
-            return "Mandiri"
-        case .dibimbing:
-            return "Dibimbing"
-        case .tidakMelakukan:
-            return "Tidak Melakukan"
-        }
-    }
-    
-    private var isAddMode: Bool {
+    private func saveActivity() {
         switch mode {
         case .add:
-            return true
-        case .edit:
-            return false
+            let newActivity = Activity(
+                activity: activityText,
+                createdAt: selectedDate,
+                status: selectedStatus,
+                student: student
+            )
+            
+            trackActivityCreation(newActivity)
+            
+            Task {
+                await onSave(newActivity)
+                onDismiss()
+            }
+            
+        case .edit(let activity):
+            var updatedActivity = activity
+            updatedActivity.activity = activityText
+            onUpdate(updatedActivity)
+            onDismiss()
         }
     }
     
-    private func saveActivity() {
-        if isAddMode {
-            saveNewActivity()
-        } else {
-            saveEditedActivity()
-        }
-    }
-    
-    private func saveNewActivity() {
-        let newActivity = Activity(
-            activity: activityText,
-            createdAt: selectedDate, // Menggunakan tanggal yang diteruskan
-            status: selectedStatus,
-            student: student
-        )
-        
+    private func trackActivityCreation(_ activity: Activity) {
         let properties: [String: MixpanelType] = [
             "student_id": student.id.uuidString,
             "activity_text_length": activityText.count,
@@ -223,37 +180,51 @@ struct ManageActivityView: View {
             "screen": "add_activity",
             "timestamp": Date().timeIntervalSince1970
         ]
-        
         analytics.trackEvent("Activity Created", properties: properties)
-        
-        Task {
-            await onSave(newActivity)
-            presentationMode.wrappedValue.dismiss()
+    }
+}
+
+struct StatusMenu: View {
+    @Binding var selectedStatus: Status
+    
+    var body: some View {
+        Menu {
+            Button("Mandiri") { selectedStatus = .mandiri }
+            Button("Dibimbing") { selectedStatus = .dibimbing }
+            Button("Tidak Melakukan") { selectedStatus = .tidakMelakukan }
+        } label: {
+            HStack(spacing: 9) {
+                Text(selectedStatus.displayText)
+                Image(systemName: "chevron.up.chevron.down")
+            }
+            .font(.body)
+            .fontWeight(.regular)
+            .foregroundColor(.labelPrimaryBlack)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .background(.statusSheet)
+            .cornerRadius(8)
         }
     }
-    
-    private func saveEditedActivity() {
-           if case .edit(let activity) = mode {
-               guard let student = activity.student else { return }
-               
-               let updatedActivity = Activity(
-                   id: activity.id,
-                   activity: activityText,
-                   createdAt: activity.createdAt, // Mempertahankan tanggal asli
-                   status: activity.status,
-                   student: student
-               )
-               
-               Task {
-                   await onSave(updatedActivity)
-                   presentationMode.wrappedValue.dismiss()
-               }
-           }
-       }
+}
+
+private extension Status {
+    var displayText: String {
+        switch self {
+        case .mandiri: return "Mandiri"
+        case .dibimbing: return "Dibimbing"
+        case .tidakMelakukan: return "Tidak Melakukan"
+        }
+    }
 }
 
 #Preview {
     ManageActivityView(
-        mode: .add(.init(fullname: "Rangga Biner", nickname: "Rangga"), .now)
-    ) { _ in }
+        mode: .add,
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        selectedDate: .now,
+        onDismiss: { print("dismissed") },
+        onSave: { _ in print("saved") },
+        onUpdate: { _ in print("updated") }
+    )
 }
