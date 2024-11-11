@@ -24,7 +24,9 @@ struct DailyReportCard: View {
     @State private var showSnapshotPreview = false
     @State private var snapshotImage: UIImage?
     @State private var selectedActivityDate: Date?
-    
+    @State private var showEmptyAlert = false
+    @State private var emptyAlertMessage = ""
+
     func indonesianFormattedDate(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
@@ -66,7 +68,7 @@ struct DailyReportCard: View {
                 Spacer()
             
                 Button(action: {
-                    onShareTapped(date)
+                    validateAndShare()
                 }) {
                     ZStack {
                         Circle()
@@ -118,7 +120,24 @@ struct DailyReportCard: View {
         .background(.white)
         .cornerRadius(20)
         .frame(maxWidth: .infinity, alignment: .trailing)
+        .alert("Peringatan", isPresented: $showEmptyAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(emptyAlertMessage)
+        }
     }
+    
+    private func validateAndShare() {
+        if activities.isEmpty && notes.isEmpty {
+            emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
+            showEmptyAlert = true
+            return
+        }
+                
+        // Jika semua data tersedia, lanjutkan dengan sharing
+        onShareTapped(date)
+    }
+
 }
 
 struct DayEditCard: View {

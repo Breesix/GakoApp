@@ -39,7 +39,9 @@ struct DailyReportView: View {
     @Environment(\.presentationMode) private var presentationMode
     @State private var editedActivities: [UUID: (String, Status, Date)] = [:]
     @State private var editedNotes: [UUID: (String, Date)] = [:]
-    
+    @State private var showEmptyAlert = false
+    @State private var emptyAlertMessage = ""
+
     private let calendar = Calendar.current
         
     private var formattedDate: String {
@@ -258,10 +260,7 @@ struct DailyReportView: View {
                         .background(Color.bgMain)
                     } else {
                         Button {
-                            generateSnapshot(for: selectedDate)
-                            withAnimation {
-                                showSnapshotPreview = true
-                            }
+                            validateAndShare()
                         } label: {
                             Text("Bagikan Dokumentasi")
                                 .font(.body)
@@ -293,6 +292,11 @@ struct DailyReportView: View {
         .toolbar(.hidden, for: .tabBar)
         .hideTabBar()
         .toastView(toast: $toast)
+        .alert("Peringatan", isPresented: $showEmptyAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(emptyAlertMessage)
+        }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -375,6 +379,27 @@ struct DailyReportView: View {
         .task {
             await fetchAllNotes()
             await fetchActivities()
+        }
+    }
+    
+    private func validateAndShare() {
+        // Cek apakah ada aktivitas atau catatan untuk tanggal yang dipilih
+        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+            if dayItems.activities.isEmpty && dayItems.notes.isEmpty {
+                emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
+                showEmptyAlert = true
+                return
+            }
+            
+            // Jika ada aktivitas atau catatan, lanjutkan dengan sharing
+            generateSnapshot(for: selectedDate)
+            withAnimation {
+                showSnapshotPreview = true
+            }
+        } else {
+            // Jika tidak ada data sama sekali untuk tanggal tersebut
+            emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
+            showEmptyAlert = true
         }
     }
     
