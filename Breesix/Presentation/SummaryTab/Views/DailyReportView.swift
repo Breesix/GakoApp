@@ -312,21 +312,30 @@ struct DailyReportView: View {
             }
         .sheet(isPresented: $isAddingNewActivity) {
             ManageActivityView(
-                mode: .add(student, selectedDate),
+                mode: .add,
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: { isAddingNewActivity = false },
                 onSave: { newActivity in
                     Task {
                         await onAddActivity(newActivity, student)
                         await fetchActivities()
                     }
-                }
+                },
+                onUpdate: { _ in }
             )
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+
         .sheet(item: $activityToEdit) { activity in
             ManageActivityView(
                 mode: .edit(activity),
-                onSave: { updatedActivity in
+                student: student,
+                selectedDate: selectedDate,
+                onDismiss: { activityToEdit = nil },
+                onSave: { _ in },
+                onUpdate: { updatedActivity in
                     Task {
                         await onUpdateActivityStatus(updatedActivity, updatedActivity.status)
                         await fetchActivities()
@@ -336,7 +345,6 @@ struct DailyReportView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-
         .sheet(item: $noteToEdit) { note in
             ManageNoteView(
                 mode: .edit(note),
