@@ -482,45 +482,6 @@ struct StudentDetailView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        .sheet(item: $selectedNote) { note in
-            ManageNoteView(
-                mode: .edit(note),
-                student: student,
-                selectedDate: selectedDate,
-                onDismiss: { selectedNote = nil },
-                onSave: { note in
-                    await onAddNote(note, student)
-                },
-                onUpdate: { updatedNote in
-                    Task {
-                        await onUpdateNote(updatedNote)
-                    }
-                }
-            )
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
-        .sheet(isPresented: $isAddingNewNote) {
-            ManageNoteView(
-                mode: .add,
-                student: student,
-                selectedDate: selectedDate,
-                onDismiss: {
-                    isAddingNewNote = false
-                    Task {
-                        await fetchAllNotes()
-                    }
-                },
-                onSave: { note in
-                    await onAddNote(note, student)
-                },
-                onUpdate: { _ in }
-            )
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
-        }
         .toastView(toast: $toast)
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }

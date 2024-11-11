@@ -94,7 +94,7 @@ struct EditActivityRow: View {
         .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
             Button("Hapus", role: .destructive) {
                 trackDeletion()
-                onDeleteActivity(activity)  
+                onDeleteActivity(activity)
             }
             Button("Batal", role: .cancel) { }
         } message: {

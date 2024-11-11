@@ -152,7 +152,14 @@ struct DailyReportTemplate: View {
                             Text(activity.activity)
                                 .foregroundStyle(.labelPrimaryBlack)
                             Spacer()
-                            Text(activity.status == .mandiri ? "Mandiri" : "Dibimbing")
+                            switch activity.status {
+                            case .mandiri:
+                                Text("Mandiri")
+                            case .dibimbing:
+                                Text("Dibimbing")
+                            case .tidakMelakukan:
+                                Text("Tidak Melakukan")
+                            }
                         }
                         .padding()
                         Divider()

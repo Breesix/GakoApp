@@ -57,7 +57,6 @@ struct StudentDailyReportCard: View {
     
     var body: some View {
          VStack(alignment: .leading, spacing: 12) {
-             if !activities.isEmpty {
                  ActivitySection(
                      activities: activities,
                      onDeleteActivity: onDeleteActivity,
@@ -69,11 +68,6 @@ struct StudentDailyReportCard: View {
                  )
                  .disabled(true)
                  .padding(.horizontal, 16)
-             } else {
-                 Text("Tidak ada aktivitas untuk tanggal ini")
-                     .foregroundColor(.labelSecondary)
-                     .padding(.horizontal, 16)
-             }
              
 //             Button(action: onAddActivity) {
 //                 Label("Tambah", systemImage: "plus.app.fill")
@@ -93,7 +87,6 @@ struct StudentDailyReportCard: View {
                  .padding(.bottom, 4)
                  .padding(.top, 4)
              
-             if !notes.isEmpty {
                  NoteSection(
                      notes: notes,
                      onEditNote: onEditNote,
@@ -101,11 +94,6 @@ struct StudentDailyReportCard: View {
                      onAddNote: onAddNote
                  )
                  .padding(.horizontal, 16)
-             } else {
-                 Text("Tidak ada catatan untuk tanggal ini")
-                     .foregroundColor(.labelSecondary)
-                     .padding(.horizontal, 16)
-             }
              
 //             // Tombol Tambah Catatan
 //             Button(action: onAddNote) {
