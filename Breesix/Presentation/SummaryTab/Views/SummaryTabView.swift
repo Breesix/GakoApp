@@ -249,14 +249,10 @@ struct SummaryTabView: View {
                     }
                 },
                 onDeleteActivity: { activity, student in
-                    Task {
-                        await activityViewModel.deleteActivities(activity, from: student)
-                    }
+                    await activityViewModel.deleteActivities(activity, from: student)
                 },
-                onUpdateActivityStatus: { activity, newStatus in
-                    Task {
-                        await activityViewModel.updateActivityStatus(activity, status: newStatus)
-                    }
+                onUpdateActivityStatus: { activity, status in
+                    await activityViewModel.updateActivityStatus(activity, status: status)
                 },
                 onFetchNotes: { student in
                     await noteViewModel.fetchAllNotes(student)

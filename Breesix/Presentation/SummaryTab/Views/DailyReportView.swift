@@ -19,9 +19,11 @@ struct DailyReportView: View {
     let onFetchNotes: (Student) async -> [Note]
     let onFetchActivities: (Student) async -> [Activity]
     
+    @State private var showingCancelAlert = false
     @State private var notes: [Note] = []
     @State private var selectedDate: Date
-    @State private var selectedNote: Note?
+    @State private var noteToEdit: Note?
+    @State private var activityToEdit: Activity?
     @State private var isAddingNewNote = false
     @State private var isAddingNewActivity = false
     @State private var activities: [Activity] = []
@@ -33,8 +35,13 @@ struct DailyReportView: View {
     @State private var selectedActivityDate: Date?
     @State private var toast: Toast?
     @State private var isEditing = false
+    @State private var isEditingMode = false
     @Environment(\.presentationMode) private var presentationMode
-    
+    @State private var editedActivities: [UUID: (String, Status, Date)] = [:]
+    @State private var editedNotes: [UUID: (String, Date)] = [:]
+    @State private var showEmptyAlert = false
+    @State private var emptyAlertMessage = ""
+
     private let calendar = Calendar.current
         
     private var formattedDate: String {
@@ -81,33 +88,36 @@ struct DailyReportView: View {
                     
                     ZStack {
                         HStack(spacing: 0) {
-                            Button(action: {
-                                presentationMode.wrappedValue.dismiss()
-                            }) {
+                            Button {
+                                !isEditingMode ? presentationMode.wrappedValue.dismiss() : (showingCancelAlert = true)
+                            } label: {
                                 HStack(spacing: 3) {
                                     Image(systemName: "chevron.left")
                                         .foregroundColor(.white)
                                         .fontWeight(.semibold)
-                                    Text("Ringkasan")
+                                    Text(!isEditingMode ? "Ringkasan" : student.nickname)
                                         .foregroundStyle(.white)
                                         .fontWeight(.regular)
                                 }
                                 .font(.body)
-                            }
+                            }   
                             
                             Spacer()
                             
-                            Button(action: {
-                                isEditing = true
-                            }) {
-                                Text("Edit")
-                                    .foregroundStyle(.white)
-                                    .fontWeight(.regular)
+                            if !isEditingMode {
+                                Button {
+                                    isEditingMode = true
+                                } label: {
+                                    Text("Edit")
+                                        .foregroundStyle(.white)
+                                        .fontWeight(.regular)
+                                }
                             }
+                            
                         }
                         .padding(.horizontal, 14)
                         
-                        Text(student.nickname)
+                        Text(!isEditingMode ? student.nickname : formattedDate)
                             .fontWeight(.semibold)
                             .foregroundStyle(.white)
                     }
@@ -163,58 +173,94 @@ struct DailyReportView: View {
                         ScrollViewReader { scrollProxy in
                             ScrollView {
                                 LazyVStack(spacing: 0) {
-                                    if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
-                                        StudentDailyReportCard(
-                                            activities: dayItems.activities,
-                                            notes: dayItems.notes,
-                                            student: student,
-                                            date: selectedDate,
-                                            onAddNote: {
-                                                isAddingNewNote = true
-                                            },
-                                            onAddActivity: {
-                                                isAddingNewActivity = true
-                                            },
-                                            onDeleteActivity: deleteActivity,
-                                            onEditNote: { self.selectedNote = $0 },
-                                            onDeleteNote: deleteNote,
-                                            onShareTapped: { date in
-                                                selectedActivityDate = date
-                                                generateSnapshot(for: date)
-                                                withAnimation {
-                                                    showSnapshotPreview = true
+                                    if isEditingMode {
+                                        // Edit mode content
+                                        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+                                            DailyEditCard(
+                                                date: selectedDate,
+                                                activities: dayItems.activities,
+                                                notes: dayItems.notes,
+                                                student: student,
+                                                selectedStudent: .constant(nil),
+                                                isAddingNewActivity: $isAddingNewActivity,
+                                                editedActivities: $editedActivities,
+                                                editedNotes: $editedNotes,
+                                                onDeleteActivity: deleteActivity,
+                                                onDeleteNote: deleteNote,
+                                                onActivityUpdate: { activity in
+                                                    activityToEdit = activity
+                                                },
+                                                onAddActivity: {
+                                                    isAddingNewActivity = true
+                                                },
+                                                onUpdateActivityStatus: onUpdateActivityStatus,
+                                                onEditNote: { note in
+                                                    noteToEdit = note
+                                                },
+                                                onAddNote: { _ in
+                                                    isAddingNewNote = true
                                                 }
-                                            },
-                                            onUpdateActivityStatus: { activity, newStatus in
-                                                await onUpdateActivityStatus(activity, newStatus)
-                                            }
-                                        )
-                                        .padding(.horizontal, 16)
-                                        .padding(.bottom, 12)
-                                    }
-                                }
-                            }
-                            .onChange(of: selectedDate) {
-                                let startOfDay = calendar.startOfDay(for: selectedDate)
-                                if let dayItems = activitiesForSelectedMonth[startOfDay] {
-                                    if dayItems.activities.isEmpty && dayItems.notes.isEmpty && selectedDate > Date() {
-                                        noActivityAlertPresented = true
-                                    } else {
-                                        withAnimation(.smooth) {
-                                            scrollProxy.scrollTo(startOfDay, anchor: .top)
+                                            )
+                                            .padding(.horizontal, 16)
+                                            .padding(.bottom, 12)
                                         }
-                                        isShowingCalendar = false
+                                    } else {
+                                        // Normal view content
+                                        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+                                            StudentDailyReportCard(
+                                                activities: dayItems.activities,
+                                                notes: dayItems.notes,
+                                                student: student,
+                                                date: selectedDate,
+                                                onAddNote: { isAddingNewNote = true },
+                                                onAddActivity: { isAddingNewActivity = true },
+                                                onDeleteActivity: deleteActivity,
+                                                onEditNote: { self.noteToEdit = $0 },
+                                                onDeleteNote: deleteNote,
+                                                onShareTapped: { date in
+                                                    selectedActivityDate = date
+                                                    generateSnapshot(for: date)
+                                                    withAnimation {
+                                                        showSnapshotPreview = true
+                                                    }
+                                                },
+                                                onUpdateActivityStatus: { activity, newStatus in
+                                                    await onUpdateActivityStatus(activity, newStatus)
+                                                }
+                                            )
+                                            .padding(.horizontal, 16)
+                                            .padding(.bottom, 12)
+                                        }
                                     }
-                                } else {
-                                    noActivityAlertPresented = true
                                 }
                             }
                         }
-                        Button {
-                            generateSnapshot(for: selectedDate)
-                            withAnimation {
-                                showSnapshotPreview = true
+                    }
+                    
+                    if isEditingMode {
+                        VStack {
+                            Button {
+                                Task {
+                                    await saveChanges()
+                                    isEditingMode = false
+                                }
+                            } label: {
+                                Text("Simpan")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.labelPrimaryBlack)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(Color(.orangeClickAble))
+                                    .cornerRadius(12)
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                        }
+                        .background(Color.bgMain)
+                    } else {
+                        Button {
+                            validateAndShare()
                         } label: {
                             Text("Bagikan Dokumentasi")
                                 .font(.body)
@@ -227,6 +273,7 @@ struct DailyReportView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
+
                     }
                 }
             }
@@ -245,21 +292,57 @@ struct DailyReportView: View {
         .toolbar(.hidden, for: .tabBar)
         .hideTabBar()
         .toastView(toast: $toast)
+        .alert("Peringatan", isPresented: $showEmptyAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(emptyAlertMessage)
+        }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
             Button("OK", role: .cancel) { }
         } message: {
             Text("There are no activities recorded for the selected date.")
         }
-        .task {
-            await fetchAllNotes()
-            await fetchActivities()
+        .alert("Peringatan", isPresented: $showingCancelAlert) {
+                Button("Ya", role: .destructive) {
+                    isEditingMode = false
+                }
+                Button("Tidak", role: .cancel) { }
+            } message: {
+                Text("Apakah Anda yakin ingin membatalkan perubahan?")
+            }
+        .sheet(isPresented: $isAddingNewActivity) {
+            ManageActivityView(
+                mode: .add(student, selectedDate),
+                onSave: { newActivity in
+                    Task {
+                        await onAddActivity(newActivity, student)
+                        await fetchActivities()
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
-        .sheet(item: $selectedNote) { note in
+        .sheet(item: $activityToEdit) { activity in
+            ManageActivityView(
+                mode: .edit(activity),
+                onSave: { updatedActivity in
+                    Task {
+                        await onUpdateActivityStatus(updatedActivity, updatedActivity.status)
+                        await fetchActivities()
+                    }
+                }
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+
+        .sheet(item: $noteToEdit) { note in
             ManageNoteView(
                 mode: .edit(note),
                 student: student,
                 selectedDate: selectedDate,
-                onDismiss: { selectedNote = nil },
+                onDismiss: { noteToEdit = nil },
                 onSave: { note in
                     await onAddNote(note, student)
                 },
@@ -293,26 +376,74 @@ struct DailyReportView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-        .sheet(isPresented: $isAddingNewActivity) {
-            AddActivityView(
-                student: student,
-                selectedDate: selectedDate,
-                onDismiss: {
-                    isAddingNewActivity = false
-                    Task {
-                        await fetchActivities()
-                    }
-                },
-                onSave: { activity in
-                    await onAddActivity(activity, student)
-                }
-            )
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.white)
+        .task {
+            await fetchAllNotes()
+            await fetchActivities()
         }
     }
     
+    private func validateAndShare() {
+        // Cek apakah ada aktivitas atau catatan untuk tanggal yang dipilih
+        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+            if dayItems.activities.isEmpty && dayItems.notes.isEmpty {
+                emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
+                showEmptyAlert = true
+                return
+            }
+            
+            // Jika ada aktivitas atau catatan, lanjutkan dengan sharing
+            generateSnapshot(for: selectedDate)
+            withAnimation {
+                showSnapshotPreview = true
+            }
+        } else {
+            // Jika tidak ada data sama sekali untuk tanggal tersebut
+            emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
+            showEmptyAlert = true
+        }
+    }
+    
+    private func saveChanges() async {
+        // Validate activities
+        for (id, (text, status, date)) in editedActivities {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.isEmpty {
+                toast = Toast(style: .error, message: "Aktivitas tidak boleh kosong")
+                return
+            }
+            if let activity = activities.first(where: { $0.id == id }) {
+                var updatedActivity = activity
+                updatedActivity.activity = trimmedText
+                updatedActivity.status = status
+                await onUpdateActivityStatus(updatedActivity, status)
+            }
+        }
+
+        // Validate notes
+        for (id, (text, date)) in editedNotes {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.isEmpty {
+                toast = Toast(style: .error, message: "Catatan tidak boleh kosong")
+                return
+            }
+            if let note = notes.first(where: { $0.id == id }) {
+                var updatedNote = note
+                updatedNote.note = trimmedText
+                await onUpdateNote(updatedNote)
+            }
+        }
+
+        // Refresh data
+        await fetchAllNotes()
+        await fetchActivities()
+        
+        // Clear temporary changes
+        editedActivities.removeAll()
+        editedNotes.removeAll()
+        
+        // Show success message
+        toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
+    }
     // MARK: - Helper Methods
     
     private func generateSnapshot(for date: Date) {

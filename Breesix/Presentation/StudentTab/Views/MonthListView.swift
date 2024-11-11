@@ -28,14 +28,13 @@ struct MonthListView: View {
     
     private let calendar = Calendar.current
 
-    @State private var selectedYear: Date = Date() // Add this
-    @State private var isShowingYearPicker = false // Add this
+    @State private var selectedYear: Date = Date()
+    @State private var isShowingYearPicker = false
     
     @State private var isEditing = false
     
     @State private var newStudentImage: UIImage?
     
-    // as a middle view
     private var formattedYear: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
@@ -48,7 +47,6 @@ struct MonthListView: View {
             Color.bgMain.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Navigation Bar
                 ZStack {
                     Color(.bgSecondary)
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
@@ -61,8 +59,11 @@ struct MonthListView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "chevron.left")
                                     .foregroundColor(.white)
-                                Text("Kembali")
+                                    .fontWeight(.semibold)
+                                Text("Murid")
                                     .foregroundStyle(.white)
+                                    .font(.body)
+                                    .fontWeight(.regular)
                             }
                         }
                         Spacer()
@@ -71,7 +72,7 @@ struct MonthListView: View {
                         }) {
                             Text("Edit Profil")
                                 .foregroundStyle(.white)
-                                .font(.subheadline)
+                                .font(.body)
                                 .fontWeight(.regular)
                         }
                     }
@@ -79,15 +80,19 @@ struct MonthListView: View {
                 }
                 .frame(height: 58)
                 
+                VStack (spacing: 12) {
                 ProfileHeader(student: student)
-                    .padding(16)
+                        .padding(.horizontal, 16)
                 
                 Divider()
-
-                HStack {
+                        .padding(.bottom, 12)
+                
+                    HStack (spacing: 16) {
                     Text("Lihat Dokumentasi")
                         .fontWeight(.semibold)
                         .foregroundColor(.labelPrimaryBlack)
+                    
+                    Spacer()
                     
                     HStack(spacing: 8) {
                         Button(action: { moveYear(by: -1) }) {
@@ -96,11 +101,11 @@ struct MonthListView: View {
                         }
                         Button(action: { moveYear(by: 1) }) {
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(.buttonLinkOnSheet)
+                                .foregroundStyle(isNextYearDisabled ? .gray : .buttonLinkOnSheet)
                         }
+                        .disabled(isNextYearDisabled)
+                        
                     }
-                    
-                    Spacer()
                     
                     Button(action: { isShowingYearPicker.toggle() }) {
                         Text(formattedYear)
@@ -113,7 +118,7 @@ struct MonthListView: View {
                     .cornerRadius(8)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.vertical, 0)
                 
                 // Month List
                 ScrollView {
@@ -143,9 +148,11 @@ struct MonthListView: View {
                             }
                         }
                     }
-                    .padding(16)
+                    .padding(.horizontal, 16)
                 }
             }
+                .padding(.top, 12)
+        }
         }
         .toolbar(.hidden, for: .bottomBar,.tabBar)
         .navigationBarBackButtonHidden(true)
@@ -174,6 +181,14 @@ struct MonthListView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
+    }
+    
+    private var isNextYearDisabled: Bool {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        let selectedYear = calendar.component(.year, from: selectedYear)
+        
+        return (selectedYear >= currentYear)
     }
     
     private func fetchData() async {
@@ -212,8 +227,28 @@ struct MonthListView: View {
     
     private func getAllMonthsForYear() -> [Date] {
         let year = calendar.component(.year, from: selectedYear)
-        return (1...12).compactMap { month in
-            calendar.date(from: DateComponents(year: year, month: month))
+        let currentDate = Date()
+        let currentYear = calendar.component(.year, from: currentDate)
+        let currentMonth = calendar.component(.month, from: currentDate)
+        
+        // Jika tahun yang dipilih adalah tahun saat ini
+        if year == currentYear {
+            // Hanya tampilkan bulan dari Januari sampai bulan saat ini
+            return (1...currentMonth).compactMap { month in
+                calendar.date(from: DateComponents(year: year, month: month))
+            }
+        }
+        // Jika tahun yang dipilih adalah tahun sebelumnya
+        else if year < currentYear {
+            // Tampilkan semua bulan (1-12)
+            return (1...12).compactMap { month in
+                calendar.date(from: DateComponents(year: year, month: month))
+            }
+        }
+        // Jika tahun yang dipilih adalah tahun yang akan datang
+        else {
+            // Tidak menampilkan bulan apapun
+            return []
         }
     }
     
@@ -230,28 +265,30 @@ struct MonthCard: View {
     private var monthYearString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "MMMM yyyy"
+        formatter.dateFormat = "MMMM"
         return formatter.string(from: date)
     }
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: "document.fill")
                 Text(monthYearString)
-                    .font(.headline)
-                    .foregroundColor(.labelPrimaryBlack)
-                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+//                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
+//                    .font(.subheadline)
+//                    .foregroundColor(.gray)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .fontWeight(.medium)
+                .font(.body)
         }
+        .font(.body)
+        .fontWeight(.semibold)
+        .foregroundColor(.labelPrimaryBlack)
         .padding()
         .background(Color.white)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
     }
 }
 

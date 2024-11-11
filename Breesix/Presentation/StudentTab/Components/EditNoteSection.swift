@@ -1,19 +1,19 @@
 //
-//  NoteSection.swift
+//  EditNoteSection.swift
 //  Breesix
 //
-//  Created by Akmal Hakim on 10/10/24.
+//  Created by Rangga Biner on 10/11/24.
 //
 
 import SwiftUI
 
-struct NoteSection: View {
+struct EditNoteSection: View {
     let notes: [Note]
     
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onAddNote: () -> Void
-    
+
     var body: some View {
             VStack (alignment: .leading, spacing: 12) {
                 Text("CATATAN")
@@ -27,15 +27,21 @@ struct NoteSection: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(notes, id: \.id) { note in
-                        NoteRow(note: note, onDelete: onDeleteNote)
+                        EditNoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
                     }
             }
+                AddButton(
+                    action: {
+                        onAddNote()
+                    },
+                    backgroundColor: .buttonOncard
+                )
         }
     }
 }
 
 #Preview {
-    NoteSection(notes: [
+    EditNoteSection(notes: [
         .init(note: "Hari ini rangga sangat baik sekali dalam mengerjakan tugas nya", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
     ], onEditNote: { _ in print("edited")}, onDeleteNote: { _ in print("deleted")}, onAddNote: { print("added") })
     .padding(.bottom, 200)

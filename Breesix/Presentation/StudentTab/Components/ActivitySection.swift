@@ -14,7 +14,11 @@ struct ActivitySection: View {
     let onStatusChanged: (Activity, Status) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("AKTIVITAS")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
