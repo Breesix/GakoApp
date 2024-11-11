@@ -174,7 +174,7 @@ struct DailyReportView: View {
                                     if isEditingMode {
                                         // Edit mode content
                                         if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
-                                            MonthlyEditCard(
+                                            DailyEditCard(
                                                 date: selectedDate,
                                                 activities: dayItems.activities,
                                                 notes: dayItems.notes,
@@ -253,7 +253,7 @@ struct DailyReportView: View {
                                     .cornerRadius(12)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 12)
                         }
                         .background(Color.bgMain)
                     } else {

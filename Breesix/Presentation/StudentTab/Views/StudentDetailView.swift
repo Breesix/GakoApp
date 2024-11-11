@@ -307,7 +307,7 @@ struct StudentDetailView: View {
                                         .cornerRadius(12)
                                 }
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 12)
                             }
                             .background(Color.bgMain)
                         }
