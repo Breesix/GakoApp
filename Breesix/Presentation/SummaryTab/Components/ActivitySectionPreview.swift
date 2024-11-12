@@ -65,7 +65,7 @@ struct ActivitySectionPreview: View {
                     selectedStudent = student
                     isAddingNewActivity = true
                 },
-                backgroundColor: .buttonOncard
+                backgroundColor: .buttonOncard, title: "Tambah"
             )
         }
         .sheet(item: $editingActivity) { activity in

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SummaryTabView: View {
+    @Binding var selectedTab: Int
+    @Binding var isAddingStudent: Bool
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
     @ObservedObject var activityViewModel: ActivityViewModel
@@ -33,7 +35,7 @@ struct SummaryTabView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 CustomNavigation(
-                    title: "Ringkasan",
+                    title: "Dokumentasi", textButton: "Dokumentasi",
                     isInternetConnected: networkMonitor.isConnected
                 ) { if !networkMonitor.isConnected {
                     showNoInternetAlert = true
@@ -170,7 +172,13 @@ struct SummaryTabView: View {
             }
         }
         .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("Tambahkan Murid", role: .cancel) {}
+            Button("Tambahkan Murid", role: .cancel) {
+                selectedTab = 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isAddingStudent = true
+                }
+                
+            }
         } message: {
             Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
         }
@@ -179,11 +187,7 @@ struct SummaryTabView: View {
         } message: {
             Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
         }
-//        .onChange(of: networkMonitor.isConnected) { newValue in
-//            if !newValue {
-//                showNoInternetAlert = true
-//            }
-//        }
+
         .navigationBarHidden(true)
         .task {
             await studentViewModel.fetchAllStudents()

@@ -23,7 +23,7 @@ struct ActivitySection: View {
                 Text("Tidak ada aktivitas untuk tanggal ini")
                     .foregroundColor(.labelSecondary)
             } else {
-                ForEach(activities, id: \.id) { activity in
+                ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
                     ActivityRow(
                         activity: activity,
                         onDelete: { _ in onDeleteActivity(activity) },

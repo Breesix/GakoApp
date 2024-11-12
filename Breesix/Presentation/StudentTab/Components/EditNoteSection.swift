@@ -34,7 +34,7 @@ struct EditNoteSection: View {
                     action: {
                         onAddNote()
                     },
-                    backgroundColor: .buttonOncard
+                    backgroundColor: .buttonOncard, title: "Tambah"
                 )
         }
     }
