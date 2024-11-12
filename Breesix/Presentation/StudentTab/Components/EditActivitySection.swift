@@ -57,7 +57,7 @@ struct EditActivitySection: View {
                 action: {
                     onAddActivity()
                 },
-                backgroundColor: .buttonOncard
+                backgroundColor: .buttonOncard, title: "Tambah"
             )
         }
     }

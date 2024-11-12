@@ -59,7 +59,7 @@ struct NoteSectionPreview: View {
                 selectedStudent = student
                 isAddingNewNote = true
             },
-            backgroundColor: .buttonOncard
+            backgroundColor: .buttonOncard, title: "Tambah"
         )
     }
 }

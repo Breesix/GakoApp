@@ -58,6 +58,7 @@ struct SummaryCard: View {
             } else {
                 ForEach(dailySummaries, id: \.id) { summary in
                     Text(summary.summary)
+                        .lineLimit(2)
                         .font(.footnote)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
