@@ -41,6 +41,9 @@ struct DailyReportView: View {
     @State private var editedNotes: [UUID: (String, Date)] = [:]
     @State private var showEmptyAlert = false
     @State private var emptyAlertMessage = ""
+    @State private var currentPageIndex: Int = 0
+    @State private var allPageSnapshots: [UIImage] = []
+
 
     private let calendar = Calendar.current
         
@@ -278,15 +281,16 @@ struct DailyReportView: View {
                 }
             }
             
-            if showSnapshotPreview, let image = snapshotImage {
+            if showSnapshotPreview {
                 SnapshotPreviewOverlay(
-                    image: image,
+                    images: allPageSnapshots, currentPageIndex: $currentPageIndex,
                     showSnapshotPreview: $showSnapshotPreview,
                     toast: $toast,
                     shareToWhatsApp: shareToWhatsApp,
                     showShareSheet: showShareSheet
                 )
             }
+ 
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
@@ -294,7 +298,7 @@ struct DailyReportView: View {
         .toastView(toast: $toast)
         .alert("Peringatan", isPresented: $showEmptyAlert) {
             Button("OK", role: .cancel) { }
-        } message: {
+        } message: {    
             Text(emptyAlertMessage)
         }
         .alert("No Activity", isPresented: $noActivityAlertPresented) {
@@ -453,6 +457,11 @@ struct DailyReportView: View {
         toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
     }
     // MARK: - Helper Methods
+    private func calculateRequiredPages() -> Int {
+       let activitiesPages = ceil(Double(max(0, activities.count - 5)) / 10.0)
+       let notesPages = ceil(Double(notes.count) / 5.0)
+       return 1 + Int(max(activitiesPages, notesPages))
+   }
     
     private func generateSnapshot(for date: Date) {
         let reportView = DailyReportTemplate(
@@ -461,8 +470,26 @@ struct DailyReportView: View {
             notes: activitiesForSelectedDay[calendar.startOfDay(for: date)]?.notes ?? [],
             date: date
         )
-        snapshotImage = reportView.snapshot()
+  
+        let totalPages = reportView.calculateRequiredPages()
+        var snapshots: [UIImage] = []
+        
+        for pageIndex in 0..<totalPages {
+            let pageView = reportView.reportPage(pageIndex: pageIndex)
+                .frame(width: reportView.a4Width, height: reportView.a4Height)
+                .background(.white)
+            
+            if let pageSnapshot = pageView.snapshot() {
+                snapshots.append(pageSnapshot)
+            }
+        }
+        
+        allPageSnapshots = snapshots
+        currentPageIndex = 0
+        showSnapshotPreview = true
     }
+
+    
     
     private func fetchAllNotes() async {
         notes = await onFetchNotes(student)
@@ -495,8 +522,11 @@ struct DailyReportView: View {
         }
     }
     
-    private func shareToWhatsApp(image: UIImage) {
-        guard let imageData = image.pngData() else { return }
+    private func shareToWhatsApp(images: [UIImage]) {
+       
+        guard let firstImage = images.first,
+              let imageData = firstImage.pngData() else { return }
+        
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("report.jpg")
         try? imageData.write(to: tempFile)
         
@@ -513,10 +543,10 @@ struct DailyReportView: View {
             )
         }
     }
-    
-    private func showShareSheet(image: UIImage) {
+
+    private func showShareSheet(images: [UIImage]) {
         let activityVC = UIActivityViewController(
-            activityItems: [image],
+            activityItems: images, // Share semua halaman
             applicationActivities: nil
         )
         
@@ -529,6 +559,26 @@ struct DailyReportView: View {
                 popover.permittedArrowDirections = []
             }
             rootVC.present(activityVC, animated: true)
+        }
+    }
+    private func saveImage(_ image: UIImage) {
+        Task {
+            do {
+                try await SnapshotHelper.shared.saveImage(image)
+                toast = Toast(
+                    style: .success,
+                    message: "Image saved to photo library",
+                    duration: 2,
+                    width: 280
+                )
+            } catch {
+                toast = Toast(
+                    style: .error,
+                    message: "Failed to save image",
+                    duration: 2,
+                    width: 280
+                )
+            }
         }
     }
     
@@ -584,87 +634,6 @@ struct DailyReportView: View {
     }
 }
 
-// MARK: - Supporting Views
-
-struct SnapshotPreviewOverlay: View {
-    let image: UIImage
-    @Binding var showSnapshotPreview: Bool
-    @Binding var toast: Toast?
-    let shareToWhatsApp: (UIImage) -> Void
-    let showShareSheet: (UIImage) -> Void
-    
-    var body: some View {
-        Color.black.opacity(0.5)
-            .ignoresSafeArea()
-            .transition(.opacity)
-            .onTapGesture {
-                withAnimation {
-                    showSnapshotPreview = false
-                }
-            }
-        
-        VStack(spacing: 0) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                .padding(.horizontal)
-                .padding(.top, 72)
-            
-            Spacer()
-            
-            VStack(spacing: 16) {
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 36, height: 5)
-                    .padding(.top, 8)
-                
-                HStack(spacing: 20) {
-                    ShareButton(
-                        title: "WhatsApp",
-                        icon: "square.and.arrow.up",
-                        color: .green
-                    ) {
-                        shareToWhatsApp(image)
-                    }
-                    
-                    ShareButton(
-                        title: "Save",
-                        icon: "square.and.arrow.down",
-                        color: .blue
-                    ) {
-                        let imageSaver = ImageSaver()
-                        imageSaver.writeToPhotoAlbum(image: image)
-                        toast = Toast(
-                            style: .success,
-                            message: "Image saved to photo library",
-                            duration: 2,
-                            width: 280
-                        )
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                            showSnapshotPreview = false
-                        }
-                    }
-                    
-                    ShareButton(
-                        title: "Share",
-                        icon: "square.and.arrow.up",
-                        color: .orange
-                    ) {
-                        showShareSheet(image)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 32)
-            }
-            .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .cornerRadius(16, corners: [.topLeft, .topRight])
-        }
-        .transition(.move(edge: .bottom))
-        .ignoresSafeArea(.all, edges: .bottom)
-    }
-}
 
 #Preview {
     DailyReportView(

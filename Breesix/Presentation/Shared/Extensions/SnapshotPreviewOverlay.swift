@@ -11,16 +11,17 @@ struct SnapshotPreviewOverlay: View {
     @Binding var currentPageIndex: Int
     @Binding var showSnapshotPreview: Bool
     @Binding var toast: Toast?
-    let shareToWhatsApp: (UIImage) -> Void
-    let showShareSheet: (UIImage) -> Void
+    let shareToWhatsApp: ([UIImage]) -> Void
+    let showShareSheet: ([UIImage]) -> Void
     
     var body: some View {
         Color.black.opacity(0.5)
             .ignoresSafeArea()
             .transition(.opacity)
-
+        
         VStack(spacing: 0) {
-            HStack(alignment:.center) {
+
+            HStack {
                 Button(action: {
                     withAnimation {
                         showSnapshotPreview = false
@@ -31,13 +32,23 @@ struct SnapshotPreviewOverlay: View {
                         .foregroundColor(.white)
                         .padding()
                 }
+                
                 Spacer()
-                Text("Preview")
+                
+                Text("Preview (\(currentPageIndex + 1)/\(images.count))")
                     .font(.headline)
                     .foregroundColor(.white)
                 
                 Spacer()
+
+                Image(systemName: "xmark")
+                    .font(.title3)
+                    .foregroundColor(.clear)
+                    .padding()
             }
+            .background(Color.black.opacity(0.3))
+            
+
             TabView(selection: $currentPageIndex) {
                 ForEach(images.indices, id: \.self) { index in
                     Image(uiImage: images[index])
@@ -50,59 +61,57 @@ struct SnapshotPreviewOverlay: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
-            // Page Indicator
+
             HStack(spacing: 8) {
                 ForEach(0..<images.count, id: \.self) { index in
                     Circle()
-                        .fill(currentPageIndex == index ? Color.blue : Color.gray)
+                        .fill(currentPageIndex == index ? Color.accent : Color.gray.opacity(0.3))
                         .frame(width: 8, height: 8)
                 }
             }
-            .padding(.top)
+            .padding(.bottom, 16)
             
-            Spacer()
-            
-            // Bottom Sheet dengan tombol share
+
             VStack(spacing: 16) {
-                // Drag Indicator
                 RoundedRectangle(cornerRadius: 2.5)
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 36, height: 5)
                     .padding(.top, 8)
                 
-                // Share Buttons
                 HStack(spacing: 20) {
-                    // WhatsApp Button
+              
                     ShareButton(
                         title: "WhatsApp",
                         icon: "square.and.arrow.up",
                         color: .green
                     ) {
-                        shareToWhatsApp(images[currentPageIndex])
+                        shareToWhatsApp(images)
                     }
-
-                    // Save Button
+                    
+     
                     ShareButton(
-                        title: "Save",
+                        title: "Save All",
                         icon: "square.and.arrow.down",
                         color: .blue
                     ) {
                         Task {
                             do {
-                                try await ImageSaver.shared.saveImage(images[currentPageIndex])
+                                for image in images {
+                                    try await ImageSaver.shared.saveImage(image)
+                                }
                                 toast = Toast(
                                     style: .success,
-                                    message: "Image saved to photo library",
+                                    message: "Semua halaman berhasil disimpan",
                                     duration: 2,
                                     width: 280
                                 )
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                withAnimation {
                                     showSnapshotPreview = false
                                 }
                             } catch {
                                 toast = Toast(
                                     style: .error,
-                                    message: "Failed to save image",
+                                    message: "Gagal menyimpan gambar",
                                     duration: 2,
                                     width: 280
                                 )
@@ -110,18 +119,16 @@ struct SnapshotPreviewOverlay: View {
                         }
                     }
 
-                    // Share Button
                     ShareButton(
-                        title: "Share",
+                        title: "Share All",
                         icon: "square.and.arrow.up",
                         color: .orange
                     ) {
-                        showShareSheet(images[currentPageIndex])
+                        showShareSheet(images)
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
-
             }
             .frame(maxWidth: .infinity)
             .background(Color.white)
