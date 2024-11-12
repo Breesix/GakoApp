@@ -111,6 +111,7 @@ struct BreesixApp: App {
             .onDisappear {
                 Mixpanel.mainInstance().flush()
             }
-            .accentColor(.accent)
+            .tint(Color.accent)
+            .accentColor(Color.accent)
     }
 }

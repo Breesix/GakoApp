@@ -1,97 +1,49 @@
-// ReportGenerator.swift
+//
+//  ReportGeneratorError.swift
+//  Breesix
+//
+//  Created by Kevin Fairuz on 12/11/24.
+//
+
+
+/// SnapshotHelper.swift
 import SwiftUI
+import UIKit
 
-public enum ReportGeneratorError: Error {
-    case failedToGenerateSnapshot
-    case emptyContent
-}
-
-public class ReportGenerator {
-    public static let shared = ReportGenerator()
-    
+public class SnapshotHelper {
+    public static let shared = SnapshotHelper()
     private init() {}
     
-    public func generateReport(
-        student: Student,
-        activities: [Activity],
-        notes: [Note],
-        date: Date
-    ) -> [UIImage] {
-        let reportView = DailyReportTemplate(
-            student: student,
-            activities: activities,
-            notes: notes,
-            date: date
-        )
-        
-        let totalPages = calculateRequiredPages(activities: activities, notes: notes)
-        var pageSnapshots: [UIImage] = []
-        
-        // Generate snapshot untuk setiap halaman
-        for pageIndex in 0..<totalPages {
-            let pageView = reportView.reportPage(pageIndex: pageIndex)
-                .frame(width: reportView.a4Width, height: reportView.a4Height)
-                .background(.white)
-            
-            if let pageSnapshot = pageView.asSnapshot() {
-                pageSnapshots.append(pageSnapshot)
-            }
-        }
-        
-        return pageSnapshots
-    }
-    
-    private func calculateRequiredPages(activities: [Activity], notes: [Note]) -> Int {
-        let activitiesPages = ceil(Double(max(0, activities.count - 5)) / 10.0)
-        let notesPages = ceil(Double(notes.count) / 5.0)
-        return 1 + Int(max(activitiesPages, notesPages))
-    }
-}
-
-// View Extension untuk mengambil snapshot
-public extension View {
-    func asSnapshot() -> UIImage? {
-        let controller = UIHostingController(rootView: self)
+    public func generateSnapshot(from view: some View, size: CGSize) -> UIImage? {
+        let controller = UIHostingController(rootView: view)
         let view = controller.view
         
-        let targetSize = controller.view.intrinsicContentSize
-        view?.bounds = CGRect(origin: .zero, size: targetSize)
+        view?.bounds = CGRect(origin: .zero, size: size)
         view?.backgroundColor = .clear
-
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        
+        let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { _ in
             view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
-}
-
-// ImageSaver Helper
-public class ImageSaver: NSObject {
-    public static let shared = ImageSaver()
-    
-    private override init() {}
     
     public func saveImage(_ image: UIImage) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), continuation.asOpaquePointer)
+            UIImageWriteToSavedPhotosAlbum(
+                image,
+                self,
+                #selector(saveCompleted),
+                nil
+            )
+            self.completionHandler = { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
         }
     }
-    
-    @objc private func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer) {
-        let continuation = Unmanaged<CheckedContinuation<Void, Error>>.fromOpaque(contextInfo).takeRetainedValue()
-        if let error = error {
-            continuation.resume(throwing: error)
-        } else {
-            continuation.resume()
-        }
-    }
-}
-
-// Report Sharing Helper
-public class ReportSharing {
-    public static let shared = ReportSharing()
-    
-    private init() {}
     
     public func shareToWhatsApp(image: UIImage) -> UIDocumentInteractionController? {
         guard let imageData = image.pngData() else { return nil }
@@ -108,5 +60,12 @@ public class ReportSharing {
             activityItems: images,
             applicationActivities: nil
         )
+    }
+    
+    private var completionHandler: ((Error?) -> Void)?
+    
+    @objc private func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer?) {
+        completionHandler?(error)
+        completionHandler = nil
     }
 }
