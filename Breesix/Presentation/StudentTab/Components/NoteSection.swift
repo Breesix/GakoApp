@@ -26,7 +26,7 @@ struct NoteSection: View {
                     Text("Tidak ada catatan untuk tanggal ini")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(notes, id: \.id) { note in
+                    ForEach(Array(notes.enumerated()), id: \.element.id) { index,note in
                         NoteRow(note: note, onDelete: onDeleteNote)
                     }
             }

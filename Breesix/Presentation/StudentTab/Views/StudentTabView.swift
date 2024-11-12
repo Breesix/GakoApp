@@ -12,7 +12,7 @@ struct StudentTabView: View {
     @ObservedObject var studentViewModel: StudentViewModel
     @ObservedObject var noteViewModel: NoteViewModel
     @ObservedObject var activityViewModel: ActivityViewModel
-    @State private var isAddingStudent = false
+    @Binding var isAddingStudent: Bool
     @State private var isAddingNote = false
     @State private var searchQuery = ""
     
@@ -26,7 +26,7 @@ struct StudentTabView: View {
                     }
                 
                 VStack(spacing: 0) {
-                    CustomNavigation(title: "Murid", isInternetConnected: false) {
+                    CustomNavigation(title: "Murid", textButton: "Murid", isInternetConnected: false) {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)

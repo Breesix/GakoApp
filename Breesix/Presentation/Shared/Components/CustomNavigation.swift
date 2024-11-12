@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CustomNavigation: View {
     var title: String
+    var textButton: String
     var isInternetConnected: Bool
     var action: () -> Void
 
@@ -28,7 +29,8 @@ struct CustomNavigation: View {
                     
                     AddButton(
                         action: action,
-                        backgroundColor: .white
+                        backgroundColor: .white,
+                        title: textButton
                     )
 
                 }

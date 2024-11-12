@@ -7,13 +7,14 @@ import SwiftUI
 struct AddButton: View {
     var action: () -> Void
     var backgroundColor: Color
+    var title: String
 
     var body: some View {
         Button(action: action) {
             HStack {
                 Image(systemName: "plus.app.fill")
                     .font(.system(.footnote))
-                Text("Tambah")
+                Text(title)
                     .font(.subheadline)
             }
             .padding(.vertical, 7)
@@ -31,7 +32,8 @@ struct AddButton: View {
     VStack(spacing: 20) {
         AddButton(
             action: { print("clicked") },
-            backgroundColor: .blue
+            
+            backgroundColor: .blue, title: "Dokumentasi"
         )
     }
 }

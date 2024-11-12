@@ -15,7 +15,8 @@ struct MainTabView: View {
     @StateObject private var tabBarController = TabBarController.shared
     @State private var selectedTab = 0
     @State private var hideTabBar = false
-
+    @State private var isAddingStudent = false
+    
     init(studentViewModel: StudentViewModel, noteViewModel: NoteViewModel, activityViewModel: ActivityViewModel, summaryViewModel: SummaryViewModel) {
         _studentViewModel = StateObject(wrappedValue: studentViewModel)
         _noteViewModel = StateObject(wrappedValue: noteViewModel)
@@ -29,9 +30,13 @@ struct MainTabView: View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
                 TabView(selection: $selectedTab) {
-                    SummaryTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel, summaryViewModel: summaryViewModel)
+                    SummaryTabView(
+                        selectedTab:$selectedTab,
+                        isAddingStudent: $isAddingStudent,
+                        studentViewModel: studentViewModel,
+                        noteViewModel: noteViewModel, activityViewModel: activityViewModel, summaryViewModel: summaryViewModel)
                         .tag(0)
-                    StudentTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel)
+                    StudentTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel, isAddingStudent: $isAddingStudent)
                         .tag(1)
                 }
                 .tint(Color.accent)
@@ -82,7 +87,7 @@ enum TabbedItems: Int, CaseIterable {
     var title: String {
         switch self {
         case .home:
-            return "Ringkasan"
+            return "Dokumentasi"
         case .student:
             return "Murid"
         }
