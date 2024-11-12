@@ -30,7 +30,8 @@ struct StudentDetailView: View {
     @State private var activityToEdit: Activity?
     @State private var noteToEdit: Note?
 
-    
+    @State private var currentPageIndex: Int = 0
+    @State private var allPageSnapshots: [UIImage] = []
     @State private var isEditing = false
     @State private var notes: [Note] = []
     @State private var selectedDate = Date()
@@ -58,10 +59,12 @@ struct StudentDetailView: View {
     let initialScrollDate: Date
     
     @State private var isEditingMonthly = false
-    
-    // Add this function to handle WhatsApp sharing
-    private func shareToWhatsApp(image: UIImage) {
-        guard let imageData = image.pngData() else { return }
+
+    private func shareToWhatsApp(images: [UIImage]) {
+        // WhatsApp hanya bisa share satu gambar, jadi kita ambil halaman pertama
+        guard let firstImage = images.first,
+              let imageData = firstImage.pngData() else { return }
+        
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("report.jpg")
         try? imageData.write(to: tempFile)
         
@@ -78,17 +81,16 @@ struct StudentDetailView: View {
             )
         }
     }
-    
-    private func showShareSheet(image: UIImage) {
+
+    private func showShareSheet(images: [UIImage]) {
         let activityVC = UIActivityViewController(
-            activityItems: [image],
+            activityItems: images, // Share semua halaman
             applicationActivities: nil
         )
         
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,
            let rootVC = window.rootViewController {
-            // For iPad
             if let popover = activityVC.popoverPresentationController {
                 popover.sourceView = window
                 popover.sourceRect = CGRect(x: window.frame.width / 2, y: window.frame.height / 2, width: 0, height: 0)
@@ -319,79 +321,14 @@ struct StudentDetailView: View {
             .hideTabBar()
             
             // MARK: THIS IS VIEW FOR SNAPSHOTS PREVIEW
-            if showSnapshotPreview, let image = snapshotImage {
-                Color.black.opacity(0.5)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .onTapGesture {
-                        withAnimation {
-                            showSnapshotPreview = false
-                        }
-                    }
-                
-                VStack(spacing: 0) {
-                    // Preview Image
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                        .padding(.horizontal)
-                        .padding(.top, 72)
-                    
-                    Spacer()
-                    
-                    // Bottom Sheet
-                    VStack(spacing: 16) {
-                        // Drag Indicator
-                        RoundedRectangle(cornerRadius: 2.5)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 36, height: 5)
-                            .padding(.top, 8)
-                        
-                        HStack(spacing: 20) {
-                            ShareButton(
-                                title: "WhatsApp",
-                                icon: "square.and.arrow.up",
-                                color: Color.green
-                            ) {
-                                shareToWhatsApp(image: image)
-                            }
-                            
-                            ShareButton(
-                                title: "Save",
-                                icon: "square.and.arrow.down",
-                                color: Color.blue
-                            ) {
-                                let imageSaver = ImageSaver()
-                                imageSaver.writeToPhotoAlbum(image: image)
-                                toast = Toast(
-                                    style: .success,
-                                    message: "Image saved to photo library",
-                                    duration: 2,
-                                    width: 280
-                                )
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                    showSnapshotPreview = false
-                                }
-                            }
-                            
-                            ShareButton(
-                                title: "Share",
-                                icon: "square.and.arrow.up",
-                                color: Color.orange
-                            ) {
-                                showShareSheet(image: image)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 32)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white)
-                    .cornerRadius(16, corners: [.topLeft, .topRight])
-                }
-                .transition(.move(edge: .bottom))
-                .ignoresSafeArea(.all, edges: .bottom)
+            if showSnapshotPreview {
+                SnapshotPreviewOverlay(
+                    images: allPageSnapshots, currentPageIndex: $currentPageIndex,
+                    showSnapshotPreview: $showSnapshotPreview,
+                    toast: $toast,
+                    shareToWhatsApp: shareToWhatsApp,
+                    showShareSheet: showShareSheet
+                )
             }
         }
         .toolbar(.hidden, for: .bottomBar,.tabBar)
@@ -525,12 +462,39 @@ struct StudentDetailView: View {
     private func generateSnapshot(for date: Date) {
         let reportView = DailyReportTemplate(
             student: student,
-            activities: activitiesForSelectedMonth[date]?.activities ?? [],
-            notes: activitiesForSelectedMonth[date]?.notes ?? [],
+            activities: activitiesForSelectedMonth[calendar.startOfDay(for: date)]?.activities ?? [],
+            notes: activitiesForSelectedMonth[calendar.startOfDay(for: date)]?.notes ?? [],
             date: date
         )
-        snapshotImage = reportView.snapshot()
+        
+        let totalPages = calculateRequiredPages()
+        var snapshots: [UIImage] = []
+        
+        for pageIndex in 0..<totalPages {
+            let pageView = reportView.reportPage(pageIndex: pageIndex)
+                .frame(width: reportView.a4Width, height: reportView.a4Height)
+                .background(.white)
+            
+            if let snapshot = SnapshotHelper.shared.generateSnapshot(
+                from: pageView,
+                size: CGSize(width: reportView.a4Width, height: reportView.a4Height)
+            ) {
+                snapshots.append(snapshot)
+            }
+        }
+        
+        if !snapshots.isEmpty {
+            allPageSnapshots = snapshots
+            currentPageIndex = 0
+            showSnapshotPreview = true
+        }
     }
+    
+    private func calculateRequiredPages() -> Int {
+       let activitiesPages = ceil(Double(max(0, activities.count - 5)) / 10.0)
+       let notesPages = ceil(Double(notes.count) / 5.0)
+       return 1 + Int(max(activitiesPages, notesPages))
+   }
     
     private var activityThatDay: [Activity] {
         activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
@@ -727,12 +691,12 @@ struct ShareButtonView: View {
     }
 }
 
-class ImageSaver: NSObject {
-    func writeToPhotoAlbum(image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
-    }
-    
-    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        print("Save finished!")
-    }
-}
+//class ImageSaver: NSObject {
+//    func writeToPhotoAlbum(image: UIImage) {
+//        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+//    }
+//    
+//    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+//        print("Save finished!")
+//    }
+//}
