@@ -9,9 +9,9 @@ import SwiftUI
 import Speech
 
 struct StudentTabView: View {
-    @ObservedObject var studentViewModel: StudentViewModel
-    @ObservedObject var noteViewModel: NoteViewModel
-    @ObservedObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
     @Binding var isAddingStudent: Bool
     @State private var isAddingNote = false
     @State private var searchQuery = ""
