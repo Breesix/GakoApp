@@ -10,10 +10,10 @@ import SwiftUI
 struct SummaryTabView: View {
     @Binding var selectedTab: Int
     @Binding var isAddingStudent: Bool
-    @ObservedObject var studentViewModel: StudentViewModel
-    @ObservedObject var noteViewModel: NoteViewModel
-    @ObservedObject var activityViewModel: ActivityViewModel
-    @ObservedObject var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
     @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
@@ -22,6 +22,7 @@ struct SummaryTabView: View {
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
+    @State private var navigateToProgressCurhatan = false
     @State private var searchText = ""
     @State private var showTabBar = true
     @State private var hideTabBar = false
@@ -43,7 +44,7 @@ struct SummaryTabView: View {
                     else if studentViewModel.students.isEmpty {
                         showEmptyStudentsAlert = true
                     } else {
-                        isShowingInputTypeSheet = true
+                        navigateToProgressCurhatan = true
                     }
                 }
                 
@@ -79,6 +80,9 @@ struct SummaryTabView: View {
                 .background(.white)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+            }
+            .navigationDestination(isPresented: $navigateToProgressCurhatan) {
+                ProgressCurhatView(selectedDate: $summaryViewModel.selectedDate)
             }
             .navigationDestination(isPresented: $navigateToPreview) {
                 PreviewView(

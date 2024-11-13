@@ -19,6 +19,13 @@ struct BreesixApp: App {
     @AppStorage("isOnboarding") private var isOnboarding: Bool = true
     private let analyticsService = InputAnalyticsTracker.shared
     
+    // Tambahkan StateObject untuk ViewModel yang sudah ada
+    @StateObject private var studentViewModel: StudentViewModel
+    @StateObject private var noteViewModel: NoteViewModel
+    @StateObject private var activityViewModel: ActivityViewModel
+    @StateObject private var summaryViewModel: SummaryViewModel
+    @StateObject private var appColor = AppColor()
+
     init() {
         Mixpanel.initialize(token: APIConfig.mixPanelToken, trackAutomaticEvents: true)
 
@@ -31,8 +38,51 @@ struct BreesixApp: App {
             "ios_version": UIDevice.current.systemVersion,
             "app_version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         ])
+        
         do {
             container = try ModelContainer(for: Student.self, Note.self, Activity.self)
+            
+            // Inisialisasi ViewModel di dalam init
+            let context = container.mainContext
+            
+            // Student
+            let studentDataSource = StudentDataSourceImpl(context: context)
+            let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
+            let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
+            let initialStudentViewModel = StudentViewModel(studentUseCases: studentUseCase)
+            self._studentViewModel = StateObject(wrappedValue: initialStudentViewModel)
+            
+            // Note
+            let noteDataSource = NoteDataSourceImpl(context: context)
+            let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
+            let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
+            let initialNoteViewModel = NoteViewModel(studentViewModel: initialStudentViewModel, noteUseCases: noteUseCases)
+            self._noteViewModel = StateObject(wrappedValue: initialNoteViewModel)
+            
+            // Activity
+            let activityDataSource = ActivityDataSourceImpl(context: context)
+            let activityRepository = ActivityRepositoryImpl(dataSource: activityDataSource)
+            let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
+            let initialActivityViewModel = ActivityViewModel(studentViewModel: initialStudentViewModel, activityUseCases: activityUseCase)
+            self._activityViewModel = StateObject(wrappedValue: initialActivityViewModel)
+            
+            // Summary
+            let summaryDataSource = SummaryDataSourceImpl(context: context)
+            let summaryRepository = SummaryRepositoryImpl(dataSource: summaryDataSource)
+            let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
+            let summaryService = SummaryService(summaryUseCase: summaryUseCase)
+            let summaryLlamaService = SummaryLlamaService(
+                apiKey: "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",
+                summaryUseCase: summaryUseCase
+            )
+            let initialSummaryViewModel = SummaryViewModel(
+                studentViewModel: initialStudentViewModel,
+                summaryUseCase: summaryUseCase,
+                summaryService: summaryService,
+                summaryLlamaService: summaryLlamaService
+            )
+            self._summaryViewModel = StateObject(wrappedValue: initialSummaryViewModel)
+            
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
@@ -61,12 +111,18 @@ struct BreesixApp: App {
             .accentColor(theme.accentColor)
             .environmentObject(theme)
             .animation(.easeInOut, value: isOnboarding)
+            // Inject environment objects
+            .environmentObject(studentViewModel)
+            .environmentObject(noteViewModel)
+            .environmentObject(activityViewModel)
+            .environmentObject(summaryViewModel)
+            .environmentObject(appColor)
+            .tint(appColor.tint)
+            .accentColor(appColor.tint)
         }
         .modelContainer(container)
         
     }
-    
-    
     
     @ViewBuilder
     private var mainContent: some View {

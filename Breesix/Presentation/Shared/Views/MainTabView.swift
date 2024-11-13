@@ -8,20 +8,16 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @StateObject private var studentViewModel: StudentViewModel
-    @StateObject private var noteViewModel: NoteViewModel
-    @StateObject private var activityViewModel: ActivityViewModel
-    @StateObject private var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
     @StateObject private var tabBarController = TabBarController.shared
     @State private var selectedTab = 0
     @State private var hideTabBar = false
     @State private var isAddingStudent = false
     
-    init(studentViewModel: StudentViewModel, noteViewModel: NoteViewModel, activityViewModel: ActivityViewModel, summaryViewModel: SummaryViewModel) {
-        _studentViewModel = StateObject(wrappedValue: studentViewModel)
-        _noteViewModel = StateObject(wrappedValue: noteViewModel)
-        _activityViewModel = StateObject(wrappedValue: activityViewModel)
-        _summaryViewModel = StateObject(wrappedValue: summaryViewModel)
+    init() {
         UITabBar.appearance().isHidden = true
     }
 
@@ -32,11 +28,9 @@ struct MainTabView: View {
                 TabView(selection: $selectedTab) {
                     SummaryTabView(
                         selectedTab:$selectedTab,
-                        isAddingStudent: $isAddingStudent,
-                        studentViewModel: studentViewModel,
-                        noteViewModel: noteViewModel, activityViewModel: activityViewModel, summaryViewModel: summaryViewModel)
+                        isAddingStudent: $isAddingStudent)
                         .tag(0)
-                    StudentTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel, isAddingStudent: $isAddingStudent)
+                    StudentTabView(isAddingStudent: $isAddingStudent)
                         .tag(1)
                 }
                 .tint(Color.accent)
