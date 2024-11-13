@@ -30,6 +30,7 @@ struct ProfileCard: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 104, height: 104)
+                                    .foregroundStyle(.bgSecondary)
                             }
                         }
                     )
