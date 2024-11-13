@@ -213,6 +213,7 @@ struct PreviewView: View {
                 onClearUnsavedActivities()
                 isShowingPreview = false
             }
+            .tint(.accent)
             Button("Lanjut Dokumentasi", role: .cancel) { }
         } message: {
             Text("Semua Rekaman yang baru saja Anda masukkan akan terhapus secara permanen.")
@@ -221,6 +222,7 @@ struct PreviewView: View {
             Button("Simpan dokumentasi", role: .destructive) {
                 saveActivities()
             }
+            .tint(.accent)
             Button("Baca ulang dokumentasi", role: .cancel) { }
         } message: {
             Text("Harap cek ulang dokumentasi yang ada untuk mencegah kesalahan dalam data dokumentasi.")
@@ -229,6 +231,7 @@ struct PreviewView: View {
             Button("Lanjut", role: .destructive) {
                 saveActivities()
             }
+            .tint(.accent)
             Button("Batalkan", role: .cancel) { }
         } message: {
             Text("Masih ada murid yang aktivitasnya masih \"Tidak Melakukan\". Apa mau disimpan?")

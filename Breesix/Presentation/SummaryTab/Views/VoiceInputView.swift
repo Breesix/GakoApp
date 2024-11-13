@@ -37,8 +37,8 @@ struct VoiceInputView: View {
     ) {
         self._selectedDate = selectedDate
         let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
-            ? selectedDate.wrappedValue
-            : DateValidator.maximumDate()
+        ? selectedDate.wrappedValue
+        : DateValidator.maximumDate()
         self._tempDate = State(initialValue: validDate)
         
         self.onAddUnsavedActivities = onAddUnsavedActivities
@@ -81,8 +81,15 @@ struct VoiceInputView: View {
                             .multilineTextAlignment(.leading)
                             .cornerRadius(10)
                             .focused($isTextEditorFocused)
-                            .disabled(viewModel.isLoading)
+                            .disabled(viewModel.isLoading || (viewModel.isRecording && !viewModel.isPaused))
                             .opacity(viewModel.isLoading ? 0.5 : 1)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(
+                                        viewModel.isPaused ? Color.black : Color.clear,
+                                        lineWidth: 1
+                                    )
+                            )
                     }
                     .onChange(of: viewModel.editedText) { newValue in
                         viewModel.reflection = newValue
@@ -99,90 +106,127 @@ struct VoiceInputView: View {
                 .opacity(viewModel.isLoading ? 0.3 : 1)
                 
                 Spacer()
-                
-                // Recording Controls
+
                 ZStack(alignment: .bottom) {
-                    HStack(alignment: .center, spacing: 35) {
-                        // Cancel Button
-                        Button(action: {
-                            viewModel.stopRecording(text: viewModel.reflection)
-                            showAlert = true
-                        }) {
-                            Image("cancel-mic-button")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 56)
+                    VStack(alignment: .center){
+                        if viewModel.isRecording && !viewModel.isPaused {
+                            Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
+                                .padding(.bottom, 8)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.bgAccent)
+                                .padding(.bottom, 8)
+                            
+                            
+                        } else {
+                            Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
+                                .padding(.bottom, 8)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.bgAccent)
+                                .padding(.bottom, 8)
                         }
-                        
-                        // Record/Pause Button
-                        Button(action: {
-                            if !viewModel.isRecording {
-                                viewModel.startRecording()
-                            } else {
-                                viewModel.isPaused.toggle()
-                                if viewModel.isPaused {
-                                    viewModel.pauseRecording()
-                                } else {
-                                    viewModel.resumeRecording()
-                                }
+                        HStack(alignment: .center, spacing: 35) {
+                            
+                            Button(action: {
+                                viewModel.stopRecording(text: viewModel.reflection)
+                                showAlert = true
+                            }) {
+                                Text("Batal")
+                                    .foregroundColor(Color.destructiveOnCardLabel)
+                                    .frame(width: 97, height: 34)
+                                    .background(Color.destructiveOnCard)
+                                    .cornerRadius(8)
                             }
-                        }) {
-                            if showProTips {
-                                if viewModel.isLoading {
-                                    DotLottieAnimation(fileName: "loading-lottie",
-                                                     config: AnimationConfig(autoplay: true, loop: true))
+                            
+                            
+                            // Record/Pause Button
+                            Button(action: {
+                                if !viewModel.isRecording {
+                                    
+                                    viewModel.startRecording()
+                                } else {
+                                    
+                                    viewModel.isPaused.toggle()
+                                    if viewModel.isPaused {
+                                        
+                                        viewModel.pauseRecording()
+                                    } else {
+                                        viewModel.resumeRecording()
+                                    }
+                                }
+                            }) {
+                                if showProTips {
+                                    if viewModel.isLoading {
+                                        DotLottieAnimation(fileName: "loading-lottie",
+                                                           config: AnimationConfig(autoplay: true, loop: true))
                                         .view()
                                         .scaleEffect(1.5)
                                         .frame(width: 100, height: 100)
-                                } else {
-                                    if viewModel.isRecording {
-                                        if viewModel.isPaused {
-                                            Image("play-mic-button")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 84)
-                                        } else {
-                                            DotLottieAnimation(fileName: "record-lottie",
-                                                             config: AnimationConfig(autoplay: true, loop: true))
+                                    } else {
+                                        if viewModel.isRecording {
+                                            if viewModel.isPaused {
+                                                VStack{
+                                                    Image("play-mic-button")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 84)
+                                                    
+                                                    
+                                                }
+                                            } else {
+                                                
+                                                DotLottieAnimation(fileName: "record-lottie",
+                                                                   config: AnimationConfig(autoplay: true, loop: true))
                                                 .view()
                                                 .scaleEffect(1.5)
                                                 .frame(width: 100, height: 100)
+                                            }
+                                            
+                                        } else {
+                                            Image("start-mic-button")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 84)
+                                            
+                                            
                                         }
-                                    } else {
-                                        Image("start-mic-button")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 84)
                                     }
                                 }
                             }
-                        }
-                        .disabled(viewModel.isLoading)
-                        
-                        // Save Button
-                        Button(action: {
+                            .disabled(viewModel.isLoading)
+                            
                             if viewModel.isRecording {
-                                Task {
-                                    await viewModel.processReflection(
-                                        reflection: viewModel.reflection, fetchStudents: fetchStudents,
-                                        onAddUnsavedActivities: onAddUnsavedActivities,
-                                        onAddUnsavedNotes: onAddUnsavedNotes,
-                                        selectedDate: selectedDate,
-                                        onDateSelected: onDateSelected,
-                                        onDismiss: onDismiss
-                                    )
+                                Button(action: {
+                                    if viewModel.isRecording {
+                                        Task {
+                                            await viewModel.processReflection(
+                                                reflection: viewModel.reflection, fetchStudents: fetchStudents,
+                                                onAddUnsavedActivities: onAddUnsavedActivities,
+                                                onAddUnsavedNotes: onAddUnsavedNotes,
+                                                selectedDate: selectedDate,
+                                                onDateSelected: onDateSelected,
+                                                onDismiss: onDismiss
+                                            )
+                                        }
+                                    }
+                                }) {
+                                    Text("Selesai")
+                                        .foregroundColor(.black)
+                                        .frame(width: 97, height: 34)
+                                        .background(Color.orangeClickAble)
+                                        .cornerRadius(8)
                                 }
+                                .disabled(!viewModel.isRecording || viewModel.isLoading)
+                            } else {
+                                Color.clear
+                                    .frame(width: 97, height: 34)
                             }
-                        }) {
-                            Image("save-mic-button")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60)
                         }
-                        .disabled(!viewModel.isRecording || viewModel.isLoading)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 12)
+                        
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 12)
                 }
             }
         }
@@ -218,6 +262,10 @@ struct VoiceInputView: View {
         }
         .onAppear {
             viewModel.requestSpeechAuthorization()
+        }
+        .onChange(of: viewModel.editedText) { newValue in
+            viewModel.reflection = newValue
+            viewModel.speechRecognizer.previousTranscript = newValue
         }
         .onChange(of: isTextEditorFocused) { newValue in
             withAnimation {

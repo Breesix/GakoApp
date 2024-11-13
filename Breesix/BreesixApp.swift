@@ -14,19 +14,18 @@ import Mixpanel
 @main
 struct BreesixApp: App {
     let container: ModelContainer
+    @StateObject private var theme = AppTheme.shared
     @State private var showTabBar: Bool = true
     @AppStorage("isOnboarding") private var isOnboarding: Bool = true
     private let analyticsService = InputAnalyticsTracker.shared
     
     init() {
         Mixpanel.initialize(token: APIConfig.mixPanelToken, trackAutomaticEvents: true)
-        
-        // Enable logging for development
+
 #if DEBUG
         Mixpanel.mainInstance().loggingEnabled = true
 #endif
-        
-        // Set default properties
+
         Mixpanel.mainInstance().registerSuperProperties([
             "device_model": UIDevice.current.model,
             "ios_version": UIDevice.current.systemVersion,
@@ -38,6 +37,14 @@ struct BreesixApp: App {
             fatalError("Failed to create ModelContainer: \(error)")
         }
         
+        UIApplication.shared.setGlobalTint(AppTheme.shared.accentColor)
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(AppTheme.shared.accentColor)]
+        UINavigationBar.appearance().standardAppearance = appearance
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(AppTheme.shared.accentColor)
+        
     }
     
     var body: some Scene {
@@ -48,16 +55,15 @@ struct BreesixApp: App {
                         .transition(.opacity)
                 } else {
                     mainContent
-                        .transition(.opacity)
                 }
             }
+            .tint(theme.accentColor)
+            .accentColor(theme.accentColor)
+            .environmentObject(theme)
             .animation(.easeInOut, value: isOnboarding)
-            .environmentObject(AppColor())
-            .tint(AppColor().tint)
-            .accentColor(AppColor().tint)
         }
         .modelContainer(container)
-
+        
     }
     
     
@@ -111,7 +117,18 @@ struct BreesixApp: App {
             .onDisappear {
                 Mixpanel.mainInstance().flush()
             }
-            .tint(Color.accent)
-            .accentColor(Color.accent)
+            .tint(theme.accentColor)
+            .accentColor(theme.accentColor)
+        
     }
 }
+
+// Buat ButtonStyle custom untuk konsistensi
+struct AccentButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .tint(.accent)
+    }
+}
+
+

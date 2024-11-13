@@ -171,22 +171,32 @@ struct SummaryTabView: View {
                 )
             }
         }
+        .tint(.accent)
+        .accentColor(.accent)
+        .buttonStyle(AccentButtonStyle())
         .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("Tambahkan Murid", role: .cancel) {
+            Button("Tambahkan Murid",role: .cancel) {
                 selectedTab = 1
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     isAddingStudent = true
                 }
                 
             }
+            .modifier(AlertModifier())
+
         } message: {
             Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
         }
+        
         .alert("Tidak Ada Koneksi Internet", isPresented: $showNoInternetAlert) {
             Button("OK", role: .cancel) {}
-        } message: {
+                .modifier(AlertModifier())
+                
+        }
+        message: {
             Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
         }
+        
 
         .navigationBarHidden(true)
         .task {
@@ -267,4 +277,14 @@ struct SummaryTabView: View {
             )
         }
     }
+    
 }
+
+struct AlertModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(.accent)
+            .tint(.accent)
+    }
+}
+
