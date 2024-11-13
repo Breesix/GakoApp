@@ -4,7 +4,6 @@
 //
 //  Created by Rangga Biner on 15/10/24.
 //
-import SwiftUI
 
 import SwiftUI
 
@@ -57,9 +56,13 @@ struct TextInputView: View {
                 }
             
             VStack(spacing: 16) {
-                datePickerView()
-                    .padding(.top, 24)
-                    .disabled(viewModel.isLoading)
+                DatePickerButton(
+                    isShowingDatePicker: $isShowingDatePicker,
+                    selectedDate: $selectedDate
+                )
+                .padding(.top, 24)
+                .opacity(viewModel.isLoading ? 0.5 : 1)
+                .disabled(viewModel.isLoading)
                 
                 VStack(spacing: 0) {
                     textEditorSection()
@@ -109,27 +112,6 @@ struct TextInputView: View {
                 showProTips = !isTextEditorFocused
             }
         }
-    }
-    
-    private func datePickerView() -> some View {
-        Button(action: {
-            if !viewModel.isLoading {
-                isShowingDatePicker = true
-            }
-        }) {
-            HStack {
-                Image(systemName: "calendar")
-                Text(selectedDate, format: .dateTime.day().month().year())
-            }
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .buttonPrimaryLabel)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .background(.buttonOncard)
-            .cornerRadius(8)
-        }
-        .disabled(viewModel.isLoading)
     }
 }
 
