@@ -10,10 +10,10 @@ import SwiftUI
 struct SummaryTabView: View {
     @Binding var selectedTab: Int
     @Binding var isAddingStudent: Bool
-    @ObservedObject var studentViewModel: StudentViewModel
-    @ObservedObject var noteViewModel: NoteViewModel
-    @ObservedObject var activityViewModel: ActivityViewModel
-    @ObservedObject var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
     @State private var isAddingNewActivity = false
     @State private var isShowingPreview = false
     @State private var isShowingActivity = false
