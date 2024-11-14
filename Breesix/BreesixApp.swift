@@ -41,32 +41,27 @@ struct BreesixApp: App {
         
         do {
             container = try ModelContainer(for: Student.self, Note.self, Activity.self)
-            
-            // Inisialisasi ViewModel di dalam init
+
             let context = container.mainContext
-            
-            // Student
+
             let studentDataSource = StudentDataSourceImpl(context: context)
             let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
             let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
             let initialStudentViewModel = StudentViewModel(studentUseCases: studentUseCase)
             self._studentViewModel = StateObject(wrappedValue: initialStudentViewModel)
-            
-            // Note
+
             let noteDataSource = NoteDataSourceImpl(context: context)
             let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
             let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
             let initialNoteViewModel = NoteViewModel(studentViewModel: initialStudentViewModel, noteUseCases: noteUseCases)
             self._noteViewModel = StateObject(wrappedValue: initialNoteViewModel)
-            
-            // Activity
+
             let activityDataSource = ActivityDataSourceImpl(context: context)
             let activityRepository = ActivityRepositoryImpl(dataSource: activityDataSource)
             let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             let initialActivityViewModel = ActivityViewModel(studentViewModel: initialStudentViewModel, activityUseCases: activityUseCase)
             self._activityViewModel = StateObject(wrappedValue: initialActivityViewModel)
-            
-            // Summary
+
             let summaryDataSource = SummaryDataSourceImpl(context: context)
             let summaryRepository = SummaryRepositoryImpl(dataSource: summaryDataSource)
             let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
@@ -111,7 +106,6 @@ struct BreesixApp: App {
             .accentColor(theme.accentColor)
             .environmentObject(theme)
             .animation(.easeInOut, value: isOnboarding)
-            // Inject environment objects
             .environmentObject(studentViewModel)
             .environmentObject(noteViewModel)
             .environmentObject(activityViewModel)
@@ -126,39 +120,8 @@ struct BreesixApp: App {
     
     @ViewBuilder
     private var mainContent: some View {
-        let context = container.mainContext
-        
-        let studentDataSource = StudentDataSourceImpl(context: context)
-        let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
-        let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
-        
-        let noteDataSource = NoteDataSourceImpl(context: context)
-        let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
-        let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
-        
-        let activityDataSource = ActivityDataSourceImpl(context: context)
-        let activityRepository = ActivityRepositoryImpl(dataSource: activityDataSource)
-        let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
-        
-        let summaryDataSource = SummaryDataSourceImpl(context: context)
-        let summaryRepository = SummaryRepositoryImpl(dataSource: summaryDataSource)
-        let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
-        
-        let summaryService = SummaryService(summaryUseCase: summaryUseCase)
-        let summaryLlamaService = SummaryLlamaService(
-            apiKey: "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",
-            summaryUseCase: summaryUseCase
-        )
-        
-        let studentViewModel = StudentViewModel(studentUseCases: studentUseCase)
-        
-        let noteViewModel = NoteViewModel(studentViewModel: studentViewModel, noteUseCases: noteUseCases)
-        
-        let activityViewModel = ActivityViewModel(studentViewModel: studentViewModel, activityUseCases: activityUseCase)
-        
-        let summaryViewModel = SummaryViewModel(studentViewModel: studentViewModel, summaryUseCase: summaryUseCase, summaryService: summaryService, summaryLlamaService: summaryLlamaService)
-        
-        MainTabView(studentViewModel: studentViewModel, noteViewModel: noteViewModel, activityViewModel: activityViewModel, summaryViewModel: summaryViewModel)
+
+        MainTabView()
             .onAppear {
                 // Track launch event using AnalyticsService
                 analyticsService.trackEvent(
