@@ -42,15 +42,13 @@ struct DailyReportTemplate: View {
             reportHeader
             
             if pageIndex == 0 {
-                // Student Info
                 studentInfo
-                
-                // Summary Section
+
                 summarySection
                 
-                // First page activities (max 5)
+     
                 if !activities.isEmpty {
-                    activitySection(Array(activities.prefix(5)))
+                    activitySection(Array(activities.prefix(6)))
                 }
             } else {
                 // Activities for subsequent pages (max 10 per page)
@@ -61,13 +59,13 @@ struct DailyReportTemplate: View {
                 }
                 
                 // Notes section (only shown after all activities)
-                if pageActivities.isEmpty {
-                    let notesStartIndex = (pageIndex - 1) * 5
-                    let pageNotes = Array(notes.dropFirst(notesStartIndex).prefix(5))
-                    if !pageNotes.isEmpty {
-                        noteSection(notes: pageNotes)
-                    }
-                }
+//                if pageActivities.isEmpty {
+//                    let notesStartIndex = (pageIndex - 1) * 5
+//                    let pageNotes = Array(notes.dropFirst(notesStartIndex).prefix(5))
+//                    if !pageNotes.isEmpty {
+//                        noteSection(notes: pageNotes)
+//                    }
+//                }
             }
             
             Spacer()
@@ -188,7 +186,8 @@ struct DailyReportTemplate: View {
     private func activitySection(_ activities: [Activity]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             VStack(spacing: 0) {
-
+ 
+                
                 HStack {
                     Text("Aktivitas")
                         .fontWeight(.bold)

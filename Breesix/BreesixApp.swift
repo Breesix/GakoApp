@@ -14,6 +14,8 @@ import Mixpanel
 @main
 struct BreesixApp: App {
     let container: ModelContainer
+    @StateObject private var theme = AppTheme.shared
+    @State private var showTabBar: Bool = true
     @AppStorage("isOnboarding") private var isOnboarding: Bool = true
     private let analyticsService = InputAnalyticsTracker.shared
     
@@ -26,11 +28,11 @@ struct BreesixApp: App {
 
     init() {
         Mixpanel.initialize(token: APIConfig.mixPanelToken, trackAutomaticEvents: true)
-        
+
 #if DEBUG
         Mixpanel.mainInstance().loggingEnabled = true
 #endif
-        
+
         Mixpanel.mainInstance().registerSuperProperties([
             "device_model": UIDevice.current.model,
             "ios_version": UIDevice.current.systemVersion,
@@ -39,32 +41,27 @@ struct BreesixApp: App {
         
         do {
             container = try ModelContainer(for: Student.self, Note.self, Activity.self)
-            
-            // Inisialisasi ViewModel di dalam init
+
             let context = container.mainContext
-            
-            // Student
+
             let studentDataSource = StudentDataSourceImpl(context: context)
             let studentRepository = StudentRepositoryImpl(dataSource: studentDataSource)
             let studentUseCase = StudentUseCaseImpl(repository: studentRepository)
             let initialStudentViewModel = StudentViewModel(studentUseCases: studentUseCase)
             self._studentViewModel = StateObject(wrappedValue: initialStudentViewModel)
-            
-            // Note
+
             let noteDataSource = NoteDataSourceImpl(context: context)
             let noteRepository = NoteRepositoryImpl(dataSource: noteDataSource)
             let noteUseCases = NoteUseCaseImpl(repository: noteRepository)
             let initialNoteViewModel = NoteViewModel(studentViewModel: initialStudentViewModel, noteUseCases: noteUseCases)
             self._noteViewModel = StateObject(wrappedValue: initialNoteViewModel)
-            
-            // Activity
+
             let activityDataSource = ActivityDataSourceImpl(context: context)
             let activityRepository = ActivityRepositoryImpl(dataSource: activityDataSource)
             let activityUseCase = ActivityUseCaseImpl(repository: activityRepository)
             let initialActivityViewModel = ActivityViewModel(studentViewModel: initialStudentViewModel, activityUseCases: activityUseCase)
             self._activityViewModel = StateObject(wrappedValue: initialActivityViewModel)
-            
-            // Summary
+
             let summaryDataSource = SummaryDataSourceImpl(context: context)
             let summaryRepository = SummaryRepositoryImpl(dataSource: summaryDataSource)
             let summaryUseCase = SummaryUseCaseImpl(repository: summaryRepository)
@@ -84,6 +81,15 @@ struct BreesixApp: App {
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
+        
+        UIApplication.shared.setGlobalTint(AppTheme.shared.accentColor)
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(AppTheme.shared.accentColor)]
+        UINavigationBar.appearance().standardAppearance = appearance
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(AppTheme.shared.accentColor)
+        
     }
     
     var body: some Scene {
@@ -94,11 +100,12 @@ struct BreesixApp: App {
                         .transition(.opacity)
                 } else {
                     mainContent
-                        .transition(.opacity)
                 }
             }
+            .tint(theme.accentColor)
+            .accentColor(theme.accentColor)
+            .environmentObject(theme)
             .animation(.easeInOut, value: isOnboarding)
-            // Inject environment objects
             .environmentObject(studentViewModel)
             .environmentObject(noteViewModel)
             .environmentObject(activityViewModel)
@@ -108,25 +115,39 @@ struct BreesixApp: App {
             .accentColor(appColor.tint)
         }
         .modelContainer(container)
+        
     }
     
     @ViewBuilder
     private var mainContent: some View {
+
         MainTabView()
-        .onAppear {
-            analyticsService.trackEvent(
-                "App Launched",
-                properties: [
-                    "timestamp": Date().timeIntervalSince1970,
-                    "is_first_launch": !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
-                ]
-            )
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-        }
-        .onDisappear {
-            Mixpanel.mainInstance().flush()
-        }
-        .tint(Color.accent)
-        .accentColor(Color.accent)
+            .onAppear {
+                // Track launch event using AnalyticsService
+                analyticsService.trackEvent(
+                    "App Launched",
+                    properties: [
+                        "timestamp": Date().timeIntervalSince1970,
+                        "is_first_launch": !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+                    ]
+                )
+                UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            }
+            .onDisappear {
+                Mixpanel.mainInstance().flush()
+            }
+            .tint(theme.accentColor)
+            .accentColor(theme.accentColor)
+        
     }
 }
+
+// Buat ButtonStyle custom untuk konsistensi
+struct AccentButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .tint(.accent)
+    }
+}
+
+

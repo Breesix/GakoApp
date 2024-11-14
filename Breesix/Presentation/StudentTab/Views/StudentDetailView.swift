@@ -331,7 +331,7 @@ struct StudentDetailView: View {
                 )
             }
         }
-        .toolbar(.hidden, for: .bottomBar,.tabBar)
+        .tint(.accent)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
