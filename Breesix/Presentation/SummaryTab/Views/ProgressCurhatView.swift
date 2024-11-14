@@ -50,6 +50,15 @@ struct ProgressCurhatView: View {
                 if currentProgress == 3 {
                     
                     displaySelectedStudents()
+                  VStack(alignment:.leading, spacing: 12) {
+                    GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                    GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                    GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                }
+                Spacer()
+                TipsCard()
+                    .padding(.vertical, 16)
+                Divider()
                 } else if currentProgress == 1 {
      
                     AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students, selectedStudents: $selectedStudents)
@@ -60,7 +69,6 @@ struct ProgressCurhatView: View {
                  
                     activityInputs()
                 }
-
                 navigationButtons()
             }
             .sheet(isPresented: $isShowingInputTypeSheet) {
@@ -79,6 +87,22 @@ struct ProgressCurhatView: View {
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
+        }
+        .sheet(isPresented: $isShowingInputTypeSheet) {
+            InputTypeView(onSelect: { selectedInput in
+                isShowingInputTypeSheet = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    switch selectedInput {
+                    case .voice:
+                        onNavigateToVoiceInput()
+                    case .text:
+                        onNavigateToTextInput()
+                    }
+                }
+            })
+            .background(.white)
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})

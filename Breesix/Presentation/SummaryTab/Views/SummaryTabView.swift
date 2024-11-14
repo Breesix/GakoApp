@@ -68,6 +68,7 @@ struct SummaryTabView: View {
             }
             .background(.bgMain)
             .navigationDestination(isPresented: $navigateToProgressCurhatan) {
+
                 ProgressCurhatView(selectedDate: $summaryViewModel.selectedDate, onNavigateVoiceInput: {
                     isNavigatingToVoiceInput = true
                 }, onNavigateTextInput: {
@@ -141,7 +142,7 @@ struct SummaryTabView: View {
                         return studentViewModel.students
                     }
                 )
-                .background(.white)
+                .interactiveDismissDisabled()
             }
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
@@ -164,6 +165,7 @@ struct SummaryTabView: View {
                         return studentViewModel.students
                     }
                 )
+                .interactiveDismissDisabled()
             }
         }
         .tint(.accent)
