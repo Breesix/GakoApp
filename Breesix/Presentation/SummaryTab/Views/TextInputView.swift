@@ -163,7 +163,8 @@ private extension TextInputView {
                 } else {
                     Task {
                         await viewModel.processReflection(
-                            reflection: viewModel.reflection, fetchStudents: fetchStudents,
+                            reflection: viewModel.reflection,
+                            fetchStudents: fetchStudents,
                             onAddUnsavedActivities: onAddUnsavedActivities,
                             onAddUnsavedNotes: onAddUnsavedNotes,
                             selectedDate: selectedDate,

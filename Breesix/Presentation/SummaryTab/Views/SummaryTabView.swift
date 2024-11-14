@@ -27,6 +27,7 @@ struct SummaryTabView: View {
     @State private var showTabBar = true
     @State private var hideTabBar = false
     @State private var showEmptyStudentsAlert: Bool = false
+ 
     
     @StateObject private var networkMonitor = NetworkMonitor()
     @State private var showNoInternetAlert = false
@@ -66,30 +67,13 @@ struct SummaryTabView: View {
                 }
             }
             .background(.bgMain)
-            .sheet(isPresented: $isShowingInputTypeSheet) {
-                InputTypeView(onSelect: { selectedInput in
-                    switch selectedInput {
-                    case .voice:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToVoiceInput = true
-                    case .text:
-                        isShowingInputTypeSheet = false
-                        isNavigatingToTextInput = true
-                    }
-                })
-                .background(.white)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-            }
             .navigationDestination(isPresented: $navigateToProgressCurhatan) {
-                ProgressCurhatView(
-                    selectedDate: $summaryViewModel.selectedDate,
-                    onNavigateToVoiceInput: {
-                        isNavigatingToVoiceInput = true
-                    },
-                    onNavigateToTextInput: {
-                        isNavigatingToTextInput = true
-                    }
+
+                ProgressCurhatView(selectedDate: $summaryViewModel.selectedDate, onNavigateVoiceInput: {
+                    isNavigatingToVoiceInput = true
+                }, onNavigateTextInput: {
+                    isNavigatingToTextInput = true
+                }
                 )
             }
             .navigationDestination(isPresented: $navigateToPreview) {
@@ -184,23 +168,31 @@ struct SummaryTabView: View {
                 .interactiveDismissDisabled()
             }
         }
+        .tint(.accent)
+        .accentColor(.accent)
+        .buttonStyle(AccentButtonStyle())
         .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("Tambahkan Murid", role: .cancel) {
+            Button("Tambahkan Murid",role: .cancel) {
                 selectedTab = 1
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     isAddingStudent = true
                 }
                 
             }
+            .modifier(AlertModifier())
+
         } message: {
             Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
         }
+        
         .alert("Tidak Ada Koneksi Internet", isPresented: $showNoInternetAlert) {
             Button("OK", role: .cancel) {}
-        } message: {
+                .modifier(AlertModifier())
+                
+        }
+        message: {
             Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
         }
-
         .navigationBarHidden(true)
         .task {
             await studentViewModel.fetchAllStudents()
@@ -280,4 +272,14 @@ struct SummaryTabView: View {
             )
         }
     }
+    
 }
+
+struct AlertModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(.accent)
+            .tint(.accent)
+    }
+}
+
