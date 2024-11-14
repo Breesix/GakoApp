@@ -82,7 +82,15 @@ struct SummaryTabView: View {
                 .presentationDragIndicator(.visible)
             }
             .navigationDestination(isPresented: $navigateToProgressCurhatan) {
-                ProgressCurhatView(selectedDate: $summaryViewModel.selectedDate)
+                ProgressCurhatView(
+                    selectedDate: $summaryViewModel.selectedDate,
+                    onNavigateToVoiceInput: {
+                        isNavigatingToVoiceInput = true
+                    },
+                    onNavigateToTextInput: {
+                        isNavigatingToTextInput = true
+                    }
+                )
             }
             .navigationDestination(isPresented: $navigateToPreview) {
                 PreviewView(
@@ -150,7 +158,7 @@ struct SummaryTabView: View {
                         return studentViewModel.students
                     }
                 )
-                .background(.white)
+                .interactiveDismissDisabled()
             }
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
@@ -173,6 +181,7 @@ struct SummaryTabView: View {
                         return studentViewModel.students
                     }
                 )
+                .interactiveDismissDisabled()
             }
         }
         .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {

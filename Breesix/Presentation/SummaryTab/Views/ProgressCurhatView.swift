@@ -20,8 +20,19 @@ struct ProgressCurhatView: View {
     @State private var showEmptyStudentsAlert: Bool = false
     @Binding var selectedDate: Date
     
+    @State private var isShowingInputTypeSheet = false
+    
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    
+    @State private var navigateToPreview = false
+    
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var studentViewModel: StudentViewModel
+    
+    var onNavigateToVoiceInput: () -> Void
+    var onNavigateToTextInput: () -> Void
     
     private var currentTitle: String {
         switch currentProgress {
@@ -60,20 +71,27 @@ struct ProgressCurhatView: View {
             TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
             
             if currentProgress == 3 {
-                Spacer()
-                Text("saya berada di progress 3. murid yang hadir: ")
-                    .font(.headline)
-                    .foregroundColor(.black)
-                ForEach(Array(selectedStudents), id: \.id) { student in
-                        Text(student.fullname)
-                            .font(.body)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
+//                Spacer()
+//                Text("saya berada di progress 3. murid yang hadir: ")
+//                    .font(.headline)
+//                    .foregroundColor(.black)
+//                ForEach(Array(selectedStudents), id: \.id) { student in
+//                        Text(student.fullname)
+//                            .font(.body)
+//                    .padding(.vertical, 8)
+//                    .padding(.horizontal, 12)
+//                    .background(Color.gray.opacity(0.1))
+//                    .cornerRadius(8)
+//                }
+                VStack(alignment:.leading, spacing: 12) {
+                    GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                    GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                    GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
                 }
-
                 Spacer()
+                TipsCard()
+                    .padding(.vertical, 16)
+                Divider()
             } else if currentProgress == 1 {
                 AttendanceToggle(
                     isToggleOn: $isToggleOn,
@@ -136,6 +154,10 @@ struct ProgressCurhatView: View {
                     } else if currentProgress < 3 {
                         currentProgress += 1
                         updateProgressColors()
+                    } else if currentProgress == 3 {
+                        if !selectedStudents.isEmpty {
+                            isShowingInputTypeSheet = true
+                        }
                     }
                     
                     if currentProgress == 2 {
@@ -144,7 +166,7 @@ struct ProgressCurhatView: View {
                         }
                     }
                 } label: {
-                    Text("Lanjut")
+                    Text(currentProgress < 3 ? "Lanjut" : "Mulai Curhat")
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(.orangeClickAble)
@@ -155,6 +177,22 @@ struct ProgressCurhatView: View {
             .font(.body)
             .fontWeight(.semibold)
             .foregroundStyle(.labelPrimaryBlack)
+        }
+        .sheet(isPresented: $isShowingInputTypeSheet) {
+            InputTypeView(onSelect: { selectedInput in
+                isShowingInputTypeSheet = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    switch selectedInput {
+                    case .voice:
+                        onNavigateToVoiceInput()
+                    case .text:
+                        onNavigateToTextInput()
+                    }
+                }
+            })
+            .background(.white)
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})
@@ -198,8 +236,8 @@ struct ProgressCurhatView: View {
 }
 
 
-#Preview {
-    PreviewHelper.PreviewWrapper {
-        ProgressCurhatView(selectedDate: .constant(.now))
-    }
-}
+//#Preview {
+//    PreviewHelper.PreviewWrapper {
+//        ProgressCurhatView(selectedDate: .constant(.now))
+//    }
+//}
