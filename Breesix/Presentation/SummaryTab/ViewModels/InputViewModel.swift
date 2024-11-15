@@ -12,7 +12,7 @@ class InputViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var shouldNavigateToPreview: Bool = false
+    @Published var shouldNavigateToPreview: Bool = false // Tambahkan ini
 
     init(analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared) {
         self.analytics = analytics
@@ -48,6 +48,8 @@ class InputViewModel: ObservableObject {
     func processReflection(
         reflection: String,
         fetchStudents: @escaping () async -> [Student],
+        selectedStudents: Set<Student>,
+        activities: [String],
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
         onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
         selectedDate: Date,
@@ -71,7 +73,13 @@ class InputViewModel: ObservableObject {
             }
 
             let csvString = try await OpenAIService(apiToken: APIConfig.openAIToken)
-                .processReflection(reflection: reflection, students: students)
+                .processReflection(
+                    reflection: reflection,
+                    students: students,
+                    selectedStudents: selectedStudents,
+                    activities: activities
+                )
+
 
             let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
                 csvString: csvString,

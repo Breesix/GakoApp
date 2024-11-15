@@ -16,25 +16,40 @@ class OpenAIService {
         self.openAI = OpenAI(apiToken: APIConfig.openAIToken)
     }
     
-    func processReflection(reflection: String, students: [Student]) async throws -> String {
-        let studentInfo = students.map { "\($0.fullname) (\($0.nickname))" }.joined(separator: ", ")
+    func processReflection(
+        reflection: String,
+        students: [Student],
+        selectedStudents: Set<Student>,
+        activities: [String]
+    ) async throws -> String {
+        // Create student info string including attendance status
+        let studentInfo = students.map { student in
+            let isPresent = selectedStudents.contains(student)
+            return "\(student.fullname) (\(student.nickname)) - \(isPresent ? "Hadir" : "Tidak Hadir")"
+        }.joined(separator: ", ")
         
+        // Create activities string
+        let activitiesInfo = activities.isEmpty ?
+            "Tidak ada aktivitas yang tercatat" :
+            activities.joined(separator: ", ")
+
         if students.isEmpty {
             throw ProcessingError.noStudentData
         }
-        
         
         let userInput = """
         INPUT USER:
         Input User yang harus anda analisis adalah:
 
-        Data Murid: \(studentInfo)
+        Data Kehadiran Murid: \(studentInfo)
+        
+        Aktivitas Hari Ini: \(activitiesInfo)
 
         Curhatan Guru: \(reflection)
         """
-        
 
         let fullPrompt = BotPrompts.reflectionPrompt + "\n\n" + userInput
+        print(fullPrompt)
         let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o_mini)
         
         let result = try await openAI.chats(query: query)

@@ -21,17 +21,24 @@ struct TextInputView: View {
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
     var onDismiss: () -> Void
-    
+    let selectedStudents: Set<Student>
+    let activities: [String]
+
     init(
         selectedDate: Binding<Date>,
+        selectedStudents: Set<Student>,
+        activities: [String],
         onDismiss: @escaping () -> Void
     ) {
-        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
-            ? selectedDate.wrappedValue
-            : DateValidator.maximumDate()
+        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue) ?
+            selectedDate.wrappedValue :
+            DateValidator.maximumDate()
         self._tempDate = State(initialValue: validDate)
+        self.selectedStudents = selectedStudents
+        self.activities = activities
         self.onDismiss = onDismiss
     }
+
     
     var body: some View {
         ZStack {
@@ -155,6 +162,8 @@ private extension TextInputView {
                                 await studentViewModel.fetchAllStudents()
                                 return studentViewModel.students
                             },
+                            selectedStudents: selectedStudents, // Add this
+                            activities: activities, // Add this
                             onAddUnsavedActivities: { activities in
                                 activityViewModel.addUnsavedActivities(activities)
                             },
@@ -243,6 +252,9 @@ private extension TextInputView {
 #Preview {
     TextInputView(
         selectedDate: .constant(.now),
+        selectedStudents: Set<Student>(), // Add empty set for preview
+        activities: [], // Add empty array for preview
         onDismiss: {}
     )
 }
+

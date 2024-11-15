@@ -10,7 +10,7 @@ import SwiftUI
 struct AttendanceToggle: View {
     @Binding var isToggleOn: Bool
     let students: [Student]
-    @Binding var selectedStudents: Set<Student>
+    @EnvironmentObject var studentViewModel: StudentViewModel
     
     var body: some View {
         Toggle("Semua murid hadir hari ini", isOn: $isToggleOn)
@@ -19,15 +19,15 @@ struct AttendanceToggle: View {
             .tint(.bgAccent)
             .onChange(of: isToggleOn) {
                 if isToggleOn {
-                    selectedStudents = Set(students)
+                    studentViewModel.selectedStudents = Set(students)
                 } else {
-                    selectedStudents.removeAll()
+                    studentViewModel.selectedStudents.removeAll()
                 }
             }
     }
 }
 
 
-#Preview {
-    AttendanceToggle(isToggleOn: .constant(true), students: [.init(fullname: "Rangga Biner", nickname: "Rangga")], selectedStudents: .constant([]))
-}
+//#Preview {
+//    AttendanceToggle(isToggleOn: .constant(true), selectedStudents: .constant([]))
+//}

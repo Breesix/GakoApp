@@ -20,8 +20,6 @@ struct ProgressCurhatView: View {
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
 
-    @State private var selectedStudents: Set<Student> = []
-    @State private var activities: [String] = []
     @State private var showManageActivity: Bool = false
     @State private var activityText: String = ""
     @State private var currentProgress: Int = 1
@@ -53,8 +51,6 @@ struct ProgressCurhatView: View {
                 TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
 
                 if currentProgress == 3 {
-                    
-                    displaySelectedStudents()
                   VStack(alignment:.leading, spacing: 12) {
                     GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
                     GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
@@ -66,8 +62,8 @@ struct ProgressCurhatView: View {
                 Divider()
                 } else if currentProgress == 1 {
      
-                    AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students, selectedStudents: $selectedStudents)
-                    StudentGridView(students: studentViewModel.students, selectedStudents: $selectedStudents, onDeleteStudent: { student in
+                    AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
+                    StudentGridView(students: studentViewModel.students,  onDeleteStudent: { student in
                         await studentViewModel.deleteStudent(student)
                     })
                 } else if currentProgress == 2 {
@@ -131,7 +127,7 @@ struct ProgressCurhatView: View {
             Button("Batal", role: .cancel) { }
             Button("Hapus", role: .destructive) {
                 if let index = activityToDelete {
-                    activities.remove(at: index)
+                    studentViewModel.activities.remove(at: index)
                 }
             }
         } message: {
@@ -160,23 +156,15 @@ struct ProgressCurhatView: View {
         }
     }
 
-    private func displaySelectedStudents() -> some View {
-        ScrollView {
-            VStack {
-                Text("Masuk")
-            }
-        }
-    }
-
     private func activityInputs() -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(activities.indices, id: \.self) { index in
+                ForEach(studentViewModel.activities.indices, id: \.self) { index in
                     ActivityCard(
-                        activity: activities[index],
+                        activity: studentViewModel.activities[index],
                         onTap: {
-                            editingActivity = (index, activities[index])
-                            activityText = activities[index]
+                            editingActivity = (index, studentViewModel.activities[index])
+                            activityText = studentViewModel.activities[index]
                             showManageActivity = true
                         },
                         onDelete: {
@@ -268,9 +256,9 @@ struct ProgressCurhatView: View {
                             Button(action: {
                                 if !activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                     if let editing = editingActivity {
-                                        activities[editing.index] = activityText
+                                        studentViewModel.activities[editing.index] = activityText
                                     } else {
-                                        activities.append(activityText)
+                                        studentViewModel.activities.append(activityText)
                                     }
                                     activityText = ""
                                     editingActivity = nil
@@ -306,16 +294,16 @@ struct ProgressCurhatView: View {
             }
             
             Button {
-                if currentProgress == 1 && selectedStudents.isEmpty {
+                if currentProgress == 1 && studentViewModel.selectedStudents.isEmpty {
                     showEmptyStudentsAlert = true
-                } else if currentProgress == 2 && activities.isEmpty {
+                } else if currentProgress == 2 && studentViewModel.activities.isEmpty {
                     showEmptyActivitiesAlert = true
                 } else if currentProgress < 3 {
                     currentProgress += 1
                     updateProgressColors()
                 } else if currentProgress == 3 {
                     isShowingInputTypeSheet = true
-                    print(activities)
+                    print(studentViewModel.activities)
                 }
             } label: {
                 Text(currentProgress == 3 ? "Mulai Cerita" : "Lanjut")

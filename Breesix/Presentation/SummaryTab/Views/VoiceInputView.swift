@@ -199,16 +199,16 @@ struct VoiceInputView: View {
                             if viewModel.isRecording {
                                 Button(action: {
                                     if viewModel.isRecording {
-                                        Task {
-                                            await viewModel.processReflection(
-                                                reflection: viewModel.reflection, fetchStudents: fetchStudents,
-                                                onAddUnsavedActivities: onAddUnsavedActivities,
-                                                onAddUnsavedNotes: onAddUnsavedNotes,
-                                                selectedDate: selectedDate,
-                                                onDateSelected: onDateSelected,
-                                                onDismiss: onDismiss
-                                            )
-                                        }
+//                                        Task {
+//                                            await viewModel.processReflection(
+//                                                reflection: viewModel.reflection, fetchStudents: fetchStudents,
+//                                                onAddUnsavedActivities: onAddUnsavedActivities,
+//                                                onAddUnsavedNotes: onAddUnsavedNotes,
+//                                                selectedDate: selectedDate,
+//                                                onDateSelected: onDateSelected,
+//                                                onDismiss: onDismiss
+//                                            )
+//                                        }
                                     }
                                 }) {
                                     Text("Selesai")

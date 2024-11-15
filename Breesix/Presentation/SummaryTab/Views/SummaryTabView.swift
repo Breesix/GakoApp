@@ -27,7 +27,6 @@ struct SummaryTabView: View {
     @State private var showTabBar = true
     @State private var hideTabBar = false
     @State private var showEmptyStudentsAlert: Bool = false
- 
     
     @StateObject private var networkMonitor = NetworkMonitor()
     @State private var showNoInternetAlert = false
@@ -144,9 +143,12 @@ struct SummaryTabView: View {
                 )
                 .interactiveDismissDisabled()
             }
+            
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
                     selectedDate: $summaryViewModel.selectedDate,
+                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
+                    activities: studentViewModel.activities, // Pass activities
                     onDismiss: {
                         isNavigatingToTextInput = false
                         navigateToPreview = true
@@ -154,6 +156,7 @@ struct SummaryTabView: View {
                 )
                 .interactiveDismissDisabled()
             }
+
         }
         .tint(.accent)
         .accentColor(.accent)
