@@ -9,6 +9,10 @@ import SwiftUI
 
 struct TextInputView: View {
     @Environment(\.presentationMode) private var presentationMode
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
     @StateObject private var viewModel = TextInputViewModel()
     @State private var showAlert: Bool = false
     @State private var showEmptyReflectionAlert: Bool = false
@@ -16,34 +20,17 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
-    
-    @Binding var selectedDate: Date
-    var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
-    var onAddUnsavedNotes: ([UnsavedNote]) -> Void
-    var onDateSelected: (Date) -> Void
     var onDismiss: () -> Void
-    var fetchStudents: () async -> [Student]
-    
     
     init(
         selectedDate: Binding<Date>,
-        onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
-        onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
-        onDateSelected: @escaping (Date) -> Void,
-        onDismiss: @escaping () -> Void,
-        fetchStudents: @escaping () async -> [Student]
+        onDismiss: @escaping () -> Void
     ) {
-        self._selectedDate = selectedDate
         let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
             ? selectedDate.wrappedValue
             : DateValidator.maximumDate()
         self._tempDate = State(initialValue: validDate)
-        
-        self.onAddUnsavedActivities = onAddUnsavedActivities
-        self.onAddUnsavedNotes = onAddUnsavedNotes
-        self.onDateSelected = onDateSelected
         self.onDismiss = onDismiss
-        self.fetchStudents = fetchStudents
     }
     
     var body: some View {
@@ -58,7 +45,7 @@ struct TextInputView: View {
             VStack(spacing: 16) {
                 DatePickerButton(
                     isShowingDatePicker: $isShowingDatePicker,
-                    selectedDate: $selectedDate
+                    selectedDate: $summaryViewModel.selectedDate
                 )
                 .padding(.top, 24)
                 .opacity(viewModel.isLoading ? 0.5 : 1)
@@ -164,11 +151,20 @@ private extension TextInputView {
                     Task {
                         await viewModel.processReflection(
                             reflection: viewModel.reflection,
-                            fetchStudents: fetchStudents,
-                            onAddUnsavedActivities: onAddUnsavedActivities,
-                            onAddUnsavedNotes: onAddUnsavedNotes,
-                            selectedDate: selectedDate,
-                            onDateSelected: onDateSelected,
+                            fetchStudents: {
+                                await studentViewModel.fetchAllStudents()
+                                return studentViewModel.students
+                            },
+                            onAddUnsavedActivities: { activities in
+                                activityViewModel.addUnsavedActivities(activities)
+                            },
+                            onAddUnsavedNotes: { notes in
+                                noteViewModel.addUnsavedNotes(notes)
+                            },
+                            selectedDate: summaryViewModel.selectedDate,
+                            onDateSelected: { date in
+                                summaryViewModel.selectedDate = date
+                            },
                             onDismiss: onDismiss
                         )
                     }
@@ -234,7 +230,7 @@ private extension TextInputView {
             }
             .onChange(of: tempDate) {
                 if DateValidator.isValidDate(tempDate) {
-                    selectedDate = tempDate
+                    summaryViewModel.selectedDate = tempDate
                     isShowingDatePicker = false
                 }
             }
@@ -247,10 +243,6 @@ private extension TextInputView {
 #Preview {
     TextInputView(
         selectedDate: .constant(.now),
-        onAddUnsavedActivities: { _ in },
-        onAddUnsavedNotes: { _ in },
-        onDateSelected: { _ in },
-        onDismiss: {},
-        fetchStudents: { return [] }
+        onDismiss: {}
     )
 }

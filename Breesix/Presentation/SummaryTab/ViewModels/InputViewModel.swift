@@ -12,7 +12,7 @@ class InputViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var shouldNavigateToPreview: Bool = false // Tambahkan ini
+    @Published var shouldNavigateToPreview: Bool = false
 
     init(analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared) {
         self.analytics = analytics
