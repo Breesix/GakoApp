@@ -140,7 +140,10 @@ struct SummaryTabView: View {
                     fetchStudents: {
                         await studentViewModel.fetchAllStudents()
                         return studentViewModel.students
-                    }
+                    },
+                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
+                    activities: studentViewModel.activities // Pass activities
+
                 )
                 .interactiveDismissDisabled()
             }

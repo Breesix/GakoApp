@@ -20,20 +20,29 @@ struct VoiceInputView: View {
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
     
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
+    
     @Binding var selectedDate: Date
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
     var onAddUnsavedNotes: ([UnsavedNote]) -> Void
     var onDateSelected: (Date) -> Void
     var onDismiss: () -> Void
     var fetchStudents: () async -> [Student]
-    
+    let selectedStudents: Set<Student>
+    let activities: [String]
+
     init(
         selectedDate: Binding<Date>,
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
         onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
         onDateSelected: @escaping (Date) -> Void,
         onDismiss: @escaping () -> Void,
-        fetchStudents: @escaping () async -> [Student]
+        fetchStudents: @escaping () async -> [Student],
+        selectedStudents: Set<Student>,
+        activities: [String]
     ) {
         self._selectedDate = selectedDate
         let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
@@ -46,6 +55,8 @@ struct VoiceInputView: View {
         self.onDateSelected = onDateSelected
         self.onDismiss = onDismiss
         self.fetchStudents = fetchStudents
+        self.selectedStudents = selectedStudents
+        self.activities = activities
     }
     
     var body: some View {
@@ -199,16 +210,24 @@ struct VoiceInputView: View {
                             if viewModel.isRecording {
                                 Button(action: {
                                     if viewModel.isRecording {
-//                                        Task {
-//                                            await viewModel.processReflection(
-//                                                reflection: viewModel.reflection, fetchStudents: fetchStudents,
-//                                                onAddUnsavedActivities: onAddUnsavedActivities,
-//                                                onAddUnsavedNotes: onAddUnsavedNotes,
-//                                                selectedDate: selectedDate,
-//                                                onDateSelected: onDateSelected,
-//                                                onDismiss: onDismiss
-//                                            )
-//                                        }
+                                        Task {
+                                            await viewModel.processReflection(
+                                                reflection: viewModel.reflection,
+                                                selectedStudents: selectedStudents, // Add this
+                                                activities: activities, // Add this
+                                                onAddUnsavedActivities: { activities in
+                                                    activityViewModel.addUnsavedActivities(activities)
+                                                },
+                                                onAddUnsavedNotes: { notes in
+                                                    noteViewModel.addUnsavedNotes(notes)
+                                                },
+                                                selectedDate: summaryViewModel.selectedDate,
+                                                onDateSelected: { date in
+                                                    summaryViewModel.selectedDate = date
+                                                },
+                                                onDismiss: onDismiss
+                                            )
+                                        }
                                     }
                                 }) {
                                     Text("Selesai")
@@ -244,6 +263,8 @@ struct VoiceInputView: View {
                 title: Text("Batalkan Dokumentasi?"),
                 message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
                 primaryButton: .destructive(Text("Ya")) {
+                    studentViewModel.activities.removeAll()
+                    studentViewModel.selectedStudents.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 },
                 secondaryButton: .cancel(Text("Tidak"))
@@ -321,6 +342,8 @@ struct VoiceInputView: View {
         onAddUnsavedNotes: { _ in },
         onDateSelected: { _ in },
         onDismiss: {},
-        fetchStudents: { return [] }
+        fetchStudents: { return [] },
+        selectedStudents: Set<Student>(), // Add empty set for preview
+        activities: [] // Add empty array for preview
     )
 }

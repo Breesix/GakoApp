@@ -24,6 +24,9 @@ struct AttendanceToggle: View {
                     studentViewModel.selectedStudents.removeAll()
                 }
             }
+            .onChange(of: studentViewModel.selectedStudents) {
+                isToggleOn = studentViewModel.selectedStudents.count == students.count
+            }
     }
 }
 
