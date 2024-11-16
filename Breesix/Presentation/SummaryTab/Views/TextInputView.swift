@@ -87,6 +87,8 @@ struct TextInputView: View {
         .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
                 Button("Batalkan Dokumentasi", role: .destructive, action: {
+                    studentViewModel.activities.removeAll()
+                    studentViewModel.selectedStudents.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 })
                 Button("Lanjut Dokumentasi", role: .cancel, action: {})

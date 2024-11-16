@@ -112,6 +112,8 @@ struct ProgressCurhatView: View {
         }
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
             Button("Batalkan Dokumentasi", role: .destructive) {
+                studentViewModel.activities.removeAll()
+                studentViewModel.selectedStudents.removeAll()
                 presentationMode.wrappedValue.dismiss()
             }
             Button("Lanjut Dokumentasi", role: .cancel) {}

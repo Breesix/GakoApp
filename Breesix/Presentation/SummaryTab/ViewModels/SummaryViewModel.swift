@@ -24,7 +24,7 @@ class SummaryViewModel: ObservableObject {
     }
 
     func generateAndSaveSummaries(for date: Date) async throws {
-        try await summaryService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
+        try await summaryService.generateAndSaveSummaries(for: studentViewModel.selectedStudents, on: date)
     }
     
     func generateAndSaveSummariesLlama(for date: Date) async throws {
