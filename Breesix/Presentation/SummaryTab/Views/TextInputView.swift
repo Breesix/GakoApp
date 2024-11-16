@@ -9,6 +9,10 @@ import SwiftUI
 
 struct TextInputView: View {
     @Environment(\.presentationMode) private var presentationMode
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var summaryViewModel: SummaryViewModel
     @StateObject private var viewModel = TextInputViewModel()
     @State private var showAlert: Bool = false
     @State private var showEmptyReflectionAlert: Bool = false
@@ -16,7 +20,6 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
-    @State private var currentStep: Int = 1
     @State private var firstColor: Color = .bgSecondary
     @State private var secondColor: Color = .bgSecondary
     @State private var thirdColor: Color = .bgAccent
@@ -25,30 +28,32 @@ struct TextInputView: View {
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
     var onAddUnsavedNotes: ([UnsavedNote]) -> Void
     var onDateSelected: (Date) -> Void
+    let selectedStudents: Set<Student>
+    let activities: [String]
     var onDismiss: () -> Void
-    var fetchStudents: () async -> [Student]
-    
-    
+
     init(
         selectedDate: Binding<Date>,
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
         onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
         onDateSelected: @escaping (Date) -> Void,
-        onDismiss: @escaping () -> Void,
-        fetchStudents: @escaping () async -> [Student]
+        selectedStudents: Set<Student>,
+        activities: [String],
+        onDismiss: @escaping () -> Void
     ) {
         self._selectedDate = selectedDate
-        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue)
-            ? selectedDate.wrappedValue
-            : DateValidator.maximumDate()
+        let validDate = DateValidator.isValidDate(selectedDate.wrappedValue) ?
+            selectedDate.wrappedValue :
+            DateValidator.maximumDate()
         self._tempDate = State(initialValue: validDate)
-        
         self.onAddUnsavedActivities = onAddUnsavedActivities
         self.onAddUnsavedNotes = onAddUnsavedNotes
         self.onDateSelected = onDateSelected
+        self.selectedStudents = selectedStudents
+        self.activities = activities
         self.onDismiss = onDismiss
-        self.fetchStudents = fetchStudents
     }
+
     
     var body: some View {
         ZStack {
@@ -60,28 +65,12 @@ struct TextInputView: View {
                 }
             
             VStack(alignment: .center, spacing: 16) {
-                if currentStep == 2 {
-                    HStack {
-                        ProgressTracker(
-                            firstColor: firstColor,
-                            secondColor: secondColor,
-                            thirdColor: thirdColor
-                        )
-                        Spacer()
-                        DatePickerButton(
-                            isShowingDatePicker: $isShowingDatePicker,
-                            selectedDate: $selectedDate
-                        )
-                    }
-                    .padding(.bottom, 8)
-                    .padding(.horizontal, 16)
-                }
                 
                 VStack(alignment: .center, spacing: 8) {
                     HStack {
                         Image(systemName: "sparkles")
                         Spacer()
-                        Text(currentStep == 1 ? "Rekam dengan Teks" : "Konfirmasi isi Curhatan")
+                        Text("Rekam dengan Teks")
                             .fontWeight(.heavy)
                         Spacer()
                         Image(systemName: "sparkles")
@@ -98,8 +87,6 @@ struct TextInputView: View {
                 
                 VStack(alignment: .center, spacing: 0) {
                     textEditorSection()
-                    
-                    if currentStep == 1 {
                         Spacer()
                         VStack(alignment:.leading, spacing: 12) {
                             GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
@@ -108,11 +95,6 @@ struct TextInputView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                    } else {
-                        Spacer()
-                        TipsCard()
-                            .padding(.vertical, 16)
-                    }
                     
                     Divider()
                     navigationButtons()
@@ -128,6 +110,8 @@ struct TextInputView: View {
         .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
                 Button("Batalkan Dokumentasi", role: .destructive, action: {
+                    studentViewModel.activities.removeAll()
+                    studentViewModel.selectedStudents.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 })
                 Button("Lanjut Dokumentasi", role: .cancel, action: {})
@@ -152,13 +136,9 @@ struct TextInputView: View {
     private func navigationButtons() -> some View {
         HStack {
             Button {
-                if currentStep == 1 {
                     showAlert = true
-                } else {
-                    currentStep -= 1
-                }
             } label: {
-                Text(currentStep == 1 ? "Batal" : "Kembali")
+                Text("Batal")
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(.white)
@@ -166,27 +146,25 @@ struct TextInputView: View {
             }
             
             Button {
-                if currentStep == 1 {
-                    currentStep += 1
+                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showEmptyReflectionAlert = true
                 } else {
-                    if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        showEmptyReflectionAlert = true
-                    } else {
-                        Task {
-                            await viewModel.processReflection(
-                                reflection: viewModel.reflection,
-                                fetchStudents: fetchStudents,
-                                onAddUnsavedActivities: onAddUnsavedActivities,
-                                onAddUnsavedNotes: onAddUnsavedNotes,
-                                selectedDate: selectedDate,
-                                onDateSelected: onDateSelected,
-                                onDismiss: onDismiss
-                            )
-                        }
+                    Task {
+                        await viewModel.processReflection(
+                            reflection: viewModel.reflection,
+                            selectedStudents: selectedStudents,
+                            activities: activities,
+                            onAddUnsavedActivities: onAddUnsavedActivities,
+                            onAddUnsavedNotes: onAddUnsavedNotes,
+                            selectedDate: selectedDate,
+                            onDateSelected: onDateSelected,
+                            onDismiss: onDismiss
+                        )
                     }
+                    
                 }
             } label: {
-                Text(currentStep == 1 ? "Selesai" : "Lanjutkan")
+                Text("Selesai")
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(.orangeClickAble)
@@ -245,6 +223,61 @@ private extension TextInputView {
     }
     
     
+    func buttonSection() -> some View {
+        VStack(spacing: 16) {
+            Button(action: {
+                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showEmptyReflectionAlert = true
+                } else {
+                    Task {
+                        await viewModel.processReflection(
+                            reflection: viewModel.reflection,
+                            selectedStudents: selectedStudents, // Add this
+                            activities: activities, // Add this
+                            onAddUnsavedActivities: { activities in
+                                activityViewModel.addUnsavedActivities(activities)
+                            },
+                            onAddUnsavedNotes: { notes in
+                                noteViewModel.addUnsavedNotes(notes)
+                            },
+                            selectedDate: summaryViewModel.selectedDate,
+                            onDateSelected: { date in
+                                summaryViewModel.selectedDate = date
+                            },
+                            onDismiss: onDismiss
+                        )
+                    }
+                }
+            }) {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .frame(maxWidth: .infinity, maxHeight: 50)
+                        .background(.buttonLinkOnSheet)
+                        .cornerRadius(12)
+                } else {
+                    Text("Lanjutkan")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, maxHeight: 50)
+                        .background(.buttonLinkOnSheet)
+                        .foregroundStyle(.buttonPrimaryLabel)
+                        .cornerRadius(12)
+                }
+            }
+            .disabled(viewModel.isLoading)
+            
+            Button("Batal") {
+                showAlert = true
+            }
+            .padding(.top, 9)
+            .font(.body)
+            .fontWeight(.semibold)
+            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructiveOnCardLabel)
+            .disabled(viewModel.isLoading)
+        }
+    }
+    
     private func datePickerSheet() -> some View {
         NavigationStack {
             DatePicker(
@@ -276,7 +309,7 @@ private extension TextInputView {
             }
             .onChange(of: tempDate) {
                 if DateValidator.isValidDate(tempDate) {
-                    selectedDate = tempDate
+                    summaryViewModel.selectedDate = tempDate
                     isShowingDatePicker = false
                 }
             }
@@ -292,7 +325,9 @@ private extension TextInputView {
         onAddUnsavedActivities: { _ in },
         onAddUnsavedNotes: { _ in },
         onDateSelected: { _ in },
-        onDismiss: {},
-        fetchStudents: { return [] }
+        selectedStudents: Set<Student>(), 
+        activities: [],
+        onDismiss: {}
     )
 }
+

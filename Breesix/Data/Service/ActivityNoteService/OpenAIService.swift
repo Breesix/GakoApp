@@ -16,25 +16,38 @@ class OpenAIService {
         self.openAI = OpenAI(apiToken: APIConfig.openAIToken)
     }
     
-    func processReflection(reflection: String, students: [Student]) async throws -> String {
-        let studentInfo = students.map { "\($0.fullname) (\($0.nickname))" }.joined(separator: ", ")
+    func processReflection(
+        reflection: String,
+        selectedStudents: Set<Student>,
+        activities: [String]
+    ) async throws -> String {
+        // Create student info string directly from selectedStudents
+        let studentInfo = selectedStudents.map { student in
+            "\(student.fullname) (\(student.nickname)) - Hadir"
+        }.joined(separator: ", ")
         
-        if students.isEmpty {
+        // Create activities string
+        let activitiesInfo = activities.isEmpty ?
+            "Tidak ada aktivitas yang tercatat" :
+            activities.joined(separator: ", ")
+
+        if selectedStudents.isEmpty {
             throw ProcessingError.noStudentData
         }
-        
         
         let userInput = """
         INPUT USER:
         Input User yang harus anda analisis adalah:
 
-        Data Murid: \(studentInfo)
+        Data Kehadiran Murid: \(studentInfo)
+        
+        Aktivitas Hari Ini: \(activitiesInfo)
 
         Curhatan Guru: \(reflection)
         """
-        
 
         let fullPrompt = BotPrompts.reflectionPrompt + "\n\n" + userInput
+        print(fullPrompt)
         let query = ChatQuery(messages: [.init(role: .user, content: fullPrompt)!], model: .gpt4_o_mini)
         
         let result = try await openAI.chats(query: query)
@@ -52,13 +65,13 @@ class OpenAIService {
 }
 
 class ReflectionCSVParser {
-    static func parseActivitiesAndNotes(csvString: String, students: [Student], createdAt: Date) -> ([UnsavedActivity], [UnsavedNote]) {
+    static func parseActivitiesAndNotes(csvString: String, selectedStudents: Set<Student>, createdAt: Date) -> ([UnsavedActivity], [UnsavedNote]) {
         let rows = csvString.components(separatedBy: .newlines)
         var unsavedActivities: [UnsavedActivity] = []
         var unsavedNotes: [UnsavedNote] = []
         
         print("Total rows in CSV: \(rows.count)")
-        print("Available students: \(students.map { "\($0.fullname) (\($0.nickname))" })")
+        print("Selected students: \(selectedStudents.map { "\($0.fullname) (\($0.nickname))" })")
         
         for (index, row) in rows.dropFirst().enumerated() where !row.isEmpty {
             print("Processing row \(index + 1): \(row)")
@@ -71,7 +84,7 @@ class ReflectionCSVParser {
                 let curhatan = columns[3].trimmingCharacters(in: .whitespacesAndNewlines)
                 
                 print("Searching for student: \(fullName) (\(nickname))")
-                if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: students) {
+                if let student = findMatchingStudent(fullName: fullName, nickname: nickname, in: selectedStudents) {
                     let activities = activitiesString.components(separatedBy: "|")
                     for activity in activities {
                         let parts = activity.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "(")
@@ -122,6 +135,7 @@ class ReflectionCSVParser {
         print("Total notes created: \(unsavedNotes.count)")
         return (unsavedActivities, unsavedNotes)
     }
+
     
     private static func parseCSVRow(_ row: String) -> [String] {
         var columns: [String] = []
@@ -143,15 +157,16 @@ class ReflectionCSVParser {
         return columns
     }
     
-    private static func findMatchingStudent(fullName: String, nickname: String, in students: [Student]) -> Student? {
+    private static func findMatchingStudent(fullName: String, nickname: String, in selectedStudents: Set<Student>) -> Student? {
         let normalizedFullName = fullName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedNickname = nickname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        return students.first { student in
+        return selectedStudents.first { student in
             let studentFullName = student.fullname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             let studentNickname = student.nickname.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             
             return studentFullName == normalizedFullName || studentNickname == normalizedNickname
         }
     }
+
 }

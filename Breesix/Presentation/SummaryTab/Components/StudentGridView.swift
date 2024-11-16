@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StudentGridView: View {
     let students: [Student]
-    @Binding var selectedStudents: Set<Student>
+    @EnvironmentObject var studentViewModel: StudentViewModel
     var onDeleteStudent: (Student) async -> Void
     
     private let columns = [
@@ -29,12 +29,12 @@ struct StudentGridView: View {
                                 await onDeleteStudent(student)
                             }
                         },
-                        isSelected: selectedStudents.contains(student),
+                        isSelected: studentViewModel.selectedStudents.contains(student),
                         onTap: {
-                            if selectedStudents.contains(student) {
-                                selectedStudents.remove(student)
+                            if studentViewModel.selectedStudents.contains(student) {
+                                studentViewModel.selectedStudents.remove(student)
                             } else {
-                                selectedStudents.insert(student)
+                                studentViewModel.selectedStudents.insert(student)
                             }
                         }
                     )
@@ -43,7 +43,7 @@ struct StudentGridView: View {
         }
     }
 }
-
-#Preview {
-    StudentGridView(students: [.init(fullname: "Rangga Biner", nickname: "Rangga"), .init(fullname: "Rangga Biner", nickname: "Rangga"), .init(fullname: "John Doe", nickname: "John"), .init(fullname: "Jane Smith", nickname: "Jane")], selectedStudents: .constant([]), onDeleteStudent: { _ in print("Deleted")})
-}
+//
+//#Preview {
+//    StudentGridView(students: [.init(fullname: "Rangga Biner", nickname: "Rangga"), .init(fullname: "Rangga Biner", nickname: "Rangga"), .init(fullname: "John Doe", nickname: "John"), .init(fullname: "Jane Smith", nickname: "Jane")], selectedStudents: .constant([]), onDeleteStudent: { _ in print("Deleted")})
+//}

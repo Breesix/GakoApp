@@ -27,7 +27,6 @@ struct SummaryTabView: View {
     @State private var showTabBar = true
     @State private var hideTabBar = false
     @State private var showEmptyStudentsAlert: Bool = false
- 
     
     @StateObject private var networkMonitor = NetworkMonitor()
     @State private var showNoInternetAlert = false
@@ -82,6 +81,7 @@ struct SummaryTabView: View {
                     isShowingPreview: $navigateToPreview,
                     isShowingActivity: .constant(false),
                     students: studentViewModel.students,
+                    selectedStudents: studentViewModel.selectedStudents,
                     unsavedActivities: activityViewModel.unsavedActivities,
                     unsavedNotes: noteViewModel.unsavedNotes,
                     onAddUnsavedActivities: { activities in
@@ -140,10 +140,14 @@ struct SummaryTabView: View {
                     fetchStudents: {
                         await studentViewModel.fetchAllStudents()
                         return studentViewModel.students
-                    }
+                    },
+                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
+                    activities: studentViewModel.activities // Pass activities
+
                 )
                 .interactiveDismissDisabled()
             }
+            
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
                     selectedDate: $summaryViewModel.selectedDate,
@@ -156,17 +160,16 @@ struct SummaryTabView: View {
                     onDateSelected: { date in
                         summaryViewModel.selectedDate = date
                     },
+                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
+                    activities: studentViewModel.activities, // Pass activities
                     onDismiss: {
                         isNavigatingToTextInput = false
                         navigateToPreview = true
-                    },
-                    fetchStudents: {
-                        await studentViewModel.fetchAllStudents()
-                        return studentViewModel.students
                     }
                 )
                 .interactiveDismissDisabled()
             }
+
         }
         .tint(.accent)
         .accentColor(.accent)

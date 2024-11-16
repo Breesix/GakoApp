@@ -8,9 +8,6 @@
 import SwiftUI
 import SwiftData
 
-
-import SwiftUI
-
 struct ProgressCurhatView: View {
     @State private var firstColor: Color = .bgAccent
     @State private var secondColor: Color = .bgMain
@@ -23,9 +20,15 @@ struct ProgressCurhatView: View {
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
 
-    @State private var selectedStudents: Set<Student> = []
+    @State private var showManageActivity: Bool = false
+    @State private var activityText: String = ""
     @State private var currentProgress: Int = 1
+    @State private var editingActivity: (index: Int, text: String)? = nil
     @State private var showEmptyStudentsAlert: Bool = false
+    @State private var showEmptyActivitiesAlert: Bool = false
+    @State private var showDeleteAlert = false
+    @State private var activityToDelete: Int?
+
     @Binding var selectedDate: Date
     
     var onNavigateVoiceInput: () -> Void
@@ -59,8 +62,8 @@ struct ProgressCurhatView: View {
                 Divider()
                 } else if currentProgress == 1 {
      
-                    AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students, selectedStudents: $selectedStudents)
-                    StudentGridView(students: studentViewModel.students, selectedStudents: $selectedStudents, onDeleteStudent: { student in
+                    AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
+                    StudentGridView(students: studentViewModel.students,  onDeleteStudent: { student in
                         await studentViewModel.deleteStudent(student)
                     })
                 } else if currentProgress == 2 {
@@ -93,11 +96,28 @@ struct ProgressCurhatView: View {
         }
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
             Button("Batalkan Dokumentasi", role: .destructive) {
+                studentViewModel.activities.removeAll()
+                studentViewModel.selectedStudents.removeAll()
                 presentationMode.wrappedValue.dismiss()
             }
             Button("Lanjut Dokumentasi", role: .cancel) {}
         } message: {
             Text("Semua teks yang baru saja Anda masukkan akan terhapus secara permanen.")
+        }
+        .alert("Tambah Aktivitas", isPresented: $showEmptyActivitiesAlert) {
+            Button("OK", role: .cancel, action: {})
+        } message: {
+            Text("Silakan tambah minimal satu aktivitas.")
+        }
+        .alert("Hapus Aktivitas?", isPresented: $showDeleteAlert) {
+            Button("Batal", role: .cancel) { }
+            Button("Hapus", role: .destructive) {
+                if let index = activityToDelete {
+                    studentViewModel.activities.remove(at: index)
+                }
+            }
+        } message: {
+            Text("Apakah Anda yakin ingin menghapus aktivitas ini?")
         }
         .task {
             await studentViewModel.fetchAllStudents()
@@ -122,31 +142,125 @@ struct ProgressCurhatView: View {
         }
     }
 
-    private func displaySelectedStudents() -> some View {
-        ScrollView {
-            VStack {
-                Text("Masuk")
-            }
-        }
-    }
-
     private func activityInputs() -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(activityViewModel.unsavedActivities) { activity in
-                    ActivityTextField(activity: activity)
+                ForEach(studentViewModel.activities.indices, id: \.self) { index in
+                    ActivityCard(
+                        activity: studentViewModel.activities[index],
+                        onTap: {
+                            editingActivity = (index, studentViewModel.activities[index])
+                            activityText = studentViewModel.activities[index]
+                            showManageActivity = true
+                        },
+                        onDelete: {
+                            activityToDelete = index
+                            showDeleteAlert = true
+                        }
+                    )
+
                 }
-                AddButton(action: {
-                    if let firstStudent = selectedStudents.first {
-                        let newActivity = UnsavedActivity(activity: "", createdAt: selectedDate, status: .tidakMelakukan, studentId: firstStudent.id)
-                        activityViewModel.addUnsavedActivity(newActivity)
-                    }
-                }, backgroundColor: .buttonOncard, title: "Tambah")
+                
+                AddButton(
+                    action: {
+                        showManageActivity = true
+                    },
+                    backgroundColor: .buttonOncard,
+                    title: "Tambah"
+                )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
-    }
+
+            .sheet(isPresented: $showManageActivity) {
+                NavigationStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(editingActivity == nil ? "Tambah Aktivitas" : "Edit Aktivitas")
+                            .foregroundStyle(.labelPrimaryBlack)
+                            .font(.callout)
+                            .fontWeight(.semibold)
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            ZStack(alignment: .leading) {
+                                if activityText.isEmpty {
+                                    Text("Tuliskan aktivitas murid...")
+                                        .foregroundStyle(.labelTertiary)
+                                        .font(.body)
+                                        .fontWeight(.regular)
+                                        .padding(.horizontal, 11)
+                                        .padding(.vertical, 9)
+                                }
+                                
+                                TextField("", text: $activityText)
+                                    .foregroundStyle(.labelPrimaryBlack)
+                                    .font(.body)
+                                    .fontWeight(.regular)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 9)
+                            }
+                            .background(.cardFieldBG)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(.monochrome50, lineWidth: 0.5)
+                            )
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 34.5)
+                    .padding(.horizontal, 16)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Text(editingActivity == nil ? "Tambah Aktivitas" : "Edit Aktivitas")
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .font(.body)
+                                .fontWeight(.semibold)
+                                .padding(.top, 27)
+                        }
+                        
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button(action: {
+                                showManageActivity = false
+                                editingActivity = nil
+                                activityText = ""
+                            }) {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "chevron.left")
+                                        .fontWeight(.semibold)
+                                    Text("Kembali")
+                                }
+                                .font(.body)
+                                .fontWeight(.medium)
+                            }
+                            .padding(.top, 27)
+                        }
+                        
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                if !activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                    if let editing = editingActivity {
+                                        studentViewModel.activities[editing.index] = activityText
+                                    } else {
+                                        studentViewModel.activities.append(activityText)
+                                    }
+                                    activityText = ""
+                                    editingActivity = nil
+                                    showManageActivity = false
+                                }
+                            }) {
+                                Text("Simpan")
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                            }
+                            .padding(.top, 27)
+                        }
+                    }
+                }
+            }
+        }
 
     private func navigationButtons() -> some View {
         HStack {
@@ -164,15 +278,18 @@ struct ProgressCurhatView: View {
                     .background(.white)
                     .cornerRadius(12)
             }
-
+            
             Button {
-                if currentProgress == 1 && selectedStudents.isEmpty {
+                if currentProgress == 1 && studentViewModel.selectedStudents.isEmpty {
                     showEmptyStudentsAlert = true
+                } else if currentProgress == 2 && studentViewModel.activities.isEmpty {
+                    showEmptyActivitiesAlert = true
                 } else if currentProgress < 3 {
                     currentProgress += 1
                     updateProgressColors()
                 } else if currentProgress == 3 {
                     isShowingInputTypeSheet = true
+                    print(studentViewModel.activities)
                 }
             } label: {
                 Text(currentProgress == 3 ? "Mulai Cerita" : "Lanjut")
@@ -203,6 +320,30 @@ struct ProgressCurhatView: View {
             thirdColor = .bgAccent
         default:
             break
+        }
+    }
+}
+
+struct ActivityCard: View {
+    let activity: String
+    let onTap: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack {
+            Text(activity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .foregroundColor(.red)
+            }
+        }
+        .padding()
+        .background(Color.cardFieldBG)
+        .cornerRadius(8)
+        .onTapGesture {
+            onTap()
         }
     }
 }
