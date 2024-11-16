@@ -151,6 +151,15 @@ struct SummaryTabView: View {
             .navigationDestination(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
                     selectedDate: $summaryViewModel.selectedDate,
+                    onAddUnsavedActivities: { activities in
+                        activityViewModel.addUnsavedActivities(activities)
+                    },
+                    onAddUnsavedNotes: { notes in
+                        noteViewModel.addUnsavedNotes(notes)
+                    },
+                    onDateSelected: { date in
+                        summaryViewModel.selectedDate = date
+                    },
                     selectedStudents: studentViewModel.selectedStudents, // Pass selected students
                     activities: studentViewModel.activities, // Pass activities
                     onDismiss: {

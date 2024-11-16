@@ -343,7 +343,7 @@ struct VoiceInputView: View {
         onDateSelected: { _ in },
         onDismiss: {},
         fetchStudents: { return [] },
-        selectedStudents: Set<Student>(), // Add empty set for preview
-        activities: [] // Add empty array for preview
+        selectedStudents: Set<Student>(),
+        activities: [] 
     )
 }

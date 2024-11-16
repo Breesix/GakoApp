@@ -20,20 +20,35 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
-    var onDismiss: () -> Void
+    @State private var firstColor: Color = .bgSecondary
+    @State private var secondColor: Color = .bgSecondary
+    @State private var thirdColor: Color = .bgAccent
+    
+    @Binding var selectedDate: Date
+    var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
+    var onAddUnsavedNotes: ([UnsavedNote]) -> Void
+    var onDateSelected: (Date) -> Void
     let selectedStudents: Set<Student>
     let activities: [String]
+    var onDismiss: () -> Void
 
     init(
         selectedDate: Binding<Date>,
+        onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
+        onAddUnsavedNotes: @escaping ([UnsavedNote]) -> Void,
+        onDateSelected: @escaping (Date) -> Void,
         selectedStudents: Set<Student>,
         activities: [String],
         onDismiss: @escaping () -> Void
     ) {
+        self._selectedDate = selectedDate
         let validDate = DateValidator.isValidDate(selectedDate.wrappedValue) ?
             selectedDate.wrappedValue :
             DateValidator.maximumDate()
         self._tempDate = State(initialValue: validDate)
+        self.onAddUnsavedActivities = onAddUnsavedActivities
+        self.onAddUnsavedNotes = onAddUnsavedNotes
+        self.onDateSelected = onDateSelected
         self.selectedStudents = selectedStudents
         self.activities = activities
         self.onDismiss = onDismiss
@@ -49,35 +64,43 @@ struct TextInputView: View {
                     isTextEditorFocused = false
                 }
             
-            VStack(spacing: 16) {
-                DatePickerButton(
-                    isShowingDatePicker: $isShowingDatePicker,
-                    selectedDate: $summaryViewModel.selectedDate
-                )
-                .padding(.top, 24)
+            VStack(alignment: .center, spacing: 16) {
+                
+                VStack(alignment: .center, spacing: 8) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Spacer()
+                        Text("Rekam dengan Teks")
+                            .fontWeight(.heavy)
+                        Spacer()
+                        Image(systemName: "sparkles")
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(.bgMain)
+                .cornerRadius(10)
+                .foregroundStyle(.bgSecondary)
+                .padding(.horizontal, 16)
                 .opacity(viewModel.isLoading ? 0.5 : 1)
                 .disabled(viewModel.isLoading)
                 
-                VStack(spacing: 0) {
+                VStack(alignment: .center, spacing: 0) {
                     textEditorSection()
-                    
-                    if showProTips {
-                        GuidingQuestions()
-                            .padding(.top, 12)
                         Spacer()
-                        TipsCard()
-                    }
+                        VStack(alignment:.leading, spacing: 12) {
+                            GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                            GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                            GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                     
-                    Spacer()
-                    buttonSection()
-                        .padding(.bottom, showProTips ? 24 : 0)
-                    
-                    
-                    if !showProTips {
-                        Spacer()
-                    }
+                    Divider()
+                    navigationButtons()
+                        .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 16)
             }
 
         }
@@ -108,6 +131,55 @@ struct TextInputView: View {
                 showProTips = !isTextEditorFocused
             }
         }
+    }
+    
+    private func navigationButtons() -> some View {
+        HStack {
+            Button {
+                    showAlert = true
+            } label: {
+                Text("Batal")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(.white)
+                    .cornerRadius(12)
+            }
+            
+            Button {
+                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showEmptyReflectionAlert = true
+                } else {
+                    Task {
+                        await viewModel.processReflection(
+                            reflection: viewModel.reflection,
+                            selectedStudents: selectedStudents,
+                            activities: activities,
+                            onAddUnsavedActivities: onAddUnsavedActivities,
+                            onAddUnsavedNotes: onAddUnsavedNotes,
+                            selectedDate: selectedDate,
+                            onDateSelected: onDateSelected,
+                            onDismiss: onDismiss
+                        )
+                    }
+                    
+                }
+            } label: {
+                Text("Selesai")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(.orangeClickAble)
+                    .cornerRadius(12)
+            }
+        }
+        .font(.body)
+        .fontWeight(.semibold)
+        .foregroundStyle(.labelPrimaryBlack)
+    }
+    
+    private func updateProgressColors() {
+        firstColor = .bgSecondary
+        secondColor = .bgSecondary
+        thirdColor = .bgAccent
     }
 }
 
@@ -250,8 +322,11 @@ private extension TextInputView {
 #Preview {
     TextInputView(
         selectedDate: .constant(.now),
-        selectedStudents: Set<Student>(), // Add empty set for preview
-        activities: [], // Add empty array for preview
+        onAddUnsavedActivities: { _ in },
+        onAddUnsavedNotes: { _ in },
+        onDateSelected: { _ in },
+        selectedStudents: Set<Student>(), 
+        activities: [],
         onDismiss: {}
     )
 }

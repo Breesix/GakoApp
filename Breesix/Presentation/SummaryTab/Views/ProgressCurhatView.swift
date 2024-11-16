@@ -89,22 +89,6 @@ struct ProgressCurhatView: View {
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
         }
-        .sheet(isPresented: $isShowingInputTypeSheet) {
-            InputTypeView(onSelect: { selectedInput in
-                isShowingInputTypeSheet = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    switch selectedInput {
-                    case .voice:
-                        onNavigateVoiceInput()
-                    case .text:
-                        onNavigateTextInput()
-                    }
-                }
-            })
-            .background(.white)
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
-        }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})
         } message: {
