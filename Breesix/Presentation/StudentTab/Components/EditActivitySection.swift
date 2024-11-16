@@ -49,7 +49,7 @@ struct EditActivitySection: View {
                 }
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
+                    .foregroundColor(.labelSecondaryBlack)
                     .padding(.bottom, 12)
             }
             

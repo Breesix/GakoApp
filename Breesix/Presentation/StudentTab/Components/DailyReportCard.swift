@@ -254,7 +254,7 @@ struct DayEditCard: View {
                 }
             } else {
                 Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
+                    .foregroundColor(.labelSecondaryBlack)
             }
             
             Button(action: {
@@ -329,7 +329,7 @@ struct DayEditCard: View {
                 }
             } else {
                 Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
+                    .foregroundColor(.labelSecondaryBlack)
             }
             
             Button(action: {

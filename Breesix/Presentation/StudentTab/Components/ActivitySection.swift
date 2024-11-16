@@ -21,7 +21,7 @@ struct ActivitySection: View {
                 .foregroundStyle(.labelPrimaryBlack)
             if activities.isEmpty {
                 Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondary)
+                    .foregroundColor(.labelSecondaryBlack)
             } else {
                 ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
                     ActivityRow(

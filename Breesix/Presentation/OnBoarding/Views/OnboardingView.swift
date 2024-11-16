@@ -12,17 +12,16 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack{
-            
             VStack{
                 TabView(selection: $currentPage) {
-                    ForEach(Array(0..<onboardingItems.count), id: \.self) { index in
-                        CreateStudentOnboardingView(onboardingGako: onboardingItems[index])
-                            .tag(index)
+                    ForEach(onboardingItems) { item in
+                        OnboardingSection(onboardingGako: item)
+                            .tag(onboardingItems.firstIndex(where: { $0.id == item.id }) ?? 0)
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                CustomPageIndicator(numberOfPages: onboardingItems.count, currentPage: currentPage)
-                                    .padding(.bottom, 20)
+                PageIndicator(numberOfPages: onboardingItems.count, currentPage: currentPage)
+                    .padding(.bottom, 20)
                 OnboardingButton(currentPage: $currentPage)
             }
         }

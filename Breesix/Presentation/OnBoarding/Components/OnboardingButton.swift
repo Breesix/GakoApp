@@ -14,7 +14,6 @@ struct OnboardingButton: View {
     var body: some View {
                VStack {
                    HStack(spacing: 20) {
-                    
                        if currentPage > 0 {
                            Button(action: {
                                withAnimation {
@@ -30,8 +29,6 @@ struct OnboardingButton: View {
                                    .cornerRadius(10)
                            }
                        }
-                       
-          
                        Button(action: {
                            if currentPage == onboardingItems.count - 1 {
                                
@@ -56,6 +53,6 @@ struct OnboardingButton: View {
                    .padding(.bottom, 30)
                }
        }
-   }
+}
 
 
