@@ -12,7 +12,7 @@ class InputViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var shouldNavigateToPreview: Bool = false // Tambahkan ini
+    @Published var shouldNavigateToPreview: Bool = false
 
     init(analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared) {
         self.analytics = analytics
@@ -47,7 +47,6 @@ class InputViewModel: ObservableObject {
 
     func processReflection(
         reflection: String,
-        fetchStudents: @escaping () async -> [Student],
         selectedStudents: Set<Student>,
         activities: [String],
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
@@ -63,8 +62,6 @@ class InputViewModel: ObservableObject {
             }
             analytics.trackProcessingStarted(type: .text)
 
-            let students = await fetchStudents()
-
             if reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 await MainActor.run {
                     self.isLoading = false
@@ -75,15 +72,13 @@ class InputViewModel: ObservableObject {
             let csvString = try await OpenAIService(apiToken: APIConfig.openAIToken)
                 .processReflection(
                     reflection: reflection,
-                    students: students,
                     selectedStudents: selectedStudents,
                     activities: activities
                 )
 
-
             let (activityList, noteList) = ReflectionCSVParser.parseActivitiesAndNotes(
                 csvString: csvString,
-                students: students,
+                selectedStudents: selectedStudents,
                 createdAt: selectedDate
             )
 
@@ -94,11 +89,10 @@ class InputViewModel: ObservableObject {
                 onDateSelected(selectedDate)
                 onDismiss()
               
-                
                 analytics.trackProcessingCompleted(
                     type: .text,
                     success: true,
-                    studentsCount: students.count
+                    studentsCount: selectedStudents.count
                 )
             }
         } catch {

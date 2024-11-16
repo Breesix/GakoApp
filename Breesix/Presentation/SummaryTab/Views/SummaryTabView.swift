@@ -81,6 +81,7 @@ struct SummaryTabView: View {
                     isShowingPreview: $navigateToPreview,
                     isShowingActivity: .constant(false),
                     students: studentViewModel.students,
+                    selectedStudents: studentViewModel.selectedStudents,
                     unsavedActivities: activityViewModel.unsavedActivities,
                     unsavedNotes: noteViewModel.unsavedNotes,
                     onAddUnsavedActivities: { activities in

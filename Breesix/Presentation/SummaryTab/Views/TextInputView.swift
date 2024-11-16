@@ -158,10 +158,6 @@ private extension TextInputView {
                     Task {
                         await viewModel.processReflection(
                             reflection: viewModel.reflection,
-                            fetchStudents: {
-                                await studentViewModel.fetchAllStudents()
-                                return studentViewModel.students
-                            },
                             selectedStudents: selectedStudents, // Add this
                             activities: activities, // Add this
                             onAddUnsavedActivities: { activities in

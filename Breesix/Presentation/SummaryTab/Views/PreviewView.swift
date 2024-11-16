@@ -32,6 +32,7 @@ struct PreviewView: View {
     @State private var progressTimer: Timer?
     
     private let students: [Student]
+    let selectedStudents: Set<Student>
     private var unsavedActivities: [UnsavedActivity]
     private var unsavedNotes: [UnsavedNote]
     
@@ -52,6 +53,7 @@ struct PreviewView: View {
         isShowingPreview: Binding<Bool>,
         isShowingActivity: Binding<Bool>,
         students: [Student],
+        selectedStudents: Set<Student>, // Tambahkan ini
         unsavedActivities: [UnsavedActivity],
         unsavedNotes: [UnsavedNote],
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
@@ -71,6 +73,7 @@ struct PreviewView: View {
         self._isShowingPreview = isShowingPreview
         self._isShowingActivity = isShowingActivity
         self.students = students
+        self.selectedStudents = selectedStudents // Tambahkan ini
         self.unsavedActivities = unsavedActivities
         self.unsavedNotes = unsavedNotes
         self.onAddUnsavedActivities = onAddUnsavedActivities
@@ -319,7 +322,9 @@ struct PreviewView: View {
     
     
     private var sortedStudents: [Student] {
-        students.sorted { student1, student2 in
+        students
+            .filter { selectedStudents.contains($0) } // Filter hanya selected students
+            .sorted { student1, student2 in
             let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
             let hasDefaultActivity2 = hasAnyDefaultActivity(for: student2)
             if hasDefaultActivity1 != hasDefaultActivity2 {
@@ -420,6 +425,7 @@ struct PreviewView: View {
 //        students: [
 //            .init(fullname: "Rangga Biner", nickname: "Rangga")
 //        ],
+//        selectedStudents: studentViewModel.selectedStudents, // Tambahkan ini
 //        unsavedActivities: [
 //            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
 //        ],
