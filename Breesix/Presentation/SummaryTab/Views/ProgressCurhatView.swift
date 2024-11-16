@@ -48,8 +48,6 @@ struct ProgressCurhatView: View {
                 TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
 
                 if currentProgress == 3 {
-                    
-                    displaySelectedStudents()
                   VStack(alignment:.leading, spacing: 12) {
                     GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
                     GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
@@ -87,22 +85,6 @@ struct ProgressCurhatView: View {
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
-        }
-        .sheet(isPresented: $isShowingInputTypeSheet) {
-            InputTypeView(onSelect: { selectedInput in
-                isShowingInputTypeSheet = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    switch selectedInput {
-                    case .voice:
-                        onNavigateToVoiceInput()
-                    case .text:
-                        onNavigateToTextInput()
-                    }
-                }
-            })
-            .background(.white)
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
         }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})

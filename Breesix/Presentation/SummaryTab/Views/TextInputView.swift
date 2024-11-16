@@ -16,6 +16,10 @@ struct TextInputView: View {
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
     @FocusState private var isTextEditorFocused: Bool
+    @State private var currentStep: Int = 1
+    @State private var firstColor: Color = .bgSecondary
+    @State private var secondColor: Color = .bgSecondary
+    @State private var thirdColor: Color = .bgAccent
     
     @Binding var selectedDate: Date
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
@@ -55,35 +59,66 @@ struct TextInputView: View {
                     isTextEditorFocused = false
                 }
             
-            VStack(spacing: 16) {
-                DatePickerButton(
-                    isShowingDatePicker: $isShowingDatePicker,
-                    selectedDate: $selectedDate
-                )
-                .padding(.top, 24)
+            VStack(alignment: .center, spacing: 16) {
+                if currentStep == 2 {
+                    HStack {
+                        ProgressTracker(
+                            firstColor: firstColor,
+                            secondColor: secondColor,
+                            thirdColor: thirdColor
+                        )
+                        Spacer()
+                        DatePickerButton(
+                            isShowingDatePicker: $isShowingDatePicker,
+                            selectedDate: $selectedDate
+                        )
+                    }
+                    .padding(.bottom, 8)
+                    .padding(.horizontal, 16)
+                }
+                
+                VStack(alignment: .center, spacing: 8) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Spacer()
+                        Text(currentStep == 1 ? "Rekam dengan Teks" : "Konfirmasi isi Curhatan")
+                            .fontWeight(.heavy)
+                        Spacer()
+                        Image(systemName: "sparkles")
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(.bgMain)
+                .cornerRadius(10)
+                .foregroundStyle(.bgSecondary)
+                .padding(.horizontal, 16)
                 .opacity(viewModel.isLoading ? 0.5 : 1)
                 .disabled(viewModel.isLoading)
                 
-                VStack(spacing: 0) {
+                VStack(alignment: .center, spacing: 0) {
                     textEditorSection()
                     
-                    if showProTips {
-                        GuidingQuestions()
-                            .padding(.top, 12)
+                    if currentStep == 1 {
+                        Spacer()
+                        VStack(alignment:.leading, spacing: 12) {
+                            GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                            GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                            GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                    } else {
                         Spacer()
                         TipsCard()
+                            .padding(.vertical, 16)
                     }
                     
-                    Spacer()
-                    buttonSection()
-                        .padding(.bottom, showProTips ? 24 : 0)
-                    
-                    
-                    if !showProTips {
-                        Spacer()
-                    }
+                    Divider()
+                    navigationButtons()
+                        .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 16)
             }
 
         }
@@ -112,6 +147,61 @@ struct TextInputView: View {
                 showProTips = !isTextEditorFocused
             }
         }
+    }
+    
+    private func navigationButtons() -> some View {
+        HStack {
+            Button {
+                if currentStep == 1 {
+                    showAlert = true
+                } else {
+                    currentStep -= 1
+                }
+            } label: {
+                Text(currentStep == 1 ? "Batal" : "Kembali")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(.white)
+                    .cornerRadius(12)
+            }
+            
+            Button {
+                if currentStep == 1 {
+                    currentStep += 1
+                } else {
+                    if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        showEmptyReflectionAlert = true
+                    } else {
+                        Task {
+                            await viewModel.processReflection(
+                                reflection: viewModel.reflection,
+                                fetchStudents: fetchStudents,
+                                onAddUnsavedActivities: onAddUnsavedActivities,
+                                onAddUnsavedNotes: onAddUnsavedNotes,
+                                selectedDate: selectedDate,
+                                onDateSelected: onDateSelected,
+                                onDismiss: onDismiss
+                            )
+                        }
+                    }
+                }
+            } label: {
+                Text(currentStep == 1 ? "Selesai" : "Lanjutkan")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(.orangeClickAble)
+                    .cornerRadius(12)
+            }
+        }
+        .font(.body)
+        .fontWeight(.semibold)
+        .foregroundStyle(.labelPrimaryBlack)
+    }
+    
+    private func updateProgressColors() {
+        firstColor = .bgSecondary
+        secondColor = .bgSecondary
+        thirdColor = .bgAccent
     }
 }
 
@@ -154,54 +244,6 @@ private extension TextInputView {
         )
     }
     
-    
-    func buttonSection() -> some View {
-        VStack(spacing: 16) {
-            Button(action: {
-                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    showEmptyReflectionAlert = true
-                } else {
-                    Task {
-                        await viewModel.processReflection(
-                            reflection: viewModel.reflection,
-                            fetchStudents: fetchStudents,
-                            onAddUnsavedActivities: onAddUnsavedActivities,
-                            onAddUnsavedNotes: onAddUnsavedNotes,
-                            selectedDate: selectedDate,
-                            onDateSelected: onDateSelected,
-                            onDismiss: onDismiss
-                        )
-                    }
-                }
-            }) {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .frame(maxWidth: .infinity, maxHeight: 50)
-                        .background(.buttonLinkOnSheet)
-                        .cornerRadius(12)
-                } else {
-                    Text("Lanjutkan")
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, maxHeight: 50)
-                        .background(.buttonLinkOnSheet)
-                        .foregroundStyle(.buttonPrimaryLabel)
-                        .cornerRadius(12)
-                }
-            }
-            .disabled(viewModel.isLoading)
-            
-            Button("Batal") {
-                showAlert = true
-            }
-            .padding(.top, 9)
-            .font(.body)
-            .fontWeight(.semibold)
-            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructiveOnCardLabel)
-            .disabled(viewModel.isLoading)
-        }
-    }
     
     private func datePickerSheet() -> some View {
         NavigationStack {
