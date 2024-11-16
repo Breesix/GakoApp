@@ -8,8 +8,15 @@
 import Foundation
 
 struct OnboardingGako: Identifiable {
-    var id = UUID()
+    var id: UUID
     var lottie: String
     var title: String
     var description: String
+    
+    init(id: UUID = UUID(), lottie: String, title: String, description: String) {
+        self.id = id
+        self.lottie = lottie
+        self.title = title
+        self.description = description
+    }
 }

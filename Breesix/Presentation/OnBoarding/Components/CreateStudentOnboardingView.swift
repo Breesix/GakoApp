@@ -54,7 +54,7 @@ struct CreateStudentOnboardingView: View {
 
 struct CreateStudentOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        CreateStudentOnboardingView(onboardingGako: onboarding[0])
+        CreateStudentOnboardingView(onboardingGako: onboardingItems[0])
     }
 }
 

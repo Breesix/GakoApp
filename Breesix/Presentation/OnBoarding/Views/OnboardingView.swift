@@ -9,30 +9,25 @@ import SwiftUI
 
 struct OnboardingView: View {
     @State private var currentPage = 0
+    
     var body: some View {
         ZStack{
             
-            Color.white.edgesIgnoringSafeArea(.all)
             VStack{
-               
                 TabView(selection: $currentPage) {
-                    ForEach(0..<onboarding.count) { index in
-                        CreateStudentOnboardingView(onboardingGako: onboarding[index])
+                    ForEach(Array(0..<onboardingItems.count), id: \.self) { index in
+                        CreateStudentOnboardingView(onboardingGako: onboardingItems[index])
                             .tag(index)
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                CustomPageIndicator(numberOfPages: onboarding.count, currentPage: currentPage)
+                CustomPageIndicator(numberOfPages: onboardingItems.count, currentPage: currentPage)
                                     .padding(.bottom, 20)
-                ButtonOnboarding(currentPage: $currentPage)
+                OnboardingButton(currentPage: $currentPage)
             }
         }
-        
     }
-    
 }
-
-
 
 #Preview {
     OnboardingView()

@@ -10,7 +10,6 @@ import SwiftData
 import Speech
 import Mixpanel
 
-
 @main
 struct BreesixApp: App {
     let container: ModelContainer
@@ -19,7 +18,6 @@ struct BreesixApp: App {
     @AppStorage("isOnboarding") private var isOnboarding: Bool = true
     private let analyticsService = InputAnalyticsTracker.shared
     
-    // Tambahkan StateObject untuk ViewModel yang sudah ada
     @StateObject private var studentViewModel: StudentViewModel
     @StateObject private var noteViewModel: NoteViewModel
     @StateObject private var activityViewModel: ActivityViewModel
@@ -123,7 +121,6 @@ struct BreesixApp: App {
 
         MainTabView()
             .onAppear {
-                // Track launch event using AnalyticsService
                 analyticsService.trackEvent(
                     "App Launched",
                     properties: [
@@ -142,7 +139,6 @@ struct BreesixApp: App {
     }
 }
 
-// Buat ButtonStyle custom untuk konsistensi
 struct AccentButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

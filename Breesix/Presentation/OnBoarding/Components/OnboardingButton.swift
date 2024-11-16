@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ButtonOnboarding: View {
+struct OnboardingButton: View {
     @Binding var currentPage: Int
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
     
@@ -33,7 +33,7 @@ struct ButtonOnboarding: View {
                        
           
                        Button(action: {
-                           if currentPage == onboarding.count - 1 {
+                           if currentPage == onboardingItems.count - 1 {
                                
                                isOnboarding = false
                            } else {
@@ -43,7 +43,7 @@ struct ButtonOnboarding: View {
                                }
                            }
                        }) {
-                           Text(currentPage == onboarding.count - 1 ? "Mengerti" : "Lanjut")
+                           Text(currentPage == onboardingItems.count - 1 ? "Mengerti" : "Lanjut")
                                .foregroundColor(.white)
                                .fontWeight(.semibold)
                                .padding()
