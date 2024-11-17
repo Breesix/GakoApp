@@ -1,38 +1,52 @@
 //
 //  OnboardingView.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 06/11/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A view that displays onboarding
+//  Usage: Use this view to show onboarding
 //
 
 import SwiftUI
 
 struct OnboardingView: View {
-    @State private var currentPage = 0
-    var body: some View {
-        ZStack{
-            
-            Color.white.edgesIgnoringSafeArea(.all)
-            VStack{
-               
-                TabView(selection: $currentPage) {
-                    ForEach(0..<onboarding.count) { index in
-                        CreateStudentOnboardingView(onboardingGako: onboarding[index])
-                            .tag(index)
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                CustomPageIndicator(numberOfPages: onboarding.count, currentPage: currentPage)
-                                    .padding(.bottom, 20)
-                ButtonOnboarding(currentPage: $currentPage)
-            }
-        }
-        
-    }
+    @StateObject private var viewModel = OnboardingViewModel()
     
+    var defaultSpacing: CGFloat = UIConstants.OnboardingView.defaultSpacing
+    var sectionPadding: CGFloat = UIConstants.OnboardingView.sectionPadding
+    var safeArea: CGFloat = UIConstants.OnboardingView.safeArea
+    
+    var body: some View {
+        VStack(spacing: defaultSpacing) {
+            Image("iconOnboarding")
+            
+            TabView(selection: $viewModel.currentPage) {
+                ForEach(viewModel.onboardingItems) { item in
+                    OnboardingSection(onboarding: item)
+                        .tag(viewModel.getIndex(for: item))
+                }
+                .padding(.horizontal, sectionPadding)
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            Spacer()
+            
+            PageIndicator(numberOfPages: viewModel.totalPages,
+                         currentPage: viewModel.currentPage)
+            
+            OnboardingButton(
+                isLastPage: viewModel.isLastPage,
+                onNextTapped: viewModel.handleNextButton,
+                onPreviousTapped: viewModel.handlePreviousButton,
+                showPreviousButton: viewModel.showPreviousButton
+            )
+        }
+        .safeAreaPadding(.horizontal, safeArea)
+    }
 }
-
-
 
 #Preview {
     OnboardingView()

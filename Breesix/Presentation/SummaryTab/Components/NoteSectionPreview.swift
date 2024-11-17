@@ -50,7 +50,7 @@ struct NoteSectionPreview: View {
             }
         } else {
             Text("Tidak ada catatan untuk tanggal ini")
-                .foregroundColor(.labelSecondary)
+                .foregroundColor(.labelSecondaryBlack)
                 .padding(.bottom, 12)
         }
         

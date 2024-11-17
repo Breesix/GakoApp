@@ -19,7 +19,7 @@ struct CustomSearchBar: View {
                 ZStack(alignment: .leading) {
                     if text.isEmpty {
                         Text("Search")
-                            .foregroundStyle(.labelSecondary)
+                            .foregroundStyle(.labelSecondaryBlack)
                             .padding(.horizontal, 33)
                             .padding(.vertical, 7)
                     }
@@ -33,7 +33,7 @@ struct CustomSearchBar: View {
                 .overlay(
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.labelSecondary)
+                            .foregroundStyle(.labelSecondaryBlack)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 8)
                         
@@ -53,7 +53,7 @@ struct CustomSearchBar: View {
                                     speechRecognizer.startTranscribing()
                                 }) {
                                     Image(systemName: "mic.fill")
-                                        .foregroundStyle(.labelSecondary)
+                                        .foregroundStyle(.labelSecondaryBlack)
                                         .padding(.trailing, 8)
                                 }
                             } else {
@@ -61,7 +61,7 @@ struct CustomSearchBar: View {
                                     self.text = ""
                                 }) {
                                     Image(systemName: "multiply.circle.fill")
-                                        .foregroundStyle(.labelSecondary)
+                                        .foregroundStyle(.labelSecondaryBlack)
                                         .padding(.trailing, 8)
                                 }
                             }
