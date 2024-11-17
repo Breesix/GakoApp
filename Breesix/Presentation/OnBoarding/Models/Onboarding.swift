@@ -10,7 +10,6 @@
 //  Usage: Use this model for create onboarding item
 //
 
-
 import Foundation
 
 struct Onboarding: Identifiable {
