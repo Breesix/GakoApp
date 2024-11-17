@@ -26,7 +26,7 @@ struct StudentTabView: View {
                     }
                 
                 VStack(spacing: 0) {
-                    CustomNavigation(title: "Murid", textButton: "Murid", isInternetConnected: false) {
+                    CustomNavigation(title: "Murid", textButton: "Murid") {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)

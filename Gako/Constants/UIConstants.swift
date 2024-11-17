@@ -61,4 +61,12 @@ enum UIConstants {
         static let horizontalPadding: CGFloat = 14
         static let cornerRadius: CGFloat = 8
     }
+    
+    enum CustomNavigation {
+        static let bgColor: Color = .bgSecondary
+        static let titleColor: Color = .white
+        static let cornerRadius: CGFloat = 16
+        static let padding: CGFloat = 16
+        static let height: CGFloat = 58
+    }
 }
