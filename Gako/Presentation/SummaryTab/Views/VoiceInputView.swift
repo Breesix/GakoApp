@@ -169,7 +169,7 @@ struct VoiceInputView: View {
                             }) {
                                 if showProTips {
                                     if viewModel.isLoading {
-                                        DotLottieAnimation(fileName: "loading-lottie",
+                                        DotLottieAnimation(fileName: "loadingLottie",
                                                            config: AnimationConfig(autoplay: true, loop: true))
                                         .view()
                                         .scaleEffect(1.5)
@@ -187,7 +187,7 @@ struct VoiceInputView: View {
                                                 }
                                             } else {
                                                 
-                                                DotLottieAnimation(fileName: "record-lottie",
+                                                DotLottieAnimation(fileName: "recordLottie",
                                                                    config: AnimationConfig(autoplay: true, loop: true))
                                                 .view()
                                                 .scaleEffect(1.5)

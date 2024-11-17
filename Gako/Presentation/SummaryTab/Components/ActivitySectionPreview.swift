@@ -60,12 +60,12 @@ struct ActivitySectionPreview: View {
                     .padding(.bottom, 12)
             }
             
-            AddButton(
-                action: {
+            AddItemButton(
+                onTapAction: {
                     selectedStudent = student
                     isAddingNewActivity = true
                 },
-                backgroundColor: .buttonOncard, title: "Tambah"
+                bgColor: .buttonOncard, text: "Tambah"
             )
         }
         .sheet(item: $editingActivity) { activity in

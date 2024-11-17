@@ -27,10 +27,10 @@ struct CustomNavigation: View {
                         .fontWeight(.bold)
                     Spacer()
                     
-                    AddButton(
-                        action: action,
-                        backgroundColor: .white,
-                        title: textButton
+                    AddItemButton(
+                        onTapAction: action,
+                        bgColor: .white,
+                        text: textButton
                     )
 
                 }

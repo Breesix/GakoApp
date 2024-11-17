@@ -1,8 +1,13 @@
 //
 //  UIConstants.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 16/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A UIConstants that use for UI needs
+//  Usage: Use this enum to fill the Value
 //
 
 import Foundation
@@ -46,5 +51,14 @@ enum UIConstants {
         static let defaultSpacing: CGFloat = 32
         static let sectionPadding: CGFloat = 16
         static let safeArea: CGFloat = 16
+    }
+    
+    enum AddItemButton {
+        static let primaryText: Color = .buttonPrimaryLabel
+        static let symbol: String = "plus.app.fill"
+        static let spacing: CGFloat = 4
+        static let verticalPadding: CGFloat = 7
+        static let horizontalPadding: CGFloat = 14
+        static let cornerRadius: CGFloat = 8
     }
 }

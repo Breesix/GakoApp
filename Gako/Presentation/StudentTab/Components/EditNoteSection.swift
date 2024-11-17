@@ -30,11 +30,11 @@ struct EditNoteSection: View {
                         EditNoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
                     }
             }
-                AddButton(
-                    action: {
+                AddItemButton(
+                    onTapAction: {
                         onAddNote()
                     },
-                    backgroundColor: .buttonOncard, title: "Tambah"
+                    bgColor: .buttonOncard, text: "Tambah"
                 )
         }
     }

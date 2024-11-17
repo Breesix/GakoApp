@@ -53,11 +53,11 @@ struct EditActivitySection: View {
                     .padding(.bottom, 12)
             }
             
-            AddButton(
-                action: {
+            AddItemButton(
+                onTapAction: {
                     onAddActivity()
                 },
-                backgroundColor: .buttonOncard, title: "Tambah"
+                bgColor: .buttonOncard, text: "Tambah"
             )
         }
     }

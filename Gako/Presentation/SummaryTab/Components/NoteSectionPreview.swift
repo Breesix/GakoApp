@@ -54,12 +54,12 @@ struct NoteSectionPreview: View {
                 .padding(.bottom, 12)
         }
         
-        AddButton(
-            action: {
+        AddItemButton(
+            onTapAction: {
                 selectedStudent = student
                 isAddingNewNote = true
             },
-            backgroundColor: .buttonOncard, title: "Tambah"
+            bgColor: .buttonOncard, text: "Tambah"
         )
     }
 }
