@@ -69,4 +69,11 @@ enum UIConstants {
         static let padding: CGFloat = 16
         static let height: CGFloat = 58
     }
+    
+    enum EmptyState {
+        static let textColor: Color = .labelPrimaryBlack.opacity(0.5)
+        static let image: String = "emptyStateLogo"
+        static let width: CGFloat = 98
+        static let defaultSpacing: CGFloat = 12
+    }
 }
