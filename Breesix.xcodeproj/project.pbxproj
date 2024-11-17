@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4606F7BA2CCF707A00A80153 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4606F7B92CCF707A00A80153 /* OpenAI */; };
-		4606F7BC2CCF70B800A80153 /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 4606F7BB2CCF70B800A80153 /* DotLottie */; };
 		8E8B96FA3700F18FF46FE38A /* Pods_Breesix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 619BE46F927090AAB733E080 /* Pods_Breesix.framework */; };
+		8FCD56112CE97777008575EF /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 8FCD56102CE97777008575EF /* DotLottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,8 +46,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4606F7BA2CCF707A00A80153 /* OpenAI in Frameworks */,
-				4606F7BC2CCF70B800A80153 /* DotLottie in Frameworks */,
 				8E8B96FA3700F18FF46FE38A /* Pods_Breesix.framework in Frameworks */,
+				8FCD56112CE97777008575EF /* DotLottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +113,7 @@
 			name = Breesix;
 			packageProductDependencies = (
 				4606F7B92CCF707A00A80153 /* OpenAI */,
-				4606F7BB2CCF70B800A80153 /* DotLottie */,
+				8FCD56102CE97777008575EF /* DotLottie */,
 			);
 			productName = Breesix;
 			productReference = 8FD81E682C9C0F5F00CEE379 /* GAKO.app */;
@@ -144,8 +144,8 @@
 			mainGroup = 8FD81E5F2C9C0F5F00CEE379;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
 				4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				8FCD560F2CE97777008575EF /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8FD81E692C9C0F5F00CEE379 /* Products */;
@@ -458,20 +458,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.3.0;
+			};
+		};
+		8FCD560F2CE97777008575EF /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -482,9 +482,9 @@
 			package = 4606F7B82CCF707A00A80153 /* XCRemoteSwiftPackageReference "OpenAI" */;
 			productName = OpenAI;
 		};
-		4606F7BB2CCF70B800A80153 /* DotLottie */ = {
+		8FCD56102CE97777008575EF /* DotLottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4606F7B72CCF4AD400A80153 /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
+			package = 8FCD560F2CE97777008575EF /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
 			productName = DotLottie;
 		};
 /* End XCSwiftPackageProductDependency section */

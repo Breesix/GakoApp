@@ -4,6 +4,10 @@
 //
 //  Created by Rangga Biner on 16/11/24.
 //
+//  A custom component that displays Lottie animations
+//  Usage: Use this component to show lottie animation
+//
+
 
 import SwiftUI
 import DotLottie
@@ -14,26 +18,20 @@ struct LottieAnimation: View {
     @State private var isLottieLoaded = false
     
     var body: some View {
-        Group {
             if isLottieLoaded {
-                DotLottieAnimation(fileName: lottieFile,
-                                 config: AnimationConfig(
-                                    autoplay: true,
-                                    loop: true
-                                 ))
+                DotLottieAnimation(fileName: lottieFile, config: AnimationConfig(autoplay: true, loop: true))
                 .view()
-                .scaleEffect(1.2)
+                .scaleEffect(UIConstants.LottieAnimation.scaleEffect)
             } else {
                 ProgressView()
                     .onAppear {
                         checkLottieFile()
                     }
             }
-        }
     }
     
     private func checkLottieFile() {
-        let extensions = ["lottie", "json"]
+        let extensions = UIConstants.LottieAnimation.supportedExtensions
         for ext in extensions {
             if Bundle.main.path(forResource: lottieFile, ofType: ext) != nil {
                 isLottieLoaded = true
@@ -41,4 +39,8 @@ struct LottieAnimation: View {
             }
         }
     }
+}
+
+#Preview {
+    LottieAnimation(lottieFile: "inputDokumen")
 }

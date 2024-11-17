@@ -4,10 +4,14 @@
 //
 //  Created by Kevin Fairuz on 05/11/24.
 //
+//  A model for onboarding item that have more than one items
+//  Usage: Use this model for create onboarding item
+//
+
 
 import Foundation
 
-struct OnboardingGako: Identifiable {
+struct Onboarding: Identifiable {
     var id: UUID
     var lottie: String
     var title: String

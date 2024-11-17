@@ -4,51 +4,43 @@
 //
 //  Created by Kevin Fairuz on 05/11/24.
 //
+//  A custom component that displays animation and text
+//  Usage: Use this component to show animation and text for onboarding view
+//
 
 import SwiftUI
 
 struct OnboardingSection: View {
+    var onboarding: Onboarding
     
-    var onboardingGako: OnboardingGako
-    @State private var isLottieLoaded = false
+    var defaultSpacing: CGFloat = UIConstants.OnboardingSection.defaultSpacing
+    var textSpacing: CGFloat = UIConstants.OnboardingSection.textSpacing
+    var primaryText: Color = UIConstants.OnboardingSection.primaryText
+    var secondaryText: Color = UIConstants.OnboardingSection.secondaryText
+    
     @AppStorage("isOnBoarding") var isOnBoarding: Bool = true
     
     var body: some View {
-        ZStack(alignment: .top) {
-            
-            VStack(spacing: 20) {
-                Image("Icon-Onboarding")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 130)
-                    .padding(.bottom, 20)
+            VStack(spacing: defaultSpacing) {
+                LottieAnimation(lottieFile: onboarding.lottie)
                 
-                LottieAnimation(lottieFile: onboardingGako.lottie)
-                    .padding()
-                
-                VStack (spacing: 12){
-                    Text(onboardingGako.title)
+                VStack (spacing: textSpacing){
+                    Text(onboarding.title)
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundStyle(.labelPrimaryBlack)
-                        .padding(.bottom, 8)
+                        .foregroundStyle(primaryText)
                     
-                    Text(onboardingGako.description)
+                    Text(onboarding.description)
                         .font(.body)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.labelSecondaryBlack)
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: 480)
+                        .foregroundStyle(secondaryText)
                         .multilineTextAlignment(.center)
                 }
-                .padding([.bottom,.top], 20)
             }
-         
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
+            
         }
-    }
 }
 
 #Preview {
-    OnboardingSection(onboardingGako: onboardingItems[0])
+    OnboardingSection(onboarding: onboardingItems[1])
 }
