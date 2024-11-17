@@ -12,30 +12,37 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @State private var currentPage = 0
+    @StateObject private var viewModel = OnboardingViewModel()
     
     var defaultSpacing: CGFloat = UIConstants.OnboardingView.defaultSpacing
     var sectionPadding: CGFloat = UIConstants.OnboardingView.sectionPadding
     var safeArea : CGFloat = UIConstants.OnboardingView.safeArea
     
     var body: some View {
-        VStack (spacing: defaultSpacing){
+        VStack(spacing: defaultSpacing) {
             Image("iconOnboarding")
-                TabView(selection: $currentPage) {
-                    ForEach(onboardingItems) { item in
-                        OnboardingSection(onboarding: item)
-                            .tag(onboardingItems.firstIndex(where: { $0.id == item.id }) ?? 0)
-                    }
-                    .padding(.horizontal, sectionPadding)
+            
+            TabView(selection: $viewModel.currentPage) {
+                ForEach(onboardingItems) { item in
+                    OnboardingSection(onboarding: item)
+                        .tag(onboardingItems.firstIndex(where: { $0.id == item.id }) ?? 0)
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-             
-                Spacer()
-
-                PageIndicator(numberOfPages: onboardingItems.count, currentPage: currentPage)
-                
-                OnboardingButton(currentPage: $currentPage)
+                .padding(.horizontal, sectionPadding)
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            Spacer()
+            
+            PageIndicator(numberOfPages: onboardingItems.count,
+                         currentPage: viewModel.currentPage)
+            
+            OnboardingButton(
+                isLastPage: viewModel.isLastPage,
+                onNextTapped: viewModel.handleNextButton,
+                onPreviousTapped: viewModel.handlePreviousButton,
+                showPreviousButton: viewModel.showPreviousButton
+            )
+        }
         .safeAreaPadding(.horizontal, safeArea)
     }
 }

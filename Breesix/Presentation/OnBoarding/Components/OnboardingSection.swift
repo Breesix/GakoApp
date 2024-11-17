@@ -18,8 +18,6 @@ struct OnboardingSection: View {
     var primaryText: Color = UIConstants.OnboardingSection.primaryText
     var secondaryText: Color = UIConstants.OnboardingSection.secondaryText
     
-    @AppStorage("isOnBoarding") var isOnBoarding: Bool = true
-    
     var body: some View {
             VStack(spacing: defaultSpacing) {
                 LottieAnimation(lottieFile: onboarding.lottie)
