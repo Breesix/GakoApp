@@ -1,10 +1,12 @@
 //
 //  ButtonOnboarding.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 05/11/24.
 //
-//  A custom component that displays navigation buttons for onboarding flow
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A custom component that displays navigation buttons for onboarding flow
 //  Usage: Use this component to show button for onboarding flow
 //
 

@@ -1,10 +1,12 @@
 //
 //  Onboarding.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 05/11/24.
 //
-//  A model for onboarding item that have more than one item
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A model for onboarding item that have more than one item
 //  Usage: Use this model for create onboarding item
 //
 

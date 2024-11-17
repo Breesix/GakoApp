@@ -1,13 +1,14 @@
 //
 //  OnboardingView.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 06/11/24.
 //
-//  A view that displays onboarding
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A view that displays onboarding
 //  Usage: Use this view to show onboarding
 //
-
 
 import SwiftUI
 
@@ -16,16 +17,16 @@ struct OnboardingView: View {
     
     var defaultSpacing: CGFloat = UIConstants.OnboardingView.defaultSpacing
     var sectionPadding: CGFloat = UIConstants.OnboardingView.sectionPadding
-    var safeArea : CGFloat = UIConstants.OnboardingView.safeArea
+    var safeArea: CGFloat = UIConstants.OnboardingView.safeArea
     
     var body: some View {
         VStack(spacing: defaultSpacing) {
             Image("iconOnboarding")
             
             TabView(selection: $viewModel.currentPage) {
-                ForEach(onboardingItems) { item in
+                ForEach(viewModel.onboardingItems) { item in
                     OnboardingSection(onboarding: item)
-                        .tag(onboardingItems.firstIndex(where: { $0.id == item.id }) ?? 0)
+                        .tag(viewModel.getIndex(for: item))
                 }
                 .padding(.horizontal, sectionPadding)
             }
@@ -33,7 +34,7 @@ struct OnboardingView: View {
             
             Spacer()
             
-            PageIndicator(numberOfPages: onboardingItems.count,
+            PageIndicator(numberOfPages: viewModel.totalPages,
                          currentPage: viewModel.currentPage)
             
             OnboardingButton(

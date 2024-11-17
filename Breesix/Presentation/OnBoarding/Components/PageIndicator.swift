@@ -1,10 +1,12 @@
 //
 //  CustomPageIndicator.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 06/11/24.
 //
-//  A custom component that displays page indicators for onboarding flow
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A custom component that displays page indicators for onboarding flow
 //  Usage: Use this component to show current page position in a paginated view
 //
 
@@ -24,7 +26,7 @@ struct PageIndicator: View {
             ForEach(0..<numberOfPages, id: \.self) { index in
                 Circle()
                     .fill(currentPage == index ? activeColor : inactiveColor)
-                    .frame(width: dotSize,height: dotSize)
+                    .frame(width: dotSize, height: dotSize)
             }
         }
         .animation(.easeInOut, value: currentPage)

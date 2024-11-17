@@ -1,10 +1,12 @@
 //
 //  OnboardingSection.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 05/11/24.
 //
-//  A custom component that displays animation and text
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A custom component that displays animation and text
 //  Usage: Use this component to show animation and text for onboarding view
 //
 
@@ -40,5 +42,5 @@ struct OnboardingSection: View {
 }
 
 #Preview {
-    OnboardingSection(onboarding: onboardingItems[1])
+    OnboardingSection(onboarding: .init(lottie: "inputDokumen", title: "Ceritakan Aktivitas Murid Anda", description: "Ceritakan aktivitas Murid Anda kepada Gako dengan mudah, baik menggunakan metode suara ataupun dengan mengetik secara manual."))
 }

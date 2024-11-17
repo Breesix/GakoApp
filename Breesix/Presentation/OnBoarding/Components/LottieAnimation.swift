@@ -1,41 +1,38 @@
 //
 //  LottieAnimation.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 16/11/24.
 //
-//  A custom component that displays Lottie animations
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: A custom component that displays Lottie animations
 //  Usage: Use this component to show lottie animation
 //
-
 
 import SwiftUI
 import DotLottie
 
 struct LottieAnimation: View {
     let lottieFile: String
+    var scaleEffect: CGFloat = UIConstants.LottieAnimation.scaleEffect
     
-    @State private var isLottieLoaded = false
+    @State var isLottieLoaded = false
     
     var body: some View {
+        Group {
             if isLottieLoaded {
-                DotLottieAnimation(fileName: lottieFile, config: AnimationConfig(autoplay: true, loop: true))
+                DotLottieAnimation(
+                    fileName: lottieFile,
+                    config: AnimationConfig(autoplay: true, loop: true)
+                )
                 .view()
-                .scaleEffect(UIConstants.LottieAnimation.scaleEffect)
+                .scaleEffect(scaleEffect)
             } else {
                 ProgressView()
                     .onAppear {
                         checkLottieFile()
-                    }
-            }
-    }
-    
-    private func checkLottieFile() {
-        let extensions = UIConstants.LottieAnimation.supportedExtensions
-        for ext in extensions {
-            if Bundle.main.path(forResource: lottieFile, ofType: ext) != nil {
-                isLottieLoaded = true
-                return
+                }
             }
         }
     }
