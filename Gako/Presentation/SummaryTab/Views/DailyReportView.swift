@@ -282,7 +282,7 @@ struct DailyReportView: View {
             }
             
             if showSnapshotPreview {
-                SnapshotPreviewOverlay(
+                SnapshotPreview(
                     images: allPageSnapshots, currentPageIndex: $currentPageIndex,
                     showSnapshotPreview: $showSnapshotPreview,
                     toast: $toast,

@@ -322,7 +322,7 @@ struct StudentDetailView: View {
             
             // MARK: THIS IS VIEW FOR SNAPSHOTS PREVIEW
             if showSnapshotPreview {
-                SnapshotPreviewOverlay(
+                SnapshotPreview(
                     images: allPageSnapshots, currentPageIndex: $currentPageIndex,
                     showSnapshotPreview: $showSnapshotPreview,
                     toast: $toast,

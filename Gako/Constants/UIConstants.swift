@@ -121,4 +121,39 @@ enum UIConstants {
             }
         }
     }
+    
+    enum SnapshotPreview {
+        static let maxHeightMultiplier: CGFloat = 0.5
+        static let bottomSheetCornerRadius: CGFloat = 16
+        static let dragIndicatorCornerRadius: CGFloat = 2.5
+        static let dragIndicatorWidth: CGFloat = 36
+        static let dragIndicatorHeight: CGFloat = 5
+        static let dragIndicatorSpacing: CGFloat = 20
+        static let buttonSpacing: CGFloat = 20
+        static let horizontalPadding: CGFloat = 16
+        static let bottomPadding: CGFloat = 32
+        static let topPadding: CGFloat = 8
+        static let pageIndicatorSpacing: CGFloat = 8
+        static let pageIndicatorBottomPadding: CGFloat = 16
+        static let pageIndicatorDotSize: CGFloat = 8
+        static let overlayColor: Color = .black.opacity(0.5)
+        static let headerBackgroundColor: Color = .black.opacity(0.3)
+        static let dragIndicatorColor: Color = .gray.opacity(0.3)
+        static let bottomSheetColor: Color = .white
+        static let whatsAppButtonColor: Color = .green
+        static let saveButtonColor: Color = .blue
+        static let shareButtonColor: Color = .orange
+        static let activeDotColor: Color = .accent
+        static let inactiveDotColor: Color = .gray.opacity(0.3)
+        static let saveSuccessMessage: String = "Semua halaman berhasil disimpan"
+        static let saveErrorMessage: String = "Gagal menyimpan gambar"
+        static let shareTitle: String = "Share All"
+        static let shareIcon: String = "square.and.arrow.up"
+        static let whatsAppTitle: String = "WhatsApp"
+        static let whatsAppIcon: String = "square.and.arrow.up"
+        static let saveTitle: String = "Save All"
+        static let saveIcon: String = "square.and.arrow.down"
+        static let xmarkSymbol: String = "xmark"
+        static let durationToast: CGFloat = 2
+    }
 }
