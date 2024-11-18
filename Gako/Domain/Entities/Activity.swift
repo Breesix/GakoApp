@@ -13,6 +13,7 @@ enum Status: String, Codable {
     case dibimbing = "dibimbing"
     case tidakMelakukan = "tidak melakukan"
 }
+
 @Model
 class Activity {
     @Attribute(.unique) var id: UUID

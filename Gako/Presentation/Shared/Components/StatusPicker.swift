@@ -1,8 +1,13 @@
 //
 //  StatusPicker.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 01/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom component that display status picker
+//  Usage: Use this component to display status picker
 //
 
 import SwiftUI
@@ -12,54 +17,43 @@ struct StatusPicker: View {
     @Binding var status: Status
     var onStatusChange: (Status) -> Void
     
+    var symbol = UIConstants.StatusPicker.symbol
+    var primaryText = UIConstants.StatusPicker.textPrimary
+    var stroke = UIConstants.StatusPicker.stroke
+    var verticalPadding = UIConstants.StatusPicker.verticalPadding
+    var horizontalPadding = UIConstants.StatusPicker.horizontalPadding
+    var borderWidth = UIConstants.StatusPicker.borderWidth
+    var cornerRadius = UIConstants.StatusPicker.cornerRadius
+    
     var body: some View {
         Menu {
-            Button("Mandiri") {
-                status = .mandiri
-                onStatusChange(.mandiri)
-            }
-            Button("Dibimbing") {
-                status = .dibimbing
-                onStatusChange(.dibimbing)
-            }
-            Button("Tidak Melakukan") {
-                status = .tidakMelakukan
-                onStatusChange(.tidakMelakukan)
+            ForEach(Status.allCases, id: \.self) { statusOption in
+                Button(statusOption.text) {
+                    status = statusOption
+                    onStatusChange(statusOption)
+                }
             }
         } label: {
             HStack {
-                Text(getStatusText())
+                Text(status.text)
                     .font(.body)
-                    .fontWeight(.regular)
                 Spacer()
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 17))
+                Image(systemName: symbol)
             }
-            .foregroundColor(.labelPrimaryBlack)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 7)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .cornerRadius(8)
+            .font(.body)
+            .fontWeight(.regular)
+            .foregroundColor(primaryText)
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .cornerRadius(cornerRadius)
             .overlay {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(.monochrome900, lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(stroke, lineWidth: borderWidth)
             }
-        }
-    }
-    
-    private func getStatusText() -> String {
-        switch status {
-        case .mandiri: return "Mandiri"
-        case .dibimbing: return "Dibimbing"
-        case .tidakMelakukan: return "Tidak Melakukan"
         }
     }
 }
 
-
-//#Preview {
-//    StatusPicker(
-//        status: .constant(.tidakMelakukan),
-//        onStatusChange: { _ in print("changed") }
-//    )
-//}
+#Preview {
+    StatusPicker(status: .constant(.mandiri), onStatusChange: {_ in })
+}

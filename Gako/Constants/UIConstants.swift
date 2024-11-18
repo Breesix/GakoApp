@@ -76,4 +76,14 @@ enum UIConstants {
         static let width: CGFloat = 98
         static let defaultSpacing: CGFloat = 12
     }
+    
+    enum StatusPicker {
+        static let symbol: String = "chevron.up.chevron.down"
+        static let textPrimary: Color = .labelPrimaryBlack
+        static let stroke: Color = .monochrome900
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 7
+        static let cornerRadius: CGFloat = 8
+        static let borderWidth: CGFloat = 1
+    }
 }
