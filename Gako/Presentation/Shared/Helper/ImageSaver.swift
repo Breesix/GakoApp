@@ -4,9 +4,10 @@
 //
 //  Created by Kevin Fairuz on 12/11/24.
 //
+//  Description: Image saver functionality for save the image
+//  Usage: Use this struct for save the image
+//
 
-
-// ImageSaver.swift
 import UIKit
 
 public class ImageSaver: NSObject {
