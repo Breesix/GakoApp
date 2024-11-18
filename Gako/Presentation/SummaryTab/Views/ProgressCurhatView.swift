@@ -347,10 +347,3 @@ struct ActivityCard: View {
         }
     }
 }
-
-
-//#Preview {
-//    PreviewHelper.PreviewWrapper {
-//        ProgressCurhatView(selectedDate: .constant(.now))
-//    }
-//}

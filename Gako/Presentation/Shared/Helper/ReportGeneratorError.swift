@@ -4,9 +4,11 @@
 //
 //  Created by Kevin Fairuz on 12/11/24.
 //
+//  Description: Snapshot for generate image and share functionality
+//  Usage: Use this class for snapshot
+//
 
 import SwiftUI
-import UIKit
 
 public class SnapshotHelper {
     public static let shared = SnapshotHelper()
