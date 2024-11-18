@@ -4,6 +4,7 @@
 //
 //  Created by Kevin Fairuz on 12/11/24.
 //
+
 import SwiftUI
 
 struct SnapshotPreviewOverlay: View {
@@ -102,8 +103,7 @@ struct SnapshotPreviewOverlay: View {
                                 toast = Toast(
                                     style: .success,
                                     message: "Semua halaman berhasil disimpan",
-                                    duration: 2,
-                                    width: 280
+                                    duration: 2
                                 )
                                 withAnimation {
                                     showSnapshotPreview = false
@@ -113,7 +113,7 @@ struct SnapshotPreviewOverlay: View {
                                     style: .error,
                                     message: "Gagal menyimpan gambar",
                                     duration: 2,
-                                    width: 280
+                                    width: .infinity
                                 )
                             }
                         }

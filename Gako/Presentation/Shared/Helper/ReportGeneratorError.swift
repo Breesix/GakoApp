@@ -5,8 +5,6 @@
 //  Created by Kevin Fairuz on 12/11/24.
 //
 
-
-/// SnapshotHelper.swift
 import SwiftUI
 import UIKit
 

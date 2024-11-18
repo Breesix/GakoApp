@@ -86,4 +86,39 @@ enum UIConstants {
         static let cornerRadius: CGFloat = 8
         static let borderWidth: CGFloat = 1
     }
+    
+    enum ToastNotification {
+        static let cancelSymbol: String = "xmark"
+        static let bgColor: Color = .black.opacity(0.8)
+        static let spacing: CGFloat = 12
+        static let minSpacerLength: CGFloat = 10
+        static let padding: CGFloat = 16
+        static let cornerRadius: CGFloat = 8
+        static let verticalOffset: CGFloat = 32
+        
+        enum Style {
+            case error
+            case warning
+            case success
+            case info
+            
+            var themeColor: Color {
+                switch self {
+                case .error: return .red
+                case .warning: return .orange
+                case .info: return .blue
+                case .success: return .bgSecondary
+                }
+            }
+            
+            var iconFileName: String {
+                switch self {
+                case .info: return "info.circle.fill"
+                case .warning: return "exclamationmark.triangle.fill"
+                case .success: return "checkmark.circle.fill"
+                case .error: return "xmark.circle.fill"
+                }
+            }
+        }
+    }
 }
