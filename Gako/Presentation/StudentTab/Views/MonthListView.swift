@@ -8,173 +8,90 @@
 import SwiftUI
 
 struct MonthListView: View {
-    let student: Student
-    let onAddStudent: (Student) async -> Void
-    let onUpdateStudent: (Student) async -> Void
-    let onAddNote: (Note, Student) async -> Void
-    let onUpdateNote: (Note) async -> Void
-    let onDeleteNote: (Note, Student) async -> Void
-    let onAddActivity: (Activity, Student) async -> Void
-    let onDeleteActivity: (Activity, Student) async -> Void
-    let onUpdateActivityStatus: (Activity, Status) async -> Void
-    let onFetchNotes: (Student) async -> [Note]
-    let onFetchActivities: (Student) async -> [Activity]
-    let onCheckNickname: (String, UUID?) -> Bool
-    let compressedImageData: Data?
+    // MARK: - Properties
+    @StateObject private var viewModel: MonthListViewModel
+    @Environment(\.presentationMode) private var presentationMode
     
-    @Environment(\.presentationMode) var presentationMode
-    @State private var activities: [Activity] = []
-    @State private var notes: [Note] = []
+    // MARK: - Dependencies
+    private let student: Student
+    private let onAddStudent: (Student) async -> Void
+    private let onUpdateStudent: (Student) async -> Void
+    private let onAddNote: (Note, Student) async -> Void
+    private let onUpdateNote: (Note) async -> Void
+    private let onDeleteNote: (Note, Student) async -> Void
+    private let onAddActivity: (Activity, Student) async -> Void
+    private let onDeleteActivity: (Activity, Student) async -> Void
+    private let onUpdateActivityStatus: (Activity, Status) async -> Void
+    private let onFetchNotes: (Student) async -> [Note]
+    private let onFetchActivities: (Student) async -> [Activity]
+    private let onCheckNickname: (String, UUID?) -> Bool
+    private let compressedImageData: Data?
     
-    private let calendar = Calendar.current
-
-    @State private var selectedYear: Date = Date()
-    @State private var isShowingYearPicker = false
-    
-    @State private var isEditing = false
-    
-    @State private var newStudentImage: UIImage?
-    
-    private var formattedYear: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "yyyy"
-        return formatter.string(from: selectedYear)
+    // MARK: - Initialization
+    init(student: Student,
+         onAddStudent: @escaping (Student) async -> Void,
+         onUpdateStudent: @escaping (Student) async -> Void,
+         onAddNote: @escaping (Note, Student) async -> Void,
+         onUpdateNote: @escaping (Note) async -> Void,
+         onDeleteNote: @escaping (Note, Student) async -> Void,
+         onAddActivity: @escaping (Activity, Student) async -> Void,
+         onDeleteActivity: @escaping (Activity, Student) async -> Void,
+         onUpdateActivityStatus: @escaping (Activity, Status) async -> Void,
+         onFetchNotes: @escaping (Student) async -> [Note],
+         onFetchActivities: @escaping (Student) async -> [Activity],
+         onCheckNickname: @escaping (String, UUID?) -> Bool,
+         compressedImageData: Data?) {
+        
+        self.student = student
+        self.onAddStudent = onAddStudent
+        self.onUpdateStudent = onUpdateStudent
+        self.onAddNote = onAddNote
+        self.onUpdateNote = onUpdateNote
+        self.onDeleteNote = onDeleteNote
+        self.onAddActivity = onAddActivity
+        self.onDeleteActivity = onDeleteActivity
+        self.onUpdateActivityStatus = onUpdateActivityStatus
+        self.onFetchNotes = onFetchNotes
+        self.onFetchActivities = onFetchActivities
+        self.onCheckNickname = onCheckNickname
+        self.compressedImageData = compressedImageData
+        
+        _viewModel = StateObject(wrappedValue: MonthListViewModel(
+            student: student,
+            onFetchActivities: onFetchActivities,
+            onFetchNotes: onFetchNotes
+        ))
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
-            Color.bgMain.ignoresSafeArea()
+            UIConstants.MonthList.backgroundColor.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                ZStack {
-                    Color(.bgSecondary)
-                        .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
-                        .ignoresSafeArea(edges: .top)
-                    
-                    HStack {
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack(spacing: 3) {
-                                Image(systemName: "chevron.left")
-                                    .foregroundColor(.white)
-                                    .fontWeight(.semibold)
-                                Text("Murid")
-                                    .foregroundStyle(.white)
-                                    .font(.body)
-                                    .fontWeight(.regular)
-                            }
-                        }
-                        Spacer()
-                        Button(action: {
-                            isEditing = true
-                        }) {
-                            Text("Edit Profil")
-                                .foregroundStyle(.white)
-                                .font(.body)
-                                .fontWeight(.regular)
-                        }
-                    }
-                    .padding(14)
-                }
-                .frame(height: 58)
-                
-                VStack (spacing: 12) {
-                ProfileHeader(student: student)
-                        .padding(.horizontal, 16)
-                
-                Divider()
-                        .padding(.bottom, 12)
-                
-                    HStack (spacing: 16) {
-                    Text("Lihat Dokumentasi")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.labelPrimaryBlack)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 8) {
-                        Button(action: { moveYear(by: -1) }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.buttonLinkOnSheet)
-                        }
-                        Button(action: { moveYear(by: 1) }) {
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(isNextYearDisabled ? .gray : .buttonLinkOnSheet)
-                        }
-                        .disabled(isNextYearDisabled)
-                        
-                    }
-                    
-                    Button(action: { isShowingYearPicker.toggle() }) {
-                        Text(formattedYear)
-                            .font(.headline)
-                    }
-                    .padding(.vertical, 7)
-                    .padding(.horizontal, 14)
-                    .background(Color.buttonLinkOnSheet)
-                    .foregroundStyle(.buttonPrimaryLabel)
-                    .cornerRadius(8)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 0)
-                
-                // Month List
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(getAllMonthsForYear(), id: \.self) { date in
-                            NavigationLink(destination: StudentDetailView(
-                                student: student,
-                                onAddStudent: onAddStudent,
-                                onUpdateStudent: onUpdateStudent,
-                                onAddNote: onAddNote,
-                                onUpdateNote: onUpdateNote,
-                                onDeleteNote: onDeleteNote,
-                                onAddActivity: onAddActivity,
-                                onDeleteActivity: onDeleteActivity,
-                                onUpdateActivityStatus: onUpdateActivityStatus,
-                                onFetchNotes: onFetchNotes,
-                                onFetchActivities: onFetchActivities,
-                                onCheckNickname: onCheckNickname,
-                                compressedImageData: compressedImageData,
-                                initialScrollDate: date
-                            )) {
-                                MonthCard(
-                                    date: date,
-                                    activitiesCount: getActivityCount(for: date),
-                                    hasActivities: hasActivities(for: date)
-                                )
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                }
+                headerView
+                contentView
             }
-                .padding(.top, 12)
         }
-        }
-        .toolbar(.hidden, for: .bottomBar,.tabBar)
+        .toolbar(.hidden, for: .bottomBar, .tabBar)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .hideTabBar()
         .task {
-            await fetchData()
+            await viewModel.fetchData()
         }
-        .sheet(isPresented: $isShowingYearPicker) {
-            YearPickerView(selectedDate: $selectedYear)
+        .sheet(isPresented: $viewModel.isShowingYearPicker) {
+            YearPickerView(selectedDate: $viewModel.selectedYear)
                 .presentationDetents([.fraction(0.3)])
         }
-        .sheet(isPresented: $isEditing) {
+        .sheet(isPresented: $viewModel.isEditing) {
             ManageStudentView(
                 mode: .edit(student),
                 compressedImageData: compressedImageData,
-                newStudentImage: newStudentImage,
+                newStudentImage: viewModel.newStudentImage,
                 onSave: onAddStudent,
                 onUpdate: onUpdateStudent,
-                onImageChange: { image in
-                    newStudentImage = image
-                },
+                onImageChange: viewModel.handleImageChange,
                 checkNickname: onCheckNickname
             )
             .presentationDetents([.large])
@@ -182,169 +99,141 @@ struct MonthListView: View {
             .presentationBackground(.white)
         }
     }
-    
-    private var isNextYearDisabled: Bool {
-        let calendar = Calendar.current
-        let currentYear = calendar.component(.year, from: Date())
-        let selectedYear = calendar.component(.year, from: selectedYear)
-        
-        return (selectedYear >= currentYear)
-    }
-    
-    private func fetchData() async {
-        activities = await onFetchActivities(student)
-        notes = await onFetchNotes(student)
-    }
-    
-    private func getAvailableMonths() -> [Date] {
-        let allDates = activities.map { $0.createdAt } + notes.map { $0.createdAt }
-        let monthComponents = Set(allDates.map { date in
-            calendar.dateComponents([.year, .month], from: date)
-        })
-        
-        return monthComponents.compactMap { components in
-            calendar.date(from: components)
-        }.sorted(by: >)
-    }
-    
-    private func getActivityCount(for date: Date) -> Int {
-        let activitiesInMonth = activities.filter {
-            calendar.isDate($0.createdAt, equalTo: date, toGranularity: .month)
-        }.count
-        
-        let notesInMonth = notes.filter {
-            calendar.isDate($0.createdAt, equalTo: date, toGranularity: .month)
-        }.count
-        
-        return activitiesInMonth + notesInMonth
-    }
-
-    private func moveYear(by value: Int) {
-        if let newDate = calendar.date(byAdding: .year, value: value, to: selectedYear) {
-            selectedYear = newDate
-        }
-    }
-    
-    private func getAllMonthsForYear() -> [Date] {
-        let year = calendar.component(.year, from: selectedYear)
-        let currentDate = Date()
-        let currentYear = calendar.component(.year, from: currentDate)
-        let currentMonth = calendar.component(.month, from: currentDate)
-        
-        // Jika tahun yang dipilih adalah tahun saat ini
-        if year == currentYear {
-            // Hanya tampilkan bulan dari Januari sampai bulan saat ini
-            return (1...currentMonth).compactMap { month in
-                calendar.date(from: DateComponents(year: year, month: month))
-            }
-        }
-        // Jika tahun yang dipilih adalah tahun sebelumnya
-        else if year < currentYear {
-            // Tampilkan semua bulan (1-12)
-            return (1...12).compactMap { month in
-                calendar.date(from: DateComponents(year: year, month: month))
-            }
-        }
-        // Jika tahun yang dipilih adalah tahun yang akan datang
-        else {
-            // Tidak menampilkan bulan apapun
-            return []
-        }
-    }
-    
-    private func hasActivities(for date: Date) -> Bool {
-        getActivityCount(for: date) > 0
-    }
 }
 
-struct MonthCard: View {
-    let date: Date
-    let activitiesCount: Int
-    let hasActivities: Bool
-    
-    private var monthYearString: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "MMMM"
-        return formatter.string(from: date)
+// MARK: - View Components
+private extension MonthListView {
+    var headerView: some View {
+        ZStack {
+            UIConstants.MonthList.headerBackgroundColor
+                .cornerRadius(UIConstants.MonthList.cornerRadius, corners: [.bottomLeft, .bottomRight])
+                .ignoresSafeArea(edges: .top)
+            
+            HStack {
+                backButton
+                Spacer()
+                editButton
+            }
+            .padding(UIConstants.MonthList.headerPadding)
+        }
+        .frame(height: UIConstants.MonthList.headerHeight)
     }
     
-    var body: some View {
-        HStack {
-            HStack {
-                Image(systemName: "document.fill")
-                Text(monthYearString)
-//                Text(hasActivities ? "\(activitiesCount) aktivitas" : "Tidak ada aktivitas")
-//                    .font(.subheadline)
-//                    .foregroundColor(.gray)
+    var backButton: some View {
+        Button(action: {
+            presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack(spacing: 3) {
+                Image(systemName: UIConstants.MonthList.backIcon)
+                    .foregroundColor(UIConstants.MonthList.headerTextColor)
+                    .fontWeight(.semibold)
+                Text(UIConstants.MonthList.backText)
+                    .foregroundStyle(UIConstants.MonthList.headerTextColor)
+                    .font(.body)
+                    .fontWeight(.regular)
             }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .fontWeight(.medium)
+        }
+    }
+    
+    var editButton: some View {
+        Button(action: viewModel.toggleEditing) {
+            Text(UIConstants.MonthList.editProfileText)
+                .foregroundStyle(UIConstants.MonthList.headerTextColor)
                 .font(.body)
+                .fontWeight(.regular)
         }
-        .font(.body)
-        .fontWeight(.semibold)
-        .foregroundColor(.labelPrimaryBlack)
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
     }
-}
-
-struct YearPickerView: View {
-    @Binding var selectedDate: Date
-    @Environment(\.presentationMode) var presentationMode
-    @State private var selectedMonth = 0
-    @State private var selectedYear = 0
     
-    let months = Calendar.current.monthSymbols
-    let years = Array(1900...2100)
+    var contentView: some View {
+        VStack(spacing: UIConstants.MonthList.spacing) {
+            ProfileHeader(student: student)
+                .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
+            
+            Divider()
+                .padding(.bottom, UIConstants.MonthList.dividerPadding)
+            
+            documentationHeader
+            monthList
+        }
+        .padding(.top, UIConstants.MonthList.contentPadding.top)
+    }
     
-    var body: some View {
-        VStack {
-            HStack {
-                Picker("Year", selection: $selectedYear) {
-                    ForEach(0..<years.count, id: \.self) { index in
-                        Text(String(years[index])).tag(index)
+    var documentationHeader: some View {
+        HStack(spacing: UIConstants.MonthList.monthNavigationSpacing) {
+            Text(UIConstants.MonthList.documentationText)
+                .fontWeight(.semibold)
+                .foregroundColor(UIConstants.MonthList.documentationTextColor)
+            
+            Spacer()
+            
+            yearNavigationButtons
+            yearPickerButton
+        }
+        .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
+    }
+    
+    var yearNavigationButtons: some View {
+        HStack(spacing: UIConstants.MonthList.monthNavigationSpacing) {
+            Button(action: { viewModel.moveYear(by: -1) }) {
+                Image(systemName: UIConstants.MonthList.backIcon)
+                    .foregroundStyle(UIConstants.MonthList.monthNavigationColor)
+            }
+            
+            Button(action: { viewModel.moveYear(by: 1) }) {
+                Image(systemName: UIConstants.MonthList.nextIcon)
+                    .foregroundStyle(viewModel.isNextYearDisabled ?
+                        UIConstants.MonthList.monthNavigationDisabledColor :
+                        UIConstants.MonthList.monthNavigationColor)
+            }
+            .disabled(viewModel.isNextYearDisabled)
+        }
+    }
+    
+    var yearPickerButton: some View {
+        Button(action: viewModel.toggleYearPicker) {
+            Text(viewModel.formattedYear)
+                .font(.headline)
+        }
+        .padding(UIConstants.MonthList.yearPickerButtonPadding)
+        .background(UIConstants.MonthList.yearPickerButtonBackground)
+        .foregroundStyle(UIConstants.MonthList.yearPickerButtonText)
+        .cornerRadius(UIConstants.MonthList.yearPickerButtonCornerRadius)
+    }
+    
+    var monthList: some View {
+        ScrollView {
+            LazyVStack(spacing: UIConstants.MonthList.spacing) {
+                ForEach(viewModel.getAllMonthsForYear(), id: \.self) { date in
+                    NavigationLink(destination: makeStudentDetailView(for: date)) {
+                        MonthCard(
+                            date: date,
+                            activitiesCount: viewModel.getActivityCount(for: date),
+                            hasActivities: viewModel.hasActivities(for: date)
+                        )
                     }
                 }
-                .pickerStyle(WheelPickerStyle())
-                .frame(width: 100)
             }
-            .padding()
-            
-            Button("Pilih Tahun") {
-                updateSelectedDate()
-                presentationMode.wrappedValue.dismiss()
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .background(Color.buttonLinkOnSheet)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .cornerRadius(8)
-        }
-        .padding(.horizontal, 16)
-        .presentationDetents([.fraction(0.4)])
-        .onAppear {
-            initializeSelection()
+            .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
         }
     }
     
-    private func initializeSelection() {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.month, .year], from: selectedDate)
-        selectedMonth = (components.month ?? 1) - 1
-        selectedYear = years.firstIndex(of: components.year ?? 2000) ?? 0
-    }
-    
-    private func updateSelectedDate() {
-        var components = DateComponents()
-        components.month = selectedMonth + 1
-        components.year = years[selectedYear]
-        if let newDate = Calendar.current.date(from: components) {
-            selectedDate = newDate
-        }
+    func makeStudentDetailView(for date: Date) -> some View {
+        StudentDetailView(
+            student: student,
+            initialScrollDate: date,
+            compressedImageData: compressedImageData,
+            onAddStudent: onAddStudent,
+            onUpdateStudent: onUpdateStudent,
+            onAddNote: onAddNote,
+            onUpdateNote: onUpdateNote,
+            onDeleteNote: onDeleteNote,
+            onAddActivity: onAddActivity,
+            onDeleteActivity: onDeleteActivity,
+            onUpdateActivityStatus: onUpdateActivityStatus,
+            onFetchNotes: onFetchNotes,
+            onFetchActivities: onFetchActivities,
+            onCheckNickname: onCheckNickname
+        )
     }
 }
+

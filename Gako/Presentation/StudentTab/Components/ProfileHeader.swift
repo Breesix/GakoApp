@@ -8,42 +8,48 @@
 import SwiftUI
 
 struct ProfileHeader: View {
+    // MARK: - Constants
+    private let imageSize = UIConstants.Profile.headerImageSize
+    private let spacing = UIConstants.Profile.headerSpacing
+    private let textColor = UIConstants.Profile.textColor
+    private let placeholderColor = UIConstants.Profile.placeholderImageColor
+    
+    // MARK: - Properties
     let student: Student
     
     var body: some View {
-            VStack(spacing: 0) {
-                HStack(alignment:.center, spacing: 16) {
-                    if let imageData = student.imageData,
-                       let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 64, height: 64)
-                            .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                            .foregroundColor(Color.bgSecondary)
-                            .clipShape(Circle())
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(student.fullname)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.labelPrimaryBlack)
-                            .fontWeight(.semibold)
-                        
-                        Text(student.nickname)
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.labelPrimaryBlack)
-                    }
-                    Spacer()
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: spacing) {
+                if let imageData = student.imageData,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: imageSize, height: imageSize)
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: UIConstants.Profile.placeholderIcon)
+                        .resizable()
+                        .frame(width: imageSize, height: imageSize)
+                        .foregroundColor(placeholderColor)
+                        .clipShape(Circle())
                 }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(student.fullname)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(textColor)
+                    
+                    Text(student.nickname)
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundColor(textColor)
+                }
+                Spacer()
             }
         }
+    }
 }
 
 #Preview {

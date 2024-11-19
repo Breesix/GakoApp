@@ -8,34 +8,45 @@
 import SwiftUI
 
 struct EditNoteSection: View {
-    let notes: [Note]
+    // MARK: - Constants
+    private let sectionTitle = UIConstants.EditNote.sectionTitle
+    private let emptyStateText = UIConstants.EditNote.emptyStateText
+    private let addButtonText = UIConstants.EditNote.addButtonText
+    private let sectionSpacing = UIConstants.EditNote.sectionSpacing
+    private let titleBottomPadding = UIConstants.EditNote.titleBottomPadding
     
+    // MARK: - Properties
+    let notes: [Note]
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onAddNote: () -> Void
 
     var body: some View {
-            VStack (alignment: .leading, spacing: 12) {
-                Text("CATATAN")
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                    .padding(.bottom, 4)
+        VStack(alignment: .leading, spacing: sectionSpacing) {
+            Text(sectionTitle)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
+                .padding(.bottom, titleBottomPadding)
 
-                if notes.isEmpty {
-                    Text("Tidak ada catatan untuk tanggal ini")
-                        .foregroundColor(.secondary)
-                } else {
-                    ForEach(notes, id: \.id) { note in
-                        EditNoteRow(note: note, onEdit: onEditNote, onDelete: onDeleteNote)
-                    }
+            if notes.isEmpty {
+                Text(emptyStateText)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(notes, id: \.id) { note in
+                    EditNoteRow(
+                        note: note,
+                        onEdit: onEditNote,
+                        onDelete: onDeleteNote
+                    )
+                }
             }
-                AddItemButton(
-                    onTapAction: {
-                        onAddNote()
-                    },
-                    bgColor: .buttonOncard, text: "Tambah"
-                )
+            
+            AddItemButton(
+                onTapAction: onAddNote,
+                bgColor: .buttonOncard,
+                text: addButtonText
+            )
         }
     }
 }

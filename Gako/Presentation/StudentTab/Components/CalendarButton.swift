@@ -8,6 +8,22 @@
 import SwiftUI
 
 struct CalendarButton: View {
+    // MARK: - Constants
+    private let buttonBackground = UIConstants.Calendar.buttonBackground
+    private let iconColor = UIConstants.Calendar.iconColor
+    private let buttonSize = UIConstants.Calendar.buttonSize
+    private let iconSize = UIConstants.Calendar.iconSize
+    private let toolbarTopPadding = UIConstants.Calendar.toolbarTopPadding
+    private let toolbarHorizontalPadding = UIConstants.Calendar.toolbarHorizontalPadding
+    private let contentPadding = UIConstants.Calendar.contentPadding
+    
+    private let datePickerTitle = UIConstants.Calendar.datePickerTitle
+    private let headerTitle = UIConstants.Calendar.headerTitle
+    private let localeIdentifier = UIConstants.Calendar.localeIdentifier
+    private let calendarIcon = UIConstants.Calendar.calendarIcon
+    private let closeIcon = UIConstants.Calendar.closeIcon
+    
+    // MARK: - Properties
     @Binding var selectedDate: Date
     @Binding var isShowingCalendar: Bool
     var onDateSelected: (Date) -> Void
@@ -16,36 +32,39 @@ struct CalendarButton: View {
         Button(action: { isShowingCalendar = true }) {
             ZStack {
                 Circle()
-                    .frame(width: 36)
-                    .foregroundStyle(.buttonLinkOnSheet)
-                Image(systemName: "calendar")
-                    .font(.system(size: 21))
-                    .foregroundStyle(.white)
+                    .frame(width: buttonSize)
+                    .foregroundStyle(buttonBackground)
+                Image(systemName: calendarIcon)
+                    .font(.system(size: iconSize))
+                    .foregroundStyle(iconColor)
             }
         }
-        
         .sheet(isPresented: $isShowingCalendar) {
             NavigationStack {
-                DatePicker("Tanggal", selection: $selectedDate, in: ...DateValidator.maximumDate(), displayedComponents: .date)
+                DatePicker(datePickerTitle,
+                          selection: $selectedDate,
+                          in: ...DateValidator.maximumDate(),
+                          displayedComponents: .date)
                     .datePickerStyle(.graphical)
-                    .environment(\.locale, Locale(identifier: "id_ID"))
-                    .padding(.horizontal, 16)
+                    .environment(\.locale, Locale(identifier: localeIdentifier))
+                    .padding(.horizontal, contentPadding)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
-                            Text("Pilih Tanggal")
+                            Text(headerTitle)
                                 .font(.title2)
                                 .fontWeight(.semibold)
-                                .padding(.top, 14)
-                                .padding(.horizontal, 12)
+                                .padding(.top, toolbarTopPadding)
+                                .padding(.horizontal, toolbarHorizontalPadding)
                         }
+                        
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button {
                                 isShowingCalendar = false
                             } label: {
-                                Image(systemName: "xmark")
+                                Image(systemName: closeIcon)
                             }
-                            .padding(.top, 14)
-                            .padding(.horizontal, 12)
+                            .padding(.top, toolbarTopPadding)
+                            .padding(.horizontal, toolbarHorizontalPadding)
                         }
                     }
                     .onChange(of: selectedDate) {
@@ -55,7 +74,6 @@ struct CalendarButton: View {
             }
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
-
         }
     }
 }

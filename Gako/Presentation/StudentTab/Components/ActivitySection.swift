@@ -8,30 +8,48 @@
 import SwiftUI
 
 struct ActivitySection: View {
-    let activities: [Activity]
+    // MARK: - Constants
+    private let titleColor = UIConstants.Activity.titleColor
+    private let emptyTextColor = UIConstants.Activity.emptyTextColor
+    private let spacing = UIConstants.Activity.sectionSpacing
     
+    // MARK: - Properties
+    let activities: [Activity]
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("AKTIVITAS")
-                .font(.callout)
-                .fontWeight(.semibold)
-                .foregroundStyle(.labelPrimaryBlack)
-            if activities.isEmpty {
-                Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondaryBlack)
-            } else {
-                ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
-                    ActivityRow(
-                        activity: activity,
-                        onDelete: { _ in onDeleteActivity(activity) },
-                        onStatusChanged: onStatusChanged
-                        )
-                }
-            }
+        VStack(alignment: .leading, spacing: spacing) {
+            sectionTitle
             
+            if activities.isEmpty {
+                emptyStateText
+            } else {
+                activitiesList
+            }
+        }
+    }
+    
+    // MARK: - Subviews
+    private var sectionTitle: some View {
+        Text(UIConstants.Activity.sectionTitle)
+            .font(.callout)
+            .fontWeight(.semibold)
+            .foregroundStyle(titleColor)
+    }
+    
+    private var emptyStateText: some View {
+        Text(UIConstants.Activity.emptyStateText)
+            .foregroundColor(emptyTextColor)
+    }
+    
+    private var activitiesList: some View {
+        ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
+            ActivityRow(
+                activity: activity,
+                onDelete: { _ in onDeleteActivity(activity) },
+                onStatusChanged: onStatusChanged
+            )
         }
     }
 }

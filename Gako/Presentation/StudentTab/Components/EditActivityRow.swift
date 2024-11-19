@@ -9,6 +9,19 @@ import SwiftUI
 import Mixpanel
 
 struct EditActivityRow: View {
+    // MARK: - Constants
+    private let deleteButtonSize = UIConstants.EditActivity.deleteButtonSize
+    private let rowSpacing = UIConstants.EditActivity.rowSpacing
+    private let activityPadding = UIConstants.EditActivity.activityPadding
+    private let cornerRadius = UIConstants.EditActivity.cornerRadius
+    private let strokeWidth = UIConstants.EditActivity.strokeWidth
+    private let statusPickerSpacing = UIConstants.EditActivity.statusPickerSpacing
+    private let deleteAlertTitle = UIConstants.EditActivity.deleteAlertTitle
+    private let deleteAlertMessage = UIConstants.EditActivity.deleteAlertMessage
+    private let deleteButtonText = UIConstants.EditActivity.deleteButtonText
+    private let cancelButtonText = UIConstants.EditActivity.cancelButtonText
+    
+    // MARK: - Properties
     @Binding var activity: Activity
     let activityIndex: Int
     let student: Student
@@ -17,10 +30,10 @@ struct EditActivityRow: View {
     let onDelete: () -> Void
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
-    private let analytics = InputAnalyticsTracker.shared
+    let analytics = InputAnalyticsTracker.shared
     
-    @State private var showDeleteAlert = false
-    @State private var status: Status
+    @State var showDeleteAlert = false
+    @State var status: Status
     
     init(activity: Binding<Activity>,
          activityIndex: Int,
@@ -42,7 +55,7 @@ struct EditActivityRow: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: rowSpacing) {
             HStack {
                 Text("Aktivitas \(activityIndex + 1)")
                     .font(.callout)
@@ -51,13 +64,10 @@ struct EditActivityRow: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    trackDeleteAttempt()
-                    showDeleteAlert = true
-                }) {
+                Button(action: handleDeleteTap) {
                     ZStack {
                         Circle()
-                            .frame(width: 34)
+                            .frame(width: deleteButtonSize)
                             .foregroundStyle(.buttonDestructiveOnCard)
                         Image(systemName: "trash.fill")
                             .font(.subheadline)
@@ -72,72 +82,36 @@ struct EditActivityRow: View {
                 .fontWeight(.regular)
                 .foregroundStyle(.labelPrimaryBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
+                .padding(activityPadding)
                 .background(.monochrome100)
-                .cornerRadius(8)
+                .cornerRadius(cornerRadius)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.noteStroke, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(.noteStroke, lineWidth: strokeWidth)
                 }
                 .onTapGesture {
                     onEdit(activity)
                 }
 
-            HStack(spacing: 8) {
+            HStack(spacing: statusPickerSpacing) {
                 StatusPicker(status: $status) { newStatus in
-                    trackStatusChange(newStatus)
-                    activity.status = newStatus
-                    onStatusChanged(activity, newStatus)
+                    handleStatusChange(newStatus)
                 }
             }
         }
-        .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-            Button("Hapus", role: .destructive) {
-                trackDeletion()
-                onDeleteActivity(activity)
-            }
-            Button("Batal", role: .cancel) { }
+        .alert(deleteAlertTitle,
+               isPresented: $showDeleteAlert) {
+            Button(deleteButtonText,
+                   role: .destructive,
+                   action: handleDeleteConfirmation)
+            Button(cancelButtonText,
+                   role: .cancel) { }
         } message: {
-            Text("Apakah kamu yakin ingin menghapus catatan ini?")
+            Text(deleteAlertMessage)
         }
         .onAppear {
             status = activity.status
         }
-    }
-    
-    // MARK: - Tracking Methods
-    private func trackStatusChange(_ newStatus: Status) {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "old_status": status.rawValue,
-            "new_status": newStatus.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Status Changed", properties: properties)
-    }
-    
-    private func trackDeleteAttempt() {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "status": status.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Delete Attempted", properties: properties)
-    }
-    
-    private func trackDeletion() {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "status": status.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Deleted", properties: properties)
     }
 }
     
