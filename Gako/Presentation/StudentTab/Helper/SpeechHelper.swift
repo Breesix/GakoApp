@@ -7,20 +7,25 @@
 import SwiftUI
 import Speech
 
-enum SpeechHelper {
+class SpeechHelper {
     static func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
+        SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
-                let isAuthorized = authStatus == .authorized
-                completion(isAuthorized)
+                switch status {
+                case .authorized:
+                    completion(true)
+                default:
+                    completion(false)
+                }
             }
         }
     }
     
     static func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                      to: nil,
-                                      from: nil,
-                                      for: nil)
+                                     to: nil,
+                                     from: nil,
+                                     for: nil)
     }
 }
+

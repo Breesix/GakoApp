@@ -246,6 +246,7 @@ enum UIConstants {
         static let yearPickerButtonPadding: EdgeInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
         static let monthNavigationSpacing: CGFloat = 8
         static let dividerPadding: CGFloat = 12
+        static let pickerWidth: CGFloat = 100
         static let backIcon = "chevron.left"
         static let nextIcon = "chevron.right"
         static let documentIcon = "document.fill"
@@ -531,5 +532,166 @@ enum UIConstants {
         static let dividerHeight: CGFloat = 1
         static let dividerVerticalPadding: CGFloat = 4
         static let dividerBottomPadding: CGFloat = 8
+    }
+    
+    enum Note {
+        // Colors
+        static let titleColor = Color.labelPrimaryBlack
+        static let emptyTextColor = Color.secondary
+        static let textColor = Color.labelPrimaryBlack
+        
+        // Layout
+        static let sectionSpacing: CGFloat = 12
+        static let titleBottomPadding: CGFloat = 4
+        static let bulletPointSpacing: CGFloat = 8
+        
+        // Text
+        static let sectionTitle = "CATATAN"
+        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+        static let bulletPoint = "•"
+        
+        // Delete Button
+        static let deleteButtonSize: CGFloat = 34
+        static let deleteButtonBackground = Color.buttonDestructiveOnCard
+        static let deleteIconColor = Color.destructiveOnCardLabel
+        static let trashIcon = "trash.fill"
+        
+        // Alert
+        static let deleteAlertTitle = "Hapus Catatan"
+        static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
+        static let cancelButtonText = "Batal"
+        static let deleteButtonText = "Hapus"
+    }
+    
+    enum Profile {
+        // Colors
+        static let textColor = Color.labelPrimaryBlack
+        static let placeholderImageColor = Color.bgSecondary
+        static let borderColor = Color.white
+        
+        // Layout
+        static let headerSpacing: CGFloat = 16
+        static let headerImageSize: CGFloat = 64
+        static let cardImageSize: CGFloat = 104
+        static let cardSpacing: CGFloat = 8
+        static let spacing: CGFloat = 0
+        static let borderWidth: CGFloat = 5
+        static let borderInset: CGFloat = 2.5
+        static let nicknameHeight: CGFloat = 21
+        static let cardCornerRadius: CGFloat = 32
+        static let nicknamePaddingVertical: CGFloat = 6
+        static let minHeight: CGFloat = 21
+        static let maxHeight: CGFloat = 21
+        static let horizontalPadding: CGFloat = 0
+        static let verticalPadding: CGFloat = 6
+        
+        // Icons
+        static let placeholderIcon = "person.circle.fill"
+        static let deleteIcon = "trash"
+        
+        // Text
+        static let deleteButtonText = "Delete"
+    }
+    
+    enum Share {
+        // Layout
+        static let verticalPadding: CGFloat = 12
+        static let cornerRadius: CGFloat = 10
+        
+        // Font
+        static let iconFont = Font.title2
+        static let titleFont = Font.caption
+        
+        // Color
+        static let textColor = Color.white
+    }
+    
+    enum EditActivity {
+        // Section
+        static let sectionTitle = "AKTIVITAS"
+        static let emptyStateText = "Tidak ada aktivitas untuk tanggal ini"
+        static let addButtonText = "Tambah"
+        static let bottomPadding: CGFloat = 16
+        static let rowBottomPadding: CGFloat = 12
+        
+        // Row
+        static let deleteButtonSize: CGFloat = 34
+        static let rowSpacing: CGFloat = 10
+        static let activityPadding: CGFloat = 8
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let statusPickerSpacing: CGFloat = 8
+        
+        // Alert
+        static let deleteAlertTitle = "Konfirmasi Hapus"
+        static let deleteAlertMessage = "Apakah kamu yakin ingin menghapus catatan ini?"
+        static let deleteButtonText = "Hapus"
+        static let cancelButtonText = "Cancel"
+    }
+    
+    enum EditNote {
+        // Section
+        static let sectionTitle = "CATATAN"
+        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+        static let addButtonText = "Tambah"
+        static let sectionSpacing: CGFloat = 12
+        static let titleBottomPadding: CGFloat = 4
+        
+        // Row
+        static let rowSpacing: CGFloat = 8
+        static let notePadding: CGFloat = 8
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let deleteButtonSize: CGFloat = 34
+        
+        // Alert
+        static let deleteAlertTitle = "Hapus Catatan"
+        static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
+        static let deleteButtonText = "Hapus"
+        static let cancelButtonText = "Batal"
+    }
+    enum DailyReportTemplate {
+        static let a4Width: CGFloat = 595.276
+        static let a4Height: CGFloat = 841.89
+        static let logoWidth: CGFloat = 100
+        static let studentImageSize: CGFloat = 64
+        static let watermarkSize: CGFloat = 200
+        static let studentInfoHeight: CGFloat = 90
+        static let borderWidth: CGFloat = 1
+        static let borderInset: CGFloat = 0.5
+        static let cornerRadius: CGFloat = 12
+        static let spacing: CGFloat = 8
+        static let headerSpacing: CGFloat = 16
+        
+        // Section Titles
+        static let reportTitle = "Laporan Harian Murid"
+        static let summaryTitle = "Ringkasan:"
+        static let activityTitle = "Aktivitas"
+        static let statusTitle = "Keterangan"
+        static let notesTitle = "Catatan:"
+        
+        // Empty States
+        static let noSummaryText = "Tidak ada ringkasan untuk hari ini"
+        
+        // Footer
+        static let sharedText = "Dibagikan melalui Aplikasi GAKO"
+        static let pageText = "Halaman"
+        static let fromText = "dari"
+        
+        // Images
+        static let logoImage = "gako_logotype"
+        static let watermarkImage = "gako_wm"
+        static let defaultProfileImage = "person.circle.fill"
+        
+        // Colors
+        static let headerTextColor: Color = .labelPrimary
+        static let primaryTextColor: Color = .labelPrimaryBlack
+        static let secondaryTextColor: Color = .secondary
+        static let borderColor: Color = .green300
+        static let backgroundColor: Color = .white
+        static let activityHeaderColor: Color = .green300
+        static let footerTextColor: Color = .gray
+        static let watermarkColor: Color = .gray.opacity(0.1)
+        static let profileImageColor: Color = .bgSecondary
     }
 }

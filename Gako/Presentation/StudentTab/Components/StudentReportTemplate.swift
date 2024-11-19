@@ -4,118 +4,137 @@
 //
 //  Created by Akmal Hakim on 30/10/24.
 //
-
 import SwiftUI
 
 struct DailyReportTemplate: View {
+    // MARK: - Properties
     let student: Student
     let activities: [Activity]
     let notes: [Note]
     let date: Date
-    
-     let a4Width: CGFloat = 595.276
-     let a4Height: CGFloat = 841.89
-    
     @State private var numberOfPages: Int = 1
     
-    func indonesianFormattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "EEEE, d MMMM yyyy"
-        return formatter.string(from: date)
-    }
+    // MARK: - Constants
+    // Dimensions
+    let a4Width = UIConstants.DailyReportTemplate.a4Width
+    let a4Height = UIConstants.DailyReportTemplate.a4Height
+    private let logoWidth = UIConstants.DailyReportTemplate.logoWidth
+    private let studentImageSize = UIConstants.DailyReportTemplate.studentImageSize
+    private let watermarkSize = UIConstants.DailyReportTemplate.watermarkSize
+    private let studentInfoHeight = UIConstants.DailyReportTemplate.studentInfoHeight
+    private let borderWidth = UIConstants.DailyReportTemplate.borderWidth
+    private let borderInset = UIConstants.DailyReportTemplate.borderInset
+    private let cornerRadius = UIConstants.DailyReportTemplate.cornerRadius
+    private let spacing = UIConstants.DailyReportTemplate.spacing
+    private let headerSpacing = UIConstants.DailyReportTemplate.headerSpacing
+    
+    // Section Titles
+    private let reportTitle = UIConstants.DailyReportTemplate.reportTitle
+    private let summaryTitle = UIConstants.DailyReportTemplate.summaryTitle
+    private let activityTitle = UIConstants.DailyReportTemplate.activityTitle
+    private let statusTitle = UIConstants.DailyReportTemplate.statusTitle
+    private let notesTitle = UIConstants.DailyReportTemplate.notesTitle
+    
+    // Empty States
+    private let noSummaryText = UIConstants.DailyReportTemplate.noSummaryText
+    
+    // Footer
+    private let sharedText = UIConstants.DailyReportTemplate.sharedText
+    private let pageText = UIConstants.DailyReportTemplate.pageText
+    private let fromText = UIConstants.DailyReportTemplate.fromText
+    
+    // Images
+    private let logoImage = UIConstants.DailyReportTemplate.logoImage
+    private let watermarkImage = UIConstants.DailyReportTemplate.watermarkImage
+    private let defaultProfileImage = UIConstants.DailyReportTemplate.defaultProfileImage
+    
+    // Colors
+    private let headerTextColor = UIConstants.DailyReportTemplate.headerTextColor
+    private let primaryTextColor = UIConstants.DailyReportTemplate.primaryTextColor
+    private let secondaryTextColor = UIConstants.DailyReportTemplate.secondaryTextColor
+    private let borderColor = UIConstants.DailyReportTemplate.borderColor
+    private let backgroundColor = UIConstants.DailyReportTemplate.backgroundColor
+    private let activityHeaderColor = UIConstants.DailyReportTemplate.activityHeaderColor
+    private let footerTextColor = UIConstants.DailyReportTemplate.footerTextColor
+    private let watermarkColor = UIConstants.DailyReportTemplate.watermarkColor
+    private let profileImageColor = UIConstants.DailyReportTemplate.profileImageColor
     
     var body: some View {
         TabView {
             ForEach(0..<calculateRequiredPages(), id: \.self) { pageIndex in
                 reportPage(pageIndex: pageIndex)
                     .frame(width: a4Width, height: a4Height)
-                    .background(.white)
+                    .background(backgroundColor)
             }
         }
         .tabViewStyle(.page)
     }
-    
+}
+
+extension DailyReportTemplate {
     func reportPage(pageIndex: Int) -> some View {
         VStack(spacing: 0) {
-            // Header
             reportHeader
             
             if pageIndex == 0 {
                 studentInfo
-
                 summarySection
-                
-     
                 if !activities.isEmpty {
                     activitySection(Array(activities.prefix(6)))
                 }
             } else {
-                // Activities for subsequent pages (max 10 per page)
                 let startIndex = 5 + (pageIndex - 1) * 10
                 let pageActivities = Array(activities.dropFirst(startIndex).prefix(10))
                 if !pageActivities.isEmpty {
                     activitySection(pageActivities)
                 }
-                
-                // Notes section (only shown after all activities)
-//                if pageActivities.isEmpty {
-//                    let notesStartIndex = (pageIndex - 1) * 5
-//                    let pageNotes = Array(notes.dropFirst(notesStartIndex).prefix(5))
-//                    if !pageNotes.isEmpty {
-//                        noteSection(notes: pageNotes)
-//                    }
-//                }
             }
             
             Spacer()
-            
-            // Footer
             reportFooter(pageNumber: pageIndex + 1)
         }
     }
     
-    private var reportHeader: some View {
+    var reportHeader: some View {
         HStack {
-            Image("gako_logotype")
+            Image(logoImage)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100)
+                .frame(width: logoWidth)
             Spacer()
             VStack(alignment: .trailing) {
-                Text("Laporan Harian Murid")
+                Text(reportTitle)
                     .font(.title2)
                     .bold()
-                    .foregroundStyle(.labelPrimary)
+                    .foregroundStyle(headerTextColor)
                 Text(indonesianFormattedDate(date: date))
                     .font(.body)
                     .italic()
-                    .foregroundStyle(.secondary)
-                    .foregroundStyle(.labelPrimaryBlack)
+                    .foregroundStyle(secondaryTextColor)
             }
         }
         .padding()
     }
     
-    private var studentInfo: some View {
+    var studentInfo: some View {
         ZStack {
-            HStack(spacing: 16) {
+            HStack(spacing: headerSpacing) {
                 if let imageData = student.imageData, let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 64, height: 64)
+                        .frame(width: studentImageSize, height: studentImageSize)
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .inset(by: 1.5)
-                                .stroke(.accent, lineWidth: 3)
+                                .inset(by: borderInset)
+                                .stroke(.accent, lineWidth: borderWidth)
                         )
                 } else {
-                    Image(systemName: "person.circle.fill")
+                    Image(systemName: defaultProfileImage)
                         .resizable()
-                        .frame(width: 64, height: 64)
-                        .foregroundColor(.bgSecondary)
+                        .frame(width: studentImageSize, height: studentImageSize)
+                        .foregroundColor(profileImageColor)
                         .clipShape(Circle())
                 }
                 
@@ -123,158 +142,120 @@ struct DailyReportTemplate: View {
                     Text(student.fullname)
                         .font(.title3)
                         .bold()
-                        .foregroundStyle(.labelPrimaryBlack)
+                        .foregroundStyle(primaryTextColor)
                     Text(student.nickname)
                         .font(.body)
-                        .foregroundStyle(.labelPrimaryBlack)
+                        .foregroundStyle(primaryTextColor)
                 }
                 Spacer()
             }
             
             HStack {
                 Spacer()
-                Image("gako_wm")
+                Image(watermarkImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
-                    .foregroundColor(.gray.opacity(0.1))
+                    .frame(width: watermarkSize, height: watermarkSize)
+                    .foregroundColor(watermarkColor)
                     .padding(.trailing)
             }
         }
         .padding(.leading)
-        .frame(height: 90)
-        .background(Color.white)
-        .cornerRadius(12)
+        .frame(height: studentInfoHeight)
+        .background(backgroundColor)
+        .cornerRadius(cornerRadius)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .inset(by: 0.5)
-                .stroke(.green300, lineWidth: 1)
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .inset(by: borderInset)
+                .stroke(borderColor, lineWidth: borderWidth)
         )
         .padding(.horizontal)
     }
     
-    private var summarySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    var summarySection: some View {
+        VStack(alignment: .leading, spacing: spacing) {
             HStack {
-                Text("Ringkasan:")
+                Text(summaryTitle)
                     .font(.headline)
-                    .foregroundStyle(.labelPrimaryBlack)
+                    .foregroundStyle(primaryTextColor)
                 Spacer()
             }
             
             if let summary = student.summaries.first(where: { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }) {
                 Text(summary.summary)
                     .font(.body)
-                    .foregroundStyle(.labelPrimaryBlack)
+                    .foregroundStyle(primaryTextColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
                     .background(Color.monochrome100)
-                    .cornerRadius(8)
+                    .cornerRadius(cornerRadius)
             } else {
-                Text("Tidak ada ringkasan untuk hari ini")
+                Text(noSummaryText)
                     .font(.body)
-                    .foregroundStyle(.labelPrimaryBlack)
+                    .foregroundStyle(primaryTextColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
                     .background(Color.monochrome100)
-                    .cornerRadius(8)
+                    .cornerRadius(cornerRadius)
             }
         }
         .padding()
     }
     
-    private func activitySection(_ activities: [Activity]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+    func activitySection(_ activities: [Activity]) -> some View {
+        VStack(alignment: .leading, spacing: spacing) {
             VStack(spacing: 0) {
- 
-                
                 HStack {
-                    Text("Aktivitas")
+                    Text(activityTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
                     Spacer()
-                    Text("Keterangan")
+                    Text(statusTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
                 }
                 .padding()
-                .background(.green300)
-
+                .background(activityHeaderColor)
+                
                 ForEach(activities) { activity in
                     HStack {
                         Text(activity.activity)
-                            .foregroundStyle(.labelPrimaryBlack)
+                            .foregroundStyle(primaryTextColor)
                         Spacer()
-                        Text(activity.status.rawValue) 
-                            .foregroundStyle(.labelPrimaryBlack)
+                        Text(activity.status.rawValue)
+                            .foregroundStyle(primaryTextColor)
                     }
                     .padding()
                     Divider()
                 }
             }
-            .background(.white)
-            .cornerRadius(12)
+            .background(backgroundColor)
+            .cornerRadius(cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .inset(by: 0.5)
-                    .stroke(.green300, lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .inset(by: borderInset)
+                    .stroke(borderColor, lineWidth: borderWidth)
             )
         }
         .padding()
     }
     
-    private func noteSection(notes: [Note]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Catatan:")
-                    .font(.headline)
-                    .foregroundStyle(.labelPrimaryBlack)
-                Spacer()
-            }
-            ForEach(notes) { note in
-                Text("• \(note.note)")
-                    .font(.body)
-                    .foregroundStyle(.labelPrimaryBlack)
-            }
-        }
-        .padding()
-    }
-    
-    private func reportFooter(pageNumber: Int) -> some View {
+    func reportFooter(pageNumber: Int) -> some View {
         HStack {
-            Text("Dibagikan melalui Aplikasi GAKO")
+            Text(sharedText)
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(footerTextColor)
             Spacer()
-            Text("Halaman \(pageNumber) dari \(calculateRequiredPages())")
+            Text("\(pageText) \(pageNumber) \(fromText) \(calculateRequiredPages())")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(footerTextColor)
         }
         .padding()
     }
-    
-     func calculateRequiredPages() -> Int {
-        let activitiesPages = ceil(Double(max(0, activities.count - 5)) / 10.0)
-        let notesPages = ceil(Double(notes.count) / 5.0)
-        return 1 + Int(max(activitiesPages, notesPages))
-    }
 }
 
 
-extension View {
-    func snapshot() -> UIImage? {
-        let controller = UIHostingController(rootView: self)
-        let view = controller.view
-        let targetSize = controller.view.intrinsicContentSize
-        view?.bounds = CGRect(origin: .zero, size: targetSize)
-        view?.backgroundColor = .clear
-        
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in
-            view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
-        }
-    }
-}
+
 
 
 

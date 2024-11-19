@@ -6,12 +6,22 @@
 //
 import SwiftUI
 
+import SwiftUI
+
 struct YearPickerView: View {
     @Binding var selectedDate: Date
     @Environment(\.presentationMode) var presentationMode
-    @State private var selectedYear = 0
+    @State var selectedYear = 0
     
-    private let years = Array(1900...2100)
+    // MARK: - Constants
+    let years = Array(1900...2100)
+    private let pickerWidth = UIConstants.MonthList.pickerWidth
+    private let buttonPadding = UIConstants.MonthList.yearPickerButtonPadding
+    private let buttonBackground = UIConstants.MonthList.yearPickerButtonBackground
+    private let buttonTextColor = UIConstants.MonthList.yearPickerButtonText
+    private let buttonCornerRadius = UIConstants.MonthList.yearPickerButtonCornerRadius
+    private let contentPadding = UIConstants.MonthList.contentPadding.leading
+    private let selectYearText = UIConstants.MonthList.selectYearText
     
     var body: some View {
         VStack {
@@ -21,36 +31,22 @@ struct YearPickerView: View {
                 }
             }
             .pickerStyle(WheelPickerStyle())
-            .frame(width: 100)
+            .frame(width: pickerWidth)
             .padding()
             
-            Button(UIConstants.MonthList.selectYearText) {
+            Button(selectYearText) {
                 updateSelectedDate()
                 presentationMode.wrappedValue.dismiss()
             }
             .frame(maxWidth: .infinity)
-            .padding(UIConstants.MonthList.yearPickerButtonPadding)
-            .background(UIConstants.MonthList.yearPickerButtonBackground)
-            .foregroundStyle(UIConstants.MonthList.yearPickerButtonText)
-            .cornerRadius(UIConstants.MonthList.yearPickerButtonCornerRadius)
+            .padding(buttonPadding)
+            .background(buttonBackground)
+            .foregroundStyle(buttonTextColor)
+            .cornerRadius(buttonCornerRadius)
         }
-        .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
+        .padding(.horizontal, contentPadding)
         .onAppear {
             initializeSelection()
-        }
-    }
-    
-    private func initializeSelection() {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year], from: selectedDate)
-        selectedYear = years.firstIndex(of: components.year ?? 2000) ?? 0
-    }
-    
-    private func updateSelectedDate() {
-        var components = DateComponents()
-        components.year = years[selectedYear]
-        if let newDate = Calendar.current.date(from: components) {
-            selectedDate = newDate
         }
     }
 }

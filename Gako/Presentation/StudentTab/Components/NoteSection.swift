@@ -8,27 +8,36 @@
 import SwiftUI
 
 struct NoteSection: View {
-    let notes: [Note]
+    // MARK: - Constants
+    private let titleColor = UIConstants.Note.titleColor
+    private let emptyTextColor = UIConstants.Note.emptyTextColor
+    private let spacing = UIConstants.Note.sectionSpacing
+    private let titleBottomPadding = UIConstants.Note.titleBottomPadding
     
+    // MARK: - Properties
+    let notes: [Note]
     let onEditNote: (Note) -> Void
     let onDeleteNote: (Note) -> Void
     let onAddNote: () -> Void
     
     var body: some View {
-            VStack (alignment: .leading, spacing: 12) {
-                Text("CATATAN")
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                    .padding(.bottom, 4)
+        VStack(alignment: .leading, spacing: spacing) {
+            Text(UIConstants.Note.sectionTitle)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(titleColor)
+                .padding(.bottom, titleBottomPadding)
 
-                if notes.isEmpty {
-                    Text("Tidak ada catatan untuk tanggal ini")
-                        .foregroundColor(.secondary)
-                } else {
-                    ForEach(Array(notes.enumerated()), id: \.element.id) { index,note in
-                        NoteRow(note: note, onDelete: onDeleteNote)
-                    }
+            if notes.isEmpty {
+                Text(UIConstants.Note.emptyStateText)
+                    .foregroundColor(emptyTextColor)
+            } else {
+                ForEach(Array(notes.enumerated()), id: \.element.id) { index, note in
+                    NoteRow(
+                        note: note,
+                        onDelete: onDeleteNote
+                    )
+                }
             }
         }
     }
