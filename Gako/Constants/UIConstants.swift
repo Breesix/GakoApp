@@ -175,4 +175,14 @@ enum UIConstants {
         static let title: String = "Menyimpan Dokumentasi..."
         static let subtitle: String = "Mohon tunggu sebentar"
     }
+    
+    enum MainTabView {
+        static let tabBarHeight: CGFloat = 72
+        static let tabBarSpacing: CGFloat = 0
+        static let tabBarBottomPadding: CGFloat = 5
+        static let shadowRadius: CGFloat = 0
+        static let shadowOffset: CGFloat = 50
+        static let tabBarBackground: Color = .white
+        static let shadowColor: Color = .black.opacity(1)
+    }
 }
