@@ -1,8 +1,13 @@
 //
 //  NoteViewModel.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 03/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing student notes and their states
+//  Usage: Handles note-related operations including CRUD operations, temporary storage of unsaved notes, and synchronization with the backend
 //
 
 import Foundation

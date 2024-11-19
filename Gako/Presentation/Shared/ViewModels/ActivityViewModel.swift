@@ -1,8 +1,13 @@
 //
 //  ActivityViewModel.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 03/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing student activities and their states
+//  Usage: Handles activity-related operations including CRUD operations, temporary storage, and synchronization with the backend
 //
 
 import Foundation

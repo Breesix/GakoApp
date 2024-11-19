@@ -1,8 +1,10 @@
 //
 //  SnapshotPreviewOverlay.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 12/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
 //
 //  Description: A preview for snapshot
 //  Usage: Use this view for display preview the snapshot
