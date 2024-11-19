@@ -18,6 +18,7 @@ struct VoiceInputView: View {
     @State private var showProTips: Bool = true
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
+    @State private var currentProgress: Int = 1
     @FocusState private var isTextEditorFocused: Bool
     
     @EnvironmentObject var noteViewModel: NoteViewModel
@@ -70,18 +71,8 @@ struct VoiceInputView: View {
             
             VStack(alignment: .center) {
                 VStack {
-                    datePickerView()
-                    
-                    if viewModel.reflection.isEmpty && !viewModel.isRecording {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
-                                .foregroundColor(.gray)
-                            Text("Bagaimana murid Anda mengikuti kegiatan pada hari ini?")
-                                .foregroundColor(.gray)
-                        }
+                    TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
                         .padding()
-                    }
-                    
                     ZStack {
                         TextEditor(text: $viewModel.editedText)
                             .foregroundStyle(.labelPrimaryBlack)
@@ -108,11 +99,14 @@ struct VoiceInputView: View {
                     }
                     
                     Spacer()
-                    
-                    if !viewModel.isRecording {
-                        TipsCard()
-                            .padding()
+                    VStack(alignment:.leading, spacing: 12) {
+                        GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                        GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                        GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+
                 }
                 .opacity(viewModel.isLoading ? 0.3 : 1)
                 
@@ -121,7 +115,7 @@ struct VoiceInputView: View {
                 ZStack(alignment: .bottom) {
                     VStack(alignment: .center){
                         if viewModel.isRecording && !viewModel.isPaused {
-                            Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
+                            Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
                                 .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
@@ -129,8 +123,17 @@ struct VoiceInputView: View {
                                 .padding(.bottom, 8)
                             
                             
-                        } else {
-                            Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
+                            
+                        } else if !viewModel.isRecording && !viewModel.isPaused{
+                            Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
+                                .padding(.bottom, 8)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.bgAccent)
+                                .padding(.bottom, 8)
+                        }
+                        else {
+                            Text("Tekan \(Image(systemName: "play.fill")) untuk lanjut merekam")
                                 .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
@@ -292,6 +295,36 @@ struct VoiceInputView: View {
             withAnimation {
                 showProTips = !isTextEditorFocused
             }
+        }
+        .onChange(of: viewModel.isRecording) { newValue in
+            if newValue {
+                currentProgress = 2  // Ketika mulai merekam
+            } else {
+                currentProgress = 1  // Ketika tidak merekam
+            }
+        }
+        .onChange(of: viewModel.isPaused) { newValue in
+            if newValue {
+                currentProgress = 3  // Ketika di pause
+            } else if viewModel.isRecording {
+                currentProgress = 2  // Kembali ke merekam
+            }
+        }
+    }
+    
+    private var currentTitle: String {
+        switch currentProgress {
+        case 1: return "Rekam dengan Suara"
+        case 2: return "Merekam..."
+        case 3: return "Edit Rekaman"
+        default: return ""
+        }
+    }
+
+    private var currentSubtitle: String {
+        switch currentProgress {
+        case 1: return "Tekan untuk memulai berbicara"
+        default: return ""
         }
     }
     

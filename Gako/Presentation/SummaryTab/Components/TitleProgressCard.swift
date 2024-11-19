@@ -12,19 +12,22 @@ struct TitleProgressCard: View {
     var subtitle: String
 
     var body: some View {
-        VStack (alignment: .center, spacing: 8) {
-        HStack {
-            Image(systemName: "sparkles")
-            Spacer()
-            Text(title)
-            Spacer()
-            Image(systemName: "sparkles")
-        }
-        .fontWeight(.heavy)
-            Text(subtitle)
-            .fontWeight(.semibold)
-            .font(.caption)
-            .padding(.horizontal, 6)
+        VStack (alignment: .center, spacing: subtitle.isEmpty ? 0 : 8) {
+            HStack {
+                Image(systemName: "sparkles")
+                Spacer()
+                Text(title)
+                Spacer()
+                Image(systemName: "sparkles")
+            }
+            .fontWeight(.heavy)
+            
+            if !subtitle.isEmpty {
+                Text(subtitle)
+                    .fontWeight(.semibold)
+                    .font(.caption)
+                    .padding(.horizontal, 6)
+            }
         }
         .multilineTextAlignment(.center)
         .padding(16)
