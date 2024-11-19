@@ -36,8 +36,7 @@ struct SummaryTabView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 CustomNavigation(
-                    title: "Dokumentasi", textButton: "Dokumentasi",
-                    isInternetConnected: networkMonitor.isConnected
+                    title: "Dokumentasi", textButton: "Dokumentasi"
                 ) { if !networkMonitor.isConnected {
                     showNoInternetAlert = true
                 }

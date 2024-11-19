@@ -1,9 +1,15 @@
 //
 //  DateValidator.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 07/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Date validator for users cannot select the next day
+//  Usage: Use this validator for manage date picker
+//
+
 import SwiftUI
 
 struct DateValidator {

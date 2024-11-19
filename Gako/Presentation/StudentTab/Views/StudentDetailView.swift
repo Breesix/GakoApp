@@ -322,7 +322,7 @@ struct StudentDetailView: View {
             
             // MARK: THIS IS VIEW FOR SNAPSHOTS PREVIEW
             if showSnapshotPreview {
-                SnapshotPreviewOverlay(
+                SnapshotPreview(
                     images: allPageSnapshots, currentPageIndex: $currentPageIndex,
                     showSnapshotPreview: $showSnapshotPreview,
                     toast: $toast,
@@ -570,7 +570,6 @@ struct StudentDetailView: View {
     }
     
     private func saveChanges() async {
-        // Validate activities
         for (id, (text, status, date)) in editedActivities {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
@@ -585,7 +584,6 @@ struct StudentDetailView: View {
             }
         }
 
-        // Validate notes
         for (id, (text, date)) in editedNotes {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
@@ -599,15 +597,12 @@ struct StudentDetailView: View {
             }
         }
 
-        // Refresh data
         await fetchAllNotes()
         await fetchActivities()
         
-        // Clear temporary changes
         editedActivities.removeAll()
         editedNotes.removeAll()
         
-        // Show success message
         toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
     }
 
@@ -666,8 +661,6 @@ struct BackButton: View {
     }
 }
 
-// Add these supporting views and functions:
-
 struct ShareButtonView: View {
     let iconName: String
     let title: String
@@ -676,7 +669,7 @@ struct ShareButtonView: View {
     var body: some View {
         VStack(spacing: 8) {
             if iconName == "whatsapp" {
-                Image("whatsapp") // Add WhatsApp icon to assets
+                Image("whatsapp")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
@@ -690,13 +683,3 @@ struct ShareButtonView: View {
         .foregroundColor(color)
     }
 }
-
-//class ImageSaver: NSObject {
-//    func writeToPhotoAlbum(image: UIImage) {
-//        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
-//    }
-//    
-//    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-//        print("Save finished!")
-//    }
-//}

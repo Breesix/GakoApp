@@ -1,5 +1,5 @@
 //
-//  Bundle+Helper.swift
+//  Bundle+Extension.swift
 //  Gako
 //
 //  Created by Rangga Biner on 17/11/24.

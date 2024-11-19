@@ -161,12 +161,12 @@ struct ProgressCurhatView: View {
 
                 }
                 
-                AddButton(
-                    action: {
+                AddItemButton(
+                    onTapAction: {
                         showManageActivity = true
                     },
-                    backgroundColor: .buttonOncard,
-                    title: "Tambah"
+                    bgColor: .buttonOncard,
+                    text: "Tambah"
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -347,10 +347,3 @@ struct ActivityCard: View {
         }
     }
 }
-
-
-//#Preview {
-//    PreviewHelper.PreviewWrapper {
-//        ProgressCurhatView(selectedDate: .constant(.now))
-//    }
-//}

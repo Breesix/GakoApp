@@ -1,36 +1,35 @@
 //
 //  AppColor.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 07/11/24.
 //
-import SwiftUI
-import UIKit
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom color for the App
+//  Usage: Use this color for the App color
+//
 
+import SwiftUI
 
 class AppColor: ObservableObject {
     @Published var tint: Color = .accentColor
 }
+
 extension Color {
     static let accentGlobal = Color("AccentColor")
 }
 
 final class AppTheme: ObservableObject {
     static let shared = AppTheme()
-    
-    // Definisikan warna accent default
-    @Published var accentColor: Color = Color("AccentColor") // Sesuaikan dengan nama di asset catalog
-    
+    @Published var accentColor: Color = Color("AccentColor")
     private init() {}
 }
 
-
-// 1. Definisikan AlertTintKey
 private struct AlertTintKey: EnvironmentKey {
     static let defaultValue: Color = .accent
 }
 
-// 2. Buat extension EnvironmentValues
 extension EnvironmentValues {
     var alertTint: Color {
         get { self[AlertTintKey.self] }
@@ -38,17 +37,6 @@ extension EnvironmentValues {
     }
 }
 
-
-
-//// 2. Buat extension EnvironmentValues
-//extension EnvironmentValues {
-//    var alertTint: Color {
-//        get { self[AlertTintKey.self] }
-//        set { self[AlertTintKey.self] = newValue }
-//    }
-//}
-
-// 3. Buat GlobalAccentModifier yang benar
 struct GlobalAccentModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -60,6 +48,19 @@ struct GlobalAccentModifier: ViewModifier {
 
 extension UIApplication {
     func setGlobalTint(_ color: Color) {
-        windows.first?.tintColor = UIColor(color)
+        if #available(iOS 15.0, *) {
+            let scenes = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+            
+            scenes.forEach { scene in
+                scene.windows.forEach { window in
+                    window.tintColor = UIColor(color)
+                }
+            }
+        } else {
+            windows.forEach { window in
+                window.tintColor = UIColor(color)
+            }
+        }
     }
 }

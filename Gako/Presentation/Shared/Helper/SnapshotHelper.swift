@@ -1,14 +1,16 @@
 //
 //  ReportGeneratorError.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 12/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Snapshot for generate image and share functionality
+//  Usage: Use this class for snapshot
+//
 
-
-/// SnapshotHelper.swift
 import SwiftUI
-import UIKit
 
 public class SnapshotHelper {
     public static let shared = SnapshotHelper()

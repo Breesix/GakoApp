@@ -1,8 +1,13 @@
 //
 //  StudentViewModel.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 22/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Core ViewModel for managing student data and analytics
+//  Usage: Handles student-related operations including: CRUD operations for student profiles, Image compression and management, Analytics tracking via Mixpanel, Student selection state management
 //
 
 import Foundation

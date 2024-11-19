@@ -1,13 +1,16 @@
 //
-//  ImagePickerViewRepresentable.swift
-//  Breesix
+//  ImagePicker.swift
+//  Gako
 //
 //  Created by Akmal Hakim on 08/10/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Image picker functionality for pick an image
+//  Usage: Use this struct for pick the image
+//
 
 import SwiftUI
-import PhotosUI
-import UIKit
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
