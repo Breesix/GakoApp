@@ -1,8 +1,10 @@
 //
 //  ImageSaver.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 12/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
 //
 //  Description: Image saver functionality for save the image
 //  Usage: Use this struct for save the image

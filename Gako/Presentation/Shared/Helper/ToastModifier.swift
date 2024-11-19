@@ -4,6 +4,11 @@
 //
 //  Created by Rangga Biner on 18/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Custom view modifier for displaying toast notifications in SwiftUI
+//  Usage: Apply this modifier to display temporary toast messages with customizable duration
+//
 
 import SwiftUI
 

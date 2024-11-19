@@ -10,7 +10,6 @@
 //  Usage: Use this helper for a navigation bar custom
 //
 
-
 import SwiftUI
 
 extension View {

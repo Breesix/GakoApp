@@ -1,8 +1,13 @@
 //
-//  TapBarExten.swift
-//  Breesix
+//  TapBar+Extension.swift
+//  Gako
 //
 //  Created by Kevin Fairuz on 21/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Custom tab bar extensions and modifiers for SwiftUI
+//  Usage: Provides functionality for hiding tab bar, custom tab items, and tab bar optimization
 //
 
 import SwiftUI

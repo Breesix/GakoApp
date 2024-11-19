@@ -1,8 +1,13 @@
 //
 //  NetworkMonitor.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 06/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Network connectivity monitoring class using Network framework
+//  Usage: Use this class to monitor and observe network connection status changes
 //
 
 import Network
