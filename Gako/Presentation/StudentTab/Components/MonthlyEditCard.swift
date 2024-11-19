@@ -8,106 +8,110 @@
 import SwiftUI
 
 struct MonthlyEditCard: View {
+    
+    // MARK: - ViewModels
+    @StateObject var viewModel = MonthlyEditViewModel()
+    
+    // MARK: - Constants
+    private let backgroundColor = UIConstants.MonthlyEdit.backgroundColor
+    private let titleColor = UIConstants.MonthlyEdit.titleColor
+    private let dividerColor = UIConstants.MonthlyEdit.dividerColor
+    private let spacing = UIConstants.MonthlyEdit.spacing
+    private let horizontalPadding = UIConstants.MonthlyEdit.horizontalPadding
+    private let cardCornerRadius = UIConstants.MonthlyEdit.cardCornerRadius
+    
+    // MARK: - Properties
     let date: Date
     let activities: [Activity]
     let notes: [Note]
     let student: Student
+    
     @Binding var selectedStudent: Student?
     @Binding var isAddingNewActivity: Bool
     @Binding var editedActivities: [UUID: (String, Status, Date)]
     @Binding var editedNotes: [UUID: (String, Date)]
+    
     let onDeleteActivity: (Activity) -> Void
     let onDeleteNote: (Note) -> Void
     let onActivityUpdate: (Activity) -> Void
     let onAddActivity: () -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
-    let onEditNote: (Note) -> Void  // Hanya menerima 1 parameter
-    let onAddNote: (String) -> Void // Add this new callback
-
+    let onEditNote: (Note) -> Void
+    let onAddNote: (String) -> Void
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(indonesianFormattedDate(date: date))
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 7)
-            
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.bottom, 8)
-
-            EditActivitySection(
-                student: student,
-                selectedStudent: $selectedStudent,
-                isAddingNewActivity: $isAddingNewActivity,
-                activities: activities,
-                onActivityUpdate: onActivityUpdate,
-                onDeleteActivity: onDeleteActivity,
-                allActivities: activities,
-                allStudents: [student],
-                onStatusChanged: { activity, newStatus in
-                    Task {
-                        await onUpdateActivityStatus(activity, newStatus)
-                    }
-                },
-                onAddActivity: onAddActivity
-            )
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.vertical, 4)
-                .padding(.horizontal, 16)
-            
-            EditNoteSection(
-                notes: notes,
-                onEditNote: onEditNote,
-                onDeleteNote: onDeleteNote,
-                onAddNote: {
-                    // Create a new empty note
-                    onAddNote("")
-                }
-            )
-            .padding(.horizontal, 16)
+        VStack(alignment: .leading, spacing: spacing) {
+            headerSection
+            topDivider
+            activitiesSection
+            middleDivider
+            notesSection
         }
-        .padding(.top, 19)
-        .padding(.bottom, 16)
-        .background(.white)
-        .cornerRadius(20)
+        .padding(.top, UIConstants.MonthlyEdit.topPadding)
+        .padding(.bottom, UIConstants.MonthlyEdit.bottomPadding)
+        .background(backgroundColor)
+        .cornerRadius(cardCornerRadius)
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
-    private func indonesianFormattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
+    // MARK: - Subviews
+    private var headerSection: some View {
+        HStack {
+            Text(DateFormatHelper.indonesianFormattedDate(date))
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundStyle(titleColor)
+            Spacer()
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.bottom, UIConstants.MonthlyEdit.titleBottomPadding)
     }
     
-    private func makeValueBinding(for activity: Activity) -> Binding<String> {
-        Binding(
-            get: { editedActivities[activity.id]?.0 ?? activity.activity },
-            set: { newValue in
-                let status = editedActivities[activity.id]?.1 ?? activity.status
-                editedActivities[activity.id] = (newValue, status, date)
-            }
-        )
+    private var topDivider: some View {
+        DividerView()
+            .padding(.bottom, UIConstants.MonthlyEdit.dividerBottomPadding)
     }
     
-    private func makeStatusBinding(for activity: Activity) -> Binding<Status> {
-        Binding(
-            get: { editedActivities[activity.id]?.1 ?? activity.status },
-            set: { newValue in
-                let text = editedActivities[activity.id]?.0 ?? activity.activity
-                editedActivities[activity.id] = (text, newValue, date)
-            }
+    private var activitiesSection: some View {
+        EditActivitySection(
+            student: student,
+            selectedStudent: $selectedStudent,
+            isAddingNewActivity: $isAddingNewActivity,
+            activities: activities,
+            onActivityUpdate: onActivityUpdate,
+            onDeleteActivity: onDeleteActivity,
+            allActivities: activities,
+            allStudents: [student],
+            onStatusChanged: handleStatusChange,
+            onAddActivity: onAddActivity
         )
+        .padding(.horizontal, horizontalPadding)
     }
+    
+    private var middleDivider: some View {
+        DividerView()
+            .padding(.vertical, UIConstants.MonthlyEdit.dividerVerticalPadding)
+            .padding(.horizontal, horizontalPadding)
+    }
+    
+    private var notesSection: some View {
+        EditNoteSection(
+            notes: notes,
+            onEditNote: onEditNote,
+            onDeleteNote: onDeleteNote,
+            onAddNote: { onAddNote("") }
+        )
+        .padding(.horizontal, horizontalPadding)
+    }
+    
+    // MARK: - Helper Views
+    private struct DividerView: View {
+        var body: some View {
+            Divider()
+                .frame(height: UIConstants.MonthlyEdit.dividerHeight)
+                .background(UIConstants.MonthlyEdit.dividerColor)
+        }
+    }
+    
+
 }

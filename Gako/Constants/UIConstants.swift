@@ -507,12 +507,29 @@ enum UIConstants {
         static let sectionTitle = "AKTIVITAS"
         static let emptyStateText = "Tidak ada aktivitas untuk tanggal ini"
         
-        // Analytics
         enum Analytics {
             static let screenActivityList = "activity_list"
             static let eventStatusChanged = "Activity Status Changed"
             static let eventDeleteAttempted = "Activity Delete Attempted"
             static let eventDeleted = "Activity Deleted"
         }
+    }
+    
+    enum MonthlyEdit {
+        // Colors
+        static let backgroundColor = Color.white
+        static let titleColor = Color.labelPrimaryBlack
+        static let dividerColor = Color.tabbarInactiveLabel
+        
+        // Layout
+        static let cardCornerRadius: CGFloat = 20
+        static let spacing: CGFloat = 12
+        static let horizontalPadding: CGFloat = 16
+        static let topPadding: CGFloat = 19
+        static let bottomPadding: CGFloat = 16
+        static let titleBottomPadding: CGFloat = 7
+        static let dividerHeight: CGFloat = 1
+        static let dividerVerticalPadding: CGFloat = 4
+        static let dividerBottomPadding: CGFloat = 8
     }
 }
