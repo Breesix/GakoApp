@@ -156,4 +156,23 @@ enum UIConstants {
         static let xmarkSymbol: String = "xmark"
         static let durationToast: CGFloat = 2
     }
+    
+    enum SaveLoadingView {
+        static let totalProgress: CGFloat = 1.0
+        static let shadowRadius: CGFloat = 10
+        static let imageSize: CGFloat = 200
+        static let progressBarWidth: CGFloat = 200
+        static let containerCornerRadius: CGFloat = 16
+        static let horizontalPadding: CGFloat = 40
+        static let verticalSpacing: CGFloat = 20
+        static let animationDuration: CGFloat = 0.3
+        static let overlayColor: Color = .white.opacity(0.9)
+        static let containerColor: Color = .white
+        static let progressBarTint: Color = .orangeClickAble
+        static let titleColor: Color = .labelPrimaryBlack
+        static let subtitleColor: Color = .gray
+        static let expressionsImage: String = "Expressions"
+        static let title: String = "Menyimpan Dokumentasi..."
+        static let subtitle: String = "Mohon tunggu sebentar"
+    }
 }
