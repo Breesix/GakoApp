@@ -429,9 +429,26 @@ enum UIConstants {
     }
     
     enum DayEditNewActivityRow {
+        // Numerics
         static let spacing: CGFloat = 12
+        
+        // Colors
         static let titleColor = Color.labelPrimaryBlack
+        
+        // Strings
         static let activitySectionTitle = "AKTIVITAS"
+    }
+    
+    enum DayEditNewNoteRow {
+        // Colors
+        static let titleColor: Color = .labelPrimaryBlack
+        static let backgroundColor: Color = .white
+        static let strokeColor: Color = .noteStroke
+        
+        // Numerics
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let spacing: CGFloat = 12
     }
     
     enum DayEdit {
