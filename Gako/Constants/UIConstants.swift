@@ -235,6 +235,19 @@ enum UIConstants {
         static let saveButtonBackgroundColor = Color(.orangeClickAble)
     }
     
+    enum MonthCard {
+        // Strings
+        static let documentIcon = "document.fill"
+        static let monthNavigationIcon = "chevron.right"
+        
+        // Colors
+        static let monthCardText: Color = .labelPrimaryBlack
+        static let monthCardBackground: Color = .white
+        
+        // Numerics
+        static let monthCardCornerRadius: CGFloat = 12
+    }
+    
     enum MonthList {
         static let headerHeight: CGFloat = 58
         static let headerPadding: CGFloat = 14
