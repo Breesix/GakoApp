@@ -14,9 +14,9 @@ import SwiftUI
 
 struct DayEditNewActivityRow: View {
     // MARK: - Constants
-    private let spacing: CGFloat = UIConstants.DayEdit.spacing
-    private let titleColor: Color = UIConstants.DayEdit.titleColor
-    private let activitySectionTitle: String = UIConstants.DayEdit.activitySectionTitle
+    private let spacing: CGFloat = UIConstants.DayEditNewActivityRow.spacing
+    private let titleColor: Color = UIConstants.DayEditNewActivityRow.titleColor
+    private let activitySectionTitle: String = UIConstants.DayEditNewActivityRow.activitySectionTitle
     
     // MARK: - Properties
     let newActivity: (id: UUID, activity: String, status: Status)

@@ -428,6 +428,12 @@ enum UIConstants {
         static let dividerVerticalPadding: CGFloat = 8
     }
     
+    enum DayEditNewActivityRow {
+        static let spacing: CGFloat = 12
+        static let titleColor = Color.labelPrimaryBlack
+        static let activitySectionTitle = "AKTIVITAS"
+    }
+    
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
