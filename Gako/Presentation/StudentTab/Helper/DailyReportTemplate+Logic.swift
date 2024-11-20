@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides logical operations for DailyReportTemplate
+//  Usage: Contains helper methods for date formatting and page calculations
+//
 
 import Foundation
 

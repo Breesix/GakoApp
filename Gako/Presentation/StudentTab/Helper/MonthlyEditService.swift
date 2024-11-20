@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: An actor service that handles monthly editing operations
+//  Usage: Use this service to manage activity and note updates in monthly view
+//
+
 import SwiftUI
 
 actor MonthlyEditService {
@@ -23,7 +29,7 @@ actor MonthlyEditService {
         onActivityUpdate: (Activity) -> Void
     ) {
         if let editedActivity = editedActivities[activity.id] {
-            var updatedActivity = activity
+            let updatedActivity = activity
             updatedActivity.activity = editedActivity.0
             updatedActivity.status = editedActivity.1
             onActivityUpdate(updatedActivity)

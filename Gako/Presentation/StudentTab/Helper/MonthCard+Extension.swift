@@ -4,6 +4,11 @@
 //
 //  Created by Rangga Biner on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides date formatting for MonthCard
+//  Usage: Contains method for formatting month and year display
+//
 
 import Foundation
 

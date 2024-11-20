@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A helper that provides binding creation methods for editable content
+//  Usage: Use these methods to create bindings for activities, status, and notes editing
+//
+
 import SwiftUI
 
 enum EditBindingHelper {

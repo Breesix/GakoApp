@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that adds image conversion capability to SwiftUI Views
+//  Usage: Use the snapshot method to convert any SwiftUI View into a UIImage
+//
+
 import SwiftUI
 
 extension View {

@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides utility methods for EditNoteSection
+//  Usage: Contains validation and sorting methods for managing notes in a section
+//
 
 import Foundation
 

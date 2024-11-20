@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A helper class for managing speech recognition functionalities
+//  Usage: Use this class to request speech recognition authorization and handle keyboard dismissal
+//
+
 import SwiftUI
 import Speech
 
