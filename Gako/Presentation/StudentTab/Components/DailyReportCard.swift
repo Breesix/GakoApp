@@ -105,7 +105,6 @@ struct DailyReportCard: View {
     private var activitySection: some View {
         ActivitySection(
             activities: activities,
-            onDeleteActivity: onDeleteActivity,
             onStatusChanged: { activity, newStatus in
                 Task {
                     await onUpdateActivityStatus(activity, newStatus)

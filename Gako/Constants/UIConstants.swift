@@ -504,6 +504,19 @@ enum UIConstants {
         static let statusPickerSpacing: CGFloat = 8
     }
     
+    enum ActivitySection {
+        // Colors
+        static let titleColor: Color = .labelPrimaryBlack
+        static let emptyTextColor: Color = .labelSecondaryBlack
+        
+        // Numerics
+        static let sectionSpacing: CGFloat = 16
+        
+        // Strings
+        static let title: String = "AKTIVITAS"
+        static let emptyState: String = "Tidak ada aktivitas untuk tanggal ini"
+    }
+    
     enum Activity {
         // Colors
         static let titleColor: Color = .labelPrimaryBlack
@@ -513,11 +526,7 @@ enum UIConstants {
         static let sectionSpacing: CGFloat = 16
         static let statusPickerSpacing: CGFloat = 8
         static let defaultSpacing: CGFloat = 8
-        
-        // Text
-        static let sectionTitle = "AKTIVITAS"
-        static let emptyStateText = "Tidak ada aktivitas untuk tanggal ini"
-        
+                
         enum Analytics {
             static let screenActivityList = "activity_list"
             static let eventStatusChanged = "Activity Status Changed"

@@ -18,9 +18,9 @@ struct ActivityRow: View {
     let analytics = InputAnalyticsTracker.shared
 
     // MARK: - Constants
-    private let titleColor = UIConstants.ActivityRow.titleColor
-    private let defaultSpacing = UIConstants.ActivityRow.defaultSpacing
-    private let statusPickerSpacing = UIConstants.ActivityRow.statusPickerSpacing
+    private let titleColor: Color = UIConstants.ActivityRow.titleColor
+    private let defaultSpacing: CGFloat = UIConstants.ActivityRow.defaultSpacing
+    private let statusPickerSpacing: CGFloat = UIConstants.ActivityRow.statusPickerSpacing
 
     // MARK: - Properties
     let activity: Activity
@@ -50,7 +50,7 @@ struct ActivityRow: View {
         }
     }
     
-    // MARK: - View Components
+    // MARK: - Subview
     private var activityTitle: some View {
         Text(activity.activity)
             .font(.callout)
@@ -58,7 +58,7 @@ struct ActivityRow: View {
             .foregroundStyle(titleColor)
     }
     
-    // MARK: - View Components
+    // MARK: - Subview
     private var statusPickerView: some View {
         HStack(spacing: statusPickerSpacing) {
             StatusPicker(status: $status) { newStatus in
