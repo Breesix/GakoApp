@@ -705,6 +705,36 @@ enum UIConstants {
         static let title: String = "AKTIVITAS"
         static let emptyState: String = "Tidak ada aktivitas untuk tanggal ini"
     }
+
+    struct SummaryTab {
+        enum Spacing {
+            static let none: CGFloat = 0
+            static let tiny: CGFloat = 8
+            static let small: CGFloat = 12
+            static let medium: CGFloat = 16
+            static let large: CGFloat = 24
+            static let bottomPadding: CGFloat = 72
+        }
+        
+        // MARK: - Navigation
+        enum Navigation {
+            static let documentationTitle = "Dokumentasi"
+            static let documentationButtonText = "Dokumentasi"
+        }
+        
+        // MARK: - Alert Messages
+        enum AlertMessages {
+            static let noStudentsTitle = "Tidak Ada Murid"
+            static let noStudentsMessage = "Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid"
+            static let noInternetTitle = "Tidak Ada Koneksi Internet"
+            static let noInternetMessage = "Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini"
+            static let addStudentButtonText = "Tambahkan Murid"
+            static let okButtonText = "OK"
+        }
+        
+        // MARK: - Empty State
+        enum EmptyState {
+            static let noNotesMessage = "Belum ada catatan di hari ini."
     
     enum Activity {
         // Colors
@@ -722,6 +752,82 @@ enum UIConstants {
             static let eventDeleteAttempted = "Activity Delete Attempted"
             static let eventDeleted = "Activity Deleted"
         }
+        
+        // MARK: - Animation
+        enum Animation {
+            static let buttonDelay: TimeInterval = 0.3
+        }
+    }
+
+    enum ProgressCurhat {
+        static let padding: CGFloat = 8
+        static let cornerRadius: CGFloat = 8
+        static let backgroundColor: Color = .cardFieldBG
+        static let deleteButtonColor: Color = .red
+        static let trashIconName: String = "trash"
+        
+        // Text Constants
+        static let selectStudentAlertTitle = "Pilih Murid"
+        static let selectStudentAlertMessage = "Silakan pilih minimal satu murid yang hadir."
+        static let cancelDocumentationAlertTitle = "Batalkan Dokumentasi?"
+        static let cancelDocumentationAlertMessage = "Semua teks yang baru saja Anda masukkan akan terhapus secara permanen."
+        static let addActivityAlertTitle = "Tambah Aktivitas"
+        static let addActivityAlertMessage = "Silakan tambah minimal satu aktivitas."
+        static let deleteActivityAlertTitle = "Hapus Aktivitas?"
+        static let deleteActivityAlertMessage = "Apakah Anda yakin ingin menghapus aktivitas ini?"
+        static let cancelDocumentationButtonText = "Batalkan Dokumentasi"
+        static let continueDocumentationButtonText = "Lanjut Dokumentasi"
+        static let deleteButtonText = "Hapus"
+        static let cancelButtonText = "Batal"
+        static let okButtonText = "OK"
+        static let backButtonText = "Kembali"
+        static let saveButtonText = "Simpan"
+        static let addActivityText = "Tambah Aktivitas"
+        static let editActivityText = "Edit Aktivitas"
+        static let addText = "Tambah"
+        static let writeActivityPlaceholder = "Tuliskan aktivitas murid..."
+        static let guidingQuestion1 = "Apakah aktivitas dijalankan dengan baik?"
+        static let guidingQuestion2 = "Apakah Murid mengalami kendala?"
+        static let guidingQuestion3 = "Bagaimana Murid Anda menjalankan aktivitasnya?"
+        static let currentTitle1 = "Apakah semua Murid hadir?"
+        static let currentTitle2 = "Tambahkan aktivitas"
+        static let currentTitle3 = "Ceritakan tentang Hari ini"
+        static let currentSubtitle1 = "Pilih murid Anda yang hadir untuk mengikuti aktivitas hari ini."
+        static let currentSubtitle2 = "Tambahkan rincian aktivitas murid anda hari ini."
+        static let currentSubtitle3 = "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin."
+        static let startStoryText = "Mulai Cerita"
+        static let continueText = "Lanjut"
+        static let backText = "Kembali"
+        static let cancelText = "Batal"
+    }
+
+    enum ManageUnsavedActivityViewConstants {
+    static let topPadding: CGFloat = 34.5
+    static let horizontalPadding: CGFloat = 16
+    static let verticalPadding: CGFloat = 9
+    static let cornerRadius: CGFloat = 8
+    static let strokeWidth: CGFloat = 0.5
+    static let buttonTopPadding: CGFloat = 27
+    static let toggleTopPadding: CGFloat = 24
+    static let menuHorizontalPadding: CGFloat = 16
+    static let menuVerticalPadding: CGFloat = 11
+    static let labelPrimaryBlack: Color = .labelPrimaryBlack
+    static let labelTertiary: Color = .labelTertiary
+    static let cardFieldBG: Color = .cardFieldBG
+    static let monochrome50: Color = .monochrome50
+    static let statusSheet: Color = .statusSheet
+
+    static let addActivityTitle = "Tambah Aktivitas"
+    static let editActivityTitle = "Nama Aktivitas"
+    static let placeholderText = "Tuliskan aktivitas murid..."
+    static let bulkEditToggleText = "Edit aktivitas ini untuk semua murid"
+    static let mandiriText = "Mandiri"
+    static let dibimbingText = "Dibimbing"
+    static let tidakMelakukanText = "Tidak Melakukan"
+    static let backButtonText = "Kembali"
+    static let saveButtonText = "Simpan"
+    static let alertTitle = "Peringatan"
+    static let alertMessage = "Aktivitas tidak boleh kosong"
     }
     
     enum MonthlyEdit {

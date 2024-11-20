@@ -1,7 +1,11 @@
 //  AddUnsavedActivity.swift
-//  Breesix
+//  GAKO
 //
 //  Created by Rangga Biner on 13/10/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: Sheets view to add or edit activity
 //
 
 import SwiftUI
@@ -36,6 +40,35 @@ struct ManageUnsavedActivityView: View {
     let mode: Mode
     let onSave: (UnsavedActivity) -> Void
     
+    // Declare constants as variables
+    private let topPadding = UIConstants.ManageUnsavedActivityViewConstants.topPadding
+    private let horizontalPadding = UIConstants.ManageUnsavedActivityViewConstants.horizontalPadding
+    private let verticalPadding = UIConstants.ManageUnsavedActivityViewConstants.verticalPadding
+    private let cornerRadius = UIConstants.ManageUnsavedActivityViewConstants.cornerRadius
+    private let strokeWidth = UIConstants.ManageUnsavedActivityViewConstants.strokeWidth
+    private let buttonTopPadding = UIConstants.ManageUnsavedActivityViewConstants.buttonTopPadding
+    private let toggleTopPadding = UIConstants.ManageUnsavedActivityViewConstants.toggleTopPadding
+    private let menuHorizontalPadding = UIConstants.ManageUnsavedActivityViewConstants.menuHorizontalPadding
+    private let menuVerticalPadding = UIConstants.ManageUnsavedActivityViewConstants.menuVerticalPadding
+    private let labelPrimaryBlack = UIConstants.ManageUnsavedActivityViewConstants.labelPrimaryBlack
+    private let labelTertiary = UIConstants.ManageUnsavedActivityViewConstants.labelTertiary
+    private let cardFieldBG = UIConstants.ManageUnsavedActivityViewConstants.cardFieldBG
+    private let monochrome50 = UIConstants.ManageUnsavedActivityViewConstants.monochrome50
+    private let statusSheet = UIConstants.ManageUnsavedActivityViewConstants.statusSheet
+
+    // Text Constants
+    private let addActivityTitle = UIConstants.ManageUnsavedActivityViewConstants.addActivityTitle
+    private let editActivityTitle = UIConstants.ManageUnsavedActivityViewConstants.editActivityTitle
+    private let placeholderText = UIConstants.ManageUnsavedActivityViewConstants.placeholderText
+    private let bulkEditToggleText = UIConstants.ManageUnsavedActivityViewConstants.bulkEditToggleText
+    private let mandiriText = UIConstants.ManageUnsavedActivityViewConstants.mandiriText
+    private let dibimbingText = UIConstants.ManageUnsavedActivityViewConstants.dibimbingText
+    private let tidakMelakukanText = UIConstants.ManageUnsavedActivityViewConstants.tidakMelakukanText
+    private let backButtonText = UIConstants.ManageUnsavedActivityViewConstants.backButtonText
+    private let saveButtonText = UIConstants.ManageUnsavedActivityViewConstants.saveButtonText
+    private let alertTitle = UIConstants.ManageUnsavedActivityViewConstants.alertTitle
+    private let alertMessage = UIConstants.ManageUnsavedActivityViewConstants.alertMessage
+    
     init(mode: Mode,
          allActivities: [UnsavedActivity] = [],
          allStudents: [Student] = [],
@@ -58,8 +91,6 @@ struct ManageUnsavedActivityView: View {
         case .add(let student, _):
             return student
         case .edit(let activity):
-            // You'll need to have access to the student information here
-            // This might need to be adjusted based on your data structure
             fatalError("Student information needed for edit mode")
         }
     }
@@ -76,55 +107,55 @@ struct ManageUnsavedActivityView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text(isAddMode ? "Tambah Aktivitas" : "Nama Aktivitas")
-                    .foregroundStyle(.labelPrimaryBlack)
+                Text(isAddMode ? addActivityTitle : editActivityTitle)
+                    .foregroundStyle(labelPrimaryBlack)
                     .font(.callout)
                     .fontWeight(.semibold)
                 
                 VStack(alignment: .leading, spacing: 12) {
                     ZStack(alignment: .leading) {
                         if activityText.isEmpty {
-                            Text("Tuliskan aktivitas murid...")
-                                .foregroundStyle(.labelTertiary)
+                            Text(placeholderText)
+                                .foregroundStyle(labelTertiary)
                                 .font(.body)
                                 .fontWeight(.regular)
                                 .padding(.horizontal, 11)
-                                .padding(.vertical, 9)
+                                .padding(.vertical, verticalPadding)
                         }
                         
                         TextField("", text: $activityText)
-                            .foregroundStyle(.labelPrimaryBlack)
+                            .foregroundStyle(labelPrimaryBlack)
                             .font(.body)
                             .fontWeight(.regular)
                             .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
+                            .padding(.vertical, verticalPadding)
                     }
-                    .background(.cardFieldBG)
-                    .cornerRadius(8)
+                    .background(cardFieldBG)
+                    .cornerRadius(cornerRadius)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.monochrome50, lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(monochrome50, lineWidth: strokeWidth)
                     )
                     
                     if !isAddMode {
                         Toggle(isOn: $isBulkEdit) {
-                                Text("Edit aktivitas ini untuk semua murid")
-                                    .foregroundStyle(.labelPrimaryBlack)
+                                Text(bulkEditToggleText)
+                                    .foregroundStyle(labelPrimaryBlack)
                                     .font(.body)
                                     .fontWeight(.regular)
                         }
-                        .padding(.top, 24)
+                        .padding(.top, toggleTopPadding)
                     }
                     
                     if isAddMode {
                         Menu {
-                            Button("Mandiri") {
+                            Button(mandiriText) {
                                 selectedStatus = .mandiri
                             }
-                            Button("Dibimbing") {
+                            Button(dibimbingText) {
                                 selectedStatus = .dibimbing
                             }
-                            Button("Tidak Melakukan") {
+                            Button(tidakMelakukanText) {
                                 selectedStatus = .tidakMelakukan
                             }
                         } label: {
@@ -134,27 +165,27 @@ struct ManageUnsavedActivityView: View {
                             }
                             .font(.body)
                             .fontWeight(.regular)
-                            .foregroundColor(.labelPrimaryBlack)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 11)
-                            .background(.statusSheet)
-                            .cornerRadius(8)
+                            .foregroundColor(labelPrimaryBlack)
+                            .padding(.horizontal, menuHorizontalPadding)
+                            .padding(.vertical, menuVerticalPadding)
+                            .background(statusSheet)
+                            .cornerRadius(cornerRadius)
                         }
                     }
 
                 }
                 Spacer()
             }
-            .padding(.top, 34.5)
-            .padding(.horizontal, 16)
+            .padding(.top, topPadding)
+            .padding(.horizontal, horizontalPadding)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(isAddMode ? "Tambah Aktivitas" : "Edit Aktivitas")
-                        .foregroundStyle(.labelPrimaryBlack)
+                    Text(isAddMode ? addActivityTitle : editActivityTitle)
+                        .foregroundStyle(labelPrimaryBlack)
                         .font(.body)
                         .fontWeight(.semibold)
-                        .padding(.top, 27)
+                        .padding(.top, buttonTopPadding)
                 }
                 
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -164,12 +195,12 @@ struct ManageUnsavedActivityView: View {
                         HStack(spacing: 3) {
                             Image(systemName: "chevron.left")
                                 .fontWeight(.semibold)
-                            Text("Kembali")
+                            Text(backButtonText)
                         }
                         .font(.body)
                         .fontWeight(.medium)
                     }
-                    .padding(.top, 27)
+                    .padding(.top, buttonTopPadding)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -180,17 +211,17 @@ struct ManageUnsavedActivityView: View {
                             saveActivity()
                         }
                     }) {
-                        Text("Simpan")
+                        Text(saveButtonText)
                             .font(.body)
                             .fontWeight(.medium)
                     }
-                    .padding(.top, 27)
+                    .padding(.top, buttonTopPadding)
                 }
             }
-            .alert("Peringatan", isPresented: $showAlert) {
+            .alert(alertTitle, isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
-                Text("Aktivitas tidak boleh kosong")
+                Text(alertMessage)
             }
         }
     }
@@ -198,11 +229,11 @@ struct ManageUnsavedActivityView: View {
     private func getStatusText() -> String {
         switch selectedStatus {
         case .mandiri:
-            return "Mandiri"
+            return mandiriText
         case .dibimbing:
-            return "Dibimbing"
+            return dibimbingText
         case .tidakMelakukan:
-            return "Tidak Melakukan"
+            return tidakMelakukanText
         }
     }
 
@@ -247,13 +278,11 @@ struct ManageUnsavedActivityView: View {
     private func saveEditedActivity() {
         if case .edit(let activity) = mode {
             if isBulkEdit {
-                // Find all activities with the same name across all students
                 let sameNameActivities = allActivities.filter {
                     $0.activity.lowercased() == activity.activity.lowercased() &&
                     Calendar.current.isDate($0.createdAt, inSameDayAs: activity.createdAt)
                 }
                 
-                // Update each activity
                 for activityToUpdate in sameNameActivities {
                     let updatedActivity = UnsavedActivity(
                         id: activityToUpdate.id,
@@ -265,7 +294,6 @@ struct ManageUnsavedActivityView: View {
                     onSave(updatedActivity)
                 }
             } else {
-                // Single activity update
                 let updatedActivity = UnsavedActivity(
                     id: activity.id,
                     activity: activityText,
@@ -277,7 +305,6 @@ struct ManageUnsavedActivityView: View {
             }
         }
     }
-
 }
 
 #Preview {
