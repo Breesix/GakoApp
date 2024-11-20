@@ -84,3 +84,25 @@ struct EditActivitySection: View {
             .padding(.bottom, rowBottomPadding)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    EditActivitySection(
+        student: Student(fullname: "Rangga", nickname: "Biner"),
+        selectedStudent: .constant(Student(fullname: "Rangga", nickname: "Biner")),
+        isAddingNewActivity: .constant(false),
+        activities: [
+            Activity(activity: "semua anak makna", student: Student(fullname: "rangga", nickname: "Biner"))
+        ],
+        onActivityUpdate: { _ in },
+        onDeleteActivity: { _ in },
+        allActivities: [
+            Activity(activity: "sample activity", student: Student(fullname: "Rangga", nickname: "Biner"))
+        ],
+        allStudents: [
+            Student(fullname: "Rangga", nickname: "Biner")
+        ],
+        onStatusChanged: { _, _ in },
+        onAddActivity: { }
+    )
+}
