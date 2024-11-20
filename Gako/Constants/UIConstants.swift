@@ -500,7 +500,20 @@ enum UIConstants {
         static let rowBottomPadding: CGFloat = 12
     }
     
-    
+    enum EditNoteRow {
+        // Numerics
+        static let rowSpacing: CGFloat = 8
+        static let notePadding: CGFloat = 8
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let deleteButtonSize: CGFloat = 34
+        
+        // Strings
+        static let deleteAlertTitle = "Hapus Catatan"
+        static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
+        static let deleteButtonText = "Hapus"
+        static let cancelButtonText = "Batal"
+    }
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack

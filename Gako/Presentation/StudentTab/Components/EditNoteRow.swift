@@ -1,6 +1,6 @@
 //
 //  EditNoteRow.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
 //
@@ -14,15 +14,15 @@ import SwiftUI
 
 struct EditNoteRow: View {
     // MARK: - Constants
-    private let rowSpacing = UIConstants.EditNote.rowSpacing
-    private let notePadding = UIConstants.EditNote.notePadding
-    private let cornerRadius = UIConstants.EditNote.cornerRadius
-    private let strokeWidth = UIConstants.EditNote.strokeWidth
-    private let deleteButtonSize = UIConstants.EditNote.deleteButtonSize
-    private let deleteAlertTitle = UIConstants.EditNote.deleteAlertTitle
-    private let deleteAlertMessage = UIConstants.EditNote.deleteAlertMessage
-    private let deleteButtonText = UIConstants.EditNote.deleteButtonText
-    private let cancelButtonText = UIConstants.EditNote.cancelButtonText
+    private let rowSpacing = UIConstants.EditNoteRow.rowSpacing
+    private let notePadding = UIConstants.EditNoteRow.notePadding
+    private let cornerRadius = UIConstants.EditNoteRow.cornerRadius
+    private let strokeWidth = UIConstants.EditNoteRow.strokeWidth
+    private let deleteButtonSize = UIConstants.EditNoteRow.deleteButtonSize
+    private let deleteAlertTitle = UIConstants.EditNoteRow.deleteAlertTitle
+    private let deleteAlertMessage = UIConstants.EditNoteRow.deleteAlertMessage
+    private let deleteButtonText = UIConstants.EditNoteRow.deleteButtonText
+    private let cancelButtonText = UIConstants.EditNoteRow.cancelButtonText
     
     // MARK: - Properties
     @State var showDeleteAlert = false

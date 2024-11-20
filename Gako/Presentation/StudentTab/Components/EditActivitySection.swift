@@ -1,6 +1,6 @@
 //
 //  EditActivitySection.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
 //
