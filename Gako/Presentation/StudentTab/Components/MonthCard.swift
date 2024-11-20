@@ -50,3 +50,8 @@ struct MonthCard: View {
         .cornerRadius(monthCardCornerRadius)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    MonthCard(date: .now, activitiesCount: 12, hasActivities: false)
+}
