@@ -337,26 +337,25 @@ enum UIConstants {
         static let statusMenuIcon = "chevron.up.chevron.down"
     }
     
-    enum Calendar {
+    enum CalendarButton {
         // Colors
-        static let buttonBackground = Color.buttonLinkOnSheet
-        static let iconColor = Color.white
+        static let buttonBackground: Color = .buttonLinkOnSheet
+        static let iconColor: Color = .white
         
-        // Layout
+        // Numerics
         static let buttonSize: CGFloat = 36
         static let iconSize: CGFloat = 21
         static let toolbarTopPadding: CGFloat = 14
         static let toolbarHorizontalPadding: CGFloat = 12
         static let contentPadding: CGFloat = 16
         
-        // Text
-        static let datePickerTitle = "Tanggal"
-        static let headerTitle = "Pilih Tanggal"
-        static let localeIdentifier = "id_ID"
-        
-        // Icons
-        static let calendarIcon = "calendar"
-        static let closeIcon = "xmark"
+        // Strings
+        static let datePickerTitle: String = "Tanggal"
+        static let headerTitle: String = "Pilih Tanggal"
+        static let localeIdentifier: String = "id_ID"
+        static let calendarIcon: String = "calendar"
+        static let closeIcon: String = "xmark"
+
     }
     
     enum SearchBar {
