@@ -494,15 +494,25 @@ enum UIConstants {
         static let textFieldStrokeColor = Color.noteStroke
         static let textFieldTextColor = Color.labelPrimaryBlack
     }
+    
+    enum ActivityRow {
+        // Colors
+        static let titleColor: Color = .labelPrimaryBlack
+        
+        // Numerics
+        static let defaultSpacing: CGFloat = 8
+        static let statusPickerSpacing: CGFloat = 8
+    }
+    
     enum Activity {
         // Colors
-        static let titleColor = Color.labelPrimaryBlack
-        static let emptyTextColor = Color.labelSecondaryBlack
+        static let titleColor: Color = .labelPrimaryBlack
+        static let emptyTextColor: Color = .labelSecondaryBlack
         
         // Layout
         static let sectionSpacing: CGFloat = 16
-        static let rowBottomPadding: CGFloat = 8
         static let statusPickerSpacing: CGFloat = 8
+        static let defaultSpacing: CGFloat = 8
         
         // Text
         static let sectionTitle = "AKTIVITAS"

@@ -47,7 +47,6 @@ struct ActivitySection: View {
         ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
             ActivityRow(
                 activity: activity,
-                onDelete: { _ in onDeleteActivity(activity) },
                 onStatusChanged: onStatusChanged
             )
         }
