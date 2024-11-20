@@ -13,6 +13,13 @@
 import Foundation
 
 extension DayEditCard {
+    // MARK: - Add Activity
+    func addNewActivity() {
+        let newId = UUID()
+        newActivities.append((id: newId, activity: "", status: .tidakMelakukan))
+        editedActivities[newId] = ("", .tidakMelakukan, date)
+    }
+
     // MARK: - Remove Activity
     func removeNewActivity(id: UUID) {
         newActivities.removeAll(where: { $0.id == id })

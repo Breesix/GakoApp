@@ -14,7 +14,9 @@ import SwiftUI
 
 struct DayEditNewActivityRow: View {
     // MARK: - Constants
-
+    private let spacing: CGFloat = UIConstants.DayEdit.spacing
+    private let titleColor: Color = UIConstants.DayEdit.titleColor
+    private let activitySectionTitle: String = UIConstants.DayEdit.activitySectionTitle
     
     // MARK: - Properties
     let newActivity: (id: UUID, activity: String, status: Status)
@@ -25,17 +27,8 @@ struct DayEditNewActivityRow: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: UIConstants.DayEdit.spacing) {
-            HStack {
-                Text("\(UIConstants.DayEdit.activitySectionTitle) \(index)")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                    .foregroundColor(UIConstants.DayEdit.titleColor)
-                
-                Spacer()
-                
-                DeleteButton(action: onDelete)
-            }
+        VStack(alignment: .leading, spacing: spacing) {
+            activitySection
             EditTextField(
                 text: Binding(
                     get: { editedActivities[newActivity.id]?.0 ?? newActivity.activity },
@@ -59,4 +52,32 @@ struct DayEditNewActivityRow: View {
             }
         }
     }
+    
+    // MARK: - Subview
+    private var activitySection: some View {
+        HStack {
+            Text("\(activitySectionTitle) \(index)")
+                .font(.callout)
+                .fontWeight(.bold)
+                .foregroundColor(titleColor)
+            Spacer()
+            DeleteButton(action: onDelete)
+        }
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    DayEditNewActivityRow(
+        newActivity: (
+            UUID(),
+            "Sample Activity",
+            .dibimbing
+        ),
+        index: 1,
+        editedActivities: .constant([:]),
+        date: Date(),
+        onDelete: {}
+    )
+    .padding()
 }

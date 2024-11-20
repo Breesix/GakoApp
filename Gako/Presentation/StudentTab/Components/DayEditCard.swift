@@ -169,13 +169,6 @@ struct DayEditCard: View {
             text: UIConstants.DayEdit.addButtonText
         )
     }
-    
-    // MARK: - Actions
-    private func addNewActivity() {
-        let newId = UUID()
-        newActivities.append((id: newId, activity: "", status: .tidakMelakukan))
-        editedActivities[newId] = ("", .tidakMelakukan, date)
-    }
 }
 
 // MARK: - Preview
