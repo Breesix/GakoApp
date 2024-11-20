@@ -415,6 +415,19 @@ enum UIConstants {
         static let titleColor: Color = .labelPrimaryBlack
     }
     
+    enum DayEditCard {
+        static let titleColor = Color.labelPrimaryBlack
+        static let backgroundColor = Color.white
+        static let emptyTextColor = Color.labelSecondaryBlack
+        static let dividerColor = Color.tabbarInactiveLabel
+        static let cardCornerRadius: CGFloat = 20
+        static let spacing: CGFloat = 12
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 12
+        static let dividerHeight: CGFloat = 1
+        static let dividerVerticalPadding: CGFloat = 8
+    }
+    
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack

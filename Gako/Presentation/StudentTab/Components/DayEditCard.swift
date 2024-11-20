@@ -4,20 +4,26 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A card view component for editing daily student activities and notes
+//  Usage: Use this view to display and edit daily student records
+//
+
 import SwiftUI
 
 struct DayEditCard: View {
     // MARK: - Constants
-    private let titleColor = UIConstants.DayEdit.titleColor
-    private let backgroundColor = UIConstants.DayEdit.backgroundColor
-    private let emptyTextColor = UIConstants.DayEdit.emptyTextColor
-    private let dividerColor = UIConstants.DayEdit.dividerColor
-    private let cardCornerRadius = UIConstants.DayEdit.cardCornerRadius
-    private let spacing = UIConstants.DayEdit.spacing
-    private let horizontalPadding = UIConstants.DayEdit.horizontalPadding
-    private let verticalPadding = UIConstants.DayEdit.verticalPadding
-    private let dividerHeight = UIConstants.DayEdit.dividerHeight
-    private let dividerVerticalPadding = UIConstants.DayEdit.dividerVerticalPadding
+    private let titleColor = UIConstants.DayEditCard.titleColor
+    private let backgroundColor = UIConstants.DayEditCard.backgroundColor
+    private let emptyTextColor = UIConstants.DayEditCard.emptyTextColor
+    private let dividerColor = UIConstants.DayEditCard.dividerColor
+    private let cardCornerRadius = UIConstants.DayEditCard.cardCornerRadius
+    private let spacing = UIConstants.DayEditCard.spacing
+    private let horizontalPadding = UIConstants.DayEditCard.horizontalPadding
+    private let verticalPadding = UIConstants.DayEditCard.verticalPadding
+    private let dividerHeight = UIConstants.DayEditCard.dividerHeight
+    private let dividerVerticalPadding = UIConstants.DayEditCard.dividerVerticalPadding
     
     // MARK: - Properties
     let date: Date
@@ -27,10 +33,10 @@ struct DayEditCard: View {
     @Binding var editedNotes: [UUID: (String, Date)]
     let onDeleteActivity: (Activity) -> Void
     let onDeleteNote: (Note) -> Void
+    @State var newActivities: [(id: UUID, activity: String, status: Status)] = []
+    @State var newNotes: [(id: UUID, note: String)] = []
     
-    @State private var newActivities: [(id: UUID, activity: String, status: Status)] = []
-    @State private var newNotes: [(id: UUID, note: String)] = []
-    
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
             headerView
@@ -47,7 +53,7 @@ struct DayEditCard: View {
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
-    // MARK: - Subviews
+    // MARK: - Subview
     private var headerView: some View {
         Text(DateFormatHelper.indonesianFormattedDate(date))
             .font(.body)
@@ -55,12 +61,12 @@ struct DayEditCard: View {
             .foregroundStyle(titleColor)
     }
     
+    // MARK: - Subview
     private var activitiesSection: some View {
         VStack(alignment: .leading, spacing: spacing) {
             Text(UIConstants.DayEdit.activitySectionTitle)
                 .font(.callout)
                 .fontWeight(.bold)
-            
             if activities.isEmpty && newActivities.isEmpty {
                 Text(UIConstants.DayEdit.emptyActivityText)
                     .foregroundColor(emptyTextColor)
@@ -71,6 +77,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var existingActivitiesView: some View {
         ForEach(activities) { activity in
             DayEditActivityRow(
@@ -83,6 +90,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var newActivitiesView: some View {
         ForEach(newActivities, id: \.id) { newActivity in
             DayEditNewActivityRow(
@@ -95,6 +103,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var addActivityButton: some View {
         AddItemButton(
             onTapAction: addNewActivity,
@@ -103,6 +112,7 @@ struct DayEditCard: View {
         )
     }
     
+    // MARK: - Subview
     private var divider: some View {
         Divider()
             .frame(height: dividerHeight)
@@ -110,6 +120,7 @@ struct DayEditCard: View {
             .padding(.vertical, dividerVerticalPadding)
     }
     
+    // MARK: - Subview
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: spacing) {
             Text(UIConstants.DayEdit.notesSectionTitle)
@@ -126,6 +137,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var existingNotesView: some View {
         ForEach(notes) { note in
             DayEditNoteRow(
@@ -137,6 +149,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var newNotesView: some View {
         ForEach(newNotes, id: \.id) { newNote in
             DayEditNewNoteRow(
@@ -148,6 +161,7 @@ struct DayEditCard: View {
         }
     }
     
+    // MARK: - Subview
     private var addNoteButton: some View {
         AddItemButton(
             onTapAction: addNewNote,
@@ -161,21 +175,5 @@ struct DayEditCard: View {
         let newId = UUID()
         newActivities.append((id: newId, activity: "", status: .tidakMelakukan))
         editedActivities[newId] = ("", .tidakMelakukan, date)
-    }
-    
-    private func removeNewActivity(id: UUID) {
-        newActivities.removeAll(where: { $0.id == id })
-        editedActivities.removeValue(forKey: id)
-    }
-    
-    private func addNewNote() {
-        let newId = UUID()
-        newNotes.append((id: newId, note: ""))
-        editedNotes[newId] = ("", date)
-    }
-    
-    private func removeNewNote(id: UUID) {
-        newNotes.removeAll(where: { $0.id == id })
-        editedNotes.removeValue(forKey: id)
     }
 }

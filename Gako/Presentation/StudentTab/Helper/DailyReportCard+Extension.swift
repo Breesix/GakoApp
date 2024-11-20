@@ -13,6 +13,7 @@
 import Foundation
 
 extension DailyReportCard {
+    // MARK: - Validate
     func validateAndShare() {
         if activities.isEmpty && notes.isEmpty {
             showEmptyAlert = true
