@@ -473,18 +473,33 @@ enum UIConstants {
     }
     
     enum EditActivityRow {
+        // Numerics
         static let deleteButtonSize: CGFloat = 34
         static let rowSpacing: CGFloat = 10
         static let activityPadding: CGFloat = 8
         static let cornerRadius: CGFloat = 8
         static let strokeWidth: CGFloat = 0.5
         static let statusPickerSpacing: CGFloat = 8
+        
+        // Strings
         static let deleteAlertTitle: String = "Konfirmasi Hapus"
         static let deleteAlertMessage: String = "Apakah kamu yakin ingin menghapus catatan ini?"
         static let deleteButtonText: String = "Hapus"
         static let cancelButtonText: String = "Cancel"
         static let symbol: String = "trash.fill"
     }
+    
+    enum EditActivitySection {
+        // Strings
+        static let sectionTitle: String = "AKTIVITAS"
+        static let emptyStateText: String = "Tidak ada aktivitas untuk tanggal ini"
+        static let addButtonText: String = "Tambah"
+        
+        // Numerics
+        static let bottomPadding: CGFloat = 16
+        static let rowBottomPadding: CGFloat = 12
+    }
+    
     
     enum DayEdit {
         // Colors
