@@ -4,15 +4,26 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A row component for adding and editing new student activities
+//  Usage: Use this view within DayEditCard to handle new activity entries
+//
+
 import SwiftUI
 
 struct DayEditNewActivityRow: View {
+    // MARK: - Constants
+
+    
+    // MARK: - Properties
     let newActivity: (id: UUID, activity: String, status: Status)
     let index: Int
     @Binding var editedActivities: [UUID: (String, Status, Date)]
     let date: Date
     let onDelete: () -> Void
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: UIConstants.DayEdit.spacing) {
             HStack {
@@ -25,7 +36,6 @@ struct DayEditNewActivityRow: View {
                 
                 DeleteButton(action: onDelete)
             }
-            
             EditTextField(
                 text: Binding(
                     get: { editedActivities[newActivity.id]?.0 ?? newActivity.activity },
@@ -35,7 +45,6 @@ struct DayEditNewActivityRow: View {
                     }
                 )
             )
-            
             StatusPicker(
                 status: Binding(
                     get: { editedActivities[newActivity.id]?.1 ?? newActivity.status },

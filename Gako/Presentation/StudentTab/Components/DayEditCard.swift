@@ -177,3 +177,22 @@ struct DayEditCard: View {
         editedActivities[newId] = ("", .tidakMelakukan, date)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    DayEditCard(
+        date: Date(),
+        activities: [
+            .init(activity: "Memasak", student: Student.init(fullname: "Rangga", nickname: "binder")),
+            .init(activity: "Memasak", student: Student.init(fullname: "Rangga", nickname: "binder"))
+        ],
+        notes: [
+            .init(note: "Keren", student: Student.init(fullname: "Rangga", nickname: "Biner")),
+            .init(note: "Keren", student: Student.init(fullname: "Rangga", nickname: "Biner"))
+        ],
+        editedActivities: .constant([:]),
+        editedNotes: .constant([:]),
+        onDeleteActivity: { _ in },
+        onDeleteNote: { _ in }
+    )
+}
