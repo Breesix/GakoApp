@@ -451,6 +451,18 @@ enum UIConstants {
         static let spacing: CGFloat = 12
     }
     
+    enum DayEditNoteRow {
+        // Colors
+        static let titleColor = Color.labelPrimaryBlack
+        static let backgroundColor = Color.monochrome100
+        static let strokeColor = Color.noteStroke
+        
+        // Numerics
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let spacing: CGFloat = 12
+    }
+    
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
