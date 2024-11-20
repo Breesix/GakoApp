@@ -19,16 +19,16 @@ struct GuidingQuestionTag: View {
             Text(text)
                 .font(.footnote)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color(red: 0.42, green: 0.69, blue: 0.27))
+                .foregroundStyle(Color.green400)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Color(red: 0.42, green: 0.69, blue: 0.27).opacity(0.25))
+        .background(Color.green4002)
         .cornerRadius(82)
         .overlay(
             RoundedRectangle(cornerRadius: 82)
-                .stroke(Color(red: 0.42, green: 0.69, blue: 0.27).opacity(0.25), lineWidth: 0.5)
-                .shadow(color: Color(red: 0.42, green: 0.69, blue: 0.27), radius: 1.5, x: 0, y: 0)
+                .stroke(Color.green4002, lineWidth: 0.5)
+                .shadow(color: Color.green400, radius: 1.5, x: 0, y: 0)
         )
     }
 }

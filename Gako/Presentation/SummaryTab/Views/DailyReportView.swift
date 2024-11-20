@@ -336,8 +336,16 @@ struct DailyReportView: View {
         ScrollViewReader { scrollProxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    SummaryDailyCard(
+                        student: viewModel.student,
+                        selectedDate: viewModel.selectedDate
+                    )
+                    .padding(.horizontal, defaultPadding)
+                    .padding(.bottom, defaultVerticalPadding)
                     if viewModel.isEditingMode {
+                        
                         if let dayItems = viewModel.activitiesForSelectedDay[Calendar.current.startOfDay(for: viewModel.selectedDate)] {
+                            
                             DailyEditCard(
                                 date: viewModel.selectedDate,
                                 activities: dayItems.activities,
