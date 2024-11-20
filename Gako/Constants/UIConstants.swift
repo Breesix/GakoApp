@@ -751,6 +751,29 @@ enum UIConstants {
         static let deleteButtonText = "Hapus"
     }
     
+    enum ProfileCard {
+        // Colors
+        static let borderColor = Color.white
+
+        // Numerics
+        static let cardImageSize: CGFloat = 104
+        static let cardSpacing: CGFloat = 8
+        static let borderWidth: CGFloat = 5
+        static let borderInset: CGFloat = 2.5
+        static let cardCornerRadius: CGFloat = 32
+        static let horizontalPadding: CGFloat = 0
+        static let verticalPadding: CGFloat = 6
+        static let spacing: CGFloat = 0
+        static let minHeight: CGFloat = 21
+        static let maxHeight: CGFloat = 21
+        
+        // Strings
+        static let placeholderIcon = "person.circle.fill"
+        static let deleteButtonText = "Delete"
+        static let deleteIcon = "trash"
+    }
+
+    
     enum Profile {
         // Colors
         static let textColor = Color.labelPrimaryBlack
