@@ -9,26 +9,26 @@ import SwiftUI
 
 struct DailyReportCard: View {
     // MARK: - Constants
-    private let titleColor = UIConstants.DailyReport.titleColor
-    private let buttonBackground = UIConstants.DailyReport.buttonBackground
-    private let buttonTextColor = UIConstants.DailyReport.buttonTextColor
-    private let dividerColor = UIConstants.DailyReport.dividerColor
-    private let cardBackground = UIConstants.DailyReport.cardBackground
+    private let titleColor = UIConstants.DailyReportStudent.titleColor
+    private let buttonBackground = UIConstants.DailyReportStudent.buttonBackground
+    private let buttonTextColor = UIConstants.DailyReportStudent.buttonTextColor
+    private let dividerColor = UIConstants.DailyReportStudent.dividerColor
+    private let cardBackground = UIConstants.DailyReportStudent.cardBackground
     
-    private let cardCornerRadius = UIConstants.DailyReport.cardCornerRadius
-    private let buttonSize = UIConstants.DailyReport.buttonSize
-    private let horizontalPadding = UIConstants.DailyReport.horizontalPadding
-    private let verticalPadding = UIConstants.DailyReport.verticalPadding
-    private let bottomPadding = UIConstants.DailyReport.bottomPadding
-    private let spacing = UIConstants.DailyReport.spacing
-    private let dividerHeight = UIConstants.DailyReport.dividerHeight
-    private let dividerVerticalPadding = UIConstants.DailyReport.dividerVerticalPadding
-    private let dividerTopPadding = UIConstants.DailyReport.dividerTopPadding
+    private let cardCornerRadius = UIConstants.DailyReportStudent.cardCornerRadius
+    private let buttonSize = UIConstants.DailyReportStudent.buttonSize
+    private let horizontalPadding = UIConstants.DailyReportStudent.horizontalPadding
+    private let verticalPadding = UIConstants.DailyReportStudent.verticalPadding
+    private let bottomPadding = UIConstants.DailyReportStudent.bottomPadding
+    private let spacing = UIConstants.DailyReportStudent.spacing
+    private let dividerHeight = UIConstants.DailyReportStudent.dividerHeight
+    private let dividerVerticalPadding = UIConstants.DailyReportStudent.dividerVerticalPadding
+    private let dividerTopPadding = UIConstants.DailyReportStudent.dividerTopPadding
     
-    private let shareIcon = UIConstants.DailyReport.shareIcon
-    private let alertTitle = UIConstants.DailyReport.alertTitle
-    private let emptyAlertMessage = UIConstants.DailyReport.emptyAlertMessage
-    private let okButtonText = UIConstants.DailyReport.okButtonText
+    private let shareIcon = UIConstants.DailyReportStudent.shareIcon
+    private let alertTitle = UIConstants.DailyReportStudent.alertTitle
+    private let emptyAlertMessage = UIConstants.DailyReportStudent.emptyAlertMessage
+    private let okButtonText = UIConstants.DailyReportStudent.okButtonText
     
     // MARK: - Properties
     let activities: [Activity]

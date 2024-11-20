@@ -18,6 +18,7 @@ struct VoiceInputView: View {
     @State private var showProTips: Bool = true
     @State private var isShowingDatePicker = false
     @State private var tempDate: Date
+    @State private var currentProgress: Int = 1
     @FocusState private var isTextEditorFocused: Bool
     
     @EnvironmentObject var noteViewModel: NoteViewModel
@@ -70,23 +71,13 @@ struct VoiceInputView: View {
             
             VStack(alignment: .center) {
                 VStack {
-                    datePickerView()
-                    
-                    if viewModel.reflection.isEmpty && !viewModel.isRecording {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Apa saja kegiatan murid Anda di sekolah hari ini?")
-                                .foregroundColor(.gray)
-                            Text("Bagaimana murid Anda mengikuti kegiatan pada hari ini?")
-                                .foregroundColor(.gray)
-                        }
-                        .padding()
-                    }
-                    
+                    TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
                     ZStack {
                         TextEditor(text: $viewModel.editedText)
                             .foregroundStyle(.labelPrimaryBlack)
                             .padding()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 228)
                             .scrollContentBackground(.hidden)
                             .lineSpacing(5)
                             .multilineTextAlignment(.leading)
@@ -100,7 +91,7 @@ struct VoiceInputView: View {
                                         viewModel.isPaused ? Color.black : Color.clear,
                                         lineWidth: 1
                                     )
-                            )
+                                                                )
                     }
                     .onChange(of: viewModel.editedText) { newValue in
                         viewModel.reflection = newValue
@@ -108,11 +99,14 @@ struct VoiceInputView: View {
                     }
                     
                     Spacer()
-                    
-                    if !viewModel.isRecording {
-                        TipsCard()
-                            .padding()
+                    VStack(alignment:.leading, spacing: 12) {
+                        GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                        GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                        GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+
                 }
                 .opacity(viewModel.isLoading ? 0.3 : 1)
                 
@@ -121,7 +115,7 @@ struct VoiceInputView: View {
                 ZStack(alignment: .bottom) {
                     VStack(alignment: .center){
                         if viewModel.isRecording && !viewModel.isPaused {
-                            Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
+                            Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
                                 .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
@@ -129,8 +123,17 @@ struct VoiceInputView: View {
                                 .padding(.bottom, 8)
                             
                             
-                        } else {
-                            Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
+                            
+                        } else if !viewModel.isRecording && !viewModel.isPaused{
+                            Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
+                                .padding(.bottom, 8)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.bgAccent)
+                                .padding(.bottom, 8)
+                        }
+                        else {
+                            Text("Tekan \(Image(systemName: "play.fill")) untuk lanjut merekam")
                                 .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
@@ -177,28 +180,13 @@ struct VoiceInputView: View {
                                     } else {
                                         if viewModel.isRecording {
                                             if viewModel.isPaused {
-                                                VStack{
-                                                    Image("play-mic-button")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 84)
-                                                    
-                                                    
-                                                }
+                                                PlayButtonVoice()
                                             } else {
-                                                
-                                                DotLottieAnimation(fileName: "recordLottie",
-                                                                   config: AnimationConfig(autoplay: true, loop: true))
-                                                .view()
-                                                .scaleEffect(1.5)
-                                                .frame(width: 100, height: 100)
+                                                PauseButtonVoice()
                                             }
                                             
                                         } else {
-                                            Image("start-mic-button")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 84)
+                                            StartButtonVoice()
                                             
                                             
                                         }
@@ -243,16 +231,19 @@ struct VoiceInputView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                         
                     }
                 }
             }
+            .padding(.horizontal, 25)
+            .padding(.vertical, 40)
+            .padding(.top, 35)
+            .padding(.bottom, 12)
         }
-        .padding(.horizontal, 25)
-        .padding(.vertical, 40)
-        .padding(.top, 35)
-        .padding(.bottom, 12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(.white)
         .hideTabBar()
         .toolbar(.hidden, for: .tabBar)
@@ -292,6 +283,36 @@ struct VoiceInputView: View {
             withAnimation {
                 showProTips = !isTextEditorFocused
             }
+        }
+        .onChange(of: viewModel.isRecording) { newValue in
+            if newValue {
+                currentProgress = 2  // Ketika mulai merekam
+            } else {
+                currentProgress = 1  // Ketika tidak merekam
+            }
+        }
+        .onChange(of: viewModel.isPaused) { newValue in
+            if newValue {
+                currentProgress = 3  // Ketika di pause
+            } else if viewModel.isRecording {
+                currentProgress = 2  // Kembali ke merekam
+            }
+        }
+    }
+    
+    private var currentTitle: String {
+        switch currentProgress {
+        case 1: return "Rekam dengan Suara"
+        case 2: return "Merekam..."
+        case 3: return "Edit Rekaman"
+        default: return ""
+        }
+    }
+
+    private var currentSubtitle: String {
+        switch currentProgress {
+        case 1: return "Tekan untuk memulai berbicara"
+        default: return ""
         }
     }
     
