@@ -188,10 +188,7 @@ struct ManageUnsavedNoteView: View {
                        analytics.trackEvent("Note Updated", properties: properties)
             onSave(updatedNote)
         }
-        
         presentationMode.wrappedValue.dismiss()
-        
-        
     }
     
 }

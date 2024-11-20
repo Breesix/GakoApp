@@ -185,6 +185,69 @@ enum UIConstants {
         static let tabBarBackground: Color = .white
         static let shadowColor: Color = .black.opacity(1)
     }
+    
+    enum ActivityRow {
+        static let spacing: CGFloat = 10
+        static let deleteButtonSize: CGFloat = 34
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let contentPadding: CGFloat = 8
+        static let statusPickerSpacing: CGFloat = 8
+        static let primaryText: Color = .labelPrimaryBlack
+        static let destructiveButton: Color = .buttonDestructiveOnCard
+        static let destructiveLabel: Color = .destructiveOnCardLabel
+        static let background: Color = .monochrome100
+        static let stroke: Color = .noteStroke
+    }
+    
+    enum DailyReport {
+        struct Layout {
+            static let headerHeight: CGFloat = 58
+            static let headerCornerRadius: CGFloat = 16
+            static let contentPadding: CGFloat = 16
+            static let buttonHeight: CGFloat = 50
+            static let buttonCornerRadius: CGFloat = 12
+            static let spacing: CGFloat = 12
+        }
+        
+        struct Colors {
+            static let headerBackground: Color = .bgSecondary
+            static let mainBackground: Color = .bgMain
+            static let buttonBackground: Color = .orangeClickAble
+            static let buttonText: Color = .labelPrimaryBlack
+        }
+        
+        struct Text {
+            static let editButtonTitle = "Edit"
+            static let saveButtonTitle = "Simpan"
+            static let shareButtonTitle = "Bagikan Dokumentasi"
+            static let summaryTitle = "Ringkasan"
+        }
+    }
+    
+    enum SummaryTab {
+        struct Layout {
+            static let cardSpacing: CGFloat = 12
+            static let contentPadding: CGFloat = 16
+            static let bottomPadding: CGFloat = 72
+            static let dateSliderPadding: CGFloat = 12
+        }
+        
+        struct Colors {
+            static let background: Color = .bgMain
+            static let accent: Color = .accent
+        }
+        
+        struct Text {
+            static let navigationTitle = "Dokumentasi"
+            static let emptyStateMessage = "Belum ada catatan di hari ini."
+            static let noStudentsTitle = "Tidak Ada Murid"
+            static let noStudentsMessage = "Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid"
+            static let addStudentButton = "Tambahkan Murid"
+            static let noInternetTitle = "Tidak Ada Koneksi Internet"
+            static let noInternetMessage = "Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini"
+        }
+
     enum StudentTabView {
         static let gridSpacing: CGFloat = 16
         static let searchBarVerticalPadding: CGFloat = 12
