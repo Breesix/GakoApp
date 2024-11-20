@@ -8,38 +8,47 @@
 import SwiftUI
 
 struct EditNoteRow: View {
-    @State private var showDeleteAlert = false
-    @State private var showingEditSheet = false  // Tambahkan state ini
+    // MARK: - Constants
+    private let rowSpacing = UIConstants.EditNote.rowSpacing
+    private let notePadding = UIConstants.EditNote.notePadding
+    private let cornerRadius = UIConstants.EditNote.cornerRadius
+    private let strokeWidth = UIConstants.EditNote.strokeWidth
+    private let deleteButtonSize = UIConstants.EditNote.deleteButtonSize
+    private let deleteAlertTitle = UIConstants.EditNote.deleteAlertTitle
+    private let deleteAlertMessage = UIConstants.EditNote.deleteAlertMessage
+    private let deleteButtonText = UIConstants.EditNote.deleteButtonText
+    private let cancelButtonText = UIConstants.EditNote.cancelButtonText
+    
+    // MARK: - Properties
+    @State var showDeleteAlert = false
+    @State var showingEditSheet = false
     let note: Note
     let onEdit: (Note) -> Void
     let onDelete: (Note) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: rowSpacing) {
                 Text(note.note)
                     .font(.subheadline)
                     .fontWeight(.regular)
                     .foregroundStyle(.labelPrimaryBlack)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
+                    .padding(notePadding)
                     .background(.monochrome100)
-                    .cornerRadius(8)
+                    .cornerRadius(cornerRadius)
                     .overlay {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.noteStroke, lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(.noteStroke, lineWidth: strokeWidth)
                     }
                     .onTapGesture {
-                        onEdit(note)
-                        showingEditSheet = true
+                        handleEdit()
                     }
                 
-                Button(action: {
-                    showDeleteAlert = true
-                }) {
+                Button(action: handleDeleteTap) {
                     ZStack {
                         Circle()
-                            .frame(width: 34)
+                            .frame(width: deleteButtonSize)
                             .foregroundStyle(.buttonDestructiveOnCard)
                         Image(systemName: "trash.fill")
                             .font(.subheadline)
@@ -49,16 +58,16 @@ struct EditNoteRow: View {
                 }
             }
         }
-        .alert("Hapus Catatan", isPresented: $showDeleteAlert) {
-            Button("Batal", role: .cancel) { }
-            Button("Hapus", role: .destructive) {
-                onDelete(note)
+        .alert(deleteAlertTitle, isPresented: $showDeleteAlert) {
+            Button(cancelButtonText, role: .cancel) { }
+            Button(deleteButtonText, role: .destructive) {
+                handleDelete()
             }
         } message: {
-            Text("Apakah Anda yakin ingin menghapus catatan ini?")
+            Text(deleteAlertMessage)
         }
     }
-}
+}   
 
 #Preview {
     EditNoteRow(note: .init(note: "rangga sangat hebat sekali dalam mengerjakan tugasnya dia keren banget jksdahbhfjkbsadfjkbhjfabjshfbshjadbfhjbfashjbhjbadshjfbjhabfhjsaf", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onEdit: { _ in print("clicked")}, onDelete: { _ in print("deleted")})

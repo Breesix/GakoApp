@@ -8,6 +8,14 @@
 import SwiftUI
 
 struct ShareButton: View {
+    // MARK: - Constants
+    private let verticalPadding = UIConstants.Share.verticalPadding
+    private let cornerRadius = UIConstants.Share.cornerRadius
+    private let textColor = UIConstants.Share.textColor
+    private let iconFont = UIConstants.Share.iconFont
+    private let titleFont = UIConstants.Share.titleFont
+    
+    // MARK: - Properties
     let title: String
     let icon: String
     let color: Color
@@ -17,15 +25,15 @@ struct ShareButton: View {
         Button(action: action) {
             VStack {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(iconFont)
                 Text(title)
-                    .font(.caption)
+                    .font(titleFont)
             }
-            .foregroundColor(.white)
+            .foregroundColor(textColor)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
+            .padding(.vertical, verticalPadding)
             .background(color)
-            .cornerRadius(10)
+            .cornerRadius(cornerRadius)
         }
     }
 }

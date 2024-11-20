@@ -9,12 +9,19 @@ import SwiftUI
 import Mixpanel
 
 struct ActivityRow: View {
+    // MARK: - Constants
+    private let titleColor = UIConstants.Activity.titleColor
+    private let bottomPadding = UIConstants.Activity.rowBottomPadding
+    private let statusPickerSpacing = UIConstants.Activity.statusPickerSpacing
+    private let analytics = InputAnalyticsTracker.shared
+    
+    // MARK: - Properties
     let activity: Activity
     let onDelete: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
+    
     @State private var showDeleteAlert = false
     @State private var status: Status
-    private let analytics = InputAnalyticsTracker.shared
     
     init(activity: Activity,
          onDelete: @escaping (Activity) -> Void,
@@ -24,22 +31,11 @@ struct ActivityRow: View {
         self.onStatusChanged = onStatusChanged
         _status = State(initialValue: activity.status)
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(activity.activity)
-                .font(.callout)
-                .fontWeight(.semibold)
-                .foregroundStyle(.labelPrimaryBlack)
-                .padding(.bottom, 8)
-            
-            HStack(spacing: 8) {
-                StatusPicker(status: $status) { newStatus in
-                
-                    trackStatusChange(newStatus)
-                    onStatusChanged(activity, newStatus)
-                }
-            }
+            activityTitle
+            statusPickerView
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {
@@ -47,36 +43,50 @@ struct ActivityRow: View {
         }
     }
     
+    // MARK: - Subviews
+    private var activityTitle: some View {
+        Text(activity.activity)
+            .font(.callout)
+            .fontWeight(.semibold)
+            .foregroundStyle(titleColor)
+            .padding(.bottom, bottomPadding)
+    }
+    
+    private var statusPickerView: some View {
+        HStack(spacing: statusPickerSpacing) {
+            StatusPicker(status: $status) { newStatus in
+                trackStatusChange(newStatus)
+                onStatusChanged(activity, newStatus)
+            }
+        }
+    }
+    
     // MARK: - Tracking Methods
     private func trackStatusChange(_ newStatus: Status) {
-        let properties: [String: MixpanelType] = [
-            "activity_text": activity.activity,
-            "old_status": status.rawValue,
-            "new_status": newStatus.rawValue,
-            "screen": "activity_list",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Status Changed", properties: properties)
+        ActivityAnalyticsHelper.trackStatusChange(
+            analytics: analytics,
+            activity: activity,
+            oldStatus: status,
+            newStatus: newStatus
+        )
     }
     
     private func trackDeleteAttempt() {
-        let properties: [String: MixpanelType] = [
-            "activity_text": activity.activity,
-            "status": status.rawValue,
-            "screen": "activity_list",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Delete Attempted", properties: properties)
+        ActivityAnalyticsHelper.trackActivityAction(
+            analytics: analytics,
+            action: UIConstants.Activity.Analytics.eventDeleteAttempted,
+            activity: activity,
+            status: status
+        )
     }
     
     private func trackDeletion() {
-        let properties: [String: MixpanelType] = [
-            "activity_text": activity.activity,
-            "status": status.rawValue,
-            "screen": "activity_list",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Deleted", properties: properties)
+        ActivityAnalyticsHelper.trackActivityAction(
+            analytics: analytics,
+            action: UIConstants.Activity.Analytics.eventDeleted,
+            activity: activity,
+            status: status
+        )
     }
 }
 

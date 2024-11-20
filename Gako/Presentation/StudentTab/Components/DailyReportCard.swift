@@ -8,6 +8,29 @@
 import SwiftUI
 
 struct DailyReportCard: View {
+    // MARK: - Constants
+    private let titleColor = UIConstants.DailyReport.titleColor
+    private let buttonBackground = UIConstants.DailyReport.buttonBackground
+    private let buttonTextColor = UIConstants.DailyReport.buttonTextColor
+    private let dividerColor = UIConstants.DailyReport.dividerColor
+    private let cardBackground = UIConstants.DailyReport.cardBackground
+    
+    private let cardCornerRadius = UIConstants.DailyReport.cardCornerRadius
+    private let buttonSize = UIConstants.DailyReport.buttonSize
+    private let horizontalPadding = UIConstants.DailyReport.horizontalPadding
+    private let verticalPadding = UIConstants.DailyReport.verticalPadding
+    private let bottomPadding = UIConstants.DailyReport.bottomPadding
+    private let spacing = UIConstants.DailyReport.spacing
+    private let dividerHeight = UIConstants.DailyReport.dividerHeight
+    private let dividerVerticalPadding = UIConstants.DailyReport.dividerVerticalPadding
+    private let dividerTopPadding = UIConstants.DailyReport.dividerTopPadding
+    
+    private let shareIcon = UIConstants.DailyReport.shareIcon
+    private let alertTitle = UIConstants.DailyReport.alertTitle
+    private let emptyAlertMessage = UIConstants.DailyReport.emptyAlertMessage
+    private let okButtonText = UIConstants.DailyReport.okButtonText
+    
+    // MARK: - Properties
     let activities: [Activity]
     let notes: [Note]
     let student: Student
@@ -21,374 +44,107 @@ struct DailyReportCard: View {
     let onShareTapped: (Date) -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
     
-    @State private var showSnapshotPreview = false
-    @State private var snapshotImage: UIImage?
-    @State private var selectedActivityDate: Date?
     @State private var showEmptyAlert = false
-    @State private var emptyAlertMessage = ""
-
-    func indonesianFormattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-    
-    func shareReport() {
-        let reportView = DailyReportTemplate(
-            student: student,
-            activities: activities,
-            notes: notes,
-            date: date
-        )
-        
-        let image = reportView.snapshot()
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [image],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            rootVC.present(activityVC, animated: true)
-        }
-    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(indonesianFormattedDate(date: date))
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                
-                Spacer()
-            
-                Button(action: {
-                    validateAndShare()
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 36)
-                            .foregroundStyle(.buttonOncard)
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.buttonPrimaryLabel)
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.bottom, 8)
-
-                ActivitySection(
-                    activities: activities,
-                    onDeleteActivity: onDeleteActivity,
-                    onStatusChanged: { activity, newStatus in
-                        Task {
-                            await onUpdateActivityStatus(activity, newStatus)
-                        }
-                    }
-                )
-                .disabled(true)
-                .padding(.horizontal, 16)
-            
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.bottom, 4)
-                .padding(.top, 4)
-
-                NoteSection(
-                    notes: notes,
-                    onEditNote: onEditNote,
-                    onDeleteNote: onDeleteNote,
-                    onAddNote: onAddNote
-                )
-                .padding(.horizontal, 16)
-
+        VStack(alignment: .leading, spacing: spacing) {
+            headerView
+            divider
+            activitySection
+            notesDivider
+            notesSection
         }
-        .padding(.top, 12)
-        .padding(.bottom, 16)
-        .background(.white)
-        .cornerRadius(20)
+        .padding(.top, verticalPadding)
+        .padding(.bottom, bottomPadding)
+        .background(cardBackground)
+        .cornerRadius(cardCornerRadius)
         .frame(maxWidth: .infinity, alignment: .trailing)
-        .alert("Peringatan", isPresented: $showEmptyAlert) {
-            Button("OK", role: .cancel) { }
+        .alert(alertTitle, isPresented: $showEmptyAlert) {
+            Button(okButtonText, role: .cancel) { }
         } message: {
             Text(emptyAlertMessage)
         }
     }
     
+    // MARK: - Subviews
+    private var headerView: some View {
+        HStack {
+            Text(DateFormatHelper.indonesianFormattedDate(date))
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundStyle(titleColor)
+            
+            Spacer()
+            
+            shareButton
+        }
+        .padding(.horizontal, horizontalPadding)
+    }
+    
+    private var shareButton: some View {
+        Button(action: validateAndShare) {
+            ZStack {
+                Circle()
+                    .frame(width: buttonSize)
+                    .foregroundStyle(buttonBackground)
+                Image(systemName: shareIcon)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(buttonTextColor)
+            }
+        }
+    }
+    
+    private var divider: some View {
+        Divider()
+            .frame(height: dividerHeight)
+            .background(dividerColor)
+            .padding(.bottom, dividerVerticalPadding)
+    }
+    
+    private var activitySection: some View {
+        ActivitySection(
+            activities: activities,
+            onDeleteActivity: onDeleteActivity,
+            onStatusChanged: { activity, newStatus in
+                Task {
+                    await onUpdateActivityStatus(activity, newStatus)
+                }
+            }
+        )
+        .disabled(true)
+        .padding(.horizontal, horizontalPadding)
+    }
+    
+    private var notesDivider: some View {
+        Divider()
+            .frame(height: dividerHeight)
+            .background(dividerColor)
+            .padding(.bottom, dividerVerticalPadding)
+            .padding(.top, dividerTopPadding)
+    }
+    
+    private var notesSection: some View {
+        NoteSection(
+            notes: notes,
+            onEditNote: onEditNote,
+            onDeleteNote: onDeleteNote,
+            onAddNote: onAddNote
+        )
+        .padding(.horizontal, horizontalPadding)
+    }
+    
+    // MARK: - Actions
     private func validateAndShare() {
         if activities.isEmpty && notes.isEmpty {
-            emptyAlertMessage = "Tidak ada catatan dan aktivitas yang bisa dibagikan"
             showEmptyAlert = true
             return
         }
-                
-        // Jika semua data tersedia, lanjutkan dengan sharing
         onShareTapped(date)
     }
-
 }
 
-struct DayEditCard: View {
-    let date: Date
-    let activities: [Activity]
-    let notes: [Note]
-    @Binding var editedActivities: [UUID: (String, Status, Date)]
-    @Binding var editedNotes: [UUID: (String, Date)]
-    let onDeleteActivity: (Activity) -> Void
-    let onDeleteNote: (Note) -> Void
-    
-    @State private var newActivities: [(id: UUID, activity: String, status: Status)] = []
-    @State private var newNotes: [(id: UUID, note: String)] = []
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(indonesianFormattedDate(date: date))
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                
-                Spacer()
-            }
-            
-            if !activities.isEmpty || !newActivities.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("AKTIVITAS")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                    ForEach(activities) { activity in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Aktivitas \(activities.firstIndex(of: activity)! + 1)")
-                                    .font(.callout)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.labelPrimaryBlack)
-                                
-                                Spacer()
-                                
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                                    .onTapGesture {
-                                        onDeleteActivity(activity)
-                                    }
-                            }
-                            HStack {
-                                TextField("Aktivitas", text: makeValueBinding(for: activity))
-                                    .font(.body)
-                                    .foregroundColor(.labelPrimaryBlack)
-                                    .padding(.vertical, 7)
-                                    .padding(.horizontal, 14)
-                                    .background(.cardFieldBG)
-                                    .cornerRadius(8)
-                                
-                            }
-                            StatusPicker(status: makeStatusBinding(for: activity)) { newStatus in
-                                editedActivities[activity.id] = (activity.activity, newStatus, date)
-                            }
-                        }
-                    }
-                    ForEach(newActivities, id: \.id) { newActivity in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Aktivitas \(activities.count + newActivities.firstIndex(where: { $0.id == newActivity.id })! + 1)")
-                                    .font(.callout)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.labelPrimaryBlack)
-                                
-                                Spacer()
-                                
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                                    .onTapGesture {
-                                        if let index = newActivities.firstIndex(where: { $0.id == newActivity.id }) {
-                                            newActivities.remove(at: index)
-                                            editedActivities.removeValue(forKey: newActivity.id)
-                                        }
-                                    }
-                                
-                            }
-                            HStack {
-                                TextField("Aktivitas", text: Binding(
-                                    get: { editedActivities[newActivity.id]?.0 ?? newActivity.activity },
-                                    set: { newValue in
-                                        let status = editedActivities[newActivity.id]?.1 ?? newActivity.status
-                                        editedActivities[newActivity.id] = (newValue, status, date)
-                                    }
-                                ))
-                                .font(.body)
-                                .foregroundColor(.labelPrimaryBlack)
-                                .padding(.vertical, 7)
-                                .padding(.horizontal, 14)
-                                .background(.cardFieldBG)
-                                .cornerRadius(8)
-                            }
-                            
-                            StatusPicker(status: Binding(
-                                get: { editedActivities[newActivity.id]?.1 ?? newActivity.status },
-                                set: { newValue in
-                                    let currentText = editedActivities[newActivity.id]?.0 ?? newActivity.activity
-                                    editedActivities[newActivity.id] = (currentText, newValue, date)
-                                }
-                            )) { newStatus in
-                                let currentText = editedActivities[newActivity.id]?.0 ?? newActivity.activity
-                                editedActivities[newActivity.id] = (currentText, newStatus, date)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondaryBlack)
-            }
-            
-            Button(action: {
-                let newId = UUID()
-                newActivities.append((id: newId, activity: "", status: .tidakMelakukan))
-                editedActivities[newId] = ("", .tidakMelakukan, date)
-            }) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
-            
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.vertical, 8)
-            
-            if !notes.isEmpty || !newNotes.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("CATATAN")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                    ForEach(notes) { note in
-                        HStack {
-                            TextField("Catatan", text: makeNoteBinding(for: note))
-                                .font(.body)
-                                .foregroundColor(.labelPrimaryBlack)
-                                .padding(.vertical, 7)
-                                .padding(.horizontal, 14)
-                                .background(.cardFieldBG)
-                                .cornerRadius(8)
-                            
-                            Button(action: { onDeleteNote(note) }) {
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                            }
-                        }
-                    }
-                    ForEach(newNotes, id: \.id) { newNote in
-                        HStack {
-                            TextField("Catatan", text: Binding(
-                                get: { editedNotes[newNote.id]?.0 ?? newNote.note },
-                                set: { editedNotes[newNote.id] = ($0, date) }
-                            ))
-                            .font(.body)
-                            .foregroundColor(.labelPrimaryBlack)
-                            .padding(.vertical, 7)
-                            .padding(.horizontal, 14)
-                            .background(.cardFieldBG)
-                            .cornerRadius(8)
-                            
-                            Button(action: {
-                                if let index = newNotes.firstIndex(where: { $0.id == newNote.id }) {
-                                    newNotes.remove(at: index)
-                                    editedNotes.removeValue(forKey: newNote.id)
-                                }
-                            }) {
-                                Image("custom.trash.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Text("Tidak ada catatan untuk tanggal ini")
-                    .foregroundColor(.labelSecondaryBlack)
-            }
-            
-            Button(action: {
-                let newId = UUID()
-                newNotes.append((id: newId, note: ""))
-                editedNotes[newId] = ("", date)
-            }) {
-                Label("Tambah", systemImage: "plus.app.fill")
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 14)
-            .font(.footnote)
-            .fontWeight(.regular)
-            .foregroundStyle(.buttonPrimaryLabel)
-            .background(.buttonOncard)
-            .cornerRadius(8)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.white)
-        .cornerRadius(20)
-        .frame(maxWidth: .infinity, alignment: .trailing)
-    }
-    
-    private func indonesianFormattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-    
-    private func makeValueBinding(for activity: Activity) -> Binding<String> {
-        Binding(
-            get: { editedActivities[activity.id]?.0 ?? activity.activity },
-            set: { newValue in
-                let status = editedActivities[activity.id]?.1 ?? activity.status
-                editedActivities[activity.id] = (newValue, status, date)
-            }
-        )
-    }
-    
-    private func makeStatusBinding(for activity: Activity) -> Binding<Status> {
-        Binding(
-            get: { editedActivities[activity.id]?.1 ?? activity.status },
-            set: { newValue in
-                let text = editedActivities[activity.id]?.0 ?? activity.activity
-                editedActivities[activity.id] = (text, newValue, date)
-            }
-        )
-    }
-    
-    private func makeNoteBinding(for note: Note) -> Binding<String> {
-        Binding(
-            get: { editedNotes[note.id]?.0 ?? note.note },
-            set: { editedNotes[note.id] = ($0, date) }
-        )
-    }
-}
+
 
 #Preview {
     DailyReportCard(

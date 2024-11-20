@@ -34,6 +34,34 @@ struct ManageActivityView: View {
         }
     }
     
+    private let titleColor = UIConstants.ManageActivity.titleColor
+    private let placeholderColor = UIConstants.ManageActivity.placeholderColor
+    private let textColor = UIConstants.ManageActivity.textColor
+    private let textFieldBackground = UIConstants.ManageActivity.textFieldBackground
+    private let borderColor = UIConstants.ManageActivity.borderColor
+    private let statusMenuBackground = UIConstants.ManageActivity.statusMenuBackground
+    
+    private let spacing = UIConstants.ManageActivity.spacing
+    private let innerSpacing = UIConstants.ManageActivity.innerSpacing
+    private let statusMenuSpacing = UIConstants.ManageActivity.statusMenuSpacing
+    private let topPadding = UIConstants.ManageActivity.topPadding
+    private let horizontalPadding = UIConstants.ManageActivity.horizontalPadding
+    private let toolbarTopPadding = UIConstants.ManageActivity.toolbarTopPadding
+    private let cornerRadius = UIConstants.ManageActivity.cornerRadius
+    private let borderWidth = UIConstants.ManageActivity.borderWidth
+    private let textFieldPadding = UIConstants.ManageActivity.textFieldPadding
+    private let statusMenuPadding = UIConstants.ManageActivity.statusMenuPadding
+    
+    private let addActivityTitle = UIConstants.ManageActivity.addActivityTitle
+    private let editActivityTitle = UIConstants.ManageActivity.editActivityTitle
+    private let placeholderText = UIConstants.ManageActivity.placeholderText
+    private let backButtonText = UIConstants.ManageActivity.backButtonText
+    private let saveButtonText = UIConstants.ManageActivity.saveButtonText
+    private let alertTitle = UIConstants.ManageActivity.alertTitle
+    private let alertMessage = UIConstants.ManageActivity.alertMessage
+    private let okButtonText = UIConstants.ManageActivity.okButtonText
+    private let backIcon = UIConstants.ManageActivity.backIcon
+    
     let mode: Mode
     
     init(mode: Mode,
@@ -60,35 +88,33 @@ struct ManageActivityView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(mode == .add ? "Tambah Aktivitas" : "Edit Aktivitas")
-                    .foregroundStyle(.labelPrimaryBlack)
+            VStack(alignment: .leading, spacing: spacing) {
+                Text(mode == .add ? addActivityTitle : editActivityTitle)
+                    .foregroundStyle(titleColor)
                     .font(.callout)
                     .fontWeight(.semibold)
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: innerSpacing) {
                     ZStack(alignment: .leading) {
                         if activityText.isEmpty {
-                            Text("Tuliskan aktivitas murid...")
-                                .foregroundStyle(.labelTertiary)
+                            Text(placeholderText)
+                                .foregroundStyle(placeholderColor)
                                 .font(.body)
                                 .fontWeight(.regular)
-                                .padding(.horizontal, 11)
-                                .padding(.vertical, 9)
+                                .padding(textFieldPadding)
                         }
                         
                         TextField("", text: $activityText)
-                            .foregroundStyle(.labelPrimaryBlack)
+                            .foregroundStyle(textColor)
                             .font(.body)
                             .fontWeight(.regular)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 9)
+                            .padding(textFieldPadding)
                     }
-                    .background(.cardFieldBG)
-                    .cornerRadius(8)
+                    .background(textFieldBackground)
+                    .cornerRadius(cornerRadius)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.monochrome50, lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(borderColor, lineWidth: borderWidth)
                     )
                     
                     if mode == .add {
@@ -98,29 +124,29 @@ struct ManageActivityView: View {
                 
                 Spacer()
             }
-            .padding(.top, 34.5)
-            .padding(.horizontal, 16)
+            .padding(.top, topPadding)
+            .padding(.horizontal, horizontalPadding)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(mode == .add ? "Tambah Aktivitas" : "Edit Aktivitas")
-                        .foregroundStyle(.labelPrimaryBlack)
+                    Text(mode == .add ? addActivityTitle : editActivityTitle)
+                        .foregroundStyle(titleColor)
                         .font(.body)
                         .fontWeight(.semibold)
-                        .padding(.top, 27)
+                        .padding(.top, toolbarTopPadding)
                 }
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { onDismiss() }) {
                         HStack(spacing: 3) {
-                            Image(systemName: "chevron.left")
+                            Image(systemName: backIcon)
                                 .fontWeight(.semibold)
-                            Text("Kembali")
+                            Text(backButtonText)
                         }
                         .font(.body)
                         .fontWeight(.medium)
                     }
-                    .padding(.top, 27)
+                    .padding(.top, toolbarTopPadding)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -131,17 +157,17 @@ struct ManageActivityView: View {
                             saveActivity()
                         }
                     }) {
-                        Text("Simpan")
+                        Text(saveButtonText)
                             .font(.body)
                             .fontWeight(.medium)
                     }
-                    .padding(.top, 27)
+                    .padding(.top, toolbarTopPadding)
                 }
             }
-            .alert("Peringatan", isPresented: $showAlert) {
-                Button("OK", role: .cancel) { }
+            .alert(alertTitle, isPresented: $showAlert) {
+                Button(okButtonText, role: .cancel) { }
             } message: {
-                Text("Aktivitas tidak boleh kosong")
+                Text(alertMessage)
             }
         }
     }
@@ -181,40 +207,6 @@ struct ManageActivityView: View {
             "timestamp": Date().timeIntervalSince1970
         ]
         analytics.trackEvent("Activity Created", properties: properties)
-    }
-}
-
-struct StatusMenu: View {
-    @Binding var selectedStatus: Status
-    
-    var body: some View {
-        Menu {
-            Button("Mandiri") { selectedStatus = .mandiri }
-            Button("Dibimbing") { selectedStatus = .dibimbing }
-            Button("Tidak Melakukan") { selectedStatus = .tidakMelakukan }
-        } label: {
-            HStack(spacing: 9) {
-                Text(selectedStatus.displayText)
-                Image(systemName: "chevron.up.chevron.down")
-            }
-            .font(.body)
-            .fontWeight(.regular)
-            .foregroundColor(.labelPrimaryBlack)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 11)
-            .background(.statusSheet)
-            .cornerRadius(8)
-        }
-    }
-}
-
-private extension Status {
-    var displayText: String {
-        switch self {
-        case .mandiri: return "Mandiri"
-        case .dibimbing: return "Dibimbing"
-        case .tidakMelakukan: return "Tidak Melakukan"
-        }
     }
 }
 
