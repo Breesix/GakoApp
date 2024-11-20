@@ -1,53 +1,42 @@
 //
 //  ManageStudentView.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 03/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A view for managing the addition and editing of student information
+//  Usage: Use this view to input or modify student details, including fullname, nickname, and profile image
 //
 
 import SwiftUI
 import PhotosUI
 
 struct ManageStudentView: View {
+    // MARK: - Properties
     @Environment(\.presentationMode) var presentationMode
-    @State private var fullname = ""
-    @State private var nickname = ""
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedImageData: Data?
-    @State private var isShowingCamera = false
-    @State private var capturedImage: UIImage?
-    @State private var showingImagePicker = false
-    @State private var showingSourceTypeMenu = false
-    @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
-    @State private var showAlert = false
-    @State private var isDuplicateNickname = false
-    @State private var currentImage: UIImage? // Add this state variable
-    
+    @State var fullname = ""
+    @State var nickname = ""
+    @State var selectedItem: PhotosPickerItem?
+    @State var selectedImageData: Data?
+    @State var isShowingCamera = false
+    @State var capturedImage: UIImage?
+    @State var showingImagePicker = false
+    @State var showingSourceTypeMenu = false
+    @State var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    @State var showAlert = false
+    @State var isDuplicateNickname = false
+    @State var currentImage: UIImage?
     let onSave: (Student) async -> Void
     let onUpdate: (Student) async -> Void
     let onImageChange: (UIImage?) -> Void
     let checkNickname: (String, UUID?) -> Bool
     let compressedImageData: Data?
     let newStudentImage: UIImage?
-    
-    enum Mode: Equatable {
-        case add
-        case edit(Student)
-        
-        static func == (lhs: Mode, rhs: Mode) -> Bool {
-            switch (lhs, rhs) {
-            case (.add, .add):
-                return true
-            case let (.edit(student1), .edit(student2)):
-                return student1.id == student2.id
-            default:
-                return false
-            }
-        }
-    }
-    
     let mode: Mode
     
+    // MARK: - Initialization
     init(mode: Mode,
          compressedImageData: Data?,
          newStudentImage: UIImage?,
@@ -74,61 +63,7 @@ struct ManageStudentView: View {
         }
     }
     
-    private func checkDuplicateNickname(_ nickname: String) -> Bool {
-        switch mode {
-        case .add:
-            return checkNickname(nickname, nil)
-        case .edit(let currentStudent):
-            return checkNickname(nickname, currentStudent.id)
-        }
-    }
-    
-    private func saveStudent() {
-        Task {
-            if (fullname.isEmpty || nickname.isEmpty) {
-                showAlert = true
-                return
-            }
-            
-            if isDuplicateNickname {
-                showAlert = true
-                return
-            }
-            
-            let imageDataToSave = compressedImageData ?? currentImage?.jpegData(compressionQuality: 0.7)
-            
-            switch mode {
-            case .add:
-                let newStudent = Student(
-                    fullname: fullname,
-                    nickname: nickname,
-                    imageData: imageDataToSave
-                )
-                await onSave(newStudent)
-            case .edit(let student):
-                student.fullname = fullname
-                student.nickname = nickname
-                student.imageData = imageDataToSave ?? student.imageData
-                await onUpdate(student)
-            }
-            
-            selectedImageData = nil
-            currentImage = nil
-            presentationMode.wrappedValue.dismiss()
-        }
-    }
-    
-    var displayImage: UIImage? {
-        if let image = currentImage {
-            return image
-        } else if let data = compressedImageData, let image = UIImage(data: data) {
-            return image
-        } else if case .edit(let student) = mode, let imageData = student.imageData, let image = UIImage(data: imageData) {
-            return image
-        }
-        return nil
-    }
-    
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 12) {
@@ -301,10 +236,11 @@ struct ManageStudentView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
-    }
+    }    
 }
 
 
+// MARK: - Preview
 #Preview {
     ManageStudentView(
         mode: .add,

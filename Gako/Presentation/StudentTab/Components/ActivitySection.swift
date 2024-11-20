@@ -1,48 +1,73 @@
 //
 //  ActivitySection.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 01/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A section component that displays a list of activities with status picker
+//  Usage: Use this component to show activities list section with modifiable status
 //
 
 import SwiftUI
 
 struct ActivitySection: View {
-    let activities: [Activity]
+    // MARK: - Constants
+    private let titleColor: Color = UIConstants.ActivitySection.titleColor
+    private let emptyTextColor: Color = UIConstants.ActivitySection.emptyTextColor
+    private let emptyState: String = UIConstants.ActivitySection.emptyState
+    private let title: String = UIConstants.ActivitySection.title
+    private let spacing: CGFloat = UIConstants.ActivitySection.sectionSpacing
     
-    let onDeleteActivity: (Activity) -> Void
+    // MARK: - Properties
+    let activities: [Activity]
     let onStatusChanged: (Activity, Status) -> Void
     
+    // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("AKTIVITAS")
-                .font(.callout)
-                .fontWeight(.semibold)
-                .foregroundStyle(.labelPrimaryBlack)
+        VStack(alignment: .leading, spacing: spacing) {
+            sectionTitle
             if activities.isEmpty {
-                Text("Tidak ada aktivitas untuk tanggal ini")
-                    .foregroundColor(.labelSecondaryBlack)
+                emptyStateText
             } else {
-                ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
-                    ActivityRow(
-                        activity: activity,
-                        onDelete: { _ in onDeleteActivity(activity) },
-                        onStatusChanged: onStatusChanged
-                        )
-                }
+                activitiesList
             }
-            
+        }
+    }
+    
+    // MARK: - Subview
+    private var sectionTitle: some View {
+        Text(title)
+            .font(.callout)
+            .fontWeight(.semibold)
+            .foregroundStyle(titleColor)
+    }
+    
+    // MARK: - Subview
+    private var emptyStateText: some View {
+        Text(emptyState)
+            .foregroundColor(emptyTextColor)
+    }
+    
+    // MARK: - Subview
+    private var activitiesList: some View {
+        ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
+            ActivityRow(
+                activity: activity,
+                onStatusChanged: onStatusChanged
+            )
         }
     }
 }
 
+// MARK: - Preview
 #Preview {
     ActivitySection(
         activities: [
             .init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga")),
             .init(activity: "Motorik Halus", student: .init(fullname: "Rangga Biner", nickname: "Rangga")),
         ],
-        onDeleteActivity: { _ in print("deleted") },
         onStatusChanged: { _, _ in print("changed") }
     )
     .padding(.bottom, 300)
@@ -51,7 +76,6 @@ struct ActivitySection: View {
     ActivitySection(
         activities: [
         ],
-        onDeleteActivity: { _ in print("deleted") },
         onStatusChanged: { _, _ in print("changed") }
     )
 }

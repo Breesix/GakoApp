@@ -1,13 +1,36 @@
 //
 //  MonthlyEditCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A comprehensive card component for editing monthly student records
+//  Usage: Use this view to manage both activities and notes for a specific date
 //
 
 import SwiftUI
 
 struct MonthlyEditCard: View {
+    // MARK: - ViewModels
+    @StateObject var viewModel = MonthlyEditViewModel()
+    
+    // MARK: - Constants
+    private let backgroundColor = UIConstants.MonthlyEditCard.backgroundColor
+    private let titleColor = UIConstants.MonthlyEditCard.titleColor
+    private let dividerColor = UIConstants.MonthlyEditCard.dividerColor
+    private let spacing = UIConstants.MonthlyEditCard.spacing
+    private let horizontalPadding = UIConstants.MonthlyEditCard.horizontalPadding
+    private let cardCornerRadius = UIConstants.MonthlyEditCard.cardCornerRadius
+    private let topPadding = UIConstants.MonthlyEditCard.topPadding
+    private let bottomPadding = UIConstants.MonthlyEditCard.bottomPadding
+    private let titleBottomPadding = UIConstants.MonthlyEditCard.titleBottomPadding
+    private let dividerBottomPadding = UIConstants.MonthlyEditCard.dividerBottomPadding
+    private let dividerVerticalPadding = UIConstants.MonthlyEditCard.dividerVerticalPadding
+    private let dividerHeight = UIConstants.MonthlyEditCard.dividerHeight
+    
+    // MARK: - Properties
     let date: Date
     let activities: [Activity]
     let notes: [Note]
@@ -21,93 +44,109 @@ struct MonthlyEditCard: View {
     let onActivityUpdate: (Activity) -> Void
     let onAddActivity: () -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
-    let onEditNote: (Note) -> Void  // Hanya menerima 1 parameter
-    let onAddNote: (String) -> Void // Add this new callback
-
+    let onEditNote: (Note) -> Void
+    let onAddNote: (String) -> Void
+    
+    // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(indonesianFormattedDate(date: date))
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 7)
-            
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.bottom, 8)
-
-            EditActivitySection(
-                student: student,
-                selectedStudent: $selectedStudent,
-                isAddingNewActivity: $isAddingNewActivity,
-                activities: activities,
-                onActivityUpdate: onActivityUpdate,
-                onDeleteActivity: onDeleteActivity,
-                allActivities: activities,
-                allStudents: [student],
-                onStatusChanged: { activity, newStatus in
-                    Task {
-                        await onUpdateActivityStatus(activity, newStatus)
-                    }
-                },
-                onAddActivity: onAddActivity
-            )
-            .padding(.horizontal, 16)
-
-            Divider()
-                .frame(height: 1)
-                .background(.tabbarInactiveLabel)
-                .padding(.vertical, 4)
-                .padding(.horizontal, 16)
-            
-            EditNoteSection(
-                notes: notes,
-                onEditNote: onEditNote,
-                onDeleteNote: onDeleteNote,
-                onAddNote: {
-                    // Create a new empty note
-                    onAddNote("")
-                }
-            )
-            .padding(.horizontal, 16)
+        VStack(alignment: .leading, spacing: spacing) {
+            headerSection
+            topDivider
+            activitiesSection
+            middleDivider
+            notesSection
         }
-        .padding(.top, 19)
-        .padding(.bottom, 16)
-        .background(.white)
-        .cornerRadius(20)
+        .padding(.top, topPadding)
+        .padding(.bottom, bottomPadding)
+        .background(backgroundColor)
+        .cornerRadius(cardCornerRadius)
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
-    private func indonesianFormattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
+    // MARK: - Subviews
+    private var headerSection: some View {
+        HStack {
+            Text(DateFormatHelper.indonesianFormattedDate(date))
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundStyle(titleColor)
+            Spacer()
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.bottom, titleBottomPadding)
     }
     
-    private func makeValueBinding(for activity: Activity) -> Binding<String> {
-        Binding(
-            get: { editedActivities[activity.id]?.0 ?? activity.activity },
-            set: { newValue in
-                let status = editedActivities[activity.id]?.1 ?? activity.status
-                editedActivities[activity.id] = (newValue, status, date)
-            }
-        )
+    // MARK: - Subview
+    private var topDivider: some View {
+        dividerView
+            .padding(.bottom, dividerBottomPadding)
     }
     
-    private func makeStatusBinding(for activity: Activity) -> Binding<Status> {
-        Binding(
-            get: { editedActivities[activity.id]?.1 ?? activity.status },
-            set: { newValue in
-                let text = editedActivities[activity.id]?.0 ?? activity.activity
-                editedActivities[activity.id] = (text, newValue, date)
-            }
+    // MARK: - Subview
+    private var activitiesSection: some View {
+        EditActivitySection(
+            student: student,
+            selectedStudent: $selectedStudent,
+            isAddingNewActivity: $isAddingNewActivity,
+            activities: activities,
+            onActivityUpdate: onActivityUpdate,
+            onDeleteActivity: onDeleteActivity,
+            allActivities: activities,
+            allStudents: [student],
+            onStatusChanged: handleStatusChange,
+            onAddActivity: onAddActivity
         )
+        .padding(.horizontal, horizontalPadding)
     }
+    
+    // MARK: - Subview
+    private var middleDivider: some View {
+        dividerView
+            .padding(.vertical, dividerVerticalPadding)
+            .padding(.horizontal, horizontalPadding)
+    }
+    
+    // MARK: - Subview
+    private var notesSection: some View {
+        EditNoteSection(
+            notes: notes,
+            onEditNote: onEditNote,
+            onDeleteNote: onDeleteNote,
+            onAddNote: { onAddNote("") }
+        )
+        .padding(.horizontal, horizontalPadding)
+    }
+    
+    // MARK: - Helper Views
+    private var dividerView: some View {
+            Divider()
+                .frame(height: dividerHeight)
+                .background(dividerColor)
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    MonthlyEditCard(
+        date: Date(),
+        activities: [
+            .init(activity: "sample", student: .init(fullname: "Rangga", nickname: "biner")),
+        ],
+        notes: [
+            .init(note: "sample", student: .init(fullname: "Rangga", nickname: "biner"))
+        ],
+        student: .init(fullname: "Rangga", nickname: "biner"),
+        selectedStudent: .constant(nil),
+        isAddingNewActivity: .constant(false),
+        editedActivities: .constant([:]),
+        editedNotes: .constant([:]),
+        onDeleteActivity: { _ in },
+        onDeleteNote: { _ in },
+        onActivityUpdate: { _ in },
+        onAddActivity: {},
+        onUpdateActivityStatus: { _, _ in },
+        onEditNote: { _ in },
+        onAddNote: { _ in }
+    )
+    .padding()
 }

@@ -4,45 +4,68 @@
 //
 //  Created by Rangga Biner on 29/09/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A view that displays a list of students with features for adding, searching, and managing student profiles.
+//               It integrates various components such as a navigation header, search bar, and a grid layout for student profiles.
+//  Usage: Utilize this view to present a dynamic list of students, allowing users to filter by name, add new students,
+//         and navigate to detailed student views for further management of notes and activities related to each student.
+//
 
 import SwiftUI
 import Speech
 
 struct StudentTabView: View {
+    // MARK: - Constants
+    var background = UIConstants.StudentTabView.backgroundColor
+    var searchBarVerticalPadding = UIConstants.StudentTabView.searchBarVerticalPadding
+    var searchBarHorizontalPadding = UIConstants.StudentTabView.searchBarHorizontalPadding
+    var navigationTitle = UIConstants.StudentTabView.navigationTitle
+    var navigationButtonText = UIConstants.StudentTabView.navigationButtonText
+    var emptyStateMessageNoStudent = UIConstants.StudentTabView.emptyStateMessageNoStudent
+    var gridSpacing = UIConstants.StudentTabView.gridSpacing
+    var contentHorizontalPadding = UIConstants.StudentTabView.contentHorizontalPadding
+    var backgroundColor = UIConstants.StudentTabView.backgroundColor
+    
+    // MARK: - Properties
     @EnvironmentObject var studentViewModel: StudentViewModel
     @EnvironmentObject var noteViewModel: NoteViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @Binding var isAddingStudent: Bool
-    @State private var isAddingNote = false
-    @State private var searchQuery = ""
+    @State var isAddingNote = false
+    @State var searchQuery = ""
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.bgMain
-                    .ignoresSafeArea()
-                    .onTapGesture {
+                background
+                .ignoresSafeArea()
+                .onTapGesture {
                         dismissKeyboard()
                     }
                 
                 VStack(spacing: 0) {
-                    CustomNavigation(title: "Murid", textButton: "Murid") {
+                    CustomNavigation(
+                        title: navigationTitle,
+                        textButton: navigationButtonText
+                    ) {
                         isAddingStudent = true
                     }
                     CustomSearchBar(text: $searchQuery)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
+                         .padding(.vertical, searchBarVerticalPadding)
+                        .padding(.horizontal, searchBarHorizontalPadding)
                     VStack {
                         if studentViewModel.students.isEmpty {
                             VStack {
                                 Spacer()
-                                EmptyState(message: "Belum ada murid yang terdaftar.")
+                                EmptyState(message: emptyStateMessageNoStudent)
                                 Spacer()
                             }
                         } else if filteredStudents.isEmpty {
                             VStack {
                                 Spacer()
-                                EmptyState(message: "Tidak ada murid yang sesuai dengan pencarian.")
+                                EmptyState(message: emptyStateMessageNoStudent)
                                 Spacer()
                             }
                         } else {
@@ -51,7 +74,7 @@ struct StudentTabView: View {
                                     GridItem(.flexible()),
                                     GridItem(.flexible()),
                                     GridItem(.flexible())
-                                ], spacing: 16) {
+                                ], spacing: gridSpacing) {
                                     ForEach(filteredStudents) { student in
                                         NavigationLink {
                                             MonthListView(
@@ -105,7 +128,7 @@ struct StudentTabView: View {
                                         }
                                     }
                                 }
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, contentHorizontalPadding)
                             }
                             .simultaneousGesture(DragGesture().onChanged({ _ in
                                 dismissKeyboard()
@@ -114,7 +137,7 @@ struct StudentTabView: View {
                     }
                 }
             }
-            .background(.bgMain)
+            .background(backgroundColor)
             .navigationBarHidden(true)
         }
         .refreshable {
@@ -150,24 +173,9 @@ struct StudentTabView: View {
             await studentViewModel.fetchAllStudents()
         }
     }
-    
-    private var filteredStudents: [Student] {
-        if searchQuery.isEmpty {
-            return studentViewModel.students
-        } else {
-            return studentViewModel.students.filter { student in
-                student.nickname.localizedCaseInsensitiveContains(searchQuery) ||
-                student.fullname.localizedCaseInsensitiveContains(searchQuery)
-            }
-        }
-    }
 }
 
-extension View {
-    func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                      to: nil,
-                                      from: nil,
-                                      for: nil)
-    }
+// MARK: - Preview
+#Preview {
+    StudentTabView(isAddingStudent: .constant(false))
 }

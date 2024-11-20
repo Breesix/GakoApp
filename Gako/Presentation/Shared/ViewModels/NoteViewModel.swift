@@ -36,9 +36,14 @@ class NoteViewModel: ObservableObject {
     
     func fetchAllNotes(_ student: Student) async -> [Note] {
         do {
-            return try await noteUseCases.fetchAllNotes(student)
+            let notes = try await noteUseCases.fetchAllNotes(student)
+            await MainActor.run {
+                // Pastikan update UI dilakukan di main thread
+                student.notes = notes
+            }
+            return notes
         } catch {
-            print("Error getting activities: \(error)")
+            print("Error fetching notes: \(error)")
             return []
         }
     }

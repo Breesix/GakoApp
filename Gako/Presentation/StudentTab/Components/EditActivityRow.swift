@@ -1,14 +1,33 @@
 //
 //  EditActivityRow.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A row component for displaying and editing student activities with status control
+//  Usage: Use this view to manage individual activity entries with editing and deletion capabilities
 //
 
 import SwiftUI
 import Mixpanel
 
 struct EditActivityRow: View {
+    // MARK: - Constants
+    private let deleteButtonSize = UIConstants.EditActivityRow.deleteButtonSize
+    private let rowSpacing = UIConstants.EditActivityRow.rowSpacing
+    private let activityPadding = UIConstants.EditActivityRow.activityPadding
+    private let cornerRadius = UIConstants.EditActivityRow.cornerRadius
+    private let strokeWidth = UIConstants.EditActivityRow.strokeWidth
+    private let statusPickerSpacing = UIConstants.EditActivityRow.statusPickerSpacing
+    private let deleteAlertTitle = UIConstants.EditActivityRow.deleteAlertTitle
+    private let deleteAlertMessage = UIConstants.EditActivityRow.deleteAlertMessage
+    private let deleteButtonText = UIConstants.EditActivityRow.deleteButtonText
+    private let cancelButtonText = UIConstants.EditActivityRow.cancelButtonText
+    private let symbol = UIConstants.EditActivityRow.symbol
+    
+    // MARK: - Properties
     @Binding var activity: Activity
     let activityIndex: Int
     let student: Student
@@ -17,11 +36,11 @@ struct EditActivityRow: View {
     let onDelete: () -> Void
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
-    private let analytics = InputAnalyticsTracker.shared
+    let analytics = InputAnalyticsTracker.shared
+    @State var showDeleteAlert = false
+    @State var status: Status
     
-    @State private var showDeleteAlert = false
-    @State private var status: Status
-    
+    // MARK: - Initialization
     init(activity: Binding<Activity>,
          activityIndex: Int,
          student: Student,
@@ -41,106 +60,80 @@ struct EditActivityRow: View {
         _status = State(initialValue: activity.wrappedValue.status)
     }
     
+    // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Aktivitas \(activityIndex + 1)")
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                
-                Spacer()
-                
-                Button(action: {
-                    trackDeleteAttempt()
-                    showDeleteAlert = true
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 34)
-                            .foregroundStyle(.buttonDestructiveOnCard)
-                        Image(systemName: "trash.fill")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundStyle(.destructiveOnCardLabel)
-                    }
-                }
-            }
-            
-            Text(activity.activity)
-                .font(.subheadline)
-                .fontWeight(.regular)
-                .foregroundStyle(.labelPrimaryBlack)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
-                .background(.monochrome100)
-                .cornerRadius(8)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.noteStroke, lineWidth: 0.5)
-                }
-                .onTapGesture {
-                    onEdit(activity)
-                }
-
-            HStack(spacing: 8) {
-                StatusPicker(status: $status) { newStatus in
-                    trackStatusChange(newStatus)
-                    activity.status = newStatus
-                    onStatusChanged(activity, newStatus)
-                }
-            }
+        VStack(alignment: .leading, spacing: rowSpacing) {
+            activitySection
+            activityTitle
+            statusPicker
         }
-        .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-            Button("Hapus", role: .destructive) {
-                trackDeletion()
-                onDeleteActivity(activity)
-            }
-            Button("Batal", role: .cancel) { }
+        .alert(deleteAlertTitle,
+               isPresented: $showDeleteAlert) {
+            Button(deleteButtonText,
+                   role: .destructive,
+                   action: handleDeleteConfirmation)
+            Button(cancelButtonText,
+                   role: .cancel) { }
         } message: {
-            Text("Apakah kamu yakin ingin menghapus catatan ini?")
+            Text(deleteAlertMessage)
         }
         .onAppear {
             status = activity.status
         }
     }
     
-    // MARK: - Tracking Methods
-    private func trackStatusChange(_ newStatus: Status) {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "old_status": status.rawValue,
-            "new_status": newStatus.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Status Changed", properties: properties)
+    // MARK: - Subview
+    private var activitySection: some View {
+        HStack {
+            Text("Aktivitas \(activityIndex + 1)")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
+            Spacer()
+            Button(action: handleDeleteTap) {
+                ZStack {
+                    Circle()
+                        .frame(width: deleteButtonSize)
+                        .foregroundStyle(.buttonDestructiveOnCard)
+                    Image(systemName: symbol)
+                        .font(.subheadline)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.destructiveOnCardLabel)
+                }
+            }
+        }
     }
     
-    private func trackDeleteAttempt() {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "status": status.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Delete Attempted", properties: properties)
+    // MARK: - Subview
+    private var activityTitle: some View {
+        Text(activity.activity)
+            .font(.subheadline)
+            .fontWeight(.regular)
+            .foregroundStyle(.labelPrimaryBlack)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(activityPadding)
+            .background(.monochrome100)
+            .cornerRadius(cornerRadius)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(.noteStroke, lineWidth: strokeWidth)
+            }
+            .onTapGesture {
+                onEdit(activity)
+            }
     }
     
-    private func trackDeletion() {
-        let properties: [String: MixpanelType] = [
-            "student_id": student.id.uuidString,
-            "activity_id": activity.id.uuidString,
-            "status": status.rawValue,
-            "screen": "preview",
-            "timestamp": Date().timeIntervalSince1970
-        ]
-        analytics.trackEvent("Activity Deleted", properties: properties)
+    // MARK: - Subview
+    private var statusPicker: some View {
+        HStack(spacing: statusPickerSpacing) {
+            StatusPicker(status: $status) { newStatus in
+                handleStatusChange(newStatus)
+            }
+        }
     }
 }
-    
+   
+// MARK: - Preview
 #Preview {
     EditActivityRow(activity: .constant(.init(
         activity: "Menjahit",
