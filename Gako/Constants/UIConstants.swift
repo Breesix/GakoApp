@@ -265,6 +265,22 @@ enum UIConstants {
         static let monthCardCornerRadius: CGFloat = 12
     }
     
+    enum YearPickerView {
+        // Numerics
+        static let yearPickerButtonCornerRadius: CGFloat = 8
+        static let years = Array(1900...2100)
+        static let contentPadding: EdgeInsets = .init(top: 12, leading: 16, bottom: 0, trailing: 16)
+        static let pickerWidth: CGFloat = 100
+        static let yearPickerButtonPadding: EdgeInsets = .init(top: 7, leading: 14, bottom: 7, trailing: 14)
+        
+        // Colors
+        static let yearPickerButtonBackground = Color.buttonLinkOnSheet
+        static let yearPickerButtonText = Color.buttonPrimaryLabel
+
+        // Strings
+        static let selectYearText = "Pilih Tahun"
+    }
+    
     enum MonthList {
         static let headerHeight: CGFloat = 58
         static let headerPadding: CGFloat = 14

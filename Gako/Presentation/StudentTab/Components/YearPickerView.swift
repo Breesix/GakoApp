@@ -4,25 +4,31 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
-import SwiftUI
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A wheel picker component for selecting years
+//  Usage: Use this view to allow year selection in a wheel picker format
+//
 
 import SwiftUI
 
 struct YearPickerView: View {
+    // MARK: - Constants
+    let years = UIConstants.YearPickerView.years
+    private let pickerWidth = UIConstants.YearPickerView.pickerWidth
+    private let buttonPadding = UIConstants.YearPickerView.yearPickerButtonPadding
+    private let buttonBackground = UIConstants.YearPickerView.yearPickerButtonBackground
+    private let buttonTextColor = UIConstants.YearPickerView.yearPickerButtonText
+    private let buttonCornerRadius = UIConstants.YearPickerView.yearPickerButtonCornerRadius
+    private let contentPadding = UIConstants.YearPickerView.contentPadding.leading
+    private let selectYearText = UIConstants.YearPickerView.selectYearText
+
+    // MARK: - Properties
     @Binding var selectedDate: Date
     @Environment(\.presentationMode) var presentationMode
     @State var selectedYear = 0
     
-    // MARK: - Constants
-    let years = Array(1900...2100)
-    private let pickerWidth = UIConstants.MonthList.pickerWidth
-    private let buttonPadding = UIConstants.MonthList.yearPickerButtonPadding
-    private let buttonBackground = UIConstants.MonthList.yearPickerButtonBackground
-    private let buttonTextColor = UIConstants.MonthList.yearPickerButtonText
-    private let buttonCornerRadius = UIConstants.MonthList.yearPickerButtonCornerRadius
-    private let contentPadding = UIConstants.MonthList.contentPadding.leading
-    private let selectYearText = UIConstants.MonthList.selectYearText
-    
+    // MARK: - Body
     var body: some View {
         VStack {
             Picker("Year", selection: $selectedYear) {
@@ -49,4 +55,9 @@ struct YearPickerView: View {
             initializeSelection()
         }
     }
+}
+
+// MARK: - Preview
+#Preview {
+    YearPickerView(selectedDate: .constant(.now))
 }
