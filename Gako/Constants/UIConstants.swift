@@ -697,6 +697,16 @@ enum UIConstants {
         static let dividerBottomPadding: CGFloat = 8
     }
     
+    enum NoteRow {
+        // Colors
+        static let textColor: Color = .labelPrimaryBlack
+        static let deleteButtonBackground = Color.buttonDestructiveOnCard
+        static let deleteIconColor = Color.destructiveOnCardLabel
+        // Numerics
+        static let bulletPointSpacing: CGFloat = 8
+        static let deleteButtonSize: CGFloat = 34
+    }
+    
     enum Note {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
