@@ -773,6 +773,17 @@ enum UIConstants {
         static let deleteIcon = "trash"
     }
 
+    enum ProfileHeader {
+        // Numerics
+        static let headerImageSize: CGFloat = 64
+        static let headerSpacing: CGFloat = 16
+        static let defaultSpacing: CGFloat = 0
+
+        // Colors
+        static let textColor: Color = .labelPrimaryBlack
+        static let placeholderImageColor: Color = .bgSecondary
+
+    }
     
     enum Profile {
         // Colors
