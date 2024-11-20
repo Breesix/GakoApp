@@ -463,6 +463,15 @@ enum UIConstants {
         static let spacing: CGFloat = 12
     }
     
+    enum DeleteButton {
+        // Colors
+        static let deleteButtonBackground: Color = Color.buttonDestructiveOnCard
+        static let deleteIconColor: Color = .destructiveOnCardLabel
+        
+        // Numerics
+        static let deleteButtonSize: CGFloat = 34
+    }
+    
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
