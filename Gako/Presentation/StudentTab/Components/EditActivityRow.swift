@@ -1,8 +1,13 @@
 //
 //  EditActivityRow.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A row component for displaying and editing student activities with status control
+//  Usage: Use this view to manage individual activity entries with editing and deletion capabilities
 //
 
 import SwiftUI
@@ -10,16 +15,17 @@ import Mixpanel
 
 struct EditActivityRow: View {
     // MARK: - Constants
-    private let deleteButtonSize = UIConstants.EditActivity.deleteButtonSize
-    private let rowSpacing = UIConstants.EditActivity.rowSpacing
-    private let activityPadding = UIConstants.EditActivity.activityPadding
-    private let cornerRadius = UIConstants.EditActivity.cornerRadius
-    private let strokeWidth = UIConstants.EditActivity.strokeWidth
-    private let statusPickerSpacing = UIConstants.EditActivity.statusPickerSpacing
-    private let deleteAlertTitle = UIConstants.EditActivity.deleteAlertTitle
-    private let deleteAlertMessage = UIConstants.EditActivity.deleteAlertMessage
-    private let deleteButtonText = UIConstants.EditActivity.deleteButtonText
-    private let cancelButtonText = UIConstants.EditActivity.cancelButtonText
+    private let deleteButtonSize = UIConstants.EditActivityRow.deleteButtonSize
+    private let rowSpacing = UIConstants.EditActivityRow.rowSpacing
+    private let activityPadding = UIConstants.EditActivityRow.activityPadding
+    private let cornerRadius = UIConstants.EditActivityRow.cornerRadius
+    private let strokeWidth = UIConstants.EditActivityRow.strokeWidth
+    private let statusPickerSpacing = UIConstants.EditActivityRow.statusPickerSpacing
+    private let deleteAlertTitle = UIConstants.EditActivityRow.deleteAlertTitle
+    private let deleteAlertMessage = UIConstants.EditActivityRow.deleteAlertMessage
+    private let deleteButtonText = UIConstants.EditActivityRow.deleteButtonText
+    private let cancelButtonText = UIConstants.EditActivityRow.cancelButtonText
+    private let symbol = UIConstants.EditActivityRow.symbol
     
     // MARK: - Properties
     @Binding var activity: Activity
@@ -31,10 +37,10 @@ struct EditActivityRow: View {
     let onDeleteActivity: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
     let analytics = InputAnalyticsTracker.shared
-    
     @State var showDeleteAlert = false
     @State var status: Status
     
+    // MARK: - Initialization
     init(activity: Binding<Activity>,
          activityIndex: Int,
          student: Student,
@@ -54,50 +60,12 @@ struct EditActivityRow: View {
         _status = State(initialValue: activity.wrappedValue.status)
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: rowSpacing) {
-            HStack {
-                Text("Aktivitas \(activityIndex + 1)")
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
-                
-                Spacer()
-                
-                Button(action: handleDeleteTap) {
-                    ZStack {
-                        Circle()
-                            .frame(width: deleteButtonSize)
-                            .foregroundStyle(.buttonDestructiveOnCard)
-                        Image(systemName: "trash.fill")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundStyle(.destructiveOnCardLabel)
-                    }
-                }
-            }
-            
-            Text(activity.activity)
-                .font(.subheadline)
-                .fontWeight(.regular)
-                .foregroundStyle(.labelPrimaryBlack)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(activityPadding)
-                .background(.monochrome100)
-                .cornerRadius(cornerRadius)
-                .overlay {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(.noteStroke, lineWidth: strokeWidth)
-                }
-                .onTapGesture {
-                    onEdit(activity)
-                }
-
-            HStack(spacing: statusPickerSpacing) {
-                StatusPicker(status: $status) { newStatus in
-                    handleStatusChange(newStatus)
-                }
-            }
+            activitySection
+            activityTitle
+            statusPicker
         }
         .alert(deleteAlertTitle,
                isPresented: $showDeleteAlert) {
@@ -113,8 +81,59 @@ struct EditActivityRow: View {
             status = activity.status
         }
     }
-}
     
+    // MARK: - Subview
+    private var activitySection: some View {
+        HStack {
+            Text("Aktivitas \(activityIndex + 1)")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.labelPrimaryBlack)
+            Spacer()
+            Button(action: handleDeleteTap) {
+                ZStack {
+                    Circle()
+                        .frame(width: deleteButtonSize)
+                        .foregroundStyle(.buttonDestructiveOnCard)
+                    Image(systemName: symbol)
+                        .font(.subheadline)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.destructiveOnCardLabel)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Subview
+    private var activityTitle: some View {
+        Text(activity.activity)
+            .font(.subheadline)
+            .fontWeight(.regular)
+            .foregroundStyle(.labelPrimaryBlack)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(activityPadding)
+            .background(.monochrome100)
+            .cornerRadius(cornerRadius)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(.noteStroke, lineWidth: strokeWidth)
+            }
+            .onTapGesture {
+                onEdit(activity)
+            }
+    }
+    
+    // MARK: - Subview
+    private var statusPicker: some View {
+        HStack(spacing: statusPickerSpacing) {
+            StatusPicker(status: $status) { newStatus in
+                handleStatusChange(newStatus)
+            }
+        }
+    }
+}
+   
+// MARK: - Preview
 #Preview {
     EditActivityRow(activity: .constant(.init(
         activity: "Menjahit",
