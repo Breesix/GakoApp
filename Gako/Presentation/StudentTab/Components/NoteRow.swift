@@ -23,7 +23,6 @@ struct NoteRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: bulletSpacing) {
-                // Note Content
                 HStack(alignment: .top, spacing: bulletSpacing) {
                     Text(UIConstants.Note.bulletPoint)
                         .font(.subheadline)
@@ -36,28 +35,7 @@ struct NoteRow: View {
                         .foregroundStyle(textColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                
-                // Delete Button
-                Button(action: { showDeleteAlert = true }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: deleteButtonSize)
-                            .foregroundStyle(deleteButtonBackground)
-                        Image(systemName: UIConstants.Note.trashIcon)
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundStyle(deleteIconColor)
-                    }
-                }
             }
-        }
-        .alert(UIConstants.Note.deleteAlertTitle, isPresented: $showDeleteAlert) {
-            Button(UIConstants.Note.cancelButtonText, role: .cancel) { }
-            Button(UIConstants.Note.deleteButtonText, role: .destructive) {
-                handleDelete()
-            }
-        } message: {
-            Text(UIConstants.Note.deleteAlertMessage)
         }
     }
 }

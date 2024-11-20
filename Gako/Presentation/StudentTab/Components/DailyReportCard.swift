@@ -1,8 +1,13 @@
 //
 //  DailyReportCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Akmal Hakim on 07/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom view component that displays a daily report card containing student activities
+//  Usage: Implement this component to display a comprehensive daily report
 //
 
 import SwiftUI
@@ -14,7 +19,6 @@ struct DailyReportCard: View {
     private let buttonTextColor = UIConstants.DailyReport.buttonTextColor
     private let dividerColor = UIConstants.DailyReport.dividerColor
     private let cardBackground = UIConstants.DailyReport.cardBackground
-    
     private let cardCornerRadius = UIConstants.DailyReport.cardCornerRadius
     private let buttonSize = UIConstants.DailyReport.buttonSize
     private let horizontalPadding = UIConstants.DailyReport.horizontalPadding
@@ -24,7 +28,6 @@ struct DailyReportCard: View {
     private let dividerHeight = UIConstants.DailyReport.dividerHeight
     private let dividerVerticalPadding = UIConstants.DailyReport.dividerVerticalPadding
     private let dividerTopPadding = UIConstants.DailyReport.dividerTopPadding
-    
     private let shareIcon = UIConstants.DailyReport.shareIcon
     private let alertTitle = UIConstants.DailyReport.alertTitle
     private let emptyAlertMessage = UIConstants.DailyReport.emptyAlertMessage
@@ -35,7 +38,6 @@ struct DailyReportCard: View {
     let notes: [Note]
     let student: Student
     let date: Date
-    
     let onAddNote: () -> Void
     let onAddActivity: () -> Void
     let onDeleteActivity: (Activity) -> Void
@@ -43,9 +45,9 @@ struct DailyReportCard: View {
     let onDeleteNote: (Note) -> Void
     let onShareTapped: (Date) -> Void
     let onUpdateActivityStatus: (Activity, Status) async -> Void
+    @State var showEmptyAlert = false
     
-    @State private var showEmptyAlert = false
-    
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
             headerView
@@ -66,21 +68,20 @@ struct DailyReportCard: View {
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Subview
     private var headerView: some View {
         HStack {
             Text(DateFormatHelper.indonesianFormattedDate(date))
                 .font(.body)
                 .fontWeight(.semibold)
                 .foregroundStyle(titleColor)
-            
             Spacer()
-            
             shareButton
         }
         .padding(.horizontal, horizontalPadding)
     }
     
+    // MARK: - Subview
     private var shareButton: some View {
         Button(action: validateAndShare) {
             ZStack {
@@ -95,6 +96,7 @@ struct DailyReportCard: View {
         }
     }
     
+    // MARK: - Subview
     private var divider: some View {
         Divider()
             .frame(height: dividerHeight)
@@ -102,6 +104,7 @@ struct DailyReportCard: View {
             .padding(.bottom, dividerVerticalPadding)
     }
     
+    // MARK: - Subview
     private var activitySection: some View {
         ActivitySection(
             activities: activities,
@@ -115,6 +118,7 @@ struct DailyReportCard: View {
         .padding(.horizontal, horizontalPadding)
     }
     
+    // MARK: - Subview
     private var notesDivider: some View {
         Divider()
             .frame(height: dividerHeight)
@@ -123,6 +127,7 @@ struct DailyReportCard: View {
             .padding(.top, dividerTopPadding)
     }
     
+    // MARK: - Subview
     private var notesSection: some View {
         NoteSection(
             notes: notes,
@@ -132,19 +137,9 @@ struct DailyReportCard: View {
         )
         .padding(.horizontal, horizontalPadding)
     }
-    
-    // MARK: - Actions
-    private func validateAndShare() {
-        if activities.isEmpty && notes.isEmpty {
-            showEmptyAlert = true
-            return
-        }
-        onShareTapped(date)
-    }
 }
 
-
-
+// MARK: - Preview
 #Preview {
     DailyReportCard(
         activities: [
