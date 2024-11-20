@@ -14,6 +14,8 @@ struct TextInputView: View {
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var summaryViewModel: SummaryViewModel
     @StateObject private var viewModel = TextInputViewModel()
+    
+    @State private var currentProgress: Int = 1
     @State private var showAlert: Bool = false
     @State private var showEmptyReflectionAlert: Bool = false
     @State private var showProTips: Bool = true
@@ -67,14 +69,8 @@ struct TextInputView: View {
             VStack(alignment: .center, spacing: 16) {
                 
                 VStack(alignment: .center, spacing: 8) {
-                    HStack {
-                        Image(systemName: "sparkles")
-                        Spacer()
-                        Text("Rekam dengan Teks")
-                            .fontWeight(.heavy)
-                        Spacer()
-                        Image(systemName: "sparkles")
-                    }
+                    TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
+                    
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -181,7 +177,21 @@ struct TextInputView: View {
         secondColor = .bgSecondary
         thirdColor = .bgAccent
     }
+    
+    private var currentTitle: String {
+        switch currentProgress {
+        case 1: return "Rekam dengan Teks"
+        default: return ""
+        }
+    }
+
+    private var currentSubtitle: String {
+        switch currentProgress {
+        default: return ""
+        }
+    }
 }
+
 
 
 private extension TextInputView {

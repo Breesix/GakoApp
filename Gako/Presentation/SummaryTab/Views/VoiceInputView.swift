@@ -72,12 +72,12 @@ struct VoiceInputView: View {
             VStack(alignment: .center) {
                 VStack {
                     TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
-                        .padding()
                     ZStack {
                         TextEditor(text: $viewModel.editedText)
                             .foregroundStyle(.labelPrimaryBlack)
                             .padding()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 228)
                             .scrollContentBackground(.hidden)
                             .lineSpacing(5)
                             .multilineTextAlignment(.leading)
@@ -91,7 +91,7 @@ struct VoiceInputView: View {
                                         viewModel.isPaused ? Color.black : Color.clear,
                                         lineWidth: 1
                                     )
-                            )
+                                                                )
                     }
                     .onChange(of: viewModel.editedText) { newValue in
                         viewModel.reflection = newValue
@@ -180,28 +180,13 @@ struct VoiceInputView: View {
                                     } else {
                                         if viewModel.isRecording {
                                             if viewModel.isPaused {
-                                                VStack{
-                                                    Image("play-mic-button")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 84)
-                                                    
-                                                    
-                                                }
+                                                PlayButtonVoice()
                                             } else {
-                                                
-                                                DotLottieAnimation(fileName: "recordLottie",
-                                                                   config: AnimationConfig(autoplay: true, loop: true))
-                                                .view()
-                                                .scaleEffect(1.5)
-                                                .frame(width: 100, height: 100)
+                                                PauseButtonVoice()
                                             }
                                             
                                         } else {
-                                            Image("start-mic-button")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 84)
+                                            StartButtonVoice()
                                             
                                             
                                         }
@@ -246,16 +231,19 @@ struct VoiceInputView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                         
                     }
                 }
             }
+            .padding(.horizontal, 25)
+            .padding(.vertical, 40)
+            .padding(.top, 35)
+            .padding(.bottom, 12)
         }
-        .padding(.horizontal, 25)
-        .padding(.vertical, 40)
-        .padding(.top, 35)
-        .padding(.bottom, 12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(.white)
         .hideTabBar()
         .toolbar(.hidden, for: .tabBar)

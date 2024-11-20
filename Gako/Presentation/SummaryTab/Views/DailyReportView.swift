@@ -177,62 +177,66 @@ struct DailyReportView: View {
                             ScrollView {
                                 LazyVStack(spacing: 0) {
                                     if isEditingMode {
+                                        VStack{
                                         // Edit mode content
-                                        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
-                                            DailyEditCard(
-                                                date: selectedDate,
-                                                activities: dayItems.activities,
-                                                notes: dayItems.notes,
-                                                student: student,
-                                                selectedStudent: .constant(nil),
-                                                isAddingNewActivity: $isAddingNewActivity,
-                                                editedActivities: $editedActivities,
-                                                editedNotes: $editedNotes,
-                                                onDeleteActivity: deleteActivity,
-                                                onDeleteNote: deleteNote,
-                                                onActivityUpdate: { activity in
-                                                    activityToEdit = activity
-                                                },
-                                                onAddActivity: {
-                                                    isAddingNewActivity = true
-                                                },
-                                                onUpdateActivityStatus: onUpdateActivityStatus,
-                                                onEditNote: { note in
-                                                    noteToEdit = note
-                                                },
-                                                onAddNote: { _ in
-                                                    isAddingNewNote = true
-                                                }
-                                            )
-                                            .padding(.horizontal, 16)
-                                            .padding(.bottom, 12)
+                                            if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+                                                DailyEditCard(
+                                                    date: selectedDate,
+                                                    activities: dayItems.activities,
+                                                    notes: dayItems.notes,
+                                                    student: student,
+                                                    selectedStudent: .constant(nil),
+                                                    isAddingNewActivity: $isAddingNewActivity,
+                                                    editedActivities: $editedActivities,
+                                                    editedNotes: $editedNotes,
+                                                    onDeleteActivity: deleteActivity,
+                                                    onDeleteNote: deleteNote,
+                                                    onActivityUpdate: { activity in
+                                                        activityToEdit = activity
+                                                    },
+                                                    onAddActivity: {
+                                                        isAddingNewActivity = true
+                                                    },
+                                                    onUpdateActivityStatus: onUpdateActivityStatus,
+                                                    onEditNote: { note in
+                                                        noteToEdit = note
+                                                    },
+                                                    onAddNote: { _ in
+                                                        isAddingNewNote = true
+                                                    }
+                                                )
+                                                .padding(.horizontal, 16)
+                                                .padding(.bottom, 12)
+                                            }
                                         }
                                     } else {
+                                        VStack {
                                         // Normal view content
-                                        if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
-                                            StudentDailyReportCard(
-                                                activities: dayItems.activities,
-                                                notes: dayItems.notes,
-                                                student: student,
-                                                date: selectedDate,
-                                                onAddNote: { isAddingNewNote = true },
-                                                onAddActivity: { isAddingNewActivity = true },
-                                                onDeleteActivity: deleteActivity,
-                                                onEditNote: { self.noteToEdit = $0 },
-                                                onDeleteNote: deleteNote,
-                                                onShareTapped: { date in
-                                                    selectedActivityDate = date
-                                                    generateSnapshot(for: date)
-                                                    withAnimation {
-                                                        showSnapshotPreview = true
+                                            if let dayItems = activitiesForSelectedDay[calendar.startOfDay(for: selectedDate)] {
+                                                StudentDailyReportCard(
+                                                    activities: dayItems.activities,
+                                                    notes: dayItems.notes,
+                                                    student: student,
+                                                    date: selectedDate,
+                                                    onAddNote: { isAddingNewNote = true },
+                                                    onAddActivity: { isAddingNewActivity = true },
+                                                    onDeleteActivity: deleteActivity,
+                                                    onEditNote: { self.noteToEdit = $0 },
+                                                    onDeleteNote: deleteNote,
+                                                    onShareTapped: { date in
+                                                        selectedActivityDate = date
+                                                        generateSnapshot(for: date)
+                                                        withAnimation {
+                                                            showSnapshotPreview = true
+                                                        }
+                                                    },
+                                                    onUpdateActivityStatus: { activity, newStatus in
+                                                        await onUpdateActivityStatus(activity, newStatus)
                                                     }
-                                                },
-                                                onUpdateActivityStatus: { activity, newStatus in
-                                                    await onUpdateActivityStatus(activity, newStatus)
-                                                }
-                                            )
-                                            .padding(.horizontal, 16)
-                                            .padding(.bottom, 12)
+                                                )
+                                                .padding(.horizontal, 16)
+                                                .padding(.bottom, 12)
+                                            }
                                         }
                                     }
                                 }
