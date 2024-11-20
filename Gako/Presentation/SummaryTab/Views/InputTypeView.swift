@@ -1,12 +1,8 @@
 //
 //  InputTypeView.swift
-//  GAKO
+//  Breesix
 //
 //  Created by Rangga Biner on 15/10/24.
-//
-//  Copyright © 2024 Breesix. All rights reserved.
-//
-//  Description: Sheets view to choose the input type of "curhatan"
 //
 
 import SwiftUI
