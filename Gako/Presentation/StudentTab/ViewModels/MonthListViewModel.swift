@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing monthly activities and notes for a student
+//  Usage: Use this class to fetch, manage, and update the activities and notes associated with a selected year
+//
+
 import Foundation
 import UIKit
 
