@@ -673,12 +673,24 @@ enum UIConstants {
     }
     
     enum ActivityRow {
+        static let spacing: CGFloat = 10
+        static let deleteButtonSize: CGFloat = 34
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let contentPadding: CGFloat = 8
+        static let statusPickerSpacing: CGFloat = 8
+        static let primaryText: Color = .labelPrimaryBlack
+        static let destructiveButton: Color = .buttonDestructiveOnCard
+        static let destructiveLabel: Color = .destructiveOnCardLabel
+        static let background: Color = .monochrome100
+        static let stroke: Color = .noteStroke
         // Colors
         static let titleColor: Color = .labelPrimaryBlack
         
         // Numerics
         static let defaultSpacing: CGFloat = 8
-        static let statusPickerSpacing: CGFloat = 8
+        
+        
     }
     
     enum ActivitySection {
