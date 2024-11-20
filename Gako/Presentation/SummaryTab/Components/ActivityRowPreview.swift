@@ -1,7 +1,12 @@
 //  ActivityRowPreview.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 26/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom component for each editable activity
+//  Usage: Use this component to display an activity
 //
 
 import SwiftUI
@@ -19,13 +24,25 @@ struct ActivityRowPreview: View {
     
     @State private var showDeleteAlert = false
     
+    private let spacing = UIConstants.ActivityRow.spacing
+    private let deleteButtonSize = UIConstants.ActivityRow.deleteButtonSize
+    private let cornerRadius = UIConstants.ActivityRow.cornerRadius
+    private let strokeWidth = UIConstants.ActivityRow.strokeWidth
+    private let contentPadding = UIConstants.ActivityRow.contentPadding
+    private let statusPickerSpacing = UIConstants.ActivityRow.statusPickerSpacing
+    private let primaryTextColor = UIConstants.ActivityRow.primaryText
+    private let destructiveButtonColor = UIConstants.ActivityRow.destructiveButton
+    private let destructiveLabelColor = UIConstants.ActivityRow.destructiveLabel
+    private let backgroundColor = UIConstants.ActivityRow.background
+    private let strokeColor = UIConstants.ActivityRow.stroke
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: spacing) {
             HStack {
                 Text("Aktivitas \(activityIndex + 1)")
                     .font(.callout)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.labelPrimaryBlack)
+                    .foregroundStyle(primaryTextColor)
                 
                 Spacer()
                 
@@ -43,12 +60,12 @@ struct ActivityRowPreview: View {
                 }) {
                     ZStack {
                         Circle()
-                            .frame(width: 34)
-                            .foregroundStyle(.buttonDestructiveOnCard)
+                            .frame(width: deleteButtonSize)
+                            .foregroundStyle(destructiveButtonColor)
                         Image(systemName: "trash.fill")
                             .font(.subheadline)
                             .fontWeight(.regular)
-                            .foregroundStyle(.destructiveOnCardLabel)
+                            .foregroundStyle(destructiveLabelColor)
                     }
                 }
             }
@@ -56,20 +73,20 @@ struct ActivityRowPreview: View {
             Text(activity.activity)
                 .font(.subheadline)
                 .fontWeight(.regular)
-                .foregroundStyle(.labelPrimaryBlack)
+                .foregroundStyle(primaryTextColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
-                .background(.monochrome100)
-                .cornerRadius(8)
+                .padding(contentPadding)
+                .background(backgroundColor)
+                .cornerRadius(cornerRadius)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.noteStroke, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(strokeColor, lineWidth: strokeWidth)
                 }
                 .onTapGesture {
                     onEdit(activity)
                 }
-
-            HStack(spacing: 8) {
+            
+            HStack(spacing: statusPickerSpacing) {
                 StatusPicker(
                     status: $activity.status,
                     onStatusChange: { newStatus in
@@ -87,53 +104,52 @@ struct ActivityRowPreview: View {
                     }
                 )
             }
-                .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
-                    Button("Hapus", role: .destructive) {
-                        // Track deletion
-                        let properties: [String: MixpanelType] = [
-                            "student_id": student.id.uuidString,
-                            "activity_id": activity.id.uuidString,
-                            "status": activity.status.rawValue,
-                            "screen": "preview",
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        analytics.trackEvent("Activity Deleted", properties: properties)
-                        
-                        onDeleteActivity(activity)
-                        onDelete()
-                    }
-                    Button("Batal", role: .cancel) { }
-                } message: {
-                    Text("Apakah kamu yakin ingin menghapus catatan ini?")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(.monochrome100)
-                        .cornerRadius(8)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(.noteStroke, lineWidth: 0.5)
-                        }
-                        .onTapGesture {
-                            onEdit(activity)
-                        }
+            .alert("Konfirmasi Hapus", isPresented: $showDeleteAlert) {
+                Button("Hapus", role: .destructive) {
+                    let properties: [String: MixpanelType] = [
+                        "student_id": student.id.uuidString,
+                        "activity_id": activity.id.uuidString,
+                        "status": activity.status.rawValue,
+                        "screen": "preview",
+                        "timestamp": Date().timeIntervalSince1970
+                    ]
+                    analytics.trackEvent("Activity Deleted", properties: properties)
+                    
+                    onDeleteActivity(activity)
+                    onDelete()
                 }
+                Button("Batal", role: .cancel) { }
+            } message: {
+                Text("Apakah kamu yakin ingin menghapus catatan ini?")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(8)
+                    .background(.monochrome100)
+                    .cornerRadius(8)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.noteStroke, lineWidth: 0.5)
+                    }
+                    .onTapGesture {
+                        onEdit(activity)
+                    }
+            }
         }
     }
 }
-    
-    #Preview {
-        ActivityRowPreview(
-            activity: .constant(.init(
-                activity: "Menjahit",
-                createdAt: .now,
-                studentId: Student.ID()
-            )),
-            activityIndex: 0,
-            student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-            onAddActivity: { print("added activity") },
-            onEdit: { _ in print("edit activity") },
-            onDelete: { print("deleted") },
-            onDeleteActivity: { _ in print("deleted activity") }
-        )
-    }
+
+#Preview {
+    ActivityRowPreview(
+        activity: .constant(.init(
+            activity: "Menjahit",
+            createdAt: .now,
+            studentId: Student.ID()
+        )),
+        activityIndex: 0,
+        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
+        onAddActivity: { print("added activity") },
+        onEdit: { _ in print("edit activity") },
+        onDelete: { print("deleted") },
+        onDeleteActivity: { _ in print("deleted activity") }
+    )
+}
 
