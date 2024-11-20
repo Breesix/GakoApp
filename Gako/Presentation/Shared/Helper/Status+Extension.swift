@@ -25,9 +25,9 @@ extension Status: CaseIterable {
     
     var displayText: String {
         switch self {
-        case .mandiri: return UIConstants.ManageActivity.mandiriText
-        case .dibimbing: return UIConstants.ManageActivity.dibimbingText
-        case .tidakMelakukan: return UIConstants.ManageActivity.tidakMelakukanText
+        case .mandiri: return UIConstants.ManageActivityView.mandiriText
+        case .dibimbing: return UIConstants.ManageActivityView.dibimbingText
+        case .tidakMelakukan: return UIConstants.ManageActivityView.tidakMelakukanText
         }
     }
 

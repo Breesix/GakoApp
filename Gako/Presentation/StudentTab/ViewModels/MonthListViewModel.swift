@@ -32,8 +32,8 @@ final class MonthListViewModel: ObservableObject {
     // MARK: - Computed Properties
     var formattedYear: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: UIConstants.MonthList.localeIdentifier)
-        formatter.dateFormat = UIConstants.MonthList.yearFormat
+        formatter.locale = Locale(identifier: UIConstants.MonthListView.localeIdentifier)
+        formatter.dateFormat = UIConstants.MonthListView.yearFormat
         return formatter.string(from: selectedYear)
     }
     

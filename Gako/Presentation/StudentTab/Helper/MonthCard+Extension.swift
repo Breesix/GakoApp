@@ -15,8 +15,8 @@ import Foundation
 extension MonthCard {
      var monthYearString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: UIConstants.MonthList.localeIdentifier)
-        formatter.dateFormat = UIConstants.MonthList.monthFormat
+        formatter.locale = Locale(identifier: UIConstants.MonthListView.localeIdentifier)
+        formatter.dateFormat = UIConstants.MonthListView.monthFormat
         return formatter.string(from: date)
     }
 }

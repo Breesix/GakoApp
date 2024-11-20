@@ -281,7 +281,7 @@ enum UIConstants {
         static let selectYearText = "Pilih Tahun"
     }
     
-    enum MonthList {
+    enum MonthListView {
         static let headerHeight: CGFloat = 58
         static let headerPadding: CGFloat = 14
         static let contentPadding: EdgeInsets = .init(top: 12, leading: 16, bottom: 0, trailing: 16)
@@ -316,7 +316,7 @@ enum UIConstants {
         static let localeIdentifier = "id_ID"
     }
     
-    enum ManageNote {
+    enum ManageNoteView {
         static let titleColor = Color.labelPrimaryBlack
         static let textFieldBackground = Color.cardFieldBG
         static let placeholderColor = Color.labelDisabled
@@ -359,7 +359,7 @@ enum UIConstants {
         static let tidakMelakukanText: String = "Tidak Melakukan"
     }
     
-    enum ManageActivity {
+    enum ManageActivityView {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
         static let placeholderColor = Color.labelTertiary
