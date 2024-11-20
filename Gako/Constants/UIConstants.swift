@@ -326,6 +326,23 @@ enum UIConstants {
         static let backIcon = "chevron.left"
     }
     
+    enum StatusMenu {
+        // Colors
+        static let textColor: Color = .labelPrimaryBlack
+        static let statusMenuBackground: Color = .statusSheet
+        
+        // Numerics
+        static let statusMenuSpacing: CGFloat = 9
+        static let statusMenuPadding = EdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
+        static let cornerRadius: CGFloat = 8
+        
+        // Strings
+        static let statusMenuIcon: String = "chevron.up.chevron.down"
+        static let mandiriText: String = "Mandiri"
+        static let dibimbingText: String = "Dibimbing"
+        static let tidakMelakukanText: String = "Tidak Melakukan"
+    }
+    
     enum ManageActivity {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
