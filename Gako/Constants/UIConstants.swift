@@ -707,6 +707,21 @@ enum UIConstants {
         static let deleteButtonSize: CGFloat = 34
     }
     
+    enum NoteSection {
+        // Colors
+        static let titleColor: Color = .labelPrimaryBlack
+        static let emptyTextColor: Color = .secondary
+        
+        // Numerics
+        static let sectionSpacing: CGFloat = 12
+        static let titleBottomPadding: CGFloat = 4
+        
+        // Strings
+        static let sectionTitle = "CATATAN"
+        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+
+    }
+    
     enum Note {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
