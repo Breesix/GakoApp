@@ -1,8 +1,12 @@
 //
 //  PreviewView.swift
-//  Breesix
+//  GAKO
 //
 //  Created by Rangga Biner on 30/09/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: View to show processed output from AI as a temporary activities and notes
 //
 
 import SwiftUI
@@ -255,76 +259,6 @@ struct PreviewView: View {
         }
     }
     
-//    private var mainContent: some View {
-//        ZStack {
-//            VStack(spacing: 0) {
-//                ScrollView {
-//                    VStack(spacing: 0) {
-//                        ForEach(sortedStudents) { student in
-//                            DailyReportCardPreview(
-//                                student: student,
-//                                selectedDate: selectedDate,
-//                                selectedStudent: $selectedStudent,
-//                                isAddingNewActivity: $isAddingNewActivity,
-//                                isAddingNewNote: $isAddingNewNote,
-//                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
-//                                onUpdateActivity: onUpdateUnsavedActivity,
-//                                onDeleteActivity: onDeleteUnsavedActivity,
-//                                onUpdateNote: onUpdateUnsavedNote,
-//                                onDeleteNote: onDeleteUnsavedNote,
-//                                activities: unsavedActivities.filter { $0.studentId == student.id },
-//                                notes: unsavedNotes.filter { $0.studentId == student.id },
-//                                allActivities: unsavedActivities,
-//                                allStudents: students
-//                            )
-//                            .padding(.bottom, 12)
-//                        }
-//                    }
-//                }
-//                HStack {
-//                    Button {
-//                        showingCancelAlert = true
-//                    } label: {
-//                        Text("Batal")
-//                            .font(.body)
-//                            .fontWeight(.semibold)
-//                            .foregroundStyle(.destructiveOnCardLabel)
-//                            .frame(maxWidth: .infinity)
-//                            .frame(height: 50)
-//                            .background(Color(.buttonDestructiveOnCard))
-//                            .cornerRadius(12)
-//                    }
-//                    
-//                    Spacer()
-//                    
-//                    Button {
-//                        if hasStudentsWithNilActivities() {
-//                            showingNilActivityAlert = true
-//                        } else {
-//                            showingSaveAlert = true
-//                        }
-//                    } label: {
-//                        Text("Simpan")
-//                            .font(.body)
-//                            .fontWeight(.semibold)
-//                            .foregroundStyle(.labelPrimaryBlack)
-//                            .frame(maxWidth: .infinity)
-//                            .frame(height: 50)
-//                            .background(Color(.orangeClickAble))
-//                            .cornerRadius(12)
-//                        
-//                    }
-//                    
-//                }
-//            }
-//            
-//            if isSaving {
-//                SaveLoadingView(progress: progress)
-//            }
-//        }
-//    }
-    
-    
     private var sortedStudents: [Student] {
         students
             .filter { selectedStudents.contains($0) } // Filter hanya selected students
@@ -422,32 +356,3 @@ struct PreviewView: View {
         }
     }
 }
-
-//#Preview {
-//    PreviewView(
-//        selectedDate: .constant(.now),
-//        isShowingPreview: .constant(false),
-//        isShowingActivity: .constant(false),
-//        students: [
-//            .init(fullname: "Rangga Biner", nickname: "Rangga")
-//        ],
-//        selectedStudents: studentViewModel.selectedStudents, // Tambahkan ini
-//        unsavedActivities: [
-//            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
-//        ],
-//        unsavedNotes: [
-//            .init(note: "baik banget", createdAt: .now, studentId: UUID())
-//        ],
-//        onAddUnsavedActivities: { _ in print("added") },
-//        onUpdateUnsavedActivity: { _ in print("updated") },
-//        onDeleteUnsavedActivity: { _ in print("deleted") },
-//        onAddUnsavedNote: { _ in print("added") },
-//        onUpdateUnsavedNote: { _ in print("updated") },
-//        onDeleteUnsavedNote: { _ in print("deleted") },
-//        onClearUnsavedNotes: { print("cleared") },
-//        onClearUnsavedActivities: { print("cleared") },
-//        onSaveUnsavedActivities: { print("saved") },
-//        onSaveUnsavedNotes: { print("saved") },
-//        onGenerateAndSaveSummaries: { _ in print("generated and saved") }
-//    )
-//}

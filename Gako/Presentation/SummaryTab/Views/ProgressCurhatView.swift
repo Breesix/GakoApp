@@ -1,14 +1,25 @@
 //
 //  ProgressCurhatView.swift
-//  Breesix
+//  GAKO
 //
 //  Created by Rangga Biner on 13/11/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: View for user to list daily student presence and activities
 //
 
 import SwiftUI
 import SwiftData
 
 struct ProgressCurhatView: View {
+    // MARK: - UI Constants
+    private let padding: CGFloat = UIConstants.ProgressCurhat.padding
+    private let cornerRadius: CGFloat = UIConstants.ProgressCurhat.cornerRadius
+    private let backgroundColor: Color = UIConstants.ProgressCurhat.backgroundColor
+    private let deleteButtonColor: Color = UIConstants.ProgressCurhat.deleteButtonColor
+    private let trashIconName: String = UIConstants.ProgressCurhat.trashIconName
+
     @State private var firstColor: Color = .bgAccent
     @State private var secondColor: Color = .bgMain
     @State private var thirdColor: Color = .bgMain
@@ -52,9 +63,9 @@ struct ProgressCurhatView: View {
 
                 if currentProgress == 3 {
                   VStack(alignment:.leading, spacing: 12) {
-                    GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
-                    GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
-                    GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                    GuidingQuestionTag(text: UIConstants.ProgressCurhat.guidingQuestion1)
+                    GuidingQuestionTag(text: UIConstants.ProgressCurhat.guidingQuestion2)
+                    GuidingQuestionTag(text: UIConstants.ProgressCurhat.guidingQuestion3)
                 }
                 Spacer()
                 TipsCard()
@@ -89,35 +100,35 @@ struct ProgressCurhatView: View {
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
         }
-        .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("OK", role: .cancel, action: {})
+        .alert(UIConstants.ProgressCurhat.selectStudentAlertTitle, isPresented: $showEmptyStudentsAlert) {
+            Button(UIConstants.ProgressCurhat.okButtonText, role: .cancel, action: {})
         } message: {
-            Text("Silakan pilih minimal satu murid yang hadir.")
+            Text(UIConstants.ProgressCurhat.selectStudentAlertMessage)
         }
-        .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
-            Button("Batalkan Dokumentasi", role: .destructive) {
+        .alert(UIConstants.ProgressCurhat.cancelDocumentationAlertTitle, isPresented: $showAlert) {
+            Button(UIConstants.ProgressCurhat.cancelDocumentationButtonText, role: .destructive) {
                 studentViewModel.activities.removeAll()
                 studentViewModel.selectedStudents.removeAll()
                 presentationMode.wrappedValue.dismiss()
             }
-            Button("Lanjut Dokumentasi", role: .cancel) {}
+            Button(UIConstants.ProgressCurhat.continueDocumentationButtonText, role: .cancel) {}
         } message: {
-            Text("Semua teks yang baru saja Anda masukkan akan terhapus secara permanen.")
+            Text(UIConstants.ProgressCurhat.cancelDocumentationAlertMessage)
         }
-        .alert("Tambah Aktivitas", isPresented: $showEmptyActivitiesAlert) {
-            Button("OK", role: .cancel, action: {})
+        .alert(UIConstants.ProgressCurhat.addActivityAlertTitle, isPresented: $showEmptyActivitiesAlert) {
+            Button(UIConstants.ProgressCurhat.okButtonText, role: .cancel, action: {})
         } message: {
-            Text("Silakan tambah minimal satu aktivitas.")
+            Text(UIConstants.ProgressCurhat.addActivityAlertMessage)
         }
-        .alert("Hapus Aktivitas?", isPresented: $showDeleteAlert) {
-            Button("Batal", role: .cancel) { }
-            Button("Hapus", role: .destructive) {
+        .alert(UIConstants.ProgressCurhat.deleteActivityAlertTitle, isPresented: $showDeleteAlert) {
+            Button(UIConstants.ProgressCurhat.cancelButtonText, role: .cancel) { }
+            Button(UIConstants.ProgressCurhat.deleteButtonText, role: .destructive) {
                 if let index = activityToDelete {
                     studentViewModel.activities.remove(at: index)
                 }
             }
         } message: {
-            Text("Apakah Anda yakin ingin menghapus aktivitas ini?")
+            Text(UIConstants.ProgressCurhat.deleteActivityAlertMessage)
         }
         .task {
             await studentViewModel.fetchAllStudents()
@@ -126,18 +137,18 @@ struct ProgressCurhatView: View {
 
     private var currentTitle: String {
         switch currentProgress {
-        case 1: return "Apakah semua Murid hadir?"
-        case 2: return "Tambahkan aktivitas"
-        case 3: return "Ceritakan tentang Hari ini"
+        case 1: return UIConstants.ProgressCurhat.currentTitle1
+        case 2: return UIConstants.ProgressCurhat.currentTitle2
+        case 3: return UIConstants.ProgressCurhat.currentTitle3
         default: return ""
         }
     }
 
     private var currentSubtitle: String {
         switch currentProgress {
-        case 1: return "Pilih murid Anda yang hadir untuk mengikuti aktivitas hari ini."
-        case 2: return "Tambahkan rincian aktivitas murid anda hari ini."
-        case 3: return "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin."
+        case 1: return UIConstants.ProgressCurhat.currentSubtitle1
+        case 2: return UIConstants.ProgressCurhat.currentSubtitle2
+        case 3: return UIConstants.ProgressCurhat.currentSubtitle3
         default: return ""
         }
     }
@@ -166,7 +177,7 @@ struct ProgressCurhatView: View {
                         showManageActivity = true
                     },
                     bgColor: .buttonOncard,
-                    text: "Tambah"
+                    text: UIConstants.ProgressCurhat.addText
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -176,7 +187,7 @@ struct ProgressCurhatView: View {
             .sheet(isPresented: $showManageActivity) {
                 NavigationStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(editingActivity == nil ? "Tambah Aktivitas" : "Edit Aktivitas")
+                        Text(editingActivity == nil ? UIConstants.ProgressCurhat.addActivityText : UIConstants.ProgressCurhat.editActivityText)
                             .foregroundStyle(.labelPrimaryBlack)
                             .font(.callout)
                             .fontWeight(.semibold)
@@ -184,7 +195,7 @@ struct ProgressCurhatView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             ZStack(alignment: .leading) {
                                 if activityText.isEmpty {
-                                    Text("Tuliskan aktivitas murid...")
+                                    Text(UIConstants.ProgressCurhat.writeActivityPlaceholder)
                                         .foregroundStyle(.labelTertiary)
                                         .font(.body)
                                         .fontWeight(.regular)
@@ -199,10 +210,10 @@ struct ProgressCurhatView: View {
                                     .padding(.horizontal, 11)
                                     .padding(.vertical, 9)
                             }
-                            .background(.cardFieldBG)
-                            .cornerRadius(8)
+                            .background(backgroundColor)
+                            .cornerRadius(cornerRadius)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
+                                RoundedRectangle(cornerRadius: cornerRadius)
                                     .stroke(.monochrome50, lineWidth: 0.5)
                             )
                         }
@@ -214,7 +225,7 @@ struct ProgressCurhatView: View {
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            Text(editingActivity == nil ? "Tambah Aktivitas" : "Edit Aktivitas")
+                            Text(editingActivity == nil ? UIConstants.ProgressCurhat.addActivityText : UIConstants.ProgressCurhat.editActivityText)
                                 .foregroundStyle(.labelPrimaryBlack)
                                 .font(.body)
                                 .fontWeight(.semibold)
@@ -230,7 +241,7 @@ struct ProgressCurhatView: View {
                                 HStack(spacing: 3) {
                                     Image(systemName: "chevron.left")
                                         .fontWeight(.semibold)
-                                    Text("Kembali")
+                                    Text(UIConstants.ProgressCurhat.backButtonText)
                                 }
                                 .font(.body)
                                 .fontWeight(.medium)
@@ -251,7 +262,7 @@ struct ProgressCurhatView: View {
                                     showManageActivity = false
                                 }
                             }) {
-                                Text("Simpan")
+                                Text(UIConstants.ProgressCurhat.saveButtonText)
                                     .font(.body)
                                     .fontWeight(.medium)
                             }
@@ -272,7 +283,7 @@ struct ProgressCurhatView: View {
                     showAlert = true
                 }
             } label: {
-                Text(currentProgress > 1 ? "Kembali" : "Batal")
+                Text(currentProgress > 1 ? UIConstants.ProgressCurhat.backText : UIConstants.ProgressCurhat.cancelText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(.white)
@@ -292,7 +303,7 @@ struct ProgressCurhatView: View {
                     print(studentViewModel.activities)
                 }
             } label: {
-                Text(currentProgress == 3 ? "Mulai Cerita" : "Lanjut")
+                Text(currentProgress == 3 ? UIConstants.ProgressCurhat.startStoryText : UIConstants.ProgressCurhat.continueText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(.orangeClickAble)

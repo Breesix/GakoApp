@@ -1,11 +1,13 @@
 //
-//  InputVoiceView.swift
-//  Breesix
+// VoiceInputView.swift
+//  GAKO
 //
 //  Created by Rangga Biner on 15/10/24.
 //
-
-// VoiceInputView.swift
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: View to receive input in form of voice
+//
 
 import SwiftUI
 import Speech
@@ -33,7 +35,7 @@ struct VoiceInputView: View {
     var fetchStudents: () async -> [Student]
     let selectedStudents: Set<Student>
     let activities: [String]
-
+    
     init(
         selectedDate: Binding<Date>,
         onAddUnsavedActivities: @escaping ([UnsavedActivity]) -> Void,
@@ -117,7 +119,7 @@ struct VoiceInputView: View {
                 .opacity(viewModel.isLoading ? 0.3 : 1)
                 
                 Spacer()
-
+                
                 ZStack(alignment: .bottom) {
                     VStack(alignment: .center){
                         if viewModel.isRecording && !viewModel.isPaused {
@@ -344,6 +346,6 @@ struct VoiceInputView: View {
         onDismiss: {},
         fetchStudents: { return [] },
         selectedStudents: Set<Student>(),
-        activities: [] 
+        activities: []
     )
 }

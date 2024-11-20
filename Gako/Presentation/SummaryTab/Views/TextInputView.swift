@@ -1,8 +1,12 @@
 //
 //  TextInputView.swift
-//  Breesix
+//  GAKO
 //
 //  Created by Rangga Biner on 15/10/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: View to receive input in form of text
 //
 
 import SwiftUI

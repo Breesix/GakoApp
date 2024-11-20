@@ -1,8 +1,12 @@
 //
 //  SummaryTabView.swift
-//  Breesix
+//  GAKO
 //
 //  Created by Rangga Biner on 30/09/24.
+//
+//  Copyright © 2024 Breesix. All rights reserved.
+//
+//  Description: Main view of student Summary
 //
 
 import SwiftUI
@@ -33,14 +37,30 @@ struct SummaryTabView: View {
     @EnvironmentObject var tabBarController: TabBarController
 
     var body: some View {
+        let spacingNone = UIConstants.SummaryTab.Spacing.none
+        let spacingSmall = UIConstants.SummaryTab.Spacing.small
+        let navigationTitle = UIConstants.SummaryTab.Navigation.documentationTitle
+        let navigationButtonText = UIConstants.SummaryTab.Navigation.documentationButtonText
+        let noNotesMessage = UIConstants.SummaryTab.EmptyState.noNotesMessage
+        let noStudentsTitle = UIConstants.SummaryTab.AlertMessages.noStudentsTitle
+        let addStudentButtonText = UIConstants.SummaryTab.AlertMessages.addStudentButtonText
+        let noStudentsMessage = UIConstants.SummaryTab.AlertMessages.noStudentsMessage
+        let noInternetTitle = UIConstants.SummaryTab.AlertMessages.noInternetTitle
+        let okButtonText = UIConstants.SummaryTab.AlertMessages.okButtonText
+        let noInternetMessage = UIConstants.SummaryTab.AlertMessages.noInternetMessage
+        let buttonDelay = UIConstants.SummaryTab.Animation.buttonDelay
+        let spacingMedium = UIConstants.SummaryTab.Spacing.medium
+        let bottomPadding = UIConstants.SummaryTab.Spacing.bottomPadding
+
         NavigationStack {
-            VStack(spacing: 0) {
+            VStack(spacing: spacingNone) {
                 CustomNavigation(
-                    title: "Dokumentasi", textButton: "Dokumentasi"
-                ) { if !networkMonitor.isConnected {
-                    showNoInternetAlert = true
-                }
-                    else if studentViewModel.students.isEmpty {
+                    title: navigationTitle,
+                    textButton: navigationButtonText
+                ) {
+                    if (!networkMonitor.isConnected) {
+                        showNoInternetAlert = true
+                    } else if (studentViewModel.students.isEmpty) {
                         showEmptyStudentsAlert = true
                     } else {
                         navigateToProgressCurhatan = true
@@ -48,13 +68,13 @@ struct SummaryTabView: View {
                 }
                 
                 DateSlider(selectedDate: $summaryViewModel.selectedDate)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, spacingSmall)
                 
                 Group {
-                    if studentsWithSummariesOnSelectedDate.isEmpty {
+                    if (studentsWithSummariesOnSelectedDate.isEmpty) {
                         VStack {
                             Spacer()
-                            EmptyState(message: "Belum ada catatan di hari ini.")
+                            EmptyState(message: noNotesMessage)
                             Spacer()
                         }
                     } else {
@@ -173,27 +193,23 @@ struct SummaryTabView: View {
         .tint(.accent)
         .accentColor(.accent)
         .buttonStyle(AccentButtonStyle())
-        .alert("Tidak Ada Murid", isPresented: $showEmptyStudentsAlert) {
-            Button("Tambahkan Murid",role: .cancel) {
+        .alert(noStudentsTitle, isPresented: $showEmptyStudentsAlert) {
+            Button(addStudentButtonText, role: .cancel) {
                 selectedTab = 1
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + buttonDelay) {
                     isAddingStudent = true
                 }
-                
             }
             .modifier(AlertModifier())
-
         } message: {
-            Text("Anda masih belum memiliki Daftar Murid. Tambahkan murid Anda ke dalam Gako melalu menu Murid")
+            Text(noStudentsMessage)
         }
         
-        .alert("Tidak Ada Koneksi Internet", isPresented: $showNoInternetAlert) {
-            Button("OK", role: .cancel) {}
+        .alert(noInternetTitle, isPresented: $showNoInternetAlert) {
+            Button(okButtonText, role: .cancel) {}
                 .modifier(AlertModifier())
-                
-        }
-        message: {
-            Text("Pastikan Anda Terhubung ke internet untuk menggunkan fitur ini")
+        } message: {
+            Text(noInternetMessage)
         }
         .navigationBarHidden(true)
         .task {
@@ -219,26 +235,21 @@ struct SummaryTabView: View {
         }
     }
 
-    @ViewBuilder private func datePickerView() -> some View {
-        DatePicker("Select Date", selection: $summaryViewModel.selectedDate, displayedComponents: .date)
-            .datePickerStyle(CompactDatePickerStyle())
-            .labelsHidden()
-    }
-
+    // MARK: - Helper Views
     @ViewBuilder private func studentsListView() -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: UIConstants.SummaryTab.Spacing.small) {
             ForEach(studentsWithSummariesOnSelectedDate) { student in
                 NavigationLink(value: student) {
                     SummaryCard(student: student, selectedDate: summaryViewModel.selectedDate)
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 72)
+        .padding(.horizontal, UIConstants.SummaryTab.Spacing.medium)
+        .padding(.bottom, UIConstants.SummaryTab.Spacing.bottomPadding)
         .navigationDestination(for: Student.self) { student in
             DailyReportView(
                 student: student,
-                initialDate: summaryViewModel.selectedDate,  // Tambahkan ini
+                initialDate: summaryViewModel.selectedDate,
                 onAddNote: { note, student in
                     Task {
                         await noteViewModel.addNote(note, for: student)
@@ -275,6 +286,11 @@ struct SummaryTabView: View {
         }
     }
     
+    @ViewBuilder private func datePickerView() -> some View {
+        DatePicker("Select Date", selection: $summaryViewModel.selectedDate, displayedComponents: .date)
+            .datePickerStyle(CompactDatePickerStyle())
+            .labelsHidden()
+    }
 }
 
 struct AlertModifier: ViewModifier {
