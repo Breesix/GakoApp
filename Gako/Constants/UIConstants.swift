@@ -358,28 +358,26 @@ enum UIConstants {
 
     }
     
-    enum SearchBar {
+    enum CustomSearchBar {
         // Colors
-        static let textColor = Color.buttonPrimaryLabel
-        static let placeholderColor = Color.labelSecondaryBlack
-        static let backgroundColor = Color.fillTertiary
-        static let iconColor = Color.labelSecondaryBlack
-        static let recordingIconColor = Color.red
+        static let textColor: Color = .buttonPrimaryLabel
+        static let placeholderColor: Color = .labelSecondaryBlack
+        static let backgroundColor: Color = .fillTertiary
+        static let iconColor: Color = .labelSecondaryBlack
+        static let recordingIconColor: Color = .red
         
-        // Layout
+        // Numerics
         static let cornerRadius: CGFloat = 10
         static let iconPadding: CGFloat = 8
         static let textPadding: CGFloat = 33
         static let verticalPadding: CGFloat = 7
         
-        // Text
-        static let placeholder = "Search"
-        
-        // Icons
-        static let searchIcon = "magnifyingglass"
-        static let micIcon = "mic.fill"
-        static let micStopIcon = "mic.fill.badge.xmark"
-        static let clearIcon = "multiply.circle.fill"
+        // Strings
+        static let placeholder: String = "Search"
+        static let searchIcon: String = "magnifyingglass"
+        static let micIcon: String = "mic.fill"
+        static let micStopIcon: String = "mic.fill.badge.xmark"
+        static let clearIcon: String = "multiply.circle.fill"
     }
     
     enum DailyReport {

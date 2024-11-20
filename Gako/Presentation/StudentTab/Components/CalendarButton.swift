@@ -1,8 +1,10 @@
 //
 //  CalendarButton.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 01/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
 //
 //  Description: A button component that shows a calendar date picker in a sheet
 //  Usage: Use this component to allow date selection through a calendar interface
