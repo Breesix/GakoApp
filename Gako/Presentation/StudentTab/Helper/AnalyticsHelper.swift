@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A helper for tracking general analytics events with student context
+//  Usage: Use these methods to track student-related activity events and status changes
+//
+
 import SwiftUI
 import Mixpanel
 

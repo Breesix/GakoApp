@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides analytics tracking and action handling for EditActivityRow
+//  Usage: Contains methods for tracking user interactions and handling activity-related actions
+//
 
 import Foundation
 import Mixpanel

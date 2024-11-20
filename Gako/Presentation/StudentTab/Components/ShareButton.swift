@@ -4,16 +4,21 @@
 //
 //  Created by Rangga Biner on 03/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A customizable button component for sharing actions
+//  Usage: Use this button to implement sharing functionality with custom icons and colors
+//
 
 import SwiftUI
 
 struct ShareButton: View {
     // MARK: - Constants
-    private let verticalPadding = UIConstants.Share.verticalPadding
-    private let cornerRadius = UIConstants.Share.cornerRadius
-    private let textColor = UIConstants.Share.textColor
-    private let iconFont = UIConstants.Share.iconFont
-    private let titleFont = UIConstants.Share.titleFont
+    private let verticalPadding = UIConstants.ShareButton.verticalPadding
+    private let cornerRadius = UIConstants.ShareButton.cornerRadius
+    private let textColor = UIConstants.ShareButton.textColor
+    private let iconFont = UIConstants.ShareButton.iconFont
+    private let titleFont = UIConstants.ShareButton.titleFont
     
     // MARK: - Properties
     let title: String
@@ -21,6 +26,7 @@ struct ShareButton: View {
     let color: Color
     let action: () -> Void
     
+    // MARK: - Body
     var body: some View {
         Button(action: action) {
             VStack {
@@ -38,6 +44,7 @@ struct ShareButton: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     ShareButton(title: "Share", icon: "square.and.arrow.up.fill", color: .blue, action: { print("shared")})
 }

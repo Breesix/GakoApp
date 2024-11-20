@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides binding creation methods for MonthlyEditCard
+//  Usage: Contains helper methods for creating activity value and status bindings
+//
 
 import Foundation
 import SwiftUI

@@ -1,8 +1,13 @@
 //
 //  CustomSearchBar.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 01/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom search bar component that includes text input and voice recognition functionality
+//  Usage: Use this component to provide search functionality with both text and voice input options
 //
 
 import SwiftUI
@@ -10,33 +15,31 @@ import Speech
 
 struct CustomSearchBar: View {
     // MARK: - Constants
-    private let textColor = UIConstants.SearchBar.textColor
-    private let placeholderColor = UIConstants.SearchBar.placeholderColor
-    private let backgroundColor = UIConstants.SearchBar.backgroundColor
-    private let iconColor = UIConstants.SearchBar.iconColor
-    private let recordingIconColor = UIConstants.SearchBar.recordingIconColor
-    
-    private let cornerRadius = UIConstants.SearchBar.cornerRadius
-    private let iconPadding = UIConstants.SearchBar.iconPadding
-    private let textPadding = UIConstants.SearchBar.textPadding
-    private let verticalPadding = UIConstants.SearchBar.verticalPadding
-    
-    private let placeholder = UIConstants.SearchBar.placeholder
-    private let searchIconBar = UIConstants.SearchBar.searchIcon
-    private let micIcon = UIConstants.SearchBar.micIcon
-    private let micStopIcon = UIConstants.SearchBar.micStopIcon
-    private let clearIcon = UIConstants.SearchBar.clearIcon
+    private let textColor = UIConstants.CustomSearchBar.textColor
+    private let placeholderColor = UIConstants.CustomSearchBar.placeholderColor
+    private let backgroundColor = UIConstants.CustomSearchBar.backgroundColor
+    private let iconColor = UIConstants.CustomSearchBar.iconColor
+    private let recordingIconColor = UIConstants.CustomSearchBar.recordingIconColor
+    private let cornerRadius = UIConstants.CustomSearchBar.cornerRadius
+    private let iconPadding = UIConstants.CustomSearchBar.iconPadding
+    private let textPadding = UIConstants.CustomSearchBar.textPadding
+    private let verticalPadding = UIConstants.CustomSearchBar.verticalPadding
+    private let placeholder = UIConstants.CustomSearchBar.placeholder
+    private let searchIconBar = UIConstants.CustomSearchBar.searchIcon
+    private let micIcon = UIConstants.CustomSearchBar.micIcon
+    private let micStopIcon = UIConstants.CustomSearchBar.micStopIcon
+    private let clearIcon = UIConstants.CustomSearchBar.clearIcon
     
     // MARK: - Properties
     @Binding var text: String
-    @State private var isEditing = false
-    @StateObject private var speechRecognizer = SpeechRecognizer()
-    @State private var isRecording = false
+    @State var isEditing = false
+    @StateObject var speechRecognizer = SpeechRecognizer()
+    @State var isRecording = false
     
+    // MARK: - Body
     var body: some View {
         HStack {
             searchField
-            
             if isEditing {
                 cancelButton
             }
@@ -46,7 +49,7 @@ struct CustomSearchBar: View {
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Subview
     private var searchField: some View {
         ZStack(alignment: .leading) {
             searchPlaceholder
@@ -63,6 +66,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var searchPlaceholder: some View {
         Group {
             if text.isEmpty {
@@ -74,6 +78,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var searchTextField: some View {
         TextField("", text: $text)
             .foregroundStyle(textColor)
@@ -81,6 +86,7 @@ struct CustomSearchBar: View {
             .padding(.vertical, verticalPadding)
     }
     
+    // MARK: - Subview
     private var searchOverlay: some View {
         HStack {
             searchIcon
@@ -88,6 +94,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var searchIcon: some View {
         Image(systemName: searchIconBar)
             .foregroundStyle(iconColor)
@@ -95,6 +102,7 @@ struct CustomSearchBar: View {
             .padding(.leading, iconPadding)
     }
     
+    // MARK: - Subview
     private var rightIcon: some View {
         Group {
             if isRecording {
@@ -109,6 +117,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var stopRecordingButton: some View {
         Button(action: stopRecording) {
             Image(systemName: micStopIcon)
@@ -117,6 +126,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var startRecordingButton: some View {
         Button(action: startRecording) {
             Image(systemName: micIcon)
@@ -125,6 +135,7 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var clearButton: some View {
         Button(action: clearText) {
             Image(systemName: clearIcon)
@@ -133,34 +144,15 @@ struct CustomSearchBar: View {
         }
     }
     
+    // MARK: - Subview
     private var cancelButton: some View {
         Button(action: cancelSearch) {}
-        .padding(.trailing, iconPadding)
-        .transition(.move(edge: .trailing))
-    }
-    
-    // MARK: - Actions
-    private func startRecording() {
-        isRecording = true
-        speechRecognizer.startTranscribing()
-    }
-    
-    private func stopRecording() {
-        isRecording = false
-        speechRecognizer.stopTranscribing()
-    }
-    
-    private func clearText() {
-        self.text = ""
-    }
-    
-    private func cancelSearch() {
-        isEditing = false
-        text = ""
-        SpeechHelper.hideKeyboard()
+            .padding(.trailing, iconPadding)
+            .transition(.move(edge: .trailing))
     }
 }
 
+// MARK: - Preview
 #Preview {
     CustomSearchBar(text: .constant(""))
 }

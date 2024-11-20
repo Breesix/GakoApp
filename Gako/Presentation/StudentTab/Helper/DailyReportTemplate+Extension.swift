@@ -1,75 +1,17 @@
 //
-//  StudentReportTemplate.swift
-//  Breesix
+//  DailyReportTemplate+Extension.swift
+//  Gako
 //
-//  Created by Akmal Hakim on 30/10/24.
+//  Created by Rangga Biner on 20/11/24.
 //
-import SwiftUI
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides layout and section components for DailyReportTemplate
+//  Usage: Contains view builders for different sections of the daily report template
+//
 
-struct DailyReportTemplate: View {
-    // MARK: - Properties
-    let student: Student
-    let activities: [Activity]
-    let notes: [Note]
-    let date: Date
-    @State private var numberOfPages: Int = 1
-    
-    // MARK: - Constants
-    // Dimensions
-    let a4Width = UIConstants.DailyReportTemplate.a4Width
-    let a4Height = UIConstants.DailyReportTemplate.a4Height
-    private let logoWidth = UIConstants.DailyReportTemplate.logoWidth
-    private let studentImageSize = UIConstants.DailyReportTemplate.studentImageSize
-    private let watermarkSize = UIConstants.DailyReportTemplate.watermarkSize
-    private let studentInfoHeight = UIConstants.DailyReportTemplate.studentInfoHeight
-    private let borderWidth = UIConstants.DailyReportTemplate.borderWidth
-    private let borderInset = UIConstants.DailyReportTemplate.borderInset
-    private let cornerRadius = UIConstants.DailyReportTemplate.cornerRadius
-    private let spacing = UIConstants.DailyReportTemplate.spacing
-    private let headerSpacing = UIConstants.DailyReportTemplate.headerSpacing
-    
-    // Section Titles
-    private let reportTitle = UIConstants.DailyReportTemplate.reportTitle
-    private let summaryTitle = UIConstants.DailyReportTemplate.summaryTitle
-    private let activityTitle = UIConstants.DailyReportTemplate.activityTitle
-    private let statusTitle = UIConstants.DailyReportTemplate.statusTitle
-    private let notesTitle = UIConstants.DailyReportTemplate.notesTitle
-    
-    // Empty States
-    private let noSummaryText = UIConstants.DailyReportTemplate.noSummaryText
-    
-    // Footer
-    private let sharedText = UIConstants.DailyReportTemplate.sharedText
-    private let pageText = UIConstants.DailyReportTemplate.pageText
-    private let fromText = UIConstants.DailyReportTemplate.fromText
-    
-    // Images
-    private let logoImage = UIConstants.DailyReportTemplate.logoImage
-    private let watermarkImage = UIConstants.DailyReportTemplate.watermarkImage
-    private let defaultProfileImage = UIConstants.DailyReportTemplate.defaultProfileImage
-    
-    // Colors
-    private let headerTextColor = UIConstants.DailyReportTemplate.headerTextColor
-    private let primaryTextColor = UIConstants.DailyReportTemplate.primaryTextColor
-    private let secondaryTextColor = UIConstants.DailyReportTemplate.secondaryTextColor
-    private let borderColor = UIConstants.DailyReportTemplate.borderColor
-    private let backgroundColor = UIConstants.DailyReportTemplate.backgroundColor
-    private let activityHeaderColor = UIConstants.DailyReportTemplate.activityHeaderColor
-    private let footerTextColor = UIConstants.DailyReportTemplate.footerTextColor
-    private let watermarkColor = UIConstants.DailyReportTemplate.watermarkColor
-    private let profileImageColor = UIConstants.DailyReportTemplate.profileImageColor
-    
-    var body: some View {
-        TabView {
-            ForEach(0..<calculateRequiredPages(), id: \.self) { pageIndex in
-                reportPage(pageIndex: pageIndex)
-                    .frame(width: a4Width, height: a4Height)
-                    .background(backgroundColor)
-            }
-        }
-        .tabViewStyle(.page)
-    }
-}
+import Foundation
+import SwiftUI
 
 extension DailyReportTemplate {
     func reportPage(pageIndex: Int) -> some View {
@@ -252,13 +194,4 @@ extension DailyReportTemplate {
         }
         .padding()
     }
-}
-
-
-
-
-
-
-#Preview {
-    DailyReportTemplate(student: .init(fullname: "Rangga Biner", nickname: "Rangga"), activities: [.init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], notes: [.init(note: "Anak ini baik banget", student: .init(fullname: "Rangga Biner", nickname: "Rangga"))], date: .now)
 }

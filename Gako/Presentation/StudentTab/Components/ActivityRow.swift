@@ -1,39 +1,46 @@
 //
 //  ActivityRow.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 01/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom component that row of activity
+//  Usage: Use this component to display activity row including name of activity and status picker
 //
 
 import SwiftUI
 import Mixpanel
 
 struct ActivityRow: View {
+    // MARK: - Dependencies
+    let analytics = InputAnalyticsTracker.shared
+
     // MARK: - Constants
-    private let titleColor = UIConstants.Activity.titleColor
-    private let bottomPadding = UIConstants.Activity.rowBottomPadding
-    private let statusPickerSpacing = UIConstants.Activity.statusPickerSpacing
-    private let analytics = InputAnalyticsTracker.shared
-    
+    private let titleColor: Color = UIConstants.ActivityRow.titleColor
+    private let defaultSpacing: CGFloat = UIConstants.ActivityRow.defaultSpacing
+    private let statusPickerSpacing: CGFloat = UIConstants.ActivityRow.statusPickerSpacing
+
     // MARK: - Properties
     let activity: Activity
-    let onDelete: (Activity) -> Void
     let onStatusChanged: (Activity, Status) -> Void
-    
-    @State private var showDeleteAlert = false
-    @State private var status: Status
-    
+
+    // MARK: - State Variables
+    @State var showDeleteAlert = false
+    @State var status: Status
+
+    // MARK: - Initialization
     init(activity: Activity,
-         onDelete: @escaping (Activity) -> Void,
          onStatusChanged: @escaping (Activity, Status) -> Void) {
         self.activity = activity
-        self.onDelete = onDelete
         self.onStatusChanged = onStatusChanged
         _status = State(initialValue: activity.status)
     }
     
+    // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: defaultSpacing) {
             activityTitle
             statusPickerView
         }
@@ -43,15 +50,15 @@ struct ActivityRow: View {
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Subview
     private var activityTitle: some View {
         Text(activity.activity)
             .font(.callout)
             .fontWeight(.semibold)
             .foregroundStyle(titleColor)
-            .padding(.bottom, bottomPadding)
     }
     
+    // MARK: - Subview
     private var statusPickerView: some View {
         HStack(spacing: statusPickerSpacing) {
             StatusPicker(status: $status) { newStatus in
@@ -59,37 +66,10 @@ struct ActivityRow: View {
                 onStatusChanged(activity, newStatus)
             }
         }
-    }
-    
-    // MARK: - Tracking Methods
-    private func trackStatusChange(_ newStatus: Status) {
-        ActivityAnalyticsHelper.trackStatusChange(
-            analytics: analytics,
-            activity: activity,
-            oldStatus: status,
-            newStatus: newStatus
-        )
-    }
-    
-    private func trackDeleteAttempt() {
-        ActivityAnalyticsHelper.trackActivityAction(
-            analytics: analytics,
-            action: UIConstants.Activity.Analytics.eventDeleteAttempted,
-            activity: activity,
-            status: status
-        )
-    }
-    
-    private func trackDeletion() {
-        ActivityAnalyticsHelper.trackActivityAction(
-            analytics: analytics,
-            action: UIConstants.Activity.Analytics.eventDeleted,
-            activity: activity,
-            status: status
-        )
-    }
+    }    
 }
 
+// MARK: - Preview
 #Preview {
-    ActivityRow(activity: .init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onDelete: {_ in print("deleted")}, onStatusChanged: { _, _ in print("changed")})
+    ActivityRow(activity: .init(activity: "Menjahit", student: .init(fullname: "Rangga Biner", nickname: "Rangga")), onStatusChanged: { _, _ in print("changed")})
 }

@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides initialization and update methods for YearPickerView
+//  Usage: Contains methods to initialize the selected year and update the selected date based on user input
+//
 
 import SwiftUI
 

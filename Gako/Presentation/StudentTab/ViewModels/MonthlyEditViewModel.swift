@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing activities and notes in the monthly editing context
+//  Usage: Use this class to handle updates to activity statuses and manage notes for monthly editing
+//
+
 import SwiftUI
 
 @MainActor
