@@ -815,6 +815,20 @@ enum UIConstants {
         static let deleteButtonText = "Delete"
     }
     
+    enum ShareButton {
+        // Numerics
+        static let verticalPadding: CGFloat = 12
+        static let cornerRadius: CGFloat = 10
+        
+        // Colors
+        static let textColor: Color = .white
+        
+        // Fonts
+        static let iconFont: Font = .title2
+        static let titleFont: Font = .caption
+
+    }
+    
     enum Share {
         // Layout
         static let verticalPadding: CGFloat = 12
