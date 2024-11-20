@@ -12,7 +12,6 @@ struct DayEditCard: View {
     private let backgroundColor = UIConstants.DayEdit.backgroundColor
     private let emptyTextColor = UIConstants.DayEdit.emptyTextColor
     private let dividerColor = UIConstants.DayEdit.dividerColor
-    
     private let cardCornerRadius = UIConstants.DayEdit.cardCornerRadius
     private let spacing = UIConstants.DayEdit.spacing
     private let horizontalPadding = UIConstants.DayEdit.horizontalPadding

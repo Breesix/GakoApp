@@ -409,6 +409,12 @@ enum UIConstants {
         static let okButtonText = "OK"
     }
     
+    enum DayEditActivityRow {
+        static let spacing: CGFloat = 12
+        static let activitySectionTitle: String = "AKTIVITAS"
+        static let titleColor: Color = .labelPrimaryBlack
+    }
+    
     enum DayEdit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
