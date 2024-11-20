@@ -355,7 +355,7 @@ enum UIConstants {
         static let localeIdentifier: String = "id_ID"
         static let calendarIcon: String = "calendar"
         static let closeIcon: String = "xmark"
-
+        
     }
     
     enum CustomSearchBar {
@@ -551,6 +551,18 @@ enum UIConstants {
         static let trashIcon = "custom.trash.circle.fill"
     }
     
+    enum EditTextField {
+        // Colors
+        static let textColor: Color = .labelPrimaryBlack
+        static let backgroundColor: Color = .monochrome100
+        static let strokeColor: Color = .noteStroke
+        
+        // Numerics
+        static let cornerRadius: CGFloat = 8
+        static let strokeWidth: CGFloat = 0.5
+        static let innerSpacing: CGFloat = 8
+    }
+    
     enum Edit {
         // Colors
         static let titleColor = Color.labelPrimaryBlack
@@ -628,7 +640,7 @@ enum UIConstants {
         static let sectionSpacing: CGFloat = 16
         static let statusPickerSpacing: CGFloat = 8
         static let defaultSpacing: CGFloat = 8
-                
+        
         enum Analytics {
             static let screenActivityList = "activity_list"
             static let eventStatusChanged = "Activity Status Changed"
@@ -750,6 +762,17 @@ enum UIConstants {
         static let cancelButtonText = "Cancel"
     }
     
+    enum EditNoteSection {
+        // Strings
+        static let sectionTitle = "CATATAN"
+        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+        static let addButtonText = "Tambah"
+        
+        // Numerics
+        static let sectionSpacing: CGFloat = 12
+        static let titleBottomPadding: CGFloat = 4
+        
+    }
     enum EditNote {
         // Section
         static let sectionTitle = "CATATAN"

@@ -1,6 +1,6 @@
 //
 //  EditNoteSection.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
 //
@@ -14,11 +14,11 @@ import SwiftUI
 
 struct EditNoteSection: View {
     // MARK: - Constants
-    private let sectionTitle = UIConstants.EditNote.sectionTitle
-    private let emptyStateText = UIConstants.EditNote.emptyStateText
-    private let addButtonText = UIConstants.EditNote.addButtonText
-    private let sectionSpacing = UIConstants.EditNote.sectionSpacing
-    private let titleBottomPadding = UIConstants.EditNote.titleBottomPadding
+    private let sectionTitle = UIConstants.EditNoteSection.sectionTitle
+    private let emptyStateText = UIConstants.EditNoteSection.emptyStateText
+    private let addButtonText = UIConstants.EditNoteSection.addButtonText
+    private let sectionSpacing = UIConstants.EditNoteSection.sectionSpacing
+    private let titleBottomPadding = UIConstants.EditNoteSection.titleBottomPadding
     
     // MARK: - Properties
     let notes: [Note]
