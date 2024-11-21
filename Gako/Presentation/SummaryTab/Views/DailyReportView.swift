@@ -30,9 +30,12 @@ struct DailyReportView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: DailyReportViewModel
+    @State private var isGeneratingSummary = false
+    @ObservedObject var summaryViewModel: SummaryViewModel
     @Environment(\.presentationMode) private var presentationMode
     
     init(student: Student,
+         summaryViewModel: SummaryViewModel,
          initialDate: Date,
          onAddNote: @escaping (Note, Student) async -> Void,
          onUpdateNote: @escaping (Note) async -> Void,
@@ -42,8 +45,12 @@ struct DailyReportView: View {
          onUpdateActivityStatus: @escaping (Activity, Status) async -> Void,
          onFetchNotes: @escaping (Student) async -> [Note],
          onFetchActivities: @escaping (Student) async -> [Activity]) {
-        _viewModel = StateObject(wrappedValue: DailyReportViewModel(
+        
+        self.summaryViewModel = summaryViewModel  // Langsung assign karena ObservedObject
+        
+        let viewModel = DailyReportViewModel(
             student: student,
+            summaryViewModel: summaryViewModel,
             initialDate: initialDate,
             onAddNote: onAddNote,
             onUpdateNote: onUpdateNote,
@@ -53,9 +60,10 @@ struct DailyReportView: View {
             onUpdateActivityStatus: onUpdateActivityStatus,
             onFetchNotes: onFetchNotes,
             onFetchActivities: onFetchActivities
-        ))
+        )
+        
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
     var body: some View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
@@ -81,6 +89,9 @@ struct DailyReportView: View {
                         }
                     } else {
                         ScrollViewContent
+                        if isGeneratingSummary {
+                            ProgressView("Generating Summary...")
+                        }
                     }
                     bottomButton
                 }
@@ -119,6 +130,12 @@ struct DailyReportView: View {
         } message: {
             Text("Apakah Anda yakin ingin membatalkan perubahan?")
         }
+        .alert("Error", isPresented: $viewModel.showError) {
+            Button("OK") {}
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+
         .sheet(isPresented: $viewModel.isAddingNewActivity) {
             ManageActivityView(
                 mode: .add,
@@ -225,7 +242,7 @@ struct DailyReportView: View {
                 Image(systemName: "chevron.left")
                     .foregroundColor(navigationTitleColor)
                     .fontWeight(.semibold)
-                Text(!viewModel.isEditingMode ? "Ringkasan" : viewModel.student.nickname)
+                Text(!viewModel.isEditingMode ? "Dokumentasi" : viewModel.student.nickname)
                     .foregroundStyle(navigationTitleColor)
                     .fontWeight(.regular)
             }
@@ -261,9 +278,11 @@ struct DailyReportView: View {
     
     private var saveButton: some View {
         Button {
+            isGeneratingSummary = true
             Task {
                 await viewModel.saveChanges()
                 viewModel.isEditingMode = false
+                isGeneratingSummary = false
             }
         } label: {
             Text("Simpan")
@@ -275,6 +294,7 @@ struct DailyReportView: View {
                 .background(Color(.orangeClickAble))
                 .cornerRadius(buttonCornerRadius)
         }
+        .disabled(isGeneratingSummary)
     }
     
     private var shareButton: some View {
@@ -336,12 +356,7 @@ struct DailyReportView: View {
         ScrollViewReader { scrollProxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    SummaryDailyCard(
-                        student: viewModel.student,
-                        selectedDate: viewModel.selectedDate
-                    )
-                    .padding(.horizontal, defaultPadding)
-                    .padding(.bottom, defaultVerticalPadding)
+
                     if viewModel.isEditingMode {
                         
                         if let dayItems = viewModel.activitiesForSelectedDay[Calendar.current.startOfDay(for: viewModel.selectedDate)] {
@@ -375,6 +390,12 @@ struct DailyReportView: View {
                             .padding(.bottom, defaultVerticalPadding)
                         }
                     } else {
+                        SummaryDailyCard(
+                            student: viewModel.student,
+                            selectedDate: viewModel.selectedDate
+                        )
+                        .padding(.horizontal, defaultPadding)
+                        .padding(.bottom, defaultVerticalPadding)
                         if let dayItems = viewModel.activitiesForSelectedDay[Calendar.current.startOfDay(for: viewModel.selectedDate)] {
                             StudentDailyReportCard(
                                 activities: dayItems.activities,
@@ -406,20 +427,20 @@ struct DailyReportView: View {
     }
 }
 
-#Preview {
-    DailyReportView(
-        student: Student(
-            fullname: "John Doe",
-            nickname: "John"
-        ),
-        initialDate: Date(),
-        onAddNote: { _, _ in },
-        onUpdateNote: { _ in },
-        onDeleteNote: { _, _ in },
-        onAddActivity: { _, _ in },
-        onDeleteActivity: { _, _ in },
-        onUpdateActivityStatus: { _, _ in },
-        onFetchNotes: { _ in return [] },
-        onFetchActivities: { _ in return [] }
-    )
-}
+//#Preview {
+//    DailyReportView(
+//        student: Student(
+//            fullname: "John Doe",
+//            nickname: "John"
+//        ), summaryViewModel: SummaryViewModel,
+//        initialDate: Date(),
+//        onAddNote: { _, _ in },
+//        onUpdateNote: { _ in },
+//        onDeleteNote: { _, _ in },
+//        onAddActivity: { _, _ in },
+//        onDeleteActivity: { _, _ in },
+//        onUpdateActivityStatus: { _, _ in },
+//        onFetchNotes: { _ in return [] },
+//        onFetchActivities: { _ in return [] }
+//    )
+//}

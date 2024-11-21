@@ -758,4 +758,38 @@ enum UIConstants {
             static let watermarkColor: Color = .gray.opacity(0.1)
             static let profileImageColor: Color = .bgSecondary
         }
+    
+    enum VoiceInput {
+        // Colors
+        static let backgroundColor: Color = .white
+        static let textEditorColor: Color = .labelPrimaryBlack
+        static let borderColor: Color = .black
+        static let disabledOpacity: Double = 0.5
+        static let pauseButtonColor: Color = .bgAccent
+        
+        // Layout
+        static let mainHorizontalPadding: CGFloat = 25
+        static let mainVerticalPadding: CGFloat = 40
+        static let topPadding: CGFloat = 35
+        static let bottomPadding: CGFloat = 12
+        static let textEditorHeight: CGFloat = 228
+        static let textEditorCornerRadius: CGFloat = 10
+        static let lineSpacing: CGFloat = 5
+        static let borderWidth: CGFloat = 1
+        
+        // Button Layout
+        static let buttonSpacing: CGFloat = 35
+        static let cancelButtonWidth: CGFloat = 97
+        static let cancelButtonHeight: CGFloat = 34
+        static let buttonCornerRadius: CGFloat = 8
+        static let recordButtonSize: CGFloat = 100
+        
+        // Guiding Questions
+        static let questionSpacing: CGFloat = 12
+        static let questionVerticalPadding: CGFloat = 16
+        
+        // Text Styles
+        static let guidanceTextPadding: CGFloat = 8
+        static let guidanceTextFont: Font = .subheadline
+    }
     }

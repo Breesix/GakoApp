@@ -30,5 +30,10 @@ class SummaryViewModel: ObservableObject {
     func generateAndSaveSummariesLlama(for date: Date) async throws {
         try await summaryLlamaService.generateAndSaveSummaries(for: studentViewModel.students, on: date)
     }
-
+    
+    func generateSummaryForStudent(_ student: Student, date: Date) async throws {
+        // Buat Set dengan satu student
+        let selectedStudent: Set<Student> = [student]
+        try await summaryService.generateAndSaveSummaries(for: selectedStudent, on: date)
+    }
 }

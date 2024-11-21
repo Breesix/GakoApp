@@ -35,9 +35,13 @@ final class DailyReportViewModel: ObservableObject {
     @Published var emptyAlertMessage = ""
     @Published var currentPageIndex: Int = 0
     @Published var allPageSnapshots: [UIImage] = []
+    @Published var showError: Bool = false
+    @Published var errorMessage: String = ""
+
     
     // MARK: - Properties
     let student: Student
+    let summaryViewModel: SummaryViewModel
     let calendar = Calendar.current
     private var documentInteractionController: UIDocumentInteractionController?
     
@@ -110,6 +114,7 @@ final class DailyReportViewModel: ObservableObject {
     
     // MARK: - Initialization
     init(student: Student,
+         summaryViewModel: SummaryViewModel,
          initialDate: Date,
          onAddNote: @escaping (Note, Student) async -> Void,
          onUpdateNote: @escaping (Note) async -> Void,
@@ -129,6 +134,7 @@ final class DailyReportViewModel: ObservableObject {
         self.onUpdateActivityStatus = onUpdateActivityStatus
         self.onFetchNotes = onFetchNotes
         self.onFetchActivities = onFetchActivities
+        self.summaryViewModel = summaryViewModel
     }
     
     // MARK: - Public Methods
@@ -179,39 +185,53 @@ final class DailyReportViewModel: ObservableObject {
     }
     
     func saveChanges() async {
-        // Validate activities
-        for (id, (text, status, date)) in editedActivities {
-            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedText.isEmpty {
-                toast = Toast(style: .error, message: "Aktivitas tidak boleh kosong")
-                return
+        do {
+            // Validate activities
+            for (id, (text, status, date)) in editedActivities {
+                let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmedText.isEmpty {
+                    toast = Toast(style: .error, message: "Aktivitas tidak boleh kosong")
+                    return
+                }
+                if let activity = activities.first(where: { $0.id == id }) {
+                    var updatedActivity = activity
+                    updatedActivity.activity = trimmedText
+                    updatedActivity.status = status
+                    await onUpdateActivityStatus(updatedActivity, status)
+                }
             }
-            if let activity = activities.first(where: { $0.id == id }) {
-                var updatedActivity = activity
-                updatedActivity.activity = trimmedText
-                updatedActivity.status = status
-                await onUpdateActivityStatus(updatedActivity, status)
+            
+            // Validate notes
+            for (id, (text, date)) in editedNotes {
+                let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmedText.isEmpty {
+                    toast = Toast(style: .error, message: "Catatan tidak boleh kosong")
+                    return
+                }
+                if let note = notes.first(where: { $0.id == id }) {
+                    var updatedNote = note
+                    updatedNote.note = trimmedText
+                    await onUpdateNote(updatedNote)
+                }
             }
+            
+            // Generate summary untuk student yang sedang aktif
+            // Karena student adalah non-optional, kita bisa langsung menggunakannya
+            try await summaryViewModel.generateSummaryForStudent(student, date: selectedDate)
+            
+            await fetchInitialData()
+            editedActivities.removeAll()
+            editedNotes.removeAll()
+            toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
+        } catch ProcessingError.noStudentData {
+            toast = Toast(style: .error, message: "Tidak ada data siswa yang dipilih")
+        } catch ProcessingError.insufficientInformation {
+            toast = Toast(style: .error, message: "Tidak ada aktivitas atau catatan untuk di-generate")
+        } catch ProcessingError.noContent {
+            toast = Toast(style: .error, message: "Gagal menghasilkan ringkasan")
+        } catch {
+            toast = Toast(style: .error, message: "Gagal menyimpan perubahan: \(error.localizedDescription)")
         }
-        
-        // Validate notes
-        for (id, (text, date)) in editedNotes {
-            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedText.isEmpty {
-                toast = Toast(style: .error, message: "Catatan tidak boleh kosong")
-                return
-            }
-            if let note = notes.first(where: { $0.id == id }) {
-                var updatedNote = note
-                updatedNote.note = trimmedText
-                await onUpdateNote(updatedNote)
-            }
-        }
-        
-        await fetchInitialData()
-        editedActivities.removeAll()
-        editedNotes.removeAll()
-        toast = Toast(style: .success, message: "Perubahan berhasil disimpan")
     }
     
     func shareToWhatsApp(images: [UIImage]) {

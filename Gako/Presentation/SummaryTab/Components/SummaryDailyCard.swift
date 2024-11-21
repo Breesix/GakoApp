@@ -39,8 +39,9 @@ struct SummaryDailyCard: View {
             
             if dailySummaries.isEmpty {
                 Text("Tidak ada rangkuman pada hari ini")
-                    .font(.subheadline)
-                    .fontWeight(.regular)
+//                    .font(.subheadline)
+//                    .fontWeight(.regular)
+                    .foregroundColor(Color.labelSecondaryBlack)
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
