@@ -4,10 +4,6 @@
 //
 //  Created by Rangga Biner on 03/11/24.
 //
-//  Copyright © 2024 Breesix. All rights reserved.
-//
-//  Description: Sheets view to add or edit note
-//
 
 import SwiftUI
 import Mixpanel
@@ -18,6 +14,8 @@ struct ManageUnsavedNoteView: View {
     @State private var showAlert: Bool = false
     
     private let analytics = InputAnalyticsTracker.shared
+    
+
     
     enum Mode: Equatable {
         case add(Student, Date)
