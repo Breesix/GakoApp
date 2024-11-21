@@ -83,17 +83,11 @@ struct DailyReportView: View {
                 
                 VStack(spacing: 0) {
                     dateSelectionHeader
-                    
-                    if viewModel.activitiesForSelectedDay[Calendar.current.startOfDay(for: viewModel.selectedDate)]?.activities.isEmpty ?? true {
-                        VStack {
-                            emptyStateView
-                        }
-                    } else {
                         ScrollViewContent
                         if isGeneratingSummary {
                             SaveLoadingView(progress: progress)
                         }
-                    }
+                    
                     bottomButton
                 }
             }
