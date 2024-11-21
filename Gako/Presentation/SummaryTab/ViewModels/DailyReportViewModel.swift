@@ -180,14 +180,14 @@ final class DailyReportViewModel: ObservableObject {
     
     func saveChanges() async {
         // Validate activities
-        for (id, (text, status, date)) in editedActivities {
+        for (id, (text, status, _)) in editedActivities {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 toast = Toast(style: .error, message: "Aktivitas tidak boleh kosong")
                 return
             }
             if let activity = activities.first(where: { $0.id == id }) {
-                var updatedActivity = activity
+                let updatedActivity = activity
                 updatedActivity.activity = trimmedText
                 updatedActivity.status = status
                 await onUpdateActivityStatus(updatedActivity, status)
@@ -195,14 +195,14 @@ final class DailyReportViewModel: ObservableObject {
         }
         
         // Validate notes
-        for (id, (text, date)) in editedNotes {
+        for (id, (text, _)) in editedNotes {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 toast = Toast(style: .error, message: "Catatan tidak boleh kosong")
                 return
             }
             if let note = notes.first(where: { $0.id == id }) {
-                var updatedNote = note
+                let updatedNote = note
                 updatedNote.note = trimmedText
                 await onUpdateNote(updatedNote)
             }

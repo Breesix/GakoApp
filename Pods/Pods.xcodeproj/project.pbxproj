@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 71;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,7 +26,7 @@
 		78B8D5160F8FA7E2285CEA3C0F8CAC67 /* Pods-Breesix-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = C20A81FB3AD05017744C2F738035D514 /* Pods-Breesix-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		98D20452327F7F2E74169D3C1E455CEC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A5B5681F1CB53431EFBCA2959796A50 /* Foundation.framework */; };
 		9B33B3B1E81BD0FD2F259268A0440E97 /* MixpanelInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CEE9B83E8E6B2E1F98B13AD608D77B /* MixpanelInstance.swift */; };
-		9DCAB7058C526A7FE2E3AA7175E58A2A /* Mixpanel-swift-Mixpanel in Resources */ = {isa = PBXBuildFile; fileRef = 6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel-swift-Mixpanel */; };
+		9DCAB7058C526A7FE2E3AA7175E58A2A /* Mixpanel.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel.bundle */; };
 		A10C386F27252C5194FF6838AE5170AD /* Flush.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE20CCC341D26D017CE8020CC8F09844 /* Flush.swift */; };
 		B378358C1B4F7F0AA8A8F3A0A45B3E60 /* FlushRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB83EACEEB3290573FE2F43DD36E5F30 /* FlushRequest.swift */; };
 		B7B919ECBA84A550B0AAADAC9F358476 /* Mixpanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DB7FB8B7339DE65FDB6BD698AA7879 /* Mixpanel.swift */; };
@@ -67,17 +67,17 @@
 		23FE6ADB7A0F3B1B5C506AA3B3B30124 /* MPDB.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MPDB.swift; path = Sources/MPDB.swift; sourceTree = "<group>"; };
 		27815926E11A0D6C0AD980EC9CB40552 /* Network.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Network.swift; path = Sources/Network.swift; sourceTree = "<group>"; };
 		2A5B5681F1CB53431EFBCA2959796A50 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		3106651F608FF9E872964798302D36DE /* Mixpanel-swift */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Mixpanel-swift"; path = Mixpanel.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3106651F608FF9E872964798302D36DE /* Mixpanel.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Mixpanel.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		34E324D30E21AB3B8882484911F425C3 /* Group.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Group.swift; path = Sources/Group.swift; sourceTree = "<group>"; };
 		36E1C7167A9BC4B10883E9B86931A706 /* People.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = People.swift; path = Sources/People.swift; sourceTree = "<group>"; };
 		41B85F902224E22A79E4260C401920CC /* Pods-Breesix-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Breesix-acknowledgements.markdown"; sourceTree = "<group>"; };
 		4D9D796C68EBE6B23B216725789D5E72 /* AutomaticProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AutomaticProperties.swift; path = Sources/AutomaticProperties.swift; sourceTree = "<group>"; };
 		53CEE9B83E8E6B2E1F98B13AD608D77B /* MixpanelInstance.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MixpanelInstance.swift; path = Sources/MixpanelInstance.swift; sourceTree = "<group>"; };
 		55F7CACFE1E9F11AF20399863D5C3475 /* Error.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Error.swift; path = Sources/Error.swift; sourceTree = "<group>"; };
-		562CFF17A9566344C77D29853128EAA1 /* Pods-Breesix */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-Breesix"; path = Pods_Breesix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		562CFF17A9566344C77D29853128EAA1 /* Pods_Breesix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Breesix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57A9A947333DDD32EE8DBE4A7F9A8300 /* Pods-Breesix-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Breesix-Info.plist"; sourceTree = "<group>"; };
 		5CC0B335E0F3487572F9489CFB194FF6 /* Mixpanel-swift-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Mixpanel-swift-prefix.pch"; sourceTree = "<group>"; };
-		6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel-swift-Mixpanel */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Mixpanel-swift-Mixpanel"; path = Mixpanel.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Mixpanel.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		729C7C86CEEA9DCD17190301B29D2186 /* Pods-Breesix.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Breesix.modulemap"; sourceTree = "<group>"; };
 		783808B830B058F7F7307B1D0BFA4361 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		7A92CF0F2DBE9B66C800F6EE969F00C3 /* Constants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = Sources/Constants.swift; sourceTree = "<group>"; };
@@ -89,7 +89,7 @@
 		9521EBA89F15FCFF6770E6D571F7DEA6 /* Pods-Breesix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Breesix.debug.xcconfig"; sourceTree = "<group>"; };
 		95FB10BCA2221CC9B67648EC01A42585 /* ResourceBundle-Mixpanel-Mixpanel-swift-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "ResourceBundle-Mixpanel-Mixpanel-swift-Info.plist"; sourceTree = "<group>"; };
 		9838134B237373AF6D94F8B9962E9CBB /* MixpanelType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MixpanelType.swift; path = Sources/MixpanelType.swift; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		B0AD8CF502C15B3181777A7B4783ECAD /* Mixpanel-swift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Mixpanel-swift.debug.xcconfig"; sourceTree = "<group>"; };
 		B3D488CCE11AC1EA2396CE8B1E7CB043 /* Mixpanel-swift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Mixpanel-swift.release.xcconfig"; sourceTree = "<group>"; };
 		BB83EACEEB3290573FE2F43DD36E5F30 /* FlushRequest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FlushRequest.swift; path = Sources/FlushRequest.swift; sourceTree = "<group>"; };
@@ -103,7 +103,7 @@
 		F812E8948CFB9997D592AA2D51526E17 /* Mixpanel-swift.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Mixpanel-swift.modulemap"; sourceTree = "<group>"; };
 		FE16A47D6825737102250C9BC5114809 /* Pods-Breesix-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Breesix-acknowledgements.plist"; sourceTree = "<group>"; };
 		FE20CCC341D26D017CE8020CC8F09844 /* Flush.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Flush.swift; path = Sources/Flush.swift; sourceTree = "<group>"; };
-		FE4C224F26B7CA9D93E828A4EA8E9623 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Sources/Mixpanel/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FE4C224F26B7CA9D93E828A4EA8E9623 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Sources/Mixpanel/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,7 +158,6 @@
 				8D8AD0476ABEB094BAE22800E498E9F7 /* Resources */,
 				E344FBEC8B4B4BA3FF37553A6857BEA4 /* Support Files */,
 			);
-			name = "Mixpanel-swift";
 			path = "Mixpanel-swift";
 			sourceTree = "<group>";
 		};
@@ -236,9 +235,9 @@
 		BE8FC5EEC659A933D7309EBAC0BF89AF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3106651F608FF9E872964798302D36DE /* Mixpanel-swift */,
-				6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel-swift-Mixpanel */,
-				562CFF17A9566344C77D29853128EAA1 /* Pods-Breesix */,
+				3106651F608FF9E872964798302D36DE /* Mixpanel.framework */,
+				6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel.bundle */,
+				562CFF17A9566344C77D29853128EAA1 /* Pods_Breesix.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -306,7 +305,7 @@
 			);
 			name = "Mixpanel-swift-Mixpanel";
 			productName = Mixpanel;
-			productReference = 6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel-swift-Mixpanel */;
+			productReference = 6CEE96A6A3A3FC3CC51830131C0A4660 /* Mixpanel.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
 		7D4BD85C1FD5F18A0FFABFC36FCC5FA6 /* Pods-Breesix */ = {
@@ -325,7 +324,7 @@
 			);
 			name = "Pods-Breesix";
 			productName = Pods_Breesix;
-			productReference = 562CFF17A9566344C77D29853128EAA1 /* Pods-Breesix */;
+			productReference = 562CFF17A9566344C77D29853128EAA1 /* Pods_Breesix.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		E1886A99D3887E7B636CFCD67E199412 /* Mixpanel-swift */ = {
@@ -344,7 +343,7 @@
 			);
 			name = "Mixpanel-swift";
 			productName = Mixpanel;
-			productReference = 3106651F608FF9E872964798302D36DE /* Mixpanel-swift */;
+			productReference = 3106651F608FF9E872964798302D36DE /* Mixpanel.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -365,8 +364,6 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			minimizedProjectReferenceProxies = 0;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = BE8FC5EEC659A933D7309EBAC0BF89AF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -391,7 +388,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9DCAB7058C526A7FE2E3AA7175E58A2A /* Mixpanel-swift-Mixpanel in Resources */,
+				9DCAB7058C526A7FE2E3AA7175E58A2A /* Mixpanel.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,7 +523,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Target Support Files/Mixpanel-swift/Mixpanel-swift-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -721,7 +718,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Mixpanel-swift";
 				IBSC_MODULE = Mixpanel;
 				INFOPLIST_FILE = "Target Support Files/Mixpanel-swift/ResourceBundle-Mixpanel-Mixpanel-swift-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_NAME = Mixpanel;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -749,7 +746,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Target Support Files/Mixpanel-swift/Mixpanel-swift-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -776,7 +773,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Mixpanel-swift";
 				IBSC_MODULE = Mixpanel;
 				INFOPLIST_FILE = "Target Support Files/Mixpanel-swift/ResourceBundle-Mixpanel-Mixpanel-swift-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_NAME = Mixpanel;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
