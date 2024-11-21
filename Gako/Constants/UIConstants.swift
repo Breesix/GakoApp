@@ -735,6 +735,8 @@ enum UIConstants {
         // MARK: - Empty State
         enum EmptyState {
             static let noNotesMessage = "Belum ada catatan di hari ini."
+        }
+    }
     
     enum Activity {
         // Colors
