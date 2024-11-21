@@ -896,15 +896,116 @@ enum UIConstants {
         // Numerics
         static let verticalPadding: CGFloat = 12
         static let cornerRadius: CGFloat = 10
-        
         // Colors
         static let textColor: Color = .white
         
         // Fonts
         static let iconFont: Font = .title2
         static let titleFont: Font = .caption
-
     }
+        enum EditNote {
+            // Section
+            static let sectionTitle = "CATATAN"
+            static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+            static let addButtonText = "Tambah"
+            static let sectionSpacing: CGFloat = 12
+            static let titleBottomPadding: CGFloat = 4
+            
+            // Row
+            static let rowSpacing: CGFloat = 8
+            static let notePadding: CGFloat = 8
+            static let cornerRadius: CGFloat = 8
+            static let strokeWidth: CGFloat = 0.5
+            static let deleteButtonSize: CGFloat = 34
+            
+            // Alert
+            static let deleteAlertTitle = "Hapus Catatan"
+            static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
+            static let deleteButtonText = "Hapus"
+            static let cancelButtonText = "Batal"
+        }
+        enum DailyReportTemplate {
+            static let a4Width: CGFloat = 595.276
+            static let a4Height: CGFloat = 841.89
+            static let logoWidth: CGFloat = 100
+            static let studentImageSize: CGFloat = 64
+            static let watermarkSize: CGFloat = 200
+            static let studentInfoHeight: CGFloat = 90
+            static let borderWidth: CGFloat = 1
+            static let borderInset: CGFloat = 0.5
+            static let cornerRadius: CGFloat = 12
+            static let spacing: CGFloat = 8
+            static let headerSpacing: CGFloat = 16
+            
+            // Section Titles
+            static let reportTitle = "Laporan Harian Murid"
+            static let summaryTitle = "Ringkasan:"
+            static let activityTitle = "Aktivitas"
+            static let statusTitle = "Keterangan"
+            static let notesTitle = "Catatan:"
+            
+            // Empty States
+            static let noSummaryText = "Tidak ada ringkasan untuk hari ini"
+            
+            // Footer
+            static let sharedText = "Dibagikan melalui Aplikasi GAKO"
+            static let pageText = "Halaman"
+            static let fromText = "dari"
+            
+            // Images
+            static let logoImage = "gako_logotype"
+            static let watermarkImage = "gako_wm"
+            static let defaultProfileImage = "person.circle.fill"
+            
+            // Colors
+            static let headerTextColor: Color = .labelPrimary
+            static let primaryTextColor: Color = .labelPrimaryBlack
+            static let secondaryTextColor: Color = .secondary
+            static let borderColor: Color = .green300
+            static let backgroundColor: Color = .white
+            static let activityHeaderColor: Color = .green300
+            static let footerTextColor: Color = .gray
+            static let watermarkColor: Color = .gray.opacity(0.1)
+            static let profileImageColor: Color = .bgSecondary
+        }
+    
+    enum VoiceInput {
+        // Colors
+        static let backgroundColor: Color = .white
+        static let textEditorColor: Color = .labelPrimaryBlack
+        static let borderColor: Color = .black
+        static let disabledOpacity: Double = 0.5
+        static let pauseButtonColor: Color = .bgAccent
+        
+        // Layout
+        static let mainHorizontalPadding: CGFloat = 25
+        static let mainVerticalPadding: CGFloat = 40
+        static let topPadding: CGFloat = 35
+        static let bottomPadding: CGFloat = 12
+        static let textEditorHeight: CGFloat = 228
+        static let textEditorCornerRadius: CGFloat = 10
+        static let lineSpacing: CGFloat = 5
+        static let borderWidth: CGFloat = 1
+        
+        // Button Layout
+        static let buttonSpacing: CGFloat = 35
+        static let cancelButtonWidth: CGFloat = 97
+        static let cancelButtonHeight: CGFloat = 34
+        static let buttonCornerRadius: CGFloat = 8
+        static let recordButtonSize: CGFloat = 100
+        
+        // Guiding Questions
+        static let questionSpacing: CGFloat = 12
+        static let questionVerticalPadding: CGFloat = 16
+        
+        // Text Styles
+        static let guidanceTextPadding: CGFloat = 8
+        static let guidanceTextFont: Font = .subheadline
+    }
+
+
+
+    
     
     enum Share {
         // Layout
@@ -953,69 +1054,70 @@ enum UIConstants {
         static let titleBottomPadding: CGFloat = 4
         
     }
-    enum EditNote {
-        // Section
-        static let sectionTitle = "CATATAN"
-        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
-        static let addButtonText = "Tambah"
-        static let sectionSpacing: CGFloat = 12
-        static let titleBottomPadding: CGFloat = 4
-        
-        // Row
-        static let rowSpacing: CGFloat = 8
-        static let notePadding: CGFloat = 8
-        static let cornerRadius: CGFloat = 8
-        static let strokeWidth: CGFloat = 0.5
-        static let deleteButtonSize: CGFloat = 34
-        
-        // Alert
-        static let deleteAlertTitle = "Hapus Catatan"
-        static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
-        static let deleteButtonText = "Hapus"
-        static let cancelButtonText = "Batal"
-    }
-    enum DailyReportTemplate {
-        static let a4Width: CGFloat = 595.276
-        static let a4Height: CGFloat = 841.89
-        static let logoWidth: CGFloat = 100
-        static let studentImageSize: CGFloat = 64
-        static let watermarkSize: CGFloat = 200
-        static let studentInfoHeight: CGFloat = 90
-        static let borderWidth: CGFloat = 1
-        static let borderInset: CGFloat = 0.5
-        static let cornerRadius: CGFloat = 12
-        static let spacing: CGFloat = 8
-        static let headerSpacing: CGFloat = 16
-        
-        // Section Titles
-        static let reportTitle = "Laporan Harian Murid"
-        static let summaryTitle = "Ringkasan:"
-        static let activityTitle = "Aktivitas"
-        static let statusTitle = "Keterangan"
-        static let notesTitle = "Catatan:"
-        
-        // Empty States
-        static let noSummaryText = "Tidak ada ringkasan untuk hari ini"
-        
-        // Footer
-        static let sharedText = "Dibagikan melalui Aplikasi GAKO"
-        static let pageText = "Halaman"
-        static let fromText = "dari"
-        
-        // Images
-        static let logoImage = "gako_logotype"
-        static let watermarkImage = "gako_wm"
-        static let defaultProfileImage = "person.circle.fill"
-        
-        // Colors
-        static let headerTextColor: Color = .labelPrimary
-        static let primaryTextColor: Color = .labelPrimaryBlack
-        static let secondaryTextColor: Color = .secondary
-        static let borderColor: Color = .green300
-        static let backgroundColor: Color = .white
-        static let activityHeaderColor: Color = .green300
-        static let footerTextColor: Color = .gray
-        static let watermarkColor: Color = .gray.opacity(0.1)
-        static let profileImageColor: Color = .bgSecondary
-    }
+//    enum EditNote {
+//        // Section
+//        static let sectionTitle = "CATATAN"
+//        static let emptyStateText = "Tidak ada catatan untuk tanggal ini"
+//        static let addButtonText = "Tambah"
+//        static let sectionSpacing: CGFloat = 12
+//        static let titleBottomPadding: CGFloat = 4
+//        
+//        // Row
+//        static let rowSpacing: CGFloat = 8
+//        static let notePadding: CGFloat = 8
+//        static let cornerRadius: CGFloat = 8
+//        static let strokeWidth: CGFloat = 0.5
+//        static let deleteButtonSize: CGFloat = 34
+//        
+//        // Alert
+//        static let deleteAlertTitle = "Hapus Catatan"
+//        static let deleteAlertMessage = "Apakah Anda yakin ingin menghapus catatan ini?"
+//        static let deleteButtonText = "Hapus"
+//        static let cancelButtonText = "Batal"
+//    }
+//    enum DailyReportTemplate {
+//        static let a4Width: CGFloat = 595.276
+//        static let a4Height: CGFloat = 841.89
+//        static let logoWidth: CGFloat = 100
+//        static let studentImageSize: CGFloat = 64
+//        static let watermarkSize: CGFloat = 200
+//        static let studentInfoHeight: CGFloat = 90
+//        static let borderWidth: CGFloat = 1
+//        static let borderInset: CGFloat = 0.5
+//        static let cornerRadius: CGFloat = 12
+//        static let spacing: CGFloat = 8
+//        static let headerSpacing: CGFloat = 16
+//        
+//        // Section Titles
+//        static let reportTitle = "Laporan Harian Murid"
+//        static let summaryTitle = "Ringkasan:"
+//        static let activityTitle = "Aktivitas"
+//        static let statusTitle = "Keterangan"
+//        static let notesTitle = "Catatan:"
+//        
+//        // Empty States
+//        static let noSummaryText = "Tidak ada ringkasan untuk hari ini"
+//        
+//        // Footer
+//        static let sharedText = "Dibagikan melalui Aplikasi GAKO"
+//        static let pageText = "Halaman"
+//        static let fromText = "dari"
+//        
+//        // Images
+//        static let logoImage = "gako_logotype"
+//        static let watermarkImage = "gako_wm"
+//        static let defaultProfileImage = "person.circle.fill"
+//        
+//        // Colors
+//        static let headerTextColor: Color = .labelPrimary
+//        static let primaryTextColor: Color = .labelPrimaryBlack
+//        static let secondaryTextColor: Color = .secondary
+//        static let borderColor: Color = .green300
+//        static let backgroundColor: Color = .white
+//        static let activityHeaderColor: Color = .green300
+//        static let footerTextColor: Color = .gray
+//        static let watermarkColor: Color = .gray.opacity(0.1)
+//        static let profileImageColor: Color = .bgSecondary
+//
+//    }
 }
