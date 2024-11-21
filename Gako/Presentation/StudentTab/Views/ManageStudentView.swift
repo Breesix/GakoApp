@@ -179,6 +179,9 @@ struct ManageStudentView: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
+                        onImageChange(nil)
+                        currentImage = nil
+                        selectedImageData = nil
                         presentationMode.wrappedValue.dismiss()
                     }) {
                         HStack(spacing: 3) {
@@ -203,6 +206,11 @@ struct ManageStudentView: View {
                     .padding(.top, 27)
                 }
             }
+        }
+        .onDisappear {
+            onImageChange(nil)
+            currentImage = nil
+            selectedImageData = nil
         }
         .actionSheet(isPresented: $showingSourceTypeMenu) {
             ActionSheet(
