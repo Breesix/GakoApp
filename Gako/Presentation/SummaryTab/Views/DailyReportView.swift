@@ -29,6 +29,7 @@ struct DailyReportView: View {
     private let emptyStateSpacing = UIConstants.EmptyState.defaultSpacing
     
     // MARK: - Properties
+    @State private var progress: Double = 0.0
     @StateObject private var viewModel: DailyReportViewModel
     @State private var isGeneratingSummary = false
     @ObservedObject var summaryViewModel: SummaryViewModel
@@ -90,7 +91,7 @@ struct DailyReportView: View {
                     } else {
                         ScrollViewContent
                         if isGeneratingSummary {
-                            ProgressView("Generating Summary...")
+                            SaveLoadingView(progress: progress)
                         }
                     }
                     bottomButton

@@ -4,16 +4,22 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
-import SwiftUI 
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A row component for editing existing student notes
+//  Usage: Use this view within DayEditCard to manage existing note entries
+//
+
+import SwiftUI
 
 struct DayEditNoteRow: View {
     // MARK: - Constants
     private let titleColor = UIConstants.DayEdit.titleColor
-    private let backgroundColor = UIConstants.Edit.backgroundColor
-    private let strokeColor = UIConstants.Edit.strokeColor
-    private let cornerRadius = UIConstants.Edit.cornerRadius
-    private let strokeWidth = UIConstants.Edit.strokeWidth
-    private let spacing = UIConstants.DayEdit.spacing
+    private let backgroundColor = UIConstants.DayEditNoteRow.backgroundColor
+    private let strokeColor = UIConstants.DayEditNoteRow.strokeColor
+    private let cornerRadius = UIConstants.DayEditNoteRow.cornerRadius
+    private let strokeWidth = UIConstants.DayEditNoteRow.strokeWidth
+    private let spacing = UIConstants.DayEditNoteRow.spacing
     
     // MARK: - Properties
     let note: Note
@@ -22,6 +28,7 @@ struct DayEditNoteRow: View {
     let onDelete: (Note) -> Void
     @State private var showDeleteAlert = false
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
             HStack {
@@ -39,6 +46,7 @@ struct DayEditNoteRow: View {
         }
     }
     
+    // MARK: - Subview
     private var noteTextField: some View {
         TextField("", text: EditBindingHelper.makeNoteBinding(
             note: note,
@@ -58,7 +66,13 @@ struct DayEditNoteRow: View {
         }
     }
     
+    // MARK: - Subview
     private var deleteButton: some View {
         DeleteButton(action: { showDeleteAlert = true })
     }
+}
+
+// MARK: - Preview
+#Preview {
+    DayEditNoteRow(note: .init(note: "Semua anak keren", student: .init(fullname: "Rangga", nickname: "Hadi")), editedNotes: .constant([:]), date: Date(), onDelete: { _ in })
 }

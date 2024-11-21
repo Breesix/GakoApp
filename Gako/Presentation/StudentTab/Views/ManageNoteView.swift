@@ -1,41 +1,29 @@
 //
 //  ManageNoteView.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 04/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A view for managing the addition and editing of student notes
+//  Usage: Use this view to create or edit notes for a student, including input validation and alerts
 //
 
 import SwiftUI
 
 struct ManageNoteView: View {
-    
-    @State private var noteText: String
-    @State private var showAlert: Bool = false
-    
+    // MARK: - Properties
+    @State var noteText: String
+    @State var showAlert: Bool = false
     let student: Student
     let selectedDate: Date?
     let onDismiss: () -> Void
     let onSave: (Note) async -> Void
     let onUpdate: (Note) -> Void
-    
-    enum Mode: Equatable {
-        case add
-        case edit(Note)
-        
-        static func == (lhs: Mode, rhs: Mode) -> Bool {
-            switch (lhs, rhs) {
-            case (.add, .add):
-                return true
-            case let (.edit(note1), .edit(note2)):
-                return note1.id == note2.id
-            default:
-                return false
-            }
-        }
-    }
-    
     let mode: Mode
     
+    // MARK: - Initialization
     init(mode: Mode,
          student: Student,
          selectedDate: Date? = nil,
@@ -58,32 +46,31 @@ struct ManageNoteView: View {
     }
     
     // MARK: - Constants
-    private let titleColor = UIConstants.ManageNote.titleColor
-    private let textFieldBackground = UIConstants.ManageNote.textFieldBackground
-    private let placeholderColor = UIConstants.ManageNote.placeholderColor
-    private let textColor = UIConstants.ManageNote.textColor
-    private let borderColor = UIConstants.ManageNote.borderColor
+    private let titleColor = UIConstants.ManageNoteView.titleColor
+    private let textFieldBackground = UIConstants.ManageNoteView.textFieldBackground
+    private let placeholderColor = UIConstants.ManageNoteView.placeholderColor
+    private let textColor = UIConstants.ManageNoteView.textColor
+    private let borderColor = UIConstants.ManageNoteView.borderColor
+    private let spacing = UIConstants.ManageNoteView.spacing
+    private let topPadding = UIConstants.ManageNoteView.topPadding
+    private let horizontalPadding = UIConstants.ManageNoteView.horizontalPadding
+    private let toolbarTopPadding = UIConstants.ManageNoteView.toolbarTopPadding
+    private let cornerRadius = UIConstants.ManageNoteView.cornerRadius
+    private let borderWidth = UIConstants.ManageNoteView.borderWidth
+    private let textEditorHeight = UIConstants.ManageNoteView.textEditorHeight
+    private let textEditorHorizontalPadding = UIConstants.ManageNoteView.textEditorHorizontalPadding
+    private let placeholderPadding = UIConstants.ManageNoteView.placeholderPadding
+    private let addNoteTitle = UIConstants.ManageNoteView.addNoteTitle
+    private let editNoteTitle = UIConstants.ManageNoteView.editNoteTitle
+    private let placeholderText = UIConstants.ManageNoteView.placeholderText
+    private let backButtonText = UIConstants.ManageNoteView.backButtonText
+    private let saveButtonText = UIConstants.ManageNoteView.saveButtonText
+    private let alertTitle = UIConstants.ManageNoteView.alertTitle
+    private let alertMessage = UIConstants.ManageNoteView.alertMessage
+    private let okButtonText = UIConstants.ManageNoteView.okButtonText
+    private let backIcon = UIConstants.ManageNoteView.backIcon
     
-    private let spacing = UIConstants.ManageNote.spacing
-    private let topPadding = UIConstants.ManageNote.topPadding
-    private let horizontalPadding = UIConstants.ManageNote.horizontalPadding
-    private let toolbarTopPadding = UIConstants.ManageNote.toolbarTopPadding
-    private let cornerRadius = UIConstants.ManageNote.cornerRadius
-    private let borderWidth = UIConstants.ManageNote.borderWidth
-    private let textEditorHeight = UIConstants.ManageNote.textEditorHeight
-    private let textEditorHorizontalPadding = UIConstants.ManageNote.textEditorHorizontalPadding
-    private let placeholderPadding = UIConstants.ManageNote.placeholderPadding
-    
-    private let addNoteTitle = UIConstants.ManageNote.addNoteTitle
-    private let editNoteTitle = UIConstants.ManageNote.editNoteTitle
-    private let placeholderText = UIConstants.ManageNote.placeholderText
-    private let backButtonText = UIConstants.ManageNote.backButtonText
-    private let saveButtonText = UIConstants.ManageNote.saveButtonText
-    private let alertTitle = UIConstants.ManageNote.alertTitle
-    private let alertMessage = UIConstants.ManageNote.alertMessage
-    private let okButtonText = UIConstants.ManageNote.okButtonText
-    private let backIcon = UIConstants.ManageNote.backIcon
-    
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: spacing) {
@@ -177,24 +164,9 @@ struct ManageNoteView: View {
             }
         }
     }
-    
-    private func saveNote() {
-        switch mode {
-        case .add:
-            guard let date = selectedDate else { return }
-            let newNote = Note(note: noteText, createdAt: date, student: student)
-            Task {
-                await onSave(newNote)
-                onDismiss()
-            }
-        case .edit(let note):
-            note.note = noteText
-            onUpdate(note)
-            onDismiss()
-        }
-    }
 }
 
+// MARK: - Preview
 #Preview {
     ManageNoteView(
         mode: .add,

@@ -4,22 +4,34 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A custom styled text field component for editing text
+//  Usage: Use this reusable text field component for text input throughout the app
+//
+
 import SwiftUI
 
 struct EditTextField: View {
     // MARK: - Constants
-    private let textColor = UIConstants.Edit.textColor
-    private let backgroundColor = UIConstants.Edit.backgroundColor
-    private let strokeColor = UIConstants.Edit.strokeColor
-    private let cornerRadius = UIConstants.Edit.cornerRadius
-    private let strokeWidth = UIConstants.Edit.strokeWidth
-    private let padding = UIConstants.Edit.innerSpacing
+    private let textColor = UIConstants.EditTextField.textColor
+    private let backgroundColor = UIConstants.EditTextField.backgroundColor
+    private let strokeColor = UIConstants.EditTextField.strokeColor
+    private let cornerRadius = UIConstants.EditTextField.cornerRadius
+    private let strokeWidth = UIConstants.EditTextField.strokeWidth
+    private let padding = UIConstants.EditTextField.innerSpacing
     
     // MARK: - Properties
     @Binding var text: String
     var placeholder: String = ""
     
+    // MARK: - Body
     var body: some View {
+        textField
+    }
+    
+    // MARK: - Subview
+    private var textField: some View {
         TextField(placeholder, text: $text)
             .font(.subheadline)
             .fontWeight(.regular)
@@ -33,4 +45,9 @@ struct EditTextField: View {
                     .stroke(strokeColor, lineWidth: strokeWidth)
             }
     }
+}
+
+// MARK: - Preview
+#Preview {
+    EditTextField(text: .constant("Sample text"), placeholder: "sample holder")
 }

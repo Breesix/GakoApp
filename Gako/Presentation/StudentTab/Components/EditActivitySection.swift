@@ -1,8 +1,13 @@
 //
 //  EditActivitySection.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 10/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A section component that manages a collection of student activities
+//  Usage: Use this view to display and manage multiple activity entries for a student
 //
 
 import SwiftUI
@@ -10,11 +15,11 @@ import Mixpanel
 
 struct EditActivitySection: View {
     // MARK: - Constants
-    private let sectionTitle = UIConstants.EditActivity.sectionTitle
-    private let emptyStateText = UIConstants.EditActivity.emptyStateText
-    private let addButtonText = UIConstants.EditActivity.addButtonText
-    private let bottomPadding = UIConstants.EditActivity.bottomPadding
-    private let rowBottomPadding = UIConstants.EditActivity.rowBottomPadding
+    private let sectionTitle = UIConstants.EditActivitySection.sectionTitle
+    private let emptyStateText = UIConstants.EditActivitySection.emptyStateText
+    private let addButtonText = UIConstants.EditActivitySection.addButtonText
+    private let bottomPadding = UIConstants.EditActivitySection.bottomPadding
+    private let rowBottomPadding = UIConstants.EditActivitySection.rowBottomPadding
     
     // MARK: - Properties
     let student: Student
@@ -28,14 +33,10 @@ struct EditActivitySection: View {
     let onStatusChanged: (Activity, Status) -> Void
     let onAddActivity: () -> Void
     
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(sectionTitle)
-                .foregroundStyle(.labelPrimaryBlack)
-                .font(.callout)
-                .fontWeight(.semibold)
-                .padding(.bottom, bottomPadding)
-            
+            titleSection
             if !activities.isEmpty {
                 ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
                     EditActivityRow(
@@ -57,11 +58,8 @@ struct EditActivitySection: View {
                     .padding(.bottom, bottomPadding)
                 }
             } else {
-                Text(emptyStateText)
-                    .foregroundColor(.labelSecondaryBlack)
-                    .padding(.bottom, rowBottomPadding)
+                emptyState
             }
-            
             AddItemButton(
                 onTapAction: onAddActivity,
                 bgColor: .buttonOncard,
@@ -69,29 +67,42 @@ struct EditActivitySection: View {
             )
         }
     }
+    
+    // MARK: - Subview
+    private var titleSection: some View {
+        Text(sectionTitle)
+            .foregroundStyle(.labelPrimaryBlack)
+            .font(.callout)
+            .fontWeight(.semibold)
+            .padding(.bottom, bottomPadding)
+    }
+    
+    // MARK: - Subview
+    private var emptyState: some View {
+        Text(emptyStateText)
+            .foregroundColor(.labelSecondaryBlack)
+            .padding(.bottom, rowBottomPadding)
+    }
 }
 
-
-//#Preview {
-//    ActivitySectionPreview(
-//        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-//        selectedStudent: .constant(nil),
-//        isAddingNewActivity: .constant(false),
-//        activities: [
-//            UnsavedActivity(
-//                activity: "Reading a book",
-//                createdAt: Date(),
-//                status: .mandiri,
-//                studentId: Student.ID()
-//            ),
-//            UnsavedActivity(
-//                activity: "Playing with blocks",
-//                createdAt: Date(),
-//                status: .mandiri,
-//                studentId: Student.ID()
-//            )
-//        ],
-//        onActivityUpdate: { _ in },
-//        onDeleteActivity: { _ in }
-//    )
-//}
+// MARK: - Preview
+#Preview {
+    EditActivitySection(
+        student: Student(fullname: "Rangga", nickname: "Biner"),
+        selectedStudent: .constant(Student(fullname: "Rangga", nickname: "Biner")),
+        isAddingNewActivity: .constant(false),
+        activities: [
+            Activity(activity: "semua anak makna", student: Student(fullname: "rangga", nickname: "Biner"))
+        ],
+        onActivityUpdate: { _ in },
+        onDeleteActivity: { _ in },
+        allActivities: [
+            Activity(activity: "sample activity", student: Student(fullname: "Rangga", nickname: "Biner"))
+        ],
+        allStudents: [
+            Student(fullname: "Rangga", nickname: "Biner")
+        ],
+        onStatusChanged: { _, _ in },
+        onAddActivity: { }
+    )
+}

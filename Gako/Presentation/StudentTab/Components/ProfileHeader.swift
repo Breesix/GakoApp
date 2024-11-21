@@ -1,24 +1,31 @@
 //
 //  ProfileHeader.swift
-//  Breesix
+//  Gako
 //
 //  Created by Akmal Hakim on 15/10/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A header component that displays student profile summary
+//  Usage: Use this view to show student's image and name at the top of screens
 //
 
 import SwiftUI
 
 struct ProfileHeader: View {
     // MARK: - Constants
-    private let imageSize = UIConstants.Profile.headerImageSize
-    private let spacing = UIConstants.Profile.headerSpacing
-    private let textColor = UIConstants.Profile.textColor
-    private let placeholderColor = UIConstants.Profile.placeholderImageColor
+    private let imageSize = UIConstants.ProfileHeader.headerImageSize
+    private let spacing = UIConstants.ProfileHeader.headerSpacing
+    private let textColor = UIConstants.ProfileHeader.textColor
+    private let placeholderColor = UIConstants.ProfileHeader.placeholderImageColor
+    private let defaultSpacing = UIConstants.ProfileHeader.defaultSpacing
     
     // MARK: - Properties
     let student: Student
     
+    // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: defaultSpacing) {
             HStack(alignment: .center, spacing: spacing) {
                 if let imageData = student.imageData,
                    let uiImage = UIImage(data: imageData) {
@@ -52,6 +59,7 @@ struct ProfileHeader: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     ProfileHeader(student: .init(fullname: "Rangga Biner", nickname: "Rangga"))
 }

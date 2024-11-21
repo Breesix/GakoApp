@@ -4,28 +4,33 @@
 //
 //  Created by Akmal Hakim on 07/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A view for displaying a list of months associated with a student
+//  Usage: Use this view to manage and navigate through student activities and notes by month
+//
 
 import SwiftUI
 
 struct MonthListView: View {
     // MARK: - Properties
-    @StateObject private var viewModel: MonthListViewModel
-    @Environment(\.presentationMode) private var presentationMode
+    @StateObject var viewModel: MonthListViewModel
+    @Environment(\.presentationMode)  var presentationMode
     
     // MARK: - Dependencies
-    private let student: Student
-    private let onAddStudent: (Student) async -> Void
-    private let onUpdateStudent: (Student) async -> Void
-    private let onAddNote: (Note, Student) async -> Void
-    private let onUpdateNote: (Note) async -> Void
-    private let onDeleteNote: (Note, Student) async -> Void
-    private let onAddActivity: (Activity, Student) async -> Void
-    private let onDeleteActivity: (Activity, Student) async -> Void
-    private let onUpdateActivityStatus: (Activity, Status) async -> Void
-    private let onFetchNotes: (Student) async -> [Note]
-    private let onFetchActivities: (Student) async -> [Activity]
-    private let onCheckNickname: (String, UUID?) -> Bool
-    private let compressedImageData: Data?
+     let student: Student
+     let onAddStudent: (Student) async -> Void
+     let onUpdateStudent: (Student) async -> Void
+     let onAddNote: (Note, Student) async -> Void
+     let onUpdateNote: (Note) async -> Void
+     let onDeleteNote: (Note, Student) async -> Void
+     let onAddActivity: (Activity, Student) async -> Void
+     let onDeleteActivity: (Activity, Student) async -> Void
+     let onUpdateActivityStatus: (Activity, Status) async -> Void
+     let onFetchNotes: (Student) async -> [Note]
+     let onFetchActivities: (Student) async -> [Activity]
+     let onCheckNickname: (String, UUID?) -> Bool
+     let compressedImageData: Data?
     
     // MARK: - Initialization
     init(student: Student,
@@ -41,7 +46,7 @@ struct MonthListView: View {
          onFetchActivities: @escaping (Student) async -> [Activity],
          onCheckNickname: @escaping (String, UUID?) -> Bool,
          compressedImageData: Data?) {
-        
+
         self.student = student
         self.onAddStudent = onAddStudent
         self.onUpdateStudent = onUpdateStudent
@@ -66,7 +71,7 @@ struct MonthListView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            UIConstants.MonthList.backgroundColor.ignoresSafeArea()
+            UIConstants.MonthListView.backgroundColor.ignoresSafeArea()
             
             VStack(spacing: 0) {
                 headerView
@@ -101,139 +106,37 @@ struct MonthListView: View {
     }
 }
 
-// MARK: - View Components
-private extension MonthListView {
-    var headerView: some View {
-        ZStack {
-            UIConstants.MonthList.headerBackgroundColor
-                .cornerRadius(UIConstants.MonthList.cornerRadius, corners: [.bottomLeft, .bottomRight])
-                .ignoresSafeArea(edges: .top)
-            
-            HStack {
-                backButton
-                Spacer()
-                editButton
-            }
-            .padding(UIConstants.MonthList.headerPadding)
-        }
-        .frame(height: UIConstants.MonthList.headerHeight)
-    }
-    
-    var backButton: some View {
-        Button(action: {
-            presentationMode.wrappedValue.dismiss()
-        }) {
-            HStack(spacing: 3) {
-                Image(systemName: UIConstants.MonthList.backIcon)
-                    .foregroundColor(UIConstants.MonthList.headerTextColor)
-                    .fontWeight(.semibold)
-                Text(UIConstants.MonthList.backText)
-                    .foregroundStyle(UIConstants.MonthList.headerTextColor)
-                    .font(.body)
-                    .fontWeight(.regular)
-            }
-        }
-    }
-    
-    var editButton: some View {
-        Button(action: viewModel.toggleEditing) {
-            Text(UIConstants.MonthList.editProfileText)
-                .foregroundStyle(UIConstants.MonthList.headerTextColor)
-                .font(.body)
-                .fontWeight(.regular)
-        }
-    }
-    
-    var contentView: some View {
-        VStack(spacing: UIConstants.MonthList.spacing) {
-            ProfileHeader(student: student)
-                .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
-            
-            Divider()
-                .padding(.bottom, UIConstants.MonthList.dividerPadding)
-            
-            documentationHeader
-            monthList
-        }
-        .padding(.top, UIConstants.MonthList.contentPadding.top)
-    }
-    
-    var documentationHeader: some View {
-        HStack(spacing: UIConstants.MonthList.monthNavigationSpacing) {
-            Text(UIConstants.MonthList.documentationText)
-                .fontWeight(.semibold)
-                .foregroundColor(UIConstants.MonthList.documentationTextColor)
-            
-            Spacer()
-            
-            yearNavigationButtons
-            yearPickerButton
-        }
-        .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
-    }
-    
-    var yearNavigationButtons: some View {
-        HStack(spacing: UIConstants.MonthList.monthNavigationSpacing) {
-            Button(action: { viewModel.moveYear(by: -1) }) {
-                Image(systemName: UIConstants.MonthList.backIcon)
-                    .foregroundStyle(UIConstants.MonthList.monthNavigationColor)
-            }
-            
-            Button(action: { viewModel.moveYear(by: 1) }) {
-                Image(systemName: UIConstants.MonthList.nextIcon)
-                    .foregroundStyle(viewModel.isNextYearDisabled ?
-                        UIConstants.MonthList.monthNavigationDisabledColor :
-                        UIConstants.MonthList.monthNavigationColor)
-            }
-            .disabled(viewModel.isNextYearDisabled)
-        }
-    }
-    
-    var yearPickerButton: some View {
-        Button(action: viewModel.toggleYearPicker) {
-            Text(viewModel.formattedYear)
-                .font(.headline)
-        }
-        .padding(UIConstants.MonthList.yearPickerButtonPadding)
-        .background(UIConstants.MonthList.yearPickerButtonBackground)
-        .foregroundStyle(UIConstants.MonthList.yearPickerButtonText)
-        .cornerRadius(UIConstants.MonthList.yearPickerButtonCornerRadius)
-    }
-    
-    var monthList: some View {
-        ScrollView {
-            LazyVStack(spacing: UIConstants.MonthList.spacing) {
-                ForEach(viewModel.getAllMonthsForYear(), id: \.self) { date in
-                    NavigationLink(destination: makeStudentDetailView(for: date)) {
-                        MonthCard(
-                            date: date,
-                            activitiesCount: viewModel.getActivityCount(for: date),
-                            hasActivities: viewModel.hasActivities(for: date)
-                        )
-                    }
-                }
-            }
-            .padding(.horizontal, UIConstants.MonthList.contentPadding.leading)
-        }
-    }
-    
-    func makeStudentDetailView(for date: Date) -> some View {
-        StudentDetailView(
-            student: student,
-            initialScrollDate: date,
-            compressedImageData: compressedImageData,
-            onAddStudent: onAddStudent,
-            onUpdateStudent: onUpdateStudent,
-            onAddNote: onAddNote,
-            onUpdateNote: onUpdateNote,
-            onDeleteNote: onDeleteNote,
-            onAddActivity: onAddActivity,
-            onDeleteActivity: onDeleteActivity,
-            onUpdateActivityStatus: onUpdateActivityStatus,
-            onFetchNotes: onFetchNotes,
-            onFetchActivities: onFetchActivities,
-            onCheckNickname: onCheckNickname
-        )
-    }
-}
+// MARK: - Preview
+#Preview {
+    let sampleStudent = Student(fullname: "John Doe", nickname: "Johnny")
 
+    let mockAddStudent: (Student) async -> Void = { _ in }
+    let mockUpdateStudent: (Student) async -> Void = { _ in }
+    let mockAddNote: (Note, Student) async -> Void = { _, _ in }
+    let mockUpdateNote: (Note) async -> Void = { _ in }
+    let mockDeleteNote: (Note, Student) async -> Void = { _, _ in }
+    let mockAddActivity: (Activity, Student) async -> Void = { _, _ in }
+    let mockDeleteActivity: (Activity, Student) async -> Void = { _, _ in }
+    let mockUpdateActivityStatus: (Activity, Status) async -> Void = { _, _ in }
+    let mockFetchNotes: (Student) async -> [Note] = { _ in return [] }
+    let mockFetchActivities: (Student) async -> [Activity] = { _ in return [] }
+    let mockCheckNickname: (String, UUID?) -> Bool = { _, _ in return true }
+    
+    let sampleCompressedImageData: Data? = nil
+
+    return MonthListView(
+        student: sampleStudent,
+        onAddStudent: mockAddStudent,
+        onUpdateStudent: mockUpdateStudent,
+        onAddNote: mockAddNote,
+        onUpdateNote: mockUpdateNote,
+        onDeleteNote: mockDeleteNote,
+        onAddActivity: mockAddActivity,
+        onDeleteActivity: mockDeleteActivity,
+        onUpdateActivityStatus: mockUpdateActivityStatus,
+        onFetchNotes: mockFetchNotes,
+        onFetchActivities: mockFetchActivities,
+        onCheckNickname: mockCheckNickname,
+        compressedImageData: sampleCompressedImageData
+    )
+}

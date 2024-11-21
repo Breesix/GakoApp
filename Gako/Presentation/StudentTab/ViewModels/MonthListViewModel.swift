@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing monthly activities and notes for a student
+//  Usage: Use this class to fetch, manage, and update the activities and notes associated with a selected year
+//
+
 import Foundation
 import UIKit
 
@@ -26,8 +32,8 @@ final class MonthListViewModel: ObservableObject {
     // MARK: - Computed Properties
     var formattedYear: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: UIConstants.MonthList.localeIdentifier)
-        formatter.dateFormat = UIConstants.MonthList.yearFormat
+        formatter.locale = Locale(identifier: UIConstants.MonthListView.localeIdentifier)
+        formatter.dateFormat = UIConstants.MonthListView.yearFormat
         return formatter.string(from: selectedYear)
     }
     

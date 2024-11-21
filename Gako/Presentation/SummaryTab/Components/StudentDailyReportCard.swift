@@ -59,7 +59,6 @@ struct StudentDailyReportCard: View {
          VStack(alignment: .leading, spacing: 12) {
                  ActivitySection(
                      activities: activities,
-                     onDeleteActivity: onDeleteActivity,
                      onStatusChanged: { activity, newStatus in
                          Task {
                              await onUpdateActivityStatus(activity, newStatus)

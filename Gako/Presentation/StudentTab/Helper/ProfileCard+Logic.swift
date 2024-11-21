@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides utility methods for ProfileCard
+//  Usage: Contains methods for profile validation, image processing, and deletion handling
+//
 
 import Foundation
 import UIKit

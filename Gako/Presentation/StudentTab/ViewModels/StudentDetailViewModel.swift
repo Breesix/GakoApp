@@ -1,3 +1,15 @@
+//
+//  StudentDetailViewModel.swift
+//  Gako
+//
+//  Created by Kevin Fairuz on 19/11/24.
+//
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: ViewModel for managing student details, including activities and notes
+//  Usage: Use this class to handle fetching, updating, and managing activities and notes for a student
+//
+
 import SwiftUI
 
 class StudentDetailViewModel: ObservableObject {

@@ -54,7 +54,7 @@ class SummaryService {
         let activities = student.activities.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
         let notes = student.notes.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: date) }
         
-        let activityDescriptions = activities.map { "\($0.activity) (Mandiri: \($0.status))" }
+        let activityDescriptions = activities.map { "\($0.activity) (status: \($0.status))" }
         let noteDescriptions = notes.map { $0.note }
         
         // Jika tidak ada aktivitas atau catatan, lempar error
@@ -71,7 +71,7 @@ class SummaryService {
         Catatan:
         \(noteDescriptions.joined(separator: "\n"))
 
-        Tolong buatkan rangkuman yang singkat, padat, dan informatif. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat. Tidak perlu menyebutkan tanggal nya.
+        Tolong buatkan rangkuman yang singkat, padat, dan informatif berdasarkan kegiatan dan catatan. Fokuskan pada perkembangan dan pencapaian siswa, serta area yang mungkin memerlukan perhatian lebih. Rangkuman tidak perlu lebih dari 2-3 kalimat. Tidak perlu menyebutkan tanggal nya.
         """
         
         let query = ChatQuery(messages: [.init(role: .user, content: prompt)!], model: .gpt4_o_mini)
@@ -83,6 +83,7 @@ class SummaryService {
         }
         
         print(prompt)
+        print(summaryContent)
         return summaryContent
     }
     

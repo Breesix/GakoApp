@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: Extension that provides logic operations for EditNoteRow
+//  Usage: Contains methods for handling actions, validation, and formatting of notes
+//
 
 import Foundation
 

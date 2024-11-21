@@ -4,6 +4,11 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A helper for tracking activity-related analytics events
+//  Usage: Use these methods to track activity status changes and actions
+
 import SwiftUI
 import Mixpanel
 

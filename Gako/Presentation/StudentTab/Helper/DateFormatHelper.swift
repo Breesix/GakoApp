@@ -4,6 +4,12 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A helper for formatting dates in Indonesian locale
+//  Usage: Use these methods to format dates into various Indonesian formats
+//
+
 import SwiftUI
 
 enum DateFormatHelper {

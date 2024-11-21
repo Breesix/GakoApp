@@ -4,22 +4,30 @@
 //
 //  Created by Kevin Fairuz on 19/11/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A dropdown menu component for selecting student activity status
+//  Usage: Use this menu to allow selection between different activity status options
+//
+
 import SwiftUI
 
 struct StatusMenu: View {
     // MARK: - Constants
-    private let textColor = UIConstants.ManageActivity.textColor
-    private let background = UIConstants.ManageActivity.statusMenuBackground
-    private let spacing = UIConstants.ManageActivity.statusMenuSpacing
-    private let padding = UIConstants.ManageActivity.statusMenuPadding
-    private let cornerRadius = UIConstants.ManageActivity.cornerRadius
-    private let menuIcon = UIConstants.ManageActivity.statusMenuIcon
-    private let mandiriText = UIConstants.ManageActivity.mandiriText
-    private let dibimbingText = UIConstants.ManageActivity.dibimbingText
-    private let tidakMelakukanText = UIConstants.ManageActivity.tidakMelakukanText
+    private let textColor = UIConstants.StatusMenu.textColor
+    private let background = UIConstants.StatusMenu.statusMenuBackground
+    private let spacing = UIConstants.StatusMenu.statusMenuSpacing
+    private let padding = UIConstants.StatusMenu.statusMenuPadding
+    private let cornerRadius = UIConstants.StatusMenu.cornerRadius
+    private let menuIcon = UIConstants.StatusMenu.statusMenuIcon
+    private let mandiriText = UIConstants.StatusMenu.mandiriText
+    private let dibimbingText = UIConstants.StatusMenu.dibimbingText
+    private let tidakMelakukanText = UIConstants.StatusMenu.tidakMelakukanText
     
+    // MARK: - Properties
     @Binding var selectedStatus: Status
     
+    // MARK: - Body
     var body: some View {
         Menu {
             Button(mandiriText) { selectedStatus = .mandiri }
@@ -40,12 +48,7 @@ struct StatusMenu: View {
     }
 }
 
-private extension Status {
-    var displayText: String {
-        switch self {
-        case .mandiri: return UIConstants.ManageActivity.mandiriText
-        case .dibimbing: return UIConstants.ManageActivity.dibimbingText
-        case .tidakMelakukan: return UIConstants.ManageActivity.tidakMelakukanText
-        }
-    }
+// MARK: - Preview
+#Preview {
+    StatusMenu(selectedStatus: .constant(.dibimbing))
 }

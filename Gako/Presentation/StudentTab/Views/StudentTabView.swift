@@ -4,20 +4,19 @@
 //
 //  Created by Rangga Biner on 29/09/24.
 //
+//  Copyright © 2024 Gako. All rights reserved.
+//
+//  Description: A view that displays a list of students with features for adding, searching, and managing student profiles.
+//               It integrates various components such as a navigation header, search bar, and a grid layout for student profiles.
+//  Usage: Utilize this view to present a dynamic list of students, allowing users to filter by name, add new students,
+//         and navigate to detailed student views for further management of notes and activities related to each student.
+//
 
 import SwiftUI
 import Speech
 
 struct StudentTabView: View {
-    
-    
-    @EnvironmentObject var studentViewModel: StudentViewModel
-    @EnvironmentObject var noteViewModel: NoteViewModel
-    @EnvironmentObject var activityViewModel: ActivityViewModel
-    @Binding var isAddingStudent: Bool
-    @State private var isAddingNote = false
-    @State private var searchQuery = ""
-    
+    // MARK: - Constants
     var background = UIConstants.StudentTabView.backgroundColor
     var searchBarVerticalPadding = UIConstants.StudentTabView.searchBarVerticalPadding
     var searchBarHorizontalPadding = UIConstants.StudentTabView.searchBarHorizontalPadding
@@ -28,6 +27,15 @@ struct StudentTabView: View {
     var contentHorizontalPadding = UIConstants.StudentTabView.contentHorizontalPadding
     var backgroundColor = UIConstants.StudentTabView.backgroundColor
     
+    // MARK: - Properties
+    @EnvironmentObject var studentViewModel: StudentViewModel
+    @EnvironmentObject var noteViewModel: NoteViewModel
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    @Binding var isAddingStudent: Bool
+    @State var isAddingNote = false
+    @State var searchQuery = ""
+    
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {
@@ -165,24 +173,9 @@ struct StudentTabView: View {
             await studentViewModel.fetchAllStudents()
         }
     }
-    
-    private var filteredStudents: [Student] {
-        if searchQuery.isEmpty {
-            return studentViewModel.students
-        } else {
-            return studentViewModel.students.filter { student in
-                student.nickname.localizedCaseInsensitiveContains(searchQuery) ||
-                student.fullname.localizedCaseInsensitiveContains(searchQuery)
-            }
-        }
-    }
 }
 
-extension View {
-    func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                      to: nil,
-                                      from: nil,
-                                      for: nil)
-    }
+// MARK: - Preview
+#Preview {
+    StudentTabView(isAddingStudent: .constant(false))
 }
