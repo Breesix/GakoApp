@@ -6,6 +6,8 @@
 //  Copyright © 2017 Mixpanel. All rights reserved.
 //
 
+extension SKProductsRequest: @unchecked @retroactive Sendable {}
+
 protocol AEDelegate: AnyObject {
     func track(event: String?, properties: Properties?)
     func setOnce(properties: Properties)

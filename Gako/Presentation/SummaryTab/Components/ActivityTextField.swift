@@ -24,10 +24,10 @@ struct ActivityTextField: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.green, lineWidth: 1)
                 )
-                .onChange(of: text) { newValue in
+                .onChange(of: text) {
                     let updatedActivity = UnsavedActivity(
                         id: activity.id,
-                        activity: newValue,
+                        activity: text,
                         createdAt: activity.createdAt,
                         status: activity.status,
                         studentId: activity.studentId

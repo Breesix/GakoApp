@@ -52,7 +52,7 @@ actor MonthlyEditService {
         onEditNote: (Note) -> Void
     ) {
         if let editedNote = editedNotes[note.id] {
-            var updatedNote = note
+            let updatedNote = note
             updatedNote.note = editedNote.0
             onEditNote(updatedNote)
         }

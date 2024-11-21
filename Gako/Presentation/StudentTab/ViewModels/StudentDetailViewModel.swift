@@ -126,17 +126,10 @@ class StudentDetailViewModel: ObservableObject {
     }
     
     func fetchAllNotes() async {
-        do {
             let fetchedNotes = await onFetchNotes(student)
             await MainActor.run {
                 self.notes = fetchedNotes
             }
-        } catch {
-            print("Error fetching notes: \(error)")
-            await MainActor.run {
-                self.notes = []
-            }
-        }
     }
     
     func fetchActivities() async {
@@ -191,7 +184,7 @@ class StudentDetailViewModel: ObservableObject {
     }
     
     func saveChanges() async {
-        for (id, (text, status, date)) in editedActivities {
+        for (id, (text, status, _)) in editedActivities {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 await MainActor.run {
@@ -200,14 +193,14 @@ class StudentDetailViewModel: ObservableObject {
                 return
             }
             if let activity = activities.first(where: { $0.id == id }) {
-                var updatedActivity = activity
+                let updatedActivity = activity
                 updatedActivity.activity = trimmedText
                 updatedActivity.status = status
                 await onUpdateActivityStatus(updatedActivity, status)
             }
         }
 
-        for (id, (text, date)) in editedNotes {
+        for (id, (text, _)) in editedNotes {
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedText.isEmpty {
                 await MainActor.run {
@@ -216,7 +209,7 @@ class StudentDetailViewModel: ObservableObject {
                 return
             }
             if let note = notes.first(where: { $0.id == id }) {
-                var updatedNote = note
+                let updatedNote = note
                 updatedNote.note = trimmedText
                 await onUpdateNote(updatedNote)
             }
