@@ -57,7 +57,7 @@ struct ManageUnsavedActivityView: View {
         switch mode {
         case .add(let student, _):
             return student
-        case .edit(let activity):
+        case .edit(_):
             // You'll need to have access to the student information here
             // This might need to be adjusted based on your data structure
             fatalError("Student information needed for edit mode")

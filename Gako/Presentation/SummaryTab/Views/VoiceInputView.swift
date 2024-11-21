@@ -93,9 +93,9 @@ struct VoiceInputView: View {
                                     )
                                                                 )
                     }
-                    .onChange(of: viewModel.editedText) { newValue in
-                        viewModel.reflection = newValue
-                        viewModel.speechRecognizer.previousTranscript = newValue
+                    .onChange(of: viewModel.editedText) { 
+                        viewModel.reflection = viewModel.editedText
+                        viewModel.speechRecognizer.previousTranscript = viewModel.editedText
                     }
                     
                     Spacer()
@@ -275,24 +275,23 @@ struct VoiceInputView: View {
         .onAppear {
             viewModel.requestSpeechAuthorization()
         }
-        .onChange(of: viewModel.editedText) { newValue in
-            viewModel.reflection = newValue
-            viewModel.speechRecognizer.previousTranscript = newValue
+        .onChange(of: viewModel.editedText) {             viewModel.reflection = viewModel.editedText
+            viewModel.speechRecognizer.previousTranscript = viewModel.editedText
         }
-        .onChange(of: isTextEditorFocused) { newValue in
+        .onChange(of: isTextEditorFocused) {
             withAnimation {
                 showProTips = !isTextEditorFocused
             }
         }
-        .onChange(of: viewModel.isRecording) { newValue in
-            if newValue {
+        .onChange(of: viewModel.isRecording) {
+            if viewModel.isRecording {
                 currentProgress = 2  // Ketika mulai merekam
             } else {
                 currentProgress = 1  // Ketika tidak merekam
             }
         }
-        .onChange(of: viewModel.isPaused) { newValue in
-            if newValue {
+        .onChange(of: viewModel.isPaused) {
+            if viewModel.isPaused {
                 currentProgress = 3  // Ketika di pause
             } else if viewModel.isRecording {
                 currentProgress = 2  // Kembali ke merekam
@@ -347,8 +346,8 @@ struct VoiceInputView: View {
         .datePickerStyle(.graphical)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
-        .onChange(of: tempDate) { newValue in
-            if DateValidator.isValidDate(newValue) {
+        .onChange(of: tempDate) {
+            if DateValidator.isValidDate(tempDate) {
                 selectedDate = tempDate
                 isShowingDatePicker = false
             }

@@ -202,7 +202,7 @@ final class DailyReportViewModel: ObservableObject {
             }
             
             // Validate notes
-            for (id, (text, date)) in editedNotes {
+            for (id, (text, _)) in editedNotes {
                 let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
                 if trimmedText.isEmpty {
                     toast = Toast(style: .error, message: "Catatan tidak boleh kosong")

@@ -44,7 +44,7 @@ struct StudentDailyReportCard: View {
         let image = reportView.snapshot()
         
         let activityVC = UIActivityViewController(
-            activityItems: [image],
+            activityItems: [image as Any],
             applicationActivities: nil
         )
         
