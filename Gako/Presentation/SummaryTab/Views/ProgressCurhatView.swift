@@ -30,7 +30,8 @@ struct ProgressCurhatView: View {
     @State private var activityToDelete: Int?
     @FocusState private var isTextEditorFocused: Bool
     @Binding var selectedDate: Date
-    
+    @State private var randomPlaceholder: String = ""
+
     var onNavigateVoiceInput: () -> Void
     var onNavigateTextInput: () -> Void
     var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
@@ -45,6 +46,17 @@ struct ProgressCurhatView: View {
     @EnvironmentObject var summaryViewModel: SummaryViewModel
     @EnvironmentObject var inputViewModel: InputViewModel
     @StateObject private var viewModel = TextInputViewModel()
+
+    private let activityExamples = [
+        "Motorik Halus",
+        "Makan",
+        "Melipat",
+        "Menggunting",
+        "Mewarnai",
+        "Berdoa",
+        "Menyapu",
+        "Mencuci Piring"
+    ]
 
     var body: some View {
         NavigationStack {
@@ -119,7 +131,6 @@ struct ProgressCurhatView: View {
                         await studentViewModel.deleteStudent(student)
                     })
                 } else if currentProgress == 2 {
-                    
                     activityInputs()
                 }
                 navigationButtons()
@@ -225,6 +236,7 @@ struct ProgressCurhatView: View {
                 
                 AddItemButton(
                     onTapAction: {
+                        randomPlaceholder = getRandomPlaceholder()
                         showManageActivity = true
                     },
                     bgColor: .buttonOncard,
@@ -232,7 +244,8 @@ struct ProgressCurhatView: View {
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
+            .padding(.vertical, 1)
+            .padding(.horizontal, 1)
         }
             .sheet(isPresented: $showManageActivity) {
                 NavigationStack {
@@ -245,7 +258,7 @@ struct ProgressCurhatView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             ZStack(alignment: .leading) {
                                 if activityText.isEmpty {
-                                    Text("Tuliskan aktivitas murid...")
+                                    Text(randomPlaceholder)
                                         .foregroundStyle(.labelTertiary)
                                         .font(.body)
                                         .fontWeight(.regular)
@@ -408,6 +421,11 @@ struct ProgressCurhatView: View {
             break
         }
     }
+    
+    private func getRandomPlaceholder() -> String {
+        return activityExamples.randomElement() ?? "Motorik Halus"
+    }
+
 }
 
 struct ActivityCard: View {
@@ -419,17 +437,20 @@ struct ActivityCard: View {
         HStack {
             Text(activity)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 12.5)
+                .background(Color.cardFieldBG)
+                .cornerRadius(10)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.bgSecondary, lineWidth: 1)
+                }
+                .onTapGesture {
+                    onTap()
+                }
             
-            Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .foregroundColor(.red)
-            }
-        }
-        .padding()
-        .background(Color.cardFieldBG)
-        .cornerRadius(8)
-        .onTapGesture {
-            onTap()
+            DeleteButton(action: onDelete)
         }
     }
 }
+

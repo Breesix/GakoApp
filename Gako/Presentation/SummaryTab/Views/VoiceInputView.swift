@@ -5,8 +5,6 @@
 //  Created by Rangga Biner on 15/10/24.
 //
 
-// VoiceInputView.swift
-
 import SwiftUI
 import Speech
 import DotLottie
