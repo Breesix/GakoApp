@@ -19,7 +19,7 @@ struct ProgressCurhatView: View {
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
-
+    @State private var showProTips: Bool = true
     @State private var showManageActivity: Bool = false
     @State private var activityText: String = ""
     @State private var currentProgress: Int = 1
@@ -28,20 +28,34 @@ struct ProgressCurhatView: View {
     @State private var showEmptyActivitiesAlert: Bool = false
     @State private var showDeleteAlert = false
     @State private var activityToDelete: Int?
-
+    @FocusState private var isTextEditorFocused: Bool
     @Binding var selectedDate: Date
     
     var onNavigateVoiceInput: () -> Void
     var onNavigateTextInput: () -> Void
+    var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
+    var onAddUnsavedNotes: ([UnsavedNote]) -> Void
+    var onDateSelected: (Date) -> Void
+    var onDismiss: () -> Void
 
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var studentViewModel: StudentViewModel
     @EnvironmentObject var noteViewModel: NoteViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var inputViewModel: InputViewModel
+    @StateObject private var viewModel = TextInputViewModel()
 
     var body: some View {
         NavigationStack {
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        isTextEditorFocused = false
+                    }
+
             VStack(spacing: 12) {
                 HStack {
                     ProgressTracker(firstColor: firstColor, secondColor: secondColor, thirdColor: thirdColor)
@@ -49,29 +63,68 @@ struct ProgressCurhatView: View {
                     DatePickerButton(isShowingDatePicker: $isShowingDatePicker, selectedDate: $selectedDate)
                 }
                 TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
-
+                
                 if currentProgress == 3 {
-                  VStack(alignment:.leading, spacing: 12) {
-                    GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
-                    GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
-                    GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
-                }
-                Spacer()
-                TipsCard()
-                    .padding(.vertical, 16)
-                Divider()
+                    if studentViewModel.reflection.isEmpty {
+                        VStack(alignment:.leading, spacing: 12) {
+                            GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                            GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                            GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                        }
+                    } else {
+                        ZStack(alignment: .topLeading) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.white)
+                                .frame(maxWidth: .infinity, maxHeight: 170)
+                            
+                            if studentViewModel.reflection.isEmpty {
+                                Text("Ceritakan mengenai Murid Anda...")
+                                    .font(.callout)
+                                    .fontWeight(.regular)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 9)
+                                    .frame(maxWidth: .infinity, maxHeight: 230, alignment: .topLeading)
+                                    .foregroundColor(.labelDisabled)
+                                    .cornerRadius(8)
+                            }
+                            
+                            TextEditor(text: $studentViewModel.reflection)
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 8)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .frame(maxWidth: .infinity, maxHeight: 230)
+                                .cornerRadius(8)
+                                .focused($isTextEditorFocused)
+                                .scrollContentBackground(.hidden)
+                            //                                .disabled(viewModel.isLoading)
+                            //                                .opacity(viewModel.isLoading ? 0.5 : 1)
+                        }
+                        .onAppear { UITextView.appearance().backgroundColor = .clear }
+                        .onDisappear { UITextView.appearance().backgroundColor = nil }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.monochrome9002, lineWidth: 2)
+                        )                    }
+                    Spacer()
+                    if showProTips {
+                        TipsCard()
+                            .padding(.vertical, 16)
+                    }
+                    Divider()
                 } else if currentProgress == 1 {
-     
+                    
                     AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
                     StudentGridView(students: studentViewModel.students,  onDeleteStudent: { student in
                         await studentViewModel.deleteStudent(student)
                     })
                 } else if currentProgress == 2 {
-                 
+                    
                     activityInputs()
                 }
                 navigationButtons()
             }
+        }
             .sheet(isPresented: $isShowingInputTypeSheet) {
                 InputTypeView { selectedInput in
                     isShowingInputTypeSheet = false
@@ -98,6 +151,7 @@ struct ProgressCurhatView: View {
             Button("Batalkan Dokumentasi", role: .destructive) {
                 studentViewModel.activities.removeAll()
                 studentViewModel.selectedStudents.removeAll()
+                studentViewModel.reflection.removeAll()
                 presentationMode.wrappedValue.dismiss()
             }
             Button("Lanjut Dokumentasi", role: .cancel) {}
@@ -122,13 +176,18 @@ struct ProgressCurhatView: View {
         .task {
             await studentViewModel.fetchAllStudents()
         }
+        .onChange(of: isTextEditorFocused) {
+            withAnimation {
+                showProTips = !isTextEditorFocused
+            }
+        }
     }
 
     private var currentTitle: String {
         switch currentProgress {
         case 1: return "Apakah semua Murid hadir?"
         case 2: return "Tambahkan aktivitas"
-        case 3: return "Ceritakan tentang Hari ini"
+        case 3: return (studentViewModel.reflection.isEmpty ? "Ceritakan tentang Hari ini" : "Konfirmasi Hasil Rekaman")
         default: return ""
         }
     }
@@ -137,7 +196,7 @@ struct ProgressCurhatView: View {
         switch currentProgress {
         case 1: return "Pilih murid Anda yang hadir untuk mengikuti aktivitas hari ini."
         case 2: return "Tambahkan rincian aktivitas murid anda hari ini."
-        case 3: return "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin."
+        case 3: return (studentViewModel.reflection.isEmpty ? "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin." : "")
         default: return ""
         }
     }
@@ -172,7 +231,6 @@ struct ProgressCurhatView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
-
             .sheet(isPresented: $showManageActivity) {
                 NavigationStack {
                     VStack(alignment: .leading, spacing: 8) {
@@ -288,11 +346,27 @@ struct ProgressCurhatView: View {
                     currentProgress += 1
                     updateProgressColors()
                 } else if currentProgress == 3 {
-                    isShowingInputTypeSheet = true
-                    print(studentViewModel.activities)
+                    if studentViewModel.reflection.isEmpty {
+                        isShowingInputTypeSheet = true
+                        print(studentViewModel.activities)
+                    } else {
+                                            Task {
+                                                await viewModel.processReflection(
+                                                    reflection: studentViewModel.reflection,
+                                                    selectedStudents: studentViewModel.selectedStudents,
+                                                    activities: studentViewModel.activities,
+                                                    onAddUnsavedActivities: onAddUnsavedActivities,
+                                                    onAddUnsavedNotes: onAddUnsavedNotes,
+                                                    selectedDate: selectedDate,
+                                                    onDateSelected: onDateSelected,
+                                                    onDismiss: onDismiss
+                                                )
+                                            }
+
+                    }
                 }
             } label: {
-                Text(currentProgress == 3 ? "Mulai Cerita" : "Lanjut")
+                Text(currentProgress == 3 ? (studentViewModel.reflection.isEmpty ? "Mulai Cerita" : "Lanjut") : "Lanjut")
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(.orangeClickAble)

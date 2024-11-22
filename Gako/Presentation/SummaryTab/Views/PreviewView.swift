@@ -11,6 +11,7 @@ import DotLottie
 struct PreviewView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var isShowingPreview: Bool
+    @Binding var navigateToProgressCurhatan: Bool
     @State private var isSaving = false
     @State private var editingNote: UnsavedNote?
     @State private var isAddingNewNote = false
@@ -53,6 +54,7 @@ struct PreviewView: View {
     init(
         selectedDate: Binding<Date>,
         isShowingPreview: Binding<Bool>,
+        navigateToProgressCurhatan: Binding<Bool>,
         isShowingActivity: Binding<Bool>,
         students: [Student],
         selectedStudents: Set<Student>, // Tambahkan ini
@@ -73,6 +75,7 @@ struct PreviewView: View {
         self._selectedDate = selectedDate
         self._tempDate = State(initialValue: selectedDate.wrappedValue)
         self._isShowingPreview = isShowingPreview
+        self._navigateToProgressCurhatan = navigateToProgressCurhatan
         self._isShowingActivity = isShowingActivity
         self.students = students
         self.selectedStudents = selectedStudents // Tambahkan ini
@@ -216,8 +219,6 @@ struct PreviewView: View {
             Button("Batalkan Dokumentasi", role: .destructive) {
                 onClearUnsavedNotes()
                 onClearUnsavedActivities()
-                studentViewModel.activities.removeAll()
-                studentViewModel.selectedStudents.removeAll()
                 isShowingPreview = false
             }
             .tint(.accent)
@@ -254,80 +255,10 @@ struct PreviewView: View {
             
         }
     }
-    
-//    private var mainContent: some View {
-//        ZStack {
-//            VStack(spacing: 0) {
-//                ScrollView {
-//                    VStack(spacing: 0) {
-//                        ForEach(sortedStudents) { student in
-//                            DailyReportCardPreview(
-//                                student: student,
-//                                selectedDate: selectedDate,
-//                                selectedStudent: $selectedStudent,
-//                                isAddingNewActivity: $isAddingNewActivity,
-//                                isAddingNewNote: $isAddingNewNote,
-//                                hasDefaultActivities: hasAnyDefaultActivity(for: student),
-//                                onUpdateActivity: onUpdateUnsavedActivity,
-//                                onDeleteActivity: onDeleteUnsavedActivity,
-//                                onUpdateNote: onUpdateUnsavedNote,
-//                                onDeleteNote: onDeleteUnsavedNote,
-//                                activities: unsavedActivities.filter { $0.studentId == student.id },
-//                                notes: unsavedNotes.filter { $0.studentId == student.id },
-//                                allActivities: unsavedActivities,
-//                                allStudents: students
-//                            )
-//                            .padding(.bottom, 12)
-//                        }
-//                    }
-//                }
-//                HStack {
-//                    Button {
-//                        showingCancelAlert = true
-//                    } label: {
-//                        Text("Batal")
-//                            .font(.body)
-//                            .fontWeight(.semibold)
-//                            .foregroundStyle(.destructiveOnCardLabel)
-//                            .frame(maxWidth: .infinity)
-//                            .frame(height: 50)
-//                            .background(Color(.buttonDestructiveOnCard))
-//                            .cornerRadius(12)
-//                    }
-//                    
-//                    Spacer()
-//                    
-//                    Button {
-//                        if hasStudentsWithNilActivities() {
-//                            showingNilActivityAlert = true
-//                        } else {
-//                            showingSaveAlert = true
-//                        }
-//                    } label: {
-//                        Text("Simpan")
-//                            .font(.body)
-//                            .fontWeight(.semibold)
-//                            .foregroundStyle(.labelPrimaryBlack)
-//                            .frame(maxWidth: .infinity)
-//                            .frame(height: 50)
-//                            .background(Color(.orangeClickAble))
-//                            .cornerRadius(12)
-//                        
-//                    }
-//                    
-//                }
-//            }
-//            
-//            if isSaving {
-//                SaveLoadingView(progress: progress)
-//            }
-//        }
-//    }
-    
-    
+        
     private var sortedStudents: [Student] {
         students
-            .filter { selectedStudents.contains($0) } // Filter hanya selected students
+            .filter { selectedStudents.contains($0)} 
             .sorted { student1, student2 in
             let hasDefaultActivity1 = hasAnyDefaultActivity(for: student1)
             let hasDefaultActivity2 = hasAnyDefaultActivity(for: student2)
@@ -386,9 +317,11 @@ struct PreviewView: View {
                     onClearUnsavedActivities()
                     studentViewModel.activities.removeAll()
                     studentViewModel.selectedStudents.removeAll()
+                    studentViewModel.reflection.removeAll()
                     
                     isSaving = false
                     isShowingPreview = false
+                    navigateToProgressCurhatan = false
                 }
             } catch {
                 await MainActor.run {
@@ -422,32 +355,3 @@ struct PreviewView: View {
         }
     }
 }
-
-//#Preview {
-//    PreviewView(
-//        selectedDate: .constant(.now),
-//        isShowingPreview: .constant(false),
-//        isShowingActivity: .constant(false),
-//        students: [
-//            .init(fullname: "Rangga Biner", nickname: "Rangga")
-//        ],
-//        selectedStudents: studentViewModel.selectedStudents, // Tambahkan ini
-//        unsavedActivities: [
-//            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
-//        ],
-//        unsavedNotes: [
-//            .init(note: "baik banget", createdAt: .now, studentId: UUID())
-//        ],
-//        onAddUnsavedActivities: { _ in print("added") },
-//        onUpdateUnsavedActivity: { _ in print("updated") },
-//        onDeleteUnsavedActivity: { _ in print("deleted") },
-//        onAddUnsavedNote: { _ in print("added") },
-//        onUpdateUnsavedNote: { _ in print("updated") },
-//        onDeleteUnsavedNote: { _ in print("deleted") },
-//        onClearUnsavedNotes: { print("cleared") },
-//        onClearUnsavedActivities: { print("cleared") },
-//        onSaveUnsavedActivities: { print("saved") },
-//        onSaveUnsavedNotes: { print("saved") },
-//        onGenerateAndSaveSummaries: { _ in print("generated and saved") }
-//    )
-//}

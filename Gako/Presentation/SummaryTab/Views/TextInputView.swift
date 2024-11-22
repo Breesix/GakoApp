@@ -106,8 +106,7 @@ struct TextInputView: View {
         .hideTabBar()
         .alert("Batalkan Dokumentasi?", isPresented: $showAlert) {
                 Button("Batalkan Dokumentasi", role: .destructive, action: {
-                    studentViewModel.activities.removeAll()
-                    studentViewModel.selectedStudents.removeAll()
+                    studentViewModel.reflection.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 })
                 Button("Lanjut Dokumentasi", role: .cancel, action: {})
@@ -142,9 +141,10 @@ struct TextInputView: View {
             }
             
             Button {
-                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                if studentViewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     showEmptyReflectionAlert = true
                 } else {
+                    presentationMode.wrappedValue.dismiss()
                     Task {
                         await viewModel.processReflection(
                             reflection: viewModel.reflection,
@@ -157,7 +157,6 @@ struct TextInputView: View {
                             onDismiss: onDismiss
                         )
                     }
-                    
                 }
             } label: {
                 Text("Selesai")
@@ -201,7 +200,7 @@ private extension TextInputView {
                 .fill(.white)
                 .frame(maxWidth: .infinity, maxHeight: 170)
             
-            if viewModel.reflection.isEmpty {
+            if studentViewModel.reflection.isEmpty {
                 Text("Ceritakan mengenai Murid Anda...")
                     .font(.callout)
                     .fontWeight(.regular)
@@ -212,7 +211,7 @@ private extension TextInputView {
                     .cornerRadius(8)
             }
             
-            TextEditor(text: $viewModel.reflection)
+            TextEditor(text: $studentViewModel.reflection)
                 .font(.callout)
                 .fontWeight(.semibold)
                 .padding(.horizontal, 8)
@@ -231,63 +230,7 @@ private extension TextInputView {
                 .stroke(.monochrome9002, lineWidth: 2)
         )
     }
-    
-    
-    func buttonSection() -> some View {
-        VStack(spacing: 16) {
-            Button(action: {
-                if viewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    showEmptyReflectionAlert = true
-                } else {
-                    Task {
-                        await viewModel.processReflection(
-                            reflection: viewModel.reflection,
-                            selectedStudents: selectedStudents, // Add this
-                            activities: activities, // Add this
-                            onAddUnsavedActivities: { activities in
-                                activityViewModel.addUnsavedActivities(activities)
-                            },
-                            onAddUnsavedNotes: { notes in
-                                noteViewModel.addUnsavedNotes(notes)
-                            },
-                            selectedDate: summaryViewModel.selectedDate,
-                            onDateSelected: { date in
-                                summaryViewModel.selectedDate = date
-                            },
-                            onDismiss: onDismiss
-                        )
-                    }
-                }
-            }) {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .frame(maxWidth: .infinity, maxHeight: 50)
-                        .background(.buttonLinkOnSheet)
-                        .cornerRadius(12)
-                } else {
-                    Text("Lanjutkan")
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, maxHeight: 50)
-                        .background(.buttonLinkOnSheet)
-                        .foregroundStyle(.buttonPrimaryLabel)
-                        .cornerRadius(12)
-                }
-            }
-            .disabled(viewModel.isLoading)
-            
-            Button("Batal") {
-                showAlert = true
-            }
-            .padding(.top, 9)
-            .font(.body)
-            .fontWeight(.semibold)
-            .foregroundStyle(viewModel.isLoading ? .labelTertiary : .destructiveOnCardLabel)
-            .disabled(viewModel.isLoading)
-        }
-    }
-    
+        
     private func datePickerSheet() -> some View {
         NavigationStack {
             DatePicker(
