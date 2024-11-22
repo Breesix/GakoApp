@@ -123,9 +123,7 @@ struct ProgressCurhatView: View {
                         TipsCard()
                             .padding(.vertical, 16)
                     }
-                    Divider()
                 } else if currentProgress == 1 {
-                    
                     AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
                     StudentGridView(students: studentViewModel.students,  onDeleteStudent: { student in
                         await studentViewModel.deleteStudent(student)
@@ -133,6 +131,7 @@ struct ProgressCurhatView: View {
                 } else if currentProgress == 2 {
                     activityInputs()
                 }
+                Divider()
                 navigationButtons()
             }
             .disabled(viewModel.isLoading)
