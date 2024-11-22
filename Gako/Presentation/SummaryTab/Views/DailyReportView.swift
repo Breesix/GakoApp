@@ -69,29 +69,31 @@ struct DailyReportView: View {
         ZStack {
             Color.bgMain.ignoresSafeArea()
             
-            VStack(spacing: 0) {
-                ZStack {
-                    navigationBgColor
-                        .cornerRadius(navigationCornerRadius, corners: [.bottomLeft, .bottomRight])
-                        .ignoresSafeArea(edges: .top)
-                    
+                VStack(spacing: 0) {
                     ZStack {
-                        navigationHeader
+                        navigationBgColor
+                            .cornerRadius(navigationCornerRadius, corners: [.bottomLeft, .bottomRight])
+                            .ignoresSafeArea(edges: .top)
+                        
+                        ZStack {
+                            navigationHeader
+                        }
+                    }
+                    .frame(height: navigationHeight)
+                    
+                    VStack(spacing: 0) {
+                        dateSelectionHeader
+                        ScrollViewContent
+                        
+                        
+                        bottomButton
                     }
                 }
-                .frame(height: navigationHeight)
-                
-                VStack(spacing: 0) {
-                    dateSelectionHeader
-                        ScrollViewContent
-                        if isGeneratingSummary {
-                            SaveLoadingView(progress: progress)
-                        }
-                    
-                    bottomButton
-                }
+                .disabled(isGeneratingSummary ? true : false)
+                .opacity(isGeneratingSummary ? 0.5 : 1)
+            if isGeneratingSummary {
+                ProgressView()
             }
-            
             if viewModel.showSnapshotPreview {
                 SnapshotPreview(
                     images: viewModel.allPageSnapshots,
