@@ -5,8 +5,6 @@
 //  Created by Rangga Biner on 15/10/24.
 //
 
-// VoiceInputView.swift
-
 import SwiftUI
 import Speech
 import DotLottie
@@ -20,7 +18,8 @@ struct VoiceInputView: View {
     @State private var tempDate: Date
     @State private var currentProgress: Int = 1
     @FocusState private var isTextEditorFocused: Bool
-    
+    @State private var showEmptyReflectionAlert: Bool = false
+
     @EnvironmentObject var noteViewModel: NoteViewModel
     @EnvironmentObject var studentViewModel: StudentViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
@@ -75,7 +74,6 @@ struct VoiceInputView: View {
                     ZStack {
                         TextEditor(text: $viewModel.editedText)
                             .foregroundStyle(.labelPrimaryBlack)
-                            .padding()
                             .frame(maxWidth: .infinity)
                             .frame(height: 228)
                             .scrollContentBackground(.hidden)
@@ -94,19 +92,19 @@ struct VoiceInputView: View {
                                                                 )
                     }
                     .onChange(of: viewModel.editedText) { 
-                        viewModel.reflection = viewModel.editedText
+                        studentViewModel.reflection = viewModel.editedText
                         viewModel.speechRecognizer.previousTranscript = viewModel.editedText
                     }
                     
                     Spacer()
-                    VStack(alignment:.leading, spacing: 12) {
-                        GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
-                        GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
-                        GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                    if !isTextEditorFocused {
+                        VStack(alignment:.leading, spacing: 12) {
+                            GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                            GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                            GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-
                 }
                 .opacity(viewModel.isLoading ? 0.3 : 1)
                 
@@ -114,50 +112,42 @@ struct VoiceInputView: View {
 
                 ZStack(alignment: .bottom) {
                     VStack(alignment: .center){
+                        if !isTextEditorFocused {
                         if viewModel.isRecording && !viewModel.isPaused {
                             Text("Tekan \(Image(systemName: "pause.circle.fill")) untuk edit teks")
-                                .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color.bgAccent)
-                                .padding(.bottom, 8)
-                            
-                            
-                            
                         } else if !viewModel.isRecording && !viewModel.isPaused{
                             Text("Tekan \(Image(systemName: "mic")) untuk memulai berbicara")
-                                .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color.bgAccent)
-                                .padding(.bottom, 8)
                         }
                         else {
                             Text("Tekan \(Image(systemName: "play.fill")) untuk lanjut merekam")
-                                .padding(.bottom, 8)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color.bgAccent)
-                                .padding(.bottom, 8)
                         }
-                        HStack(alignment: .center, spacing: 35) {
-                            
+                    }
+                        HStack {
                             Button(action: {
-                                viewModel.stopRecording(text: viewModel.reflection)
+                                viewModel.stopRecording(text: studentViewModel.reflection)
                                 showAlert = true
                             }) {
                                 Text("Batal")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
                                     .foregroundColor(Color.destructiveOnCardLabel)
-                                    .frame(width: 97, height: 34)
+                                    .padding(.vertical, 7)
+                                    .padding(.horizontal, 30.25)
                                     .background(Color.destructiveOnCard)
                                     .cornerRadius(8)
                             }
-                            
-                            
-                            // Record/Pause Button
+                            Spacer()
                             Button(action: {
                                 if !viewModel.isRecording {
-                                    
                                     viewModel.startRecording()
                                 } else {
                                     
@@ -170,57 +160,36 @@ struct VoiceInputView: View {
                                     }
                                 }
                             }) {
-                                if showProTips {
-                                    if viewModel.isLoading {
-                                        DotLottieAnimation(fileName: "loadingLottie",
-                                                           config: AnimationConfig(autoplay: true, loop: true))
-                                        .view()
-                                        .scaleEffect(1.5)
-                                        .frame(width: 100, height: 100)
-                                    } else {
                                         if viewModel.isRecording {
                                             if viewModel.isPaused {
                                                 PlayButtonVoice()
                                             } else {
                                                 PauseButtonVoice()
                                             }
-                                            
                                         } else {
                                             StartButtonVoice()
-                                            
-                                            
                                         }
-                                    }
-                                }
+                            
                             }
                             .disabled(viewModel.isLoading)
                             
+                            Spacer()
+                            
                             if viewModel.isRecording {
                                 Button(action: {
-                                    if viewModel.isRecording {
-                                        Task {
-                                            await viewModel.processReflection(
-                                                reflection: viewModel.reflection,
-                                                selectedStudents: selectedStudents, // Add this
-                                                activities: activities, // Add this
-                                                onAddUnsavedActivities: { activities in
-                                                    activityViewModel.addUnsavedActivities(activities)
-                                                },
-                                                onAddUnsavedNotes: { notes in
-                                                    noteViewModel.addUnsavedNotes(notes)
-                                                },
-                                                selectedDate: summaryViewModel.selectedDate,
-                                                onDateSelected: { date in
-                                                    summaryViewModel.selectedDate = date
-                                                },
-                                                onDismiss: onDismiss
-                                            )
-                                        }
+                                    if studentViewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                        showEmptyReflectionAlert = true
+                                    } else {
+                                        viewModel.stopRecording(text: studentViewModel.reflection)
+                                        presentationMode.wrappedValue.dismiss()
                                     }
                                 }) {
                                     Text("Selesai")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
                                         .foregroundColor(.black)
-                                        .frame(width: 97, height: 34)
+                                        .padding(.vertical, 7)
+                                        .padding(.horizontal, 22.75)
                                         .background(Color.orangeClickAble)
                                         .cornerRadius(8)
                                 }
@@ -231,31 +200,27 @@ struct VoiceInputView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        
                     }
                 }
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal, 25)
-            .padding(.vertical, 40)
-            .padding(.top, 35)
-            .padding(.bottom, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .safeAreaPadding(16)
         .background(.white)
         .hideTabBar()
         .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)
-        .edgesIgnoringSafeArea(.all)
+        .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Mohon isi curhatan sebelum melanjutkan.")
+        }
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Batalkan Dokumentasi?"),
                 message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
                 primaryButton: .destructive(Text("Ya")) {
-                    studentViewModel.activities.removeAll()
-                    studentViewModel.selectedStudents.removeAll()
+                    studentViewModel.reflection.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 },
                 secondaryButton: .cancel(Text("Tidak"))
@@ -269,13 +234,13 @@ struct VoiceInputView: View {
                 if let lastWord = newTranscript.components(separatedBy: " ").last {
                     viewModel.editedText += " " + lastWord
                 }
-                viewModel.reflection = viewModel.editedText
+                studentViewModel.reflection = viewModel.editedText
             }
         }
         .onAppear {
             viewModel.requestSpeechAuthorization()
         }
-        .onChange(of: viewModel.editedText) {             viewModel.reflection = viewModel.editedText
+        .onChange(of: viewModel.editedText) {             studentViewModel.reflection = viewModel.editedText
             viewModel.speechRecognizer.previousTranscript = viewModel.editedText
         }
         .onChange(of: isTextEditorFocused) {
@@ -285,16 +250,16 @@ struct VoiceInputView: View {
         }
         .onChange(of: viewModel.isRecording) {
             if viewModel.isRecording {
-                currentProgress = 2  // Ketika mulai merekam
+                currentProgress = 2
             } else {
-                currentProgress = 1  // Ketika tidak merekam
+                currentProgress = 1
             }
         }
         .onChange(of: viewModel.isPaused) {
             if viewModel.isPaused {
-                currentProgress = 3  // Ketika di pause
+                currentProgress = 3
             } else if viewModel.isRecording {
-                currentProgress = 2  // Kembali ke merekam
+                currentProgress = 2
             }
         }
     }

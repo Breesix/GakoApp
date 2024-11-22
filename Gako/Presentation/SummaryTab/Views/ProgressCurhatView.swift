@@ -15,11 +15,12 @@ struct ProgressCurhatView: View {
     @State private var isToggleOn = false
     @State private var isShowingDatePicker = false
     @State private var showAlert: Bool = false
+    @State private var showAlertActivity: Bool = false
     @State private var isShowingInputTypeSheet = false
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
     @State private var navigateToPreview = false
-
+    @State private var showProTips: Bool = true
     @State private var showManageActivity: Bool = false
     @State private var activityText: String = ""
     @State private var currentProgress: Int = 1
@@ -28,50 +29,122 @@ struct ProgressCurhatView: View {
     @State private var showEmptyActivitiesAlert: Bool = false
     @State private var showDeleteAlert = false
     @State private var activityToDelete: Int?
-
+    @FocusState private var isTextEditorFocused: Bool
     @Binding var selectedDate: Date
-    
+    @State private var randomPlaceholder: String = ""
+    @State private var showEmptyReflectionAlert: Bool = false
+
     var onNavigateVoiceInput: () -> Void
     var onNavigateTextInput: () -> Void
+    var onAddUnsavedActivities: ([UnsavedActivity]) -> Void
+    var onAddUnsavedNotes: ([UnsavedNote]) -> Void
+    var onDateSelected: (Date) -> Void
+    var onDismiss: () -> Void
 
     @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var studentViewModel: StudentViewModel
     @EnvironmentObject var noteViewModel: NoteViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var summaryViewModel: SummaryViewModel
+    @EnvironmentObject var inputViewModel: InputViewModel
+    @StateObject private var viewModel = TextInputViewModel()
+
+    private let activityExamples = [
+        "Motorik Halus",
+        "Makan",
+        "Melipat",
+        "Menggunting",
+        "Mewarnai",
+        "Berdoa",
+        "Menyapu",
+        "Mencuci Piring"
+    ]
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 12) {
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        isTextEditorFocused = false
+                    }
+
+                VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     ProgressTracker(firstColor: firstColor, secondColor: secondColor, thirdColor: thirdColor)
                     Spacer()
                     DatePickerButton(isShowingDatePicker: $isShowingDatePicker, selectedDate: $selectedDate)
                 }
                 TitleProgressCard(title: currentTitle, subtitle: currentSubtitle)
-
+                
                 if currentProgress == 3 {
-                  VStack(alignment:.leading, spacing: 12) {
-                    GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
-                    GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
-                    GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
-                }
-                Spacer()
-                TipsCard()
-                    .padding(.vertical, 16)
-                Divider()
+                    if studentViewModel.reflection.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
+                            GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
+                            GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
+                        }
+                    } else {
+                        ZStack(alignment: .topLeading) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.white)
+                                .frame(maxWidth: .infinity, maxHeight: 170)
+                            
+                            if studentViewModel.reflection.isEmpty {
+                                Text("Ceritakan mengenai Murid Anda...")
+                                    .font(.callout)
+                                    .fontWeight(.regular)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 9)
+                                    .frame(maxWidth: .infinity, maxHeight: 230, alignment: .topLeading)
+                                    .foregroundColor(.labelDisabled)
+                                    .cornerRadius(8)
+                            }
+                            
+                            TextEditor(text: $studentViewModel.reflection)
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 8)
+                                .foregroundStyle(.labelPrimaryBlack)
+                                .frame(maxWidth: .infinity, maxHeight: 230)
+                                .cornerRadius(8)
+                                .focused($isTextEditorFocused)
+                                .scrollContentBackground(.hidden)
+                                .disabled(viewModel.isLoading)
+                                .opacity(viewModel.isLoading ? 0.5 : 1)
+                        }
+                        .onAppear { UITextView.appearance().backgroundColor = .clear }
+                        .onDisappear { UITextView.appearance().backgroundColor = nil }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.monochrome9002, lineWidth: 2)
+                        )                    }
+                    Spacer()
+                    if showProTips {
+                        HStack {
+                            Spacer()
+                            TipsCard()
+                            Spacer()
+                        }
+                        .padding(.vertical, 16)
+                    }
                 } else if currentProgress == 1 {
-     
                     AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
                     StudentGridView(students: studentViewModel.students,  onDeleteStudent: { student in
                         await studentViewModel.deleteStudent(student)
                     })
                 } else if currentProgress == 2 {
-                 
                     activityInputs()
                 }
+                Divider()
                 navigationButtons()
+                    .padding(.vertical, 8)
             }
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0.5 : 1)
+
+        }
             .sheet(isPresented: $isShowingInputTypeSheet) {
                 InputTypeView { selectedInput in
                     isShowingInputTypeSheet = false
@@ -83,11 +156,17 @@ struct ProgressCurhatView: View {
                     }
                 }
                 .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
             }
             .padding(.horizontal, 16)
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
+        }
+        .alert("Peringatan", isPresented: $showAlertActivity) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Aktivitas tidak boleh kosong")
         }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})
@@ -98,6 +177,7 @@ struct ProgressCurhatView: View {
             Button("Batalkan Dokumentasi", role: .destructive) {
                 studentViewModel.activities.removeAll()
                 studentViewModel.selectedStudents.removeAll()
+                studentViewModel.reflection.removeAll()
                 presentationMode.wrappedValue.dismiss()
             }
             Button("Lanjut Dokumentasi", role: .cancel) {}
@@ -119,8 +199,18 @@ struct ProgressCurhatView: View {
         } message: {
             Text("Apakah Anda yakin ingin menghapus aktivitas ini?")
         }
+        .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Mohon isi curhatan sebelum melanjutkan.")
+        }
         .task {
             await studentViewModel.fetchAllStudents()
+        }
+        .onChange(of: isTextEditorFocused) {
+            withAnimation {
+                showProTips = !isTextEditorFocused
+            }
         }
     }
 
@@ -128,7 +218,7 @@ struct ProgressCurhatView: View {
         switch currentProgress {
         case 1: return "Apakah semua Murid hadir?"
         case 2: return "Tambahkan aktivitas"
-        case 3: return "Ceritakan tentang Hari ini"
+        case 3: return (studentViewModel.reflection.isEmpty ? "Ceritakan tentang Hari ini" : "Konfirmasi Hasil Rekaman")
         default: return ""
         }
     }
@@ -137,7 +227,7 @@ struct ProgressCurhatView: View {
         switch currentProgress {
         case 1: return "Pilih murid Anda yang hadir untuk mengikuti aktivitas hari ini."
         case 2: return "Tambahkan rincian aktivitas murid anda hari ini."
-        case 3: return "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin."
+        case 3: return (studentViewModel.reflection.isEmpty ? "Rekam cerita Anda terkait kegiatan murid Anda pada hari ini sedetail mungkin." : "")
         default: return ""
         }
     }
@@ -163,6 +253,7 @@ struct ProgressCurhatView: View {
                 
                 AddItemButton(
                     onTapAction: {
+                        randomPlaceholder = getRandomPlaceholder()
                         showManageActivity = true
                     },
                     bgColor: .buttonOncard,
@@ -170,9 +261,9 @@ struct ProgressCurhatView: View {
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
+            .padding(.vertical, 1)
+            .padding(.horizontal, 1)
         }
-
             .sheet(isPresented: $showManageActivity) {
                 NavigationStack {
                     VStack(alignment: .leading, spacing: 8) {
@@ -184,7 +275,7 @@ struct ProgressCurhatView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             ZStack(alignment: .leading) {
                                 if activityText.isEmpty {
-                                    Text("Tuliskan aktivitas murid...")
+                                    Text(randomPlaceholder)
                                         .foregroundStyle(.labelTertiary)
                                         .font(.body)
                                         .fontWeight(.regular)
@@ -232,6 +323,7 @@ struct ProgressCurhatView: View {
                                         .fontWeight(.semibold)
                                     Text("Kembali")
                                 }
+                                .foregroundStyle(.accent)
                                 .font(.body)
                                 .fontWeight(.medium)
                             }
@@ -240,18 +332,24 @@ struct ProgressCurhatView: View {
                         
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                if !activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                     if let editing = editingActivity {
                                         studentViewModel.activities[editing.index] = activityText
+                                        activityText = ""
+                                        editingActivity = nil
+                                        showManageActivity = false
                                     } else {
-                                        studentViewModel.activities.append(activityText)
+                                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                            showAlertActivity = true
+                                        } else {
+                                            studentViewModel.activities.append(activityText)
+                                            activityText = ""
+                                            editingActivity = nil
+                                            showManageActivity = false
+                                        }
                                     }
-                                    activityText = ""
-                                    editingActivity = nil
-                                    showManageActivity = false
-                                }
                             }) {
                                 Text("Simpan")
+                                    .foregroundStyle(.accent)
                                     .font(.body)
                                     .fontWeight(.medium)
                             }
@@ -259,6 +357,7 @@ struct ProgressCurhatView: View {
                         }
                     }
                 }
+                .presentationDragIndicator(.visible)
             }
         }
 
@@ -288,15 +387,42 @@ struct ProgressCurhatView: View {
                     currentProgress += 1
                     updateProgressColors()
                 } else if currentProgress == 3 {
-                    isShowingInputTypeSheet = true
-                    print(studentViewModel.activities)
+                    if studentViewModel.reflection.isEmpty {
+                        isShowingInputTypeSheet = true
+                        print(studentViewModel.activities)
+                    } else if studentViewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        showEmptyReflectionAlert = true
+                    } else {
+                                            Task {
+                                                await viewModel.processReflection(
+                                                    reflection: studentViewModel.reflection,
+                                                    selectedStudents: studentViewModel.selectedStudents,
+                                                    activities: studentViewModel.activities,
+                                                    onAddUnsavedActivities: onAddUnsavedActivities,
+                                                    onAddUnsavedNotes: onAddUnsavedNotes,
+                                                    selectedDate: selectedDate,
+                                                    onDateSelected: onDateSelected,
+                                                    onDismiss: onDismiss
+                                                )
+                                            }
+
+                    }
                 }
             } label: {
-                Text(currentProgress == 3 ? "Mulai Cerita" : "Lanjut")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(.orangeClickAble)
-                    .cornerRadius(12)
+                if !viewModel.isLoading {
+                    Text(currentProgress == 3 ? (studentViewModel.reflection.isEmpty ? "Mulai Cerita" : "Lanjut") : "Lanjut")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(.orangeClickAble)
+                        .cornerRadius(12)
+                }
+                else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(.orangeClickAble)
+                        .cornerRadius(12)
+                }
             }
         }
         .font(.body)
@@ -322,6 +448,11 @@ struct ProgressCurhatView: View {
             break
         }
     }
+    
+    private func getRandomPlaceholder() -> String {
+        return activityExamples.randomElement() ?? "Motorik Halus"
+    }
+
 }
 
 struct ActivityCard: View {
@@ -333,17 +464,20 @@ struct ActivityCard: View {
         HStack {
             Text(activity)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 12.5)
+                .background(Color.cardFieldBG)
+                .cornerRadius(10)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.bgSecondary, lineWidth: 1)
+                }
+                .onTapGesture {
+                    onTap()
+                }
             
-            Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .foregroundColor(.red)
-            }
-        }
-        .padding()
-        .background(Color.cardFieldBG)
-        .cornerRadius(8)
-        .onTapGesture {
-            onTap()
+            DeleteButton(action: onDelete)
         }
     }
 }
+

@@ -10,6 +10,7 @@ struct BotPrompts {
     static let reflectionPrompt = """
         1. **Baca Curhatan dengan Seksama**:
         - Baca dan pahami data kehadiran murid, aktivitas yang dilakukan, dan curhatan guru.
+        - Tidak harus ada kaitan antara Aktivitas Hari Ini dengan curhatan.
 
         2. **Identifikasi Siswa**:
         - Ekstrak semua nama lengkap dan nama panggilan siswa yang disebutkan.
@@ -43,13 +44,13 @@ struct BotPrompts {
 
         - **Data Kehadiran Murid**: namaLengkap1 (namaPanggilan1) - Hadir, namaLengkap2 (namaPanggilan2) - Hadir
         - **Aktivitas Hari Ini**: Sholat, Olahraga
-        - **Curhatan Guru**: "Semua anak jalan pagi dengan sangat hebat kecuali namaLengkap1 yang masih nangis aja jir. Lalu mereka melakukan sholat dengan khusyuk."
+        - **Curhatan Guru**: "Semua anak jalan pagi dengan sangat hebat kecuali namaLengkap1 yang masih nangis aja jir. Lalu mereka melakukan sholat dengan khusyuk. Namun si namaLengkap1 jatuh dari lantai 2 sehingga harus ke rumah sakit "
 
         ### Contoh Output:
 
         ```csv
         Nama Lengkap,Nama Panggilan,Aktivitas (status kemandirian),Curhatan
-        namaLengkap1,namaPanggilan1,"Sholat (true)|Olahraga (false)”,”namaLengkap1 masih nangis pada saat berjalan pagi tetapi sudah khusyuk dalam melaksanakan sholat.”
+        namaLengkap1,namaPanggilan1,"Sholat (true)|Olahraga (false)”,”namaLengkap1 masih nangis pada saat berjalan pagi tetapi sudah khusyuk dalam melaksanakan sholat. Ia juga sempat jatuh dari lantai 2 sehingga harus ke rumah sakit”
         namaLengkap2,namaPanggilan2,"Sholat (true)|Olahraga (true)","namaLengkap2 menunjukkan kedisiplinan saat sholat dan berjalan pagi dengan hebat."
         ```
         """

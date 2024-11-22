@@ -19,6 +19,7 @@ class StudentViewModel: ObservableObject {
     @Published var selectedStudents: Set<Student> = []
     @Published var activities: [String] = []
     @Published var students: [Student] = []
+    @Published var reflection: String = ""
     private let studentUseCases: StudentUseCase
     @Published private(set) var compressedImageData: Data?
     @Published var newStudentImage: UIImage? {

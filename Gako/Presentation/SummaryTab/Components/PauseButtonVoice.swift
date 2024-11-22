@@ -15,8 +15,7 @@ struct PauseButtonVoice: View {
                                config: AnimationConfig(autoplay: true, loop: true))
             .view()
             .scaleEffect(1.4)
-            .frame(width: 100, height: 100)
-            
+            .frame(width: 84, height: 84)
         }
     }
 }

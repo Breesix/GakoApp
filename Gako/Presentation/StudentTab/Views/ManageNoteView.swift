@@ -136,6 +136,7 @@ struct ManageNoteView: View {
                                 .fontWeight(.semibold)
                             Text(backButtonText)
                         }
+                        .foregroundStyle(.accent)
                         .font(.body)
                         .fontWeight(.medium)
                     }
@@ -151,6 +152,7 @@ struct ManageNoteView: View {
                         }
                     }) {
                         Text(saveButtonText)
+                            .foregroundStyle(.accent)
                             .font(.body)
                             .fontWeight(.medium)
                     }

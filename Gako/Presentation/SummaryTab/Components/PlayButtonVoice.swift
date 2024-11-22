@@ -19,9 +19,7 @@ struct PlayButtonVoice: View {
                         .foregroundColor(Color.black)
                 }
                 .foregroundColor(Color.yellow600)
-                .frame(width: 84, alignment: .center)
-            
-            
+                .frame(width: 84, height: 84)
         }
     }
 }

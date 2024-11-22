@@ -66,18 +66,31 @@ struct SummaryTabView: View {
             }
             .background(.bgMain)
             .navigationDestination(isPresented: $navigateToProgressCurhatan) {
-
                 ProgressCurhatView(selectedDate: $summaryViewModel.selectedDate, onNavigateVoiceInput: {
                     isNavigatingToVoiceInput = true
                 }, onNavigateTextInput: {
                     isNavigatingToTextInput = true
+                },
+                onAddUnsavedActivities: { activities in
+                    activityViewModel.addUnsavedActivities(activities)
+                },
+                onAddUnsavedNotes: { notes in
+                    noteViewModel.addUnsavedNotes(notes)
+                },
+                onDateSelected: { date in
+                    summaryViewModel.selectedDate = date
+                },
+                onDismiss: {
+                    isNavigatingToTextInput = false
+                    navigateToPreview = true
                 }
                 )
             }
-            .navigationDestination(isPresented: $navigateToPreview) {
+            .fullScreenCover(isPresented: $navigateToPreview) {
                 PreviewView(
                     selectedDate: $summaryViewModel.selectedDate,
                     isShowingPreview: $navigateToPreview,
+                    navigateToProgressCurhatan: $navigateToProgressCurhatan,
                     isShowingActivity: .constant(false),
                     students: studentViewModel.students,
                     selectedStudents: studentViewModel.selectedStudents,
@@ -120,7 +133,7 @@ struct SummaryTabView: View {
                     }
                 )
             }
-            .navigationDestination(isPresented: $isNavigatingToVoiceInput) {
+            .fullScreenCover(isPresented: $isNavigatingToVoiceInput) {
                 VoiceInputView(
                     selectedDate: $summaryViewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
@@ -140,14 +153,13 @@ struct SummaryTabView: View {
                         await studentViewModel.fetchAllStudents()
                         return studentViewModel.students
                     },
-                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
-                    activities: studentViewModel.activities // Pass activities
+                    selectedStudents: studentViewModel.selectedStudents,
+                    activities: studentViewModel.activities
 
                 )
                 .interactiveDismissDisabled()
             }
-            
-            .navigationDestination(isPresented: $isNavigatingToTextInput) {
+            .fullScreenCover(isPresented: $isNavigatingToTextInput) {
                 TextInputView(
                     selectedDate: $summaryViewModel.selectedDate,
                     onAddUnsavedActivities: { activities in
@@ -159,8 +171,8 @@ struct SummaryTabView: View {
                     onDateSelected: { date in
                         summaryViewModel.selectedDate = date
                     },
-                    selectedStudents: studentViewModel.selectedStudents, // Pass selected students
-                    activities: studentViewModel.activities, // Pass activities
+                    selectedStudents: studentViewModel.selectedStudents,
+                    activities: studentViewModel.activities,
                     onDismiss: {
                         isNavigatingToTextInput = false
                         navigateToPreview = true
@@ -238,7 +250,7 @@ struct SummaryTabView: View {
         .navigationDestination(for: Student.self) { student in
             DailyReportView(
                 student: student, summaryViewModel: summaryViewModel,
-                initialDate: summaryViewModel.selectedDate,  // Tambahkan ini
+                initialDate: summaryViewModel.selectedDate,
                 onAddNote: { note, student in
                     Task {
                         await noteViewModel.addNote(note, for: student)
