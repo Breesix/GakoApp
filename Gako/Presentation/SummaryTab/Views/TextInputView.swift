@@ -145,6 +145,7 @@ struct TextInputView: View {
                     showEmptyReflectionAlert = true
                 } else {
                     presentationMode.wrappedValue.dismiss()
+
                 }
             } label: {
                 Text("Selesai")

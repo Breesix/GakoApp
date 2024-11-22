@@ -31,6 +31,7 @@ struct ProgressCurhatView: View {
     @FocusState private var isTextEditorFocused: Bool
     @Binding var selectedDate: Date
     @State private var randomPlaceholder: String = ""
+    @State private var showEmptyReflectionAlert: Bool = false
 
     var onNavigateVoiceInput: () -> Void
     var onNavigateTextInput: () -> Void
@@ -68,7 +69,7 @@ struct ProgressCurhatView: View {
                         isTextEditorFocused = false
                     }
 
-            VStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     ProgressTracker(firstColor: firstColor, secondColor: secondColor, thirdColor: thirdColor)
                     Spacer()
@@ -78,7 +79,7 @@ struct ProgressCurhatView: View {
                 
                 if currentProgress == 3 {
                     if studentViewModel.reflection.isEmpty {
-                        VStack(alignment:.leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 12) {
                             GuidingQuestionTag(text: "Apakah aktivitas dijalankan dengan baik?")
                             GuidingQuestionTag(text: "Apakah Murid mengalami kendala?")
                             GuidingQuestionTag(text: "Bagaimana Murid Anda menjalankan aktivitasnya?")
@@ -120,8 +121,12 @@ struct ProgressCurhatView: View {
                         )                    }
                     Spacer()
                     if showProTips {
-                        TipsCard()
-                            .padding(.vertical, 16)
+                        HStack {
+                            Spacer()
+                            TipsCard()
+                            Spacer()
+                        }
+                        .padding(.vertical, 16)
                     }
                 } else if currentProgress == 1 {
                     AttendanceToggle(isToggleOn: $isToggleOn, students: studentViewModel.students)
@@ -133,6 +138,7 @@ struct ProgressCurhatView: View {
                 }
                 Divider()
                 navigationButtons()
+                    .padding(.vertical, 8)
             }
             .disabled(viewModel.isLoading)
             .opacity(viewModel.isLoading ? 0.5 : 1)
@@ -185,6 +191,11 @@ struct ProgressCurhatView: View {
             }
         } message: {
             Text("Apakah Anda yakin ingin menghapus aktivitas ini?")
+        }
+        .alert("Curhatan Kosong", isPresented: $showEmptyReflectionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Mohon isi curhatan sebelum melanjutkan.")
         }
         .task {
             await studentViewModel.fetchAllStudents()
@@ -364,6 +375,8 @@ struct ProgressCurhatView: View {
                     if studentViewModel.reflection.isEmpty {
                         isShowingInputTypeSheet = true
                         print(studentViewModel.activities)
+                    } else if studentViewModel.reflection.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        showEmptyReflectionAlert = true
                     } else {
                                             Task {
                                                 await viewModel.processReflection(
