@@ -94,7 +94,7 @@ struct VoiceInputView: View {
                                                                 )
                     }
                     .onChange(of: viewModel.editedText) { 
-                        viewModel.reflection = viewModel.editedText
+                        studentViewModel.reflection = viewModel.editedText
                         viewModel.speechRecognizer.previousTranscript = viewModel.editedText
                     }
                     
@@ -143,7 +143,7 @@ struct VoiceInputView: View {
                         HStack(alignment: .center, spacing: 35) {
                             
                             Button(action: {
-                                viewModel.stopRecording(text: viewModel.reflection)
+                                viewModel.stopRecording(text: studentViewModel.reflection)
                                 showAlert = true
                             }) {
                                 Text("Batal")
@@ -198,24 +198,7 @@ struct VoiceInputView: View {
                             if viewModel.isRecording {
                                 Button(action: {
                                     if viewModel.isRecording {
-                                        Task {
-                                            await viewModel.processReflection(
-                                                reflection: viewModel.reflection,
-                                                selectedStudents: selectedStudents, // Add this
-                                                activities: activities, // Add this
-                                                onAddUnsavedActivities: { activities in
-                                                    activityViewModel.addUnsavedActivities(activities)
-                                                },
-                                                onAddUnsavedNotes: { notes in
-                                                    noteViewModel.addUnsavedNotes(notes)
-                                                },
-                                                selectedDate: summaryViewModel.selectedDate,
-                                                onDateSelected: { date in
-                                                    summaryViewModel.selectedDate = date
-                                                },
-                                                onDismiss: onDismiss
-                                            )
-                                        }
+                                        presentationMode.wrappedValue.dismiss()
                                     }
                                 }) {
                                     Text("Selesai")
@@ -254,8 +237,7 @@ struct VoiceInputView: View {
                 title: Text("Batalkan Dokumentasi?"),
                 message: Text("Semua teks yang anda masukkan akan dihapus secara permanen"),
                 primaryButton: .destructive(Text("Ya")) {
-                    studentViewModel.activities.removeAll()
-                    studentViewModel.selectedStudents.removeAll()
+                    studentViewModel.reflection.removeAll()
                     presentationMode.wrappedValue.dismiss()
                 },
                 secondaryButton: .cancel(Text("Tidak"))
@@ -269,13 +251,13 @@ struct VoiceInputView: View {
                 if let lastWord = newTranscript.components(separatedBy: " ").last {
                     viewModel.editedText += " " + lastWord
                 }
-                viewModel.reflection = viewModel.editedText
+                studentViewModel.reflection = viewModel.editedText
             }
         }
         .onAppear {
             viewModel.requestSpeechAuthorization()
         }
-        .onChange(of: viewModel.editedText) {             viewModel.reflection = viewModel.editedText
+        .onChange(of: viewModel.editedText) {             studentViewModel.reflection = viewModel.editedText
             viewModel.speechRecognizer.previousTranscript = viewModel.editedText
         }
         .onChange(of: isTextEditorFocused) {

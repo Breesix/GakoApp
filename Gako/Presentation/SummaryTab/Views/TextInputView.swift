@@ -145,18 +145,6 @@ struct TextInputView: View {
                     showEmptyReflectionAlert = true
                 } else {
                     presentationMode.wrappedValue.dismiss()
-                    Task {
-                        await viewModel.processReflection(
-                            reflection: viewModel.reflection,
-                            selectedStudents: selectedStudents,
-                            activities: activities,
-                            onAddUnsavedActivities: onAddUnsavedActivities,
-                            onAddUnsavedNotes: onAddUnsavedNotes,
-                            selectedDate: selectedDate,
-                            onDateSelected: onDateSelected,
-                            onDismiss: onDismiss
-                        )
-                    }
                 }
             } label: {
                 Text("Selesai")
