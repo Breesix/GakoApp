@@ -15,6 +15,7 @@ struct ProgressCurhatView: View {
     @State private var isToggleOn = false
     @State private var isShowingDatePicker = false
     @State private var showAlert: Bool = false
+    @State private var showAlertActivity: Bool = false
     @State private var isShowingInputTypeSheet = false
     @State private var isNavigatingToVoiceInput = false
     @State private var isNavigatingToTextInput = false
@@ -155,11 +156,17 @@ struct ProgressCurhatView: View {
                     }
                 }
                 .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
             }
             .padding(.horizontal, 16)
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .tabBar)
             .hideTabBar()
+        }
+        .alert("Peringatan", isPresented: $showAlertActivity) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Aktivitas tidak boleh kosong")
         }
         .alert("Pilih Murid", isPresented: $showEmptyStudentsAlert) {
             Button("OK", role: .cancel, action: {})
@@ -316,6 +323,7 @@ struct ProgressCurhatView: View {
                                         .fontWeight(.semibold)
                                     Text("Kembali")
                                 }
+                                .foregroundStyle(.accent)
                                 .font(.body)
                                 .fontWeight(.medium)
                             }
@@ -324,18 +332,24 @@ struct ProgressCurhatView: View {
                         
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                if !activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                     if let editing = editingActivity {
                                         studentViewModel.activities[editing.index] = activityText
+                                        activityText = ""
+                                        editingActivity = nil
+                                        showManageActivity = false
                                     } else {
-                                        studentViewModel.activities.append(activityText)
+                                        if activityText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                            showAlertActivity = true
+                                        } else {
+                                            studentViewModel.activities.append(activityText)
+                                            activityText = ""
+                                            editingActivity = nil
+                                            showManageActivity = false
+                                        }
                                     }
-                                    activityText = ""
-                                    editingActivity = nil
-                                    showManageActivity = false
-                                }
                             }) {
                                 Text("Simpan")
+                                    .foregroundStyle(.accent)
                                     .font(.body)
                                     .fontWeight(.medium)
                             }
@@ -343,6 +357,7 @@ struct ProgressCurhatView: View {
                         }
                     }
                 }
+                .presentationDragIndicator(.visible)
             }
         }
 

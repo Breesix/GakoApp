@@ -133,6 +133,7 @@ struct ManageActivityView: View {
                                 .fontWeight(.semibold)
                             Text(backButtonText)
                         }
+                        .foregroundStyle(.accent)
                         .font(.body)
                         .fontWeight(.medium)
                     }
@@ -148,6 +149,7 @@ struct ManageActivityView: View {
                         }
                     }) {
                         Text(saveButtonText)
+                            .foregroundStyle(.accent)
                             .font(.body)
                             .fontWeight(.medium)
                     }
