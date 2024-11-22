@@ -97,8 +97,8 @@ struct ProgressCurhatView: View {
                                 .cornerRadius(8)
                                 .focused($isTextEditorFocused)
                                 .scrollContentBackground(.hidden)
-                            //                                .disabled(viewModel.isLoading)
-                            //                                .opacity(viewModel.isLoading ? 0.5 : 1)
+                                .disabled(viewModel.isLoading)
+                                .opacity(viewModel.isLoading ? 0.5 : 1)
                         }
                         .onAppear { UITextView.appearance().backgroundColor = .clear }
                         .onDisappear { UITextView.appearance().backgroundColor = nil }
@@ -124,6 +124,9 @@ struct ProgressCurhatView: View {
                 }
                 navigationButtons()
             }
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0.5 : 1)
+
         }
             .sheet(isPresented: $isShowingInputTypeSheet) {
                 InputTypeView { selectedInput in
@@ -366,11 +369,20 @@ struct ProgressCurhatView: View {
                     }
                 }
             } label: {
-                Text(currentProgress == 3 ? (studentViewModel.reflection.isEmpty ? "Mulai Cerita" : "Lanjut") : "Lanjut")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(.orangeClickAble)
-                    .cornerRadius(12)
+                if !viewModel.isLoading {
+                    Text(currentProgress == 3 ? (studentViewModel.reflection.isEmpty ? "Mulai Cerita" : "Lanjut") : "Lanjut")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(.orangeClickAble)
+                        .cornerRadius(12)
+                }
+                else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(.orangeClickAble)
+                        .cornerRadius(12)
+                }
             }
         }
         .font(.body)
