@@ -16,19 +16,19 @@ struct APIConfig {
     
     // MARK: - API Tokens
     static var openAIToken: String {
-        #if DEBUG
+//        #if DEBUG
             return "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"
-        #else
-            return decryptToken(encryptedToken, using: encryptionKey)
-        #endif
+//        #else
+//            return decryptToken(encryptedToken, using: encryptionKey)
+//        #endif
     }
     
     static var mixPanelToken: String {
-        #if DEBUG
+//        #if DEBUG
             return "ba390a7e93c95c0a3b12106167786225"
-        #else
-            return decryptToken(encryptedToken, using: encryptionKey)
-        #endif
+//        #else
+//            return decryptToken(encryptedToken, using: encryptionKey)
+//        #endif
     }
     
     // MARK: - API Endpoints
