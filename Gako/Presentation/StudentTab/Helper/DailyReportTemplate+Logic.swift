@@ -21,10 +21,25 @@ extension DailyReportTemplate {
     }
     
     func calculateRequiredPages() -> Int {
-        let activitiesPages = ceil(Double(max(0, activities.count - 5)) / 10.0)
-        let notesPages = ceil(Double(notes.count) / 5.0)
-        return 1 + Int(max(activitiesPages, notesPages))
+        let firstPageActivityLimit = 5
+        let firstPageNoteLimit = 5
+        
+        if activities.count <= firstPageActivityLimit && notes.count <= firstPageNoteLimit {
+            return 1
+        }
+        
+        let additionalPageActivityLimit = 10
+        let additionalPageNoteLimit = 5
+        
+        let remainingActivities = max(0, activities.count - firstPageActivityLimit)
+        let additionalActivitiesPages = ceil(Double(remainingActivities) / Double(additionalPageActivityLimit))
+        
+        let remainingNotes = max(0, notes.count - firstPageNoteLimit)
+        let additionalNotesPages = ceil(Double(remainingNotes) / Double(additionalPageNoteLimit))
+        
+        return 1 + Int(max(additionalActivitiesPages, additionalNotesPages))
     }
+
     
     func getPageActivities(pageIndex: Int) -> [Activity] {
         if pageIndex == 0 {
