@@ -21,12 +21,31 @@ extension DailyReportTemplate {
             if pageIndex == 0 {
                 studentInfo
                 summarySection
-                if !activities.isEmpty {
-                    activitySection(Array(activities.prefix(6)))
+                
+                let summary = student.summaries.first(where: { Calendar.current.isDate($0.createdAt, inSameDayAs: date) })
+                let summaryText = summary?.summary ?? noSummaryText
+                let summaryTextHeight = summaryText.height(withConstrainedWidth: a4Width - 40)
+                
+                let headerHeight: CGFloat = 80
+                let summaryTitleHeight: CGFloat = 30
+                let summaryPadding: CGFloat = 40
+                let totalSummaryHeight = summaryTitleHeight + summaryTextHeight + summaryPadding
+                
+                let availableHeight = a4Height - headerHeight - studentInfoHeight - totalSummaryHeight - 100
+                let activityRowHeight: CGFloat = 60
+                let maxActivitiesForFirstPage = max(0, Int(availableHeight / activityRowHeight))
+                
+                if !activities.isEmpty && maxActivitiesForFirstPage > 0 {
+                    activitySection(Array(activities.prefix(maxActivitiesForFirstPage)))
                 }
             } else {
-                let startIndex = 5 + (pageIndex - 1) * 10
-                let pageActivities = Array(activities.dropFirst(startIndex).prefix(10))
+                let availableHeight = a4Height - 160
+                let activityRowHeight: CGFloat = 60
+                let maxActivitiesPerPage = Int(availableHeight / activityRowHeight)
+                
+                let startIndex = getFirstPageActivityCount() + (pageIndex - 1) * maxActivitiesPerPage
+                let pageActivities = Array(activities.dropFirst(startIndex).prefix(maxActivitiesPerPage))
+                
                 if !pageActivities.isEmpty {
                     activitySection(pageActivities)
                 }
@@ -182,6 +201,22 @@ extension DailyReportTemplate {
         .padding()
     }
     
+    private func getFirstPageActivityCount() -> Int {
+        let summary = student.summaries.first(where: { Calendar.current.isDate($0.createdAt, inSameDayAs: date) })
+        let summaryText = summary?.summary ?? noSummaryText
+        let summaryTextHeight = summaryText.height(withConstrainedWidth: a4Width - 40)
+        
+        let headerHeight: CGFloat = 80
+        let summaryTitleHeight: CGFloat = 30
+        let summaryPadding: CGFloat = 40
+        let totalSummaryHeight = summaryTitleHeight + summaryTextHeight + summaryPadding
+        
+        let availableHeight = a4Height - headerHeight - studentInfoHeight - totalSummaryHeight - 100
+        let activityRowHeight: CGFloat = 60
+        
+        return max(0, Int(availableHeight / activityRowHeight))
+    }
+    
     func reportFooter(pageNumber: Int) -> some View {
         HStack {
             Text(sharedText)
@@ -193,5 +228,19 @@ extension DailyReportTemplate {
                 .foregroundColor(footerTextColor)
         }
         .padding()
+    }
+}
+
+extension String {
+    func height(withConstrainedWidth width: CGFloat) -> CGFloat {
+        let font = UIFont.preferredFont(forTextStyle: .body)
+        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let boundingBox = self.boundingRect(
+            with: constraintRect,
+            options: .usesLineFragmentOrigin,
+            attributes: [NSAttributedString.Key.font: font],
+            context: nil
+        )
+        return ceil(boundingBox.height)
     }
 }

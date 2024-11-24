@@ -111,15 +111,8 @@ struct SnapshotPreview: View {
                 
                 HStack(spacing: buttonSpacing) {
                     ShareButton(
-                        title: whatsAppTitle,
-                        icon: whatsAppIcon,
-                        color: whatsAppButtonColor
-                    ) {
-                        shareToWhatsApp(images)
-                    }
-                    ShareButton(
-                        title: shareTitle,
-                        icon: shareIcon,
+                        title: saveTitle,
+                        icon: saveIcon,
                         color: saveButtonColor
                     ) {
                         Task {
@@ -147,8 +140,8 @@ struct SnapshotPreview: View {
                     }
 
                     ShareButton(
-                        title: saveTitle,
-                        icon: saveIcon,
+                        title: shareTitle,
+                        icon: shareIcon,
                         color: shareButtonColor
                     ) {
                         showShareSheet(images)

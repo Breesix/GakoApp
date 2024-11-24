@@ -235,27 +235,22 @@ class StudentDetailViewModel: ObservableObject {
             date: date
         )
         
-        let totalPages = calculateRequiredPages()
+        let totalPages = reportView.calculateRequiredPages()
         var snapshots: [UIImage] = []
         
         for pageIndex in 0..<totalPages {
             let pageView = reportView.reportPage(pageIndex: pageIndex)
                 .frame(width: reportView.a4Width, height: reportView.a4Height)
-                .background(.white)
+                .background(Color.white)
             
-            if let snapshot = SnapshotHelper.shared.generateSnapshot(
-                from: pageView,
-                size: CGSize(width: reportView.a4Width, height: reportView.a4Height)
-            ) {
-                snapshots.append(snapshot)
+            if let pageSnapshot = pageView.snapshot() {
+                snapshots.append(pageSnapshot)
             }
         }
         
-        if !snapshots.isEmpty {
-            allPageSnapshots = snapshots
-            currentPageIndex = 0
-            showSnapshotPreview = true
-        }
+        allPageSnapshots = snapshots
+        currentPageIndex = 0
+        showSnapshotPreview = true
     }
     
     func shareToWhatsApp(images: [UIImage]) {

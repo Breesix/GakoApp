@@ -356,6 +356,10 @@ struct ProgressCurhatView: View {
                             .padding(.top, 27)
                         }
                     }
+                    .onDisappear {
+                        editingActivity = nil
+                        activityText = ""
+                    }
                 }
                 .presentationDragIndicator(.visible)
             }
