@@ -33,28 +33,6 @@ struct StudentDailyReportCard: View {
         return formatter.string(from: date)
     }
     
-    func shareReport() {
-        let reportView = DailyReportTemplate(
-            student: student,
-            activities: activities,
-            notes: notes,
-            date: date
-        )
-        
-        let image = reportView.snapshot()
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [image as Any],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            rootVC.present(activityVC, animated: true)
-        }
-    }
-    
     var body: some View {
          VStack(alignment: .leading, spacing: 12) {
                  ActivitySection(
@@ -67,18 +45,6 @@ struct StudentDailyReportCard: View {
                  )
                  .disabled(true)
                  .padding(.horizontal, 16)
-             
-//             Button(action: onAddActivity) {
-//                 Label("Tambah", systemImage: "plus.app.fill")
-//             }
-//             .padding(.vertical, 7)
-//             .padding(.horizontal, 14)
-//             .font(.footnote)
-//             .fontWeight(.regular)
-//             .foregroundStyle(.buttonPrimaryLabel)
-//             .background(.buttonOncard)
-//             .cornerRadius(8)
-//             .padding(.horizontal, 16)
              
              Divider()
                  .frame(height: 1)
