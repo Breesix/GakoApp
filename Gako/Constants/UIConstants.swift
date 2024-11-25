@@ -147,11 +147,11 @@ enum UIConstants {
         static let inactiveDotColor: Color = .gray.opacity(0.3)
         static let saveSuccessMessage: String = "Semua halaman berhasil disimpan"
         static let saveErrorMessage: String = "Gagal menyimpan gambar"
-        static let shareTitle: String = "Share All"
+        static let shareTitle: String = "Bagikan"
         static let shareIcon: String = "square.and.arrow.up"
         static let whatsAppTitle: String = "WhatsApp"
         static let whatsAppIcon: String = "square.and.arrow.up"
-        static let saveTitle: String = "Save All"
+        static let saveTitle: String = "Simpan"
         static let saveIcon: String = "square.and.arrow.down"
         static let xmarkSymbol: String = "xmark"
         static let durationToast: CGFloat = 2
