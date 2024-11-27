@@ -17,7 +17,7 @@ struct APIConfig {
     // MARK: - API Tokens
     static var openAIToken: String {
 //        #if DEBUG
-            return "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"
+            return "api-key"
 //        #else
 //            return decryptToken(encryptedToken, using: encryptionKey)
 //        #endif
