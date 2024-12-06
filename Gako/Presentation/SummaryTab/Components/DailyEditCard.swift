@@ -1,9 +1,11 @@
 //
 //  DailyEditCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 11/11/24.
 //
+//  Description: A card view for editing activities and notes for a specific date.
+//  Usage: Use this view to edit activities and notes for a specific date in the daily report section.
 
 import SwiftUI
 

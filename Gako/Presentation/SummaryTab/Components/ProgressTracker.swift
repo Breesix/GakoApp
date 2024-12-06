@@ -1,9 +1,11 @@
 //
 //  ProgressTracker.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A view that displays the progress tracker in the curhat view.
+//  Usage: Use this view to display the progress tracker in the curhat view.    
 
 import SwiftUI
 

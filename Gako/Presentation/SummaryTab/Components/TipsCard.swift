@@ -1,9 +1,11 @@
 //
 //  TipsCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 24/10/24.
 //
+//  Description: A card view that displays tips for the daily report section.
+//  Usage: Use this view to display tips in the daily report section.   
 
 import SwiftUI
 

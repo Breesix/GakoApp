@@ -1,8 +1,12 @@
+//
 //  NoteSectionPreview.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
+//  Description: A preview section for displaying student notes.
+//  Usage: Use this view to show a list of notes for a specific student.
+
 import SwiftUI
 
 struct NoteSectionPreview: View {
@@ -18,52 +22,51 @@ struct NoteSectionPreview: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-        Text("CATATAN")
-            .foregroundStyle(.labelPrimaryBlack)
-            .font(.callout)
-            .fontWeight(.semibold)
-            .padding(.bottom, 16)
-        
-        let studentNotes = notes.filter { $0.studentId == student.id }
-        
-        if !studentNotes.isEmpty {
-            ForEach(studentNotes) { note in
-                NoteRowPreview(note: note, onEdit: { note in
-                    editingNote = note
-                }, onDelete: { note in
-                    onDeleteNote(note)
-                })
-                .padding(.bottom, 12)
+            Text("CATATAN")
+                .foregroundStyle(.labelPrimaryBlack)
+                .font(.callout)
+                .fontWeight(.semibold)
+                .padding(.bottom, 16)
+            
+            let studentNotes = notes.filter { $0.studentId == student.id }
+            
+            if !studentNotes.isEmpty {
+                ForEach(studentNotes) { note in
+                    NoteRowPreview(note: note, onEdit: { note in
+                        editingNote = note
+                    }, onDelete: { note in
+                        onDeleteNote(note)
+                    })
+                    .padding(.bottom, 12)
+                }
+                
+                .sheet(item: $editingNote) { note in
+                    ManageUnsavedNoteView(
+                        mode: .edit(note),
+                        onSave: { updatedNote in
+                            onUpdateNote(updatedNote)
+                            editingNote = nil
+                        }
+                    )
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(.white)
+                }
+            } else {
+                Text("Tidak ada catatan untuk tanggal ini")
+                    .foregroundColor(.labelSecondaryBlack)
+                    .padding(.bottom, 12)
             }
             
-            .sheet(item: $editingNote) { note in
-                ManageUnsavedNoteView(
-                    mode: .edit(note),
-                    onSave: { updatedNote in
-                        onUpdateNote(updatedNote)
-                        editingNote = nil
-                    }
-                )
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(.white)
-            }
-        } else {
-            Text("Tidak ada catatan untuk tanggal ini")
-                .foregroundColor(.labelSecondaryBlack)
-                .padding(.bottom, 12)
+            AddItemButton(
+                onTapAction: {
+                    selectedStudent = student
+                    isAddingNewNote = true
+                },
+                bgColor: .buttonOncard, text: "Tambah"
+            )
         }
-        
-        AddItemButton(
-            onTapAction: {
-                selectedStudent = student
-                isAddingNewNote = true
-            },
-            bgColor: .buttonOncard, text: "Tambah"
-        )
     }
-}
-
 }
 
 #Preview {

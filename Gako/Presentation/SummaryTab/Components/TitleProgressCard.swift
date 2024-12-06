@@ -1,9 +1,11 @@
 //
 //  TitleProgressCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A card view that displays a title and subtitle in the progressCurhat view.
+//  Usage: Use this view to display a title and subtitle in the progressCurhat view.    
 
 import SwiftUI
 

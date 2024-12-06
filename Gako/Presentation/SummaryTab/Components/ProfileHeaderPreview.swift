@@ -1,10 +1,11 @@
 //
-//  ProfileHeaderPreview 2.swift
-//  Breesix
+//  ProfileHeaderPreview.swift
+//  Gako
 //
 //  Created by Kevin Fairuz on 22/10/24.
 //
-
+//  Description: A preview view for the profile header in the summary tab.
+//  Usage: Use this view to preview the profile header in the summary tab.
 
 import SwiftUI
 

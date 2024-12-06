@@ -4,6 +4,8 @@
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A toggle for selecting all students as present.
+//  Usage: Use this view to select all students as present in the attendance section.
 
 import SwiftUI
 

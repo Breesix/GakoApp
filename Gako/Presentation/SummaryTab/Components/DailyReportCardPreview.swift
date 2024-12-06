@@ -1,9 +1,12 @@
 //
 //  DailyReportCardPreview.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
+//  Description: A preview view for the daily report card, displaying student activities and notes.
+//  Usage: Use this view to show a preview of the daily report card for a student.
+
 import SwiftUI
 
 struct DailyReportCardPreview: View {
@@ -23,7 +26,7 @@ struct DailyReportCardPreview: View {
     let notes: [UnsavedNote]
     let allActivities: [UnsavedActivity]
     let allStudents: [Student]
-
+    
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -46,7 +49,7 @@ struct DailyReportCardPreview: View {
                         allActivities: allActivities,
                         allStudents: allStudents
                     )
-
+                    
                     Divider()
                         .padding(.vertical, 16)
                         .frame(height: 1)
@@ -71,26 +74,3 @@ struct DailyReportCardPreview: View {
         }
     }
 }
-//
-//#Preview {
-//    DailyReportCardPreview(
-//        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-//        selectedDate: Date(),
-//        selectedStudent: .constant(nil),
-//        isAddingNewActivity: .constant(false),
-//        isAddingNewNote: .constant(false),
-//        hasDefaultActivities: true,
-//        onUpdateActivity: { _ in },
-//        onDeleteActivity: { _ in },
-//        onUpdateNote: { _ in },
-//        onDeleteNote: { _ in },
-//        activities: [
-//            .init(activity: "Menjahit", createdAt: .now, studentId: UUID())
-//        ],
-//        notes: [
-//            .init(note: "Anak ini baiikkkkk sekali", createdAt: .now, studentId: UUID())
-//        ]
-//    )
-//    .padding(20)
-//    .background(.gray)
-//}

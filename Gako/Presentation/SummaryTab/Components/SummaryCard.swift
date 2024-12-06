@@ -1,9 +1,11 @@
 //
 //  SummaryCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 24/10/24.
 //
+//  Description: A card view that displays a summary of a student's activities for a specific date.
+//  Usage: Use this view to present a summary card for a student in a list.
 
 import SwiftUI
 
@@ -16,10 +18,10 @@ struct SummaryCard: View {
             Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
         }
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack (spacing: 10) {
+            HStack(spacing: 10) {
                 if let imageData = student.imageData {
                     Image(uiImage: UIImage(data: imageData)!)
                         .resizable()

@@ -4,6 +4,8 @@
 //
 //  Created by Kevin Fairuz on 20/11/24.
 //
+//  Description: A button view for pausing the voice recording in the input view.
+//  Usage: Use this view to pause the voice recording in the input view.
 
 import SwiftUI
 import DotLottie

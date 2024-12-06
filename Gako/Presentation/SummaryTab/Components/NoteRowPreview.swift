@@ -1,9 +1,12 @@
 //
 //  NoteRow.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 28/10/24.
 //
+//  Description: A preview view for a note row in the daily report section.
+//  Usage: Use this view to preview a note row in the daily report section.
+
 import SwiftUI
 
 struct NoteRowPreview: View {

@@ -1,9 +1,12 @@
 //
 //  ActivityTextField.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 13/11/24.
 //
+//  Description: A text field for editing an activity.
+//  Usage: Use this view to add a new activity or edit an existing activity.    
+
 import SwiftUI
 
 struct ActivityTextField: View {
@@ -44,14 +47,3 @@ struct ActivityTextField: View {
         }
     }
 }
-
-//private struct ActivityViewModelKey: EnvironmentKey {
-//    static let defaultValue: ActivityViewModel = ActivityViewModel(studentViewModel: StudentViewModel( studentUseCases: StudentUseCase), activityUseCases: ActivityUseCaseImpl(repository: any ActivityRepository))
-//}
-//
-//extension EnvironmentValues {
-//    var activityViewModel: ActivityViewModel {
-//        get { self[ActivityViewModelKey.self] }
-//        set { self[ActivityViewModelKey.self] = newValue }
-//    }
-//}

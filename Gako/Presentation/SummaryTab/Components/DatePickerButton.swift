@@ -1,9 +1,11 @@
 //
 //  DatePicker.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A button to show a date and trigger a date picker sheet. 
+//  Usage: Use this view to select a date in the summary tab.   
 
 import SwiftUI
 

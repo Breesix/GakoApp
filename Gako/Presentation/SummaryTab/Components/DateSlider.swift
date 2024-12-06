@@ -1,9 +1,11 @@
 //
 //  DateSlider.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 23/10/24.
 //
+//  Description: A slider for selecting a date in the summary tab.
+//  Usage: Use this view to select a date in the summary tab.   
 
 import SwiftUI
 

@@ -1,9 +1,12 @@
 //
 //  GuidingQuestionTag.swift
-//  Breesix
+//  Gako
 //
 //  Created by Akmal Hakim on 13/11/24.
 //
+//  Description: A tag view for displaying guiding questions in the progressCurhat and Input view.
+//  Usage: Use this view to display guiding questions in the progressCurhat and Input view. 
+
 
 import SwiftUI
 

@@ -1,9 +1,11 @@
 //
 //  CheckStudentCard.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A card view for selecting a student in the attendance section.
+//  Usage: Use this view to select a student in the attendance section.
 
 import SwiftUI
 

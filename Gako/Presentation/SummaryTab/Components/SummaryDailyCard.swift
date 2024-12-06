@@ -1,9 +1,11 @@
 //
-//  SummryDailyCard.swift
+//  SummaryDailyCard.swift
 //  Gako
 //
-//  Created by Kevin Fairuz on 20/11/24.
+//  Created by Rangga Biner on 24/10/24.
 //
+//  Description: A view that displays the daily summary for a student.
+//  Usage: Use this view to show a summary of a student's activities for a specific day.
 
 import SwiftUI
 
@@ -16,8 +18,9 @@ struct SummaryDailyCard: View {
             Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate)
         }
     }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 12){
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Ringkasan")
                     .font(.body)
@@ -26,9 +29,8 @@ struct SummaryDailyCard: View {
                 HStack {
                     Image(systemName: "sparkles")
                     Text("Dihasilkan oleh AI")
-                    
                 }
-                .padding(.horizontal,4)
+                .padding(.horizontal, 4)
                 .fontWeight(.semibold)
                 .font(.footnote)
                 .frame(width: 162, height: 26)
@@ -49,12 +51,11 @@ struct SummaryDailyCard: View {
                     Text(summary.summary)
                         .font(.subheadline)
                         .fontWeight(.regular)
-                        .padding([.top, .bottom],8)
+                        .padding([.top, .bottom], 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                 }
             }
-            
         }
         .padding(.horizontal, 16)
         .padding(.top, 19)

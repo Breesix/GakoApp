@@ -1,9 +1,12 @@
 //
 //  ActivitySectionPreview.swift
-//  Breesix
+//  Gako
 //
 //  Created by Kevin Fairuz on 26/10/24.
 //
+//  Description: A preview section for displaying student activities.
+//  Usage: Use this view to show a list of activities for a specific student.
+
 import SwiftUI
 import Mixpanel
 
@@ -21,7 +24,6 @@ struct ActivitySectionPreview: View {
     let analytics: InputAnalyticsTracking = InputAnalyticsTracker.shared
     let allActivities: [UnsavedActivity]
     let allStudents: [Student]
-
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -30,7 +32,7 @@ struct ActivitySectionPreview: View {
                 .font(.callout)
                 .fontWeight(.semibold)
                 .padding(.bottom, 16)
-
+            
             let studentActivities = activities.filter { $0.studentId == student.id }
             
             if !studentActivities.isEmpty {
@@ -82,53 +84,5 @@ struct ActivitySectionPreview: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.white)
         }
-
     }
-    
-    private func binding(for activity: UnsavedActivity) -> Binding<UnsavedActivity> {
-            Binding<UnsavedActivity>(
-                get: { activity },
-                set: { newValue in
-                    if newValue.status != activity.status {
-                        // Track status change
-                        let properties: [String: MixpanelType] = [
-                            "student_id": student.id.uuidString,
-                            "activity_id": activity.id.uuidString,
-                            "old_status": activity.status.rawValue,
-                            "new_status": newValue.status.rawValue,
-                            "screen": "preview",
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        analytics.trackEvent("Activity Status Changed", properties: properties)
-                    }
-                    onActivityUpdate(newValue)
-                }
-            )
-        }
-    
 }
-
-
-//#Preview {
-//    ActivitySectionPreview(
-//        student: .init(fullname: "Rangga Biner", nickname: "Rangga"),
-//        selectedStudent: .constant(nil),
-//        isAddingNewActivity: .constant(false),
-//        activities: [
-//            UnsavedActivity(
-//                activity: "Reading a book",
-//                createdAt: Date(),
-//                status: .mandiri,
-//                studentId: Student.ID()
-//            ),
-//            UnsavedActivity(
-//                activity: "Playing with blocks",
-//                createdAt: Date(),
-//                status: .mandiri,
-//                studentId: Student.ID()
-//            )
-//        ],
-//        onActivityUpdate: { _ in },
-//        onDeleteActivity: { _ in }
-//    )
-//}

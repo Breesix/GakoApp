@@ -1,9 +1,11 @@
 //
 //  StudentGridView.swift
-//  Breesix
+//  Gako
 //
 //  Created by Rangga Biner on 13/11/24.
 //
+//  Description: A view that displays a grid of students in the progressCurhat view.
+//  Usage: Use this view to display a grid of students in the progressCurhat view.      
 
 import SwiftUI
 
